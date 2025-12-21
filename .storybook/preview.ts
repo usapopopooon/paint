@@ -3,13 +3,12 @@ import '../src/index.css'
 
 const preview: Preview = {
   parameters: {
-    controls: {
-      matchers: {
-       color: /(background|color)$/i,
-       date: /Date$/i,
+    options: {
+      storySort: {
+        order: ['UI'],
       },
     },
   },
-};
+}
 
-export default preview;
+export default preview
