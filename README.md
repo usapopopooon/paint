@@ -14,6 +14,15 @@ A simple drawing app built with React and Canvas API.
 - Dark/Light mode
 - i18n (English/Japanese)
 
+## Tech Stack
+
+- **Framework**: React 19, TypeScript
+- **Build**: Vite
+- **Styling**: Tailwind CSS v4
+- **UI Components**: Radix UI, shadcn/ui
+- **Testing**: Vitest, Playwright, Storybook
+- **CI/CD**: GitHub Actions, GitHub Pages
+
 ## Architecture
 
 ### Design Principles
