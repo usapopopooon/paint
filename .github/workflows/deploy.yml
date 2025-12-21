@@ -64,6 +64,14 @@ jobs:
           mkdir -p deploy/storybook
           cp -r storybook-static/* deploy/storybook/
 
+      - name: Take screenshot
+        run: |
+          npm run preview &
+          sleep 3
+          npx tsx scripts/screenshot.ts
+        env:
+          HOME: /root
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
