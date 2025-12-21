@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Slider } from './components/ui/slider'
 import { Canvas, useCanvas } from './features/canvas'
@@ -11,6 +12,26 @@ const MAX_WIDTH = 20
 function App() {
   const canvas = useCanvas()
   const { isDark, toggleTheme } = useTheme()
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault()
+        if (e.shiftKey) {
+          canvas.redo()
+        } else {
+          canvas.undo()
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+        e.preventDefault()
+        canvas.redo()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [canvas])
 
   const handleSliderChange = (values: number[]) => {
     const value = values[0]
