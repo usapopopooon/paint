@@ -14,7 +14,9 @@ function App() {
       <h1 className="text-4xl font-bold text-foreground">Paint</h1>
       <Toolbar
         strokeWidth={canvas.strokeWidth}
+        strokeColor={canvas.strokeColor}
         onStrokeWidthChange={canvas.setStrokeWidth}
+        onStrokeColorChange={canvas.setStrokeColor}
         canUndo={canvas.canUndo}
         canRedo={canvas.canRedo}
         onUndo={canvas.undo}

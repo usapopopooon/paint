@@ -1,9 +1,12 @@
+import { ColorPicker } from '@/components/ColorPicker'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 
 type ToolbarProps = {
   readonly strokeWidth: number
+  readonly strokeColor: string
   readonly onStrokeWidthChange: (width: number) => void
+  readonly onStrokeColorChange: (color: string) => void
   readonly canUndo: boolean
   readonly canRedo: boolean
   readonly onUndo: () => void
@@ -16,7 +19,9 @@ const MAX_WIDTH = 20
 
 export const Toolbar = ({
   strokeWidth,
+  strokeColor,
   onStrokeWidthChange,
+  onStrokeColorChange,
   canUndo,
   canRedo,
   onUndo,
@@ -32,6 +37,13 @@ export const Toolbar = ({
 
   return (
     <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Color:</span>
+        <ColorPicker color={strokeColor} onChange={onStrokeColorChange} />
+      </div>
+
+      <div className="h-6 w-px bg-border" />
+
       <div className="flex items-center gap-3">
         <span className="text-sm text-muted-foreground">Width:</span>
         <Slider
