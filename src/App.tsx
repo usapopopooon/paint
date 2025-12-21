@@ -1,15 +1,26 @@
-import { useState } from 'react'
-import { Button } from './components/ui/button'
+import { Canvas, Toolbar, useCanvas } from './features/canvas'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const canvas = useCanvas()
 
   return (
-    <div className="dark min-h-screen bg-background flex flex-col items-center justify-center gap-8">
+    <div className="dark min-h-screen bg-background flex flex-col items-center justify-center gap-6 p-8">
       <h1 className="text-4xl font-bold text-foreground">Paint</h1>
-      <Button onClick={() => setCount((count) => count + 1)}>
-        count is {count}
-      </Button>
+      <Toolbar
+        strokeWidth={canvas.strokeWidth}
+        onStrokeWidthChange={canvas.setStrokeWidth}
+        canUndo={canvas.canUndo}
+        canRedo={canvas.canRedo}
+        onUndo={canvas.undo}
+        onRedo={canvas.redo}
+        onClear={canvas.clear}
+      />
+      <Canvas
+        strokes={canvas.strokes}
+        onStartStroke={canvas.startStroke}
+        onAddPoint={canvas.addPoint}
+        onEndStroke={canvas.endStroke}
+      />
     </div>
   )
 }
