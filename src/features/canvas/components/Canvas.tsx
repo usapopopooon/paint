@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Point, Stroke } from '../types'
 import { renderCanvas } from '../utils/renderer'
+import { BrushCursor } from './BrushCursor'
 
 type CanvasProps = {
   readonly strokes: readonly Stroke[]
@@ -16,19 +17,6 @@ type CanvasProps = {
   readonly isEraser?: boolean
 }
 
-const createCircleCursor = (size: number, color: string, isEraser = false): string => {
-  const cursorSize = Math.max(size, 4)
-  // For eraser, use gray stroke so it's visible on white background
-  const strokeColor = isEraser ? '#888888' : color
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${cursorSize}" height="${cursorSize}" viewBox="0 0 ${cursorSize} ${cursorSize}">
-      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="${(cursorSize - 2) / 2}" fill="none" stroke="${strokeColor}" stroke-width="1"/>
-      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="1" fill="${strokeColor}"/>
-    </svg>
-  `
-  const encoded = encodeURIComponent(svg.trim())
-  return `url("data:image/svg+xml,${encoded}") ${cursorSize / 2} ${cursorSize / 2}, crosshair`
-}
 
 export const Canvas = ({
   strokes,
@@ -47,11 +35,7 @@ export const Canvas = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const isDrawingRef = useRef(false)
   const [size, setSize] = useState({ width, height })
-
-  const cursor = useMemo(
-    () => createCircleCursor(strokeWidth, strokeColor, isEraser),
-    [strokeWidth, strokeColor, isEraser]
-  )
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
 
   // Handle resize when fillContainer is true
   useEffect(() => {
@@ -111,11 +95,28 @@ export const Canvas = ({
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement>) => {
+      const point = getPoint(event)
+      setMousePos(point)
       if (!isDrawingRef.current) return
-      onAddPoint(getPoint(event))
+      onAddPoint(point)
     },
     [getPoint, onAddPoint]
   )
+
+  const handleMouseEnter = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement>) => {
+      setMousePos(getPoint(event))
+    },
+    [getPoint]
+  )
+
+  const handleMouseLeaveCanvas = useCallback(() => {
+    setMousePos(null)
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false
+      onEndStroke()
+    }
+  }, [onEndStroke])
 
   const handleMouseUp = useCallback(() => {
     if (!isDrawingRef.current) return
@@ -151,9 +152,11 @@ export const Canvas = ({
     [onEndStroke]
   )
 
+  const cursorColor = isEraser ? '#888888' : strokeColor
+
   if (fillContainer) {
     return (
-      <div ref={containerRef} className="w-full h-full">
+      <div ref={containerRef} className="w-full h-full relative">
         <canvas
           ref={canvasRef}
           width={size.width}
@@ -161,30 +164,40 @@ export const Canvas = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeaveCanvas}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          style={{ touchAction: 'none', cursor }}
+          style={{ touchAction: 'none', cursor: 'none' }}
         />
+        {mousePos && (
+          <BrushCursor x={mousePos.x} y={mousePos.y} size={strokeWidth} color={cursorColor} />
+        )}
       </div>
     )
   }
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={size.width}
-      height={size.height}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      className="rounded-lg border border-border"
-      style={{ touchAction: 'none', cursor }}
-    />
+    <div className="relative inline-block">
+      <canvas
+        ref={canvasRef}
+        width={size.width}
+        height={size.height}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeaveCanvas}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="rounded-lg border border-border"
+        style={{ touchAction: 'none', cursor: 'none' }}
+      />
+      {mousePos && (
+        <BrushCursor x={mousePos.x} y={mousePos.y} size={strokeWidth} color={cursorColor} />
+      )}
+    </div>
   )
 }
