@@ -25,12 +25,14 @@ A simple drawing app built with React and Canvas API.
 
 ## Architecture
 
+This project follows **Package by Feature** architecture with shared utilities.
+
 ### Design Principles
 
-- **Feature-based structure**: Code is organized by feature (canvas, color, toolbar) rather than by type
+- **Package by Feature**: Code is organized by feature (canvas, color, toolbar) rather than by layer (components, hooks, utils)
 - **Separation of concerns**: Business logic is extracted into custom hooks, UI stays in components
 - **Colocation**: Tests, stories, and components live together within each feature
-- **Reusable utilities**: Generic functions are placed in `lib/` for cross-feature use
+- **Shared utilities**: Generic functions used across features are placed in `lib/`
 
 ### Directory Structure
 
