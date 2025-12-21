@@ -151,15 +151,17 @@ export const Controlled: Story = {
       </div>
     )
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const slider = canvas.getByRole('slider')
 
     await expect(slider).toHaveAttribute('aria-valuenow', '30')
     await expect(canvas.getByText('Value: 30')).toBeInTheDocument()
 
+    slider.focus()
     await userEvent.keyboard('{ArrowRight}')
-    await expect(args.onValueChange).toHaveBeenCalled()
+    await expect(slider).toHaveAttribute('aria-valuenow', '31')
+    await expect(canvas.getByText('Value: 31')).toBeInTheDocument()
   },
 }
 
