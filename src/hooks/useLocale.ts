@@ -14,6 +14,11 @@ const translations = {
     lightMode: 'Light mode',
     darkMode: 'Dark mode',
     switchLanguage: 'Switch language',
+    undoShortcut: 'Ctrl+Z',
+    redoShortcut: 'Ctrl+Shift+Z',
+    clearShortcut: 'Shift+Delete',
+    noUndoHistory: 'No undo history',
+    noRedoHistory: 'No redo history',
   },
   ja: {
     pen: 'ペン',
@@ -23,7 +28,12 @@ const translations = {
     clear: 'クリア',
     lightMode: 'ライトモード',
     darkMode: 'ダークモード',
-    switchLanguage: '言語を切り替え',
+    switchLanguage: '言語を切り替える',
+    undoShortcut: 'Ctrl+Z',
+    redoShortcut: 'Ctrl+Shift+Z',
+    clearShortcut: 'Shift+Delete',
+    noUndoHistory: '履歴がありません',
+    noRedoHistory: '履歴がありません',
   },
 } as const
 

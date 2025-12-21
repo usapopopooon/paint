@@ -45,9 +45,9 @@ function App() {
           canvas.undo()
         }
       }
-      if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+      if (e.shiftKey && e.key === 'Delete') {
         e.preventDefault()
-        canvas.redo()
+        canvas.clear()
       }
     }
 

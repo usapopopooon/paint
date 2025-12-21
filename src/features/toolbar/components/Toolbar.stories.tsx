@@ -14,6 +14,11 @@ const mockT = (key: TranslationKey): string => {
     lightMode: 'Light mode',
     darkMode: 'Dark mode',
     switchLanguage: 'Switch language',
+    undoShortcut: 'Ctrl+Z',
+    redoShortcut: 'Ctrl+Shift+Z',
+    clearShortcut: 'Shift+Delete',
+    noUndoHistory: 'No undo history',
+    noRedoHistory: 'No redo history',
   }
   return translations[key]
 }

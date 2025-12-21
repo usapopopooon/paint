@@ -14,6 +14,11 @@ const mockT = (key: TranslationKey): string => {
     lightMode: 'Light mode',
     darkMode: 'Dark mode',
     switchLanguage: 'Switch language',
+    undoShortcut: 'Ctrl+Z',
+    redoShortcut: 'Ctrl+Shift+Z',
+    clearShortcut: 'Shift+Delete',
+    noUndoHistory: 'No undo history',
+    noRedoHistory: 'No redo history',
   }
   return translations[key]
 }
@@ -46,9 +51,11 @@ export const English: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button')
+    const toggle = canvas.getByRole('switch')
 
-    await expect(button).toHaveTextContent('EN')
+    await expect(toggle).toHaveTextContent('日本語')
+    await expect(toggle).toHaveTextContent('English')
+    await expect(toggle).toHaveAttribute('aria-checked', 'false')
   },
 }
 
@@ -58,9 +65,11 @@ export const Japanese: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button')
+    const toggle = canvas.getByRole('switch')
 
-    await expect(button).toHaveTextContent('JA')
+    await expect(toggle).toHaveTextContent('日本語')
+    await expect(toggle).toHaveTextContent('English')
+    await expect(toggle).toHaveAttribute('aria-checked', 'true')
   },
 }
 
@@ -70,9 +79,9 @@ export const ClickToToggle: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button')
+    const toggle = canvas.getByRole('switch')
 
-    await userEvent.click(button)
+    await userEvent.click(toggle)
     await expect(args.onToggle).toHaveBeenCalledTimes(1)
   },
 }

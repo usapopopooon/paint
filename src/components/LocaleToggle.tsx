@@ -1,4 +1,3 @@
-import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 import type { Locale, TranslationKey } from '@/hooks/useLocale'
 
@@ -12,15 +11,33 @@ export const LocaleToggle = ({ locale, onToggle, t }: LocaleToggleProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          type="button"
           onClick={onToggle}
-          className="font-mono text-xs px-2"
+          className="flex items-center text-xs rounded-full border border-border overflow-hidden cursor-pointer"
+          role="switch"
+          aria-checked={locale === 'ja'}
           aria-label={t('switchLanguage')}
         >
-          {locale.toUpperCase()}
-        </Button>
+          <span
+            className={`w-12 text-center py-1 transition-colors ${
+              locale === 'ja'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-transparent text-muted-foreground'
+            }`}
+          >
+            日本語
+          </span>
+          <span
+            className={`w-12 text-center py-1 transition-colors ${
+              locale === 'en'
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-transparent text-muted-foreground'
+            }`}
+          >
+            English
+          </span>
+        </button>
       </TooltipTrigger>
       <TooltipContent side="bottom">{t('switchLanguage')}</TooltipContent>
     </Tooltip>
