@@ -90,3 +90,60 @@ export const CustomBackground: Story = {
     backgroundColor: '#f0f0f0',
   },
 }
+
+export const WithStrokeWidth: Story = {
+  args: {
+    strokes: [],
+    strokeWidth: 10,
+    strokeColor: '#ff0000',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement.querySelector('canvas')
+    await expect(canvas).toBeInTheDocument()
+  },
+}
+
+export const EraserMode: Story = {
+  args: {
+    strokes: sampleStrokes,
+    strokeWidth: 20,
+    strokeColor: '#ffffff',
+    isEraser: true,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = canvasElement.querySelector('canvas')
+    await expect(canvas).toBeInTheDocument()
+  },
+}
+
+export const MouseInteraction: Story = {
+  args: {
+    strokes: [],
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = canvasElement.querySelector('canvas')
+    await expect(canvas).toBeInTheDocument()
+
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect()
+
+      // Simulate mouse down
+      const mouseDownEvent = new MouseEvent('mousedown', {
+        bubbles: true,
+        clientX: rect.left + 100,
+        clientY: rect.top + 100,
+      })
+      canvas.dispatchEvent(mouseDownEvent)
+      await expect(args.onStartStroke).toHaveBeenCalled()
+
+      // Simulate mouse up
+      const mouseUpEvent = new MouseEvent('mouseup', {
+        bubbles: true,
+        clientX: rect.left + 150,
+        clientY: rect.top + 150,
+      })
+      canvas.dispatchEvent(mouseUpEvent)
+      await expect(args.onEndStroke).toHaveBeenCalled()
+    }
+  },
+}
