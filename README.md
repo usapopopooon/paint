@@ -6,7 +6,7 @@
 
 A drawing app built with React and Canvas API.
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot.png?t=1766319553)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot.png?t=1766319764)
 
 ## Features
 
