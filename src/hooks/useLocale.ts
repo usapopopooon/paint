@@ -19,6 +19,8 @@ const translations = {
     clearShortcut: 'Shift+Delete',
     noUndoHistory: 'No undo history',
     noRedoHistory: 'No redo history',
+    copyColor: 'Copy',
+    pasteColor: 'Paste',
   },
   ja: {
     pen: 'ペン',
@@ -34,6 +36,8 @@ const translations = {
     clearShortcut: 'Shift+Delete',
     noUndoHistory: '履歴がありません',
     noRedoHistory: '履歴がありません',
+    copyColor: 'コピー',
+    pasteColor: 'ペースト',
   },
 } as const
 

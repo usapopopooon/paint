@@ -19,6 +19,8 @@ const mockT = (key: TranslationKey): string => {
     clearShortcut: 'Shift+Delete',
     noUndoHistory: 'No undo history',
     noRedoHistory: 'No redo history',
+    copyColor: 'Copy',
+    pasteColor: 'Paste',
   }
   return translations[key]
 }

@@ -100,6 +100,7 @@ function App() {
           <ColorWheel
             color={canvas.strokeColor}
             onChange={canvas.setStrokeColor}
+            t={t}
           />
 
           {/* Pen tool */}

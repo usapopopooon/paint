@@ -1,8 +1,13 @@
+import { Copy, ClipboardPaste } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { TranslationKey } from '@/hooks/useLocale'
 
 type ColorWheelProps = {
   readonly color: string
   readonly onChange: (color: string) => void
+  readonly t: (key: TranslationKey) => string
 }
 
 const WHEEL_SIZE = 200
@@ -79,7 +84,7 @@ const normalizeHex = (hex: string): string => {
   return normalized.toLowerCase()
 }
 
-export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
+export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hsv, setHsv] = useState(() => hexToHsv(color))
   const [dragMode, setDragMode] = useState<DragMode>('none')
@@ -287,6 +292,41 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
           }}
           className="w-20 px-1 py-0.5 text-sm font-mono text-foreground bg-transparent border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring"
         />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={() => navigator.clipboard.writeText(color.toUpperCase())}
+              aria-label={t('copyColor')}
+            >
+              <Copy className="size-3" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('copyColor')}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-6"
+              onClick={async () => {
+                const text = await navigator.clipboard.readText()
+                if (isValidHex(text.trim())) {
+                  const normalized = normalizeHex(text.trim())
+                  setHsv(hexToHsv(normalized))
+                  onChange(normalized)
+                }
+              }}
+              aria-label={t('pasteColor')}
+            >
+              <ClipboardPaste className="size-3" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('pasteColor')}</TooltipContent>
+        </Tooltip>
       </div>
     </div>
   )

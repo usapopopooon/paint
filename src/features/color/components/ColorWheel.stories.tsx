@@ -2,6 +2,29 @@ import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { ColorWheel } from './ColorWheel'
+import type { TranslationKey } from '@/hooks/useLocale'
+
+// Mock translation function for stories
+const mockT = (key: TranslationKey): string => {
+  const translations: Record<TranslationKey, string> = {
+    pen: 'Pen',
+    eraser: 'Eraser',
+    undo: 'Undo',
+    redo: 'Redo',
+    clear: 'Clear',
+    lightMode: 'Light mode',
+    darkMode: 'Dark mode',
+    switchLanguage: 'Switch language',
+    undoShortcut: 'Ctrl+Z',
+    redoShortcut: 'Ctrl+Shift+Z',
+    clearShortcut: 'Shift+Delete',
+    noUndoHistory: 'No undo history',
+    noRedoHistory: 'No redo history',
+    copyColor: 'Copy',
+    pasteColor: 'Paste',
+  }
+  return translations[key]
+}
 
 const meta = {
   title: 'Features/Color/ColorWheel',
@@ -12,6 +35,7 @@ const meta = {
   tags: ['autodocs'],
   args: {
     onChange: fn(),
+    t: mockT,
   },
   argTypes: {
     color: {
@@ -99,6 +123,7 @@ export const Interactive: Story = {
             setColor(newColor)
             args.onChange(newColor)
           }}
+          t={mockT}
         />
         <div
           className="w-32 h-32 rounded-lg border border-border"
