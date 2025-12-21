@@ -4,7 +4,7 @@ import { ThemeToggle } from './ThemeToggle'
 import { mockT } from '@/test/mocks'
 
 const meta = {
-  title: 'Components/ThemeToggle',
+  title: 'UI/ThemeToggle',
   component: ThemeToggle,
   parameters: {
     layout: 'centered',
