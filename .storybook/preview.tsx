@@ -3,6 +3,7 @@ import type { Preview } from '@storybook/react-vite'
 import { withThemeByClassName } from '@storybook/addon-themes'
 import { themes } from 'storybook/theming'
 import '../src/index.css'
+import { LocaleProvider } from '../src/hooks/useLocale'
 
 const preview: Preview = {
   initialGlobals: {
@@ -25,14 +26,16 @@ const preview: Preview = {
       const isDark = theme === 'dark'
 
       return (
-        <div
-          style={{
-            backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
-            padding: '1rem',
-          }}
-        >
-          <Story />
-        </div>
+        <LocaleProvider defaultLocale="en">
+          <div
+            style={{
+              backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+              padding: '1rem',
+            }}
+          >
+            <Story />
+          </div>
+        </LocaleProvider>
       )
     },
     withThemeByClassName({

@@ -2,29 +2,7 @@ import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { ColorWheel } from './ColorWheel'
-import type { TranslationKey } from '@/hooks/useLocale'
-
-// Mock translation function for stories
-const mockT = (key: TranslationKey): string => {
-  const translations: Record<TranslationKey, string> = {
-    pen: 'Pen',
-    eraser: 'Eraser',
-    undo: 'Undo',
-    redo: 'Redo',
-    clear: 'Clear',
-    lightMode: 'Light mode',
-    darkMode: 'Dark mode',
-    switchLanguage: 'Switch language',
-    undoShortcut: 'Ctrl+Z',
-    redoShortcut: 'Ctrl+Shift+Z',
-    clearShortcut: 'Shift+Delete',
-    noUndoHistory: 'No undo history',
-    noRedoHistory: 'No redo history',
-    copyColor: 'Copy',
-    pasteColor: 'Paste',
-  }
-  return translations[key]
-}
+import { mockT } from '@/test/mocks'
 
 const meta = {
   title: 'Features/Color/ColorWheel',
