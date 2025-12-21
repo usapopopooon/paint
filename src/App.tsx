@@ -21,7 +21,7 @@ function App() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Top toolbar */}
-      <header className="flex items-center justify-between px-4 py-2 border-b border-border bg-background">
+      <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background">
         <Toolbar
           canUndo={canvas.canUndo}
           canRedo={canvas.canRedo}
@@ -35,7 +35,7 @@ function App() {
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
-        <aside className="w-[232px] p-4 border-r border-border bg-background flex flex-col gap-6">
+        <aside className="w-[232px] p-4 border-r border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background flex flex-col gap-6">
           <ColorWheel
             color={canvas.strokeColor}
             onChange={canvas.setStrokeColor}
