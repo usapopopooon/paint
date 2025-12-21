@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.2] - 2025-12-21
+
+### Features
+
+- **BrushCursor**: HTML/CSS overlay cursor for large brush sizes (>128px)
+
+### Improvements
+
+- Move ThemeToggle and LocaleToggle to `components/ui/`
+- Run CI on all branches
+- Add workflow to require release branches for merging to main
+
+### Removed
+
+- Remove unused ColorPicker component
+
 ## [0.0.1] - 2024-12-21
 
 Initial release.
