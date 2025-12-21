@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn, within } from 'storybook/test'
+import { expect, fn } from 'storybook/test'
 import { Canvas } from './Canvas'
 import type { Stroke } from '../types'
 
@@ -58,9 +58,6 @@ export const Empty: Story = {
     strokes: [],
   },
   play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const canvasEl = canvas.getByRole('img', { hidden: true }) as HTMLCanvasElement | null
-
     await expect(canvasElement.querySelector('canvas')).toBeInTheDocument()
   },
 }
