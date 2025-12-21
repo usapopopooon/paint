@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Point, Stroke } from '../types'
 import { renderCanvas } from '../utils/renderer'
 
@@ -10,6 +10,7 @@ type CanvasProps = {
   readonly width?: number
   readonly height?: number
   readonly backgroundColor?: string
+  readonly fillContainer?: boolean
 }
 
 export const Canvas = ({
@@ -20,17 +21,44 @@ export const Canvas = ({
   width = 800,
   height = 600,
   backgroundColor = '#ffffff',
+  fillContainer = false,
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const isDrawingRef = useRef(false)
+  const [size, setSize] = useState({ width, height })
+
+  // Handle resize when fillContainer is true
+  useEffect(() => {
+    if (!fillContainer) {
+      setSize({ width, height })
+      return
+    }
+
+    const container = containerRef.current
+    if (!container) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (entry) {
+        setSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        })
+      }
+    })
+
+    resizeObserver.observe(container)
+    return () => resizeObserver.disconnect()
+  }, [fillContainer, width, height])
 
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
 
-    renderCanvas(ctx, strokes, width, height, backgroundColor)
-  }, [strokes, width, height, backgroundColor])
+    renderCanvas(ctx, strokes, size.width, size.height, backgroundColor)
+  }, [strokes, size.width, size.height, backgroundColor])
 
   const getPoint = useCallback(
     (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>): Point => {
@@ -98,11 +126,32 @@ export const Canvas = ({
     [onEndStroke]
   )
 
+  if (fillContainer) {
+    return (
+      <div ref={containerRef} className="w-full h-full">
+        <canvas
+          ref={canvasRef}
+          width={size.width}
+          height={size.height}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="cursor-crosshair"
+          style={{ touchAction: 'none' }}
+        />
+      </div>
+    )
+  }
+
   return (
     <canvas
       ref={canvasRef}
-      width={width}
-      height={height}
+      width={size.width}
+      height={size.height}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}

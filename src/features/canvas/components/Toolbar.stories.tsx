@@ -1,4 +1,3 @@
-import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { Toolbar } from './Toolbar'
@@ -11,19 +10,11 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    onStrokeWidthChange: fn(),
-    onStrokeColorChange: fn(),
     onUndo: fn(),
     onRedo: fn(),
     onClear: fn(),
   },
   argTypes: {
-    strokeWidth: {
-      control: { type: 'range', min: 1, max: 20 },
-    },
-    strokeColor: {
-      control: 'color',
-    },
     canUndo: {
       control: 'boolean',
     },
@@ -38,16 +29,12 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    strokeWidth: 3,
-    strokeColor: '#000000',
     canUndo: false,
     canRedo: false,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    await expect(canvas.getByText('Width:')).toBeInTheDocument()
-    await expect(canvas.getByText('3')).toBeInTheDocument()
     await expect(canvas.getByRole('button', { name: 'Undo' })).toBeDisabled()
     await expect(canvas.getByRole('button', { name: 'Redo' })).toBeDisabled()
     await expect(canvas.getByRole('button', { name: 'Clear' })).toBeInTheDocument()
@@ -56,8 +43,6 @@ export const Default: Story = {
 
 export const WithUndoEnabled: Story = {
   args: {
-    strokeWidth: 5,
-    strokeColor: '#000000',
     canUndo: true,
     canRedo: false,
   },
@@ -75,8 +60,6 @@ export const WithUndoEnabled: Story = {
 
 export const WithRedoEnabled: Story = {
   args: {
-    strokeWidth: 3,
-    strokeColor: '#000000',
     canUndo: false,
     canRedo: true,
   },
@@ -94,8 +77,6 @@ export const WithRedoEnabled: Story = {
 
 export const WithBothEnabled: Story = {
   args: {
-    strokeWidth: 10,
-    strokeColor: '#000000',
     canUndo: true,
     canRedo: true,
   },
@@ -109,8 +90,6 @@ export const WithBothEnabled: Story = {
 
 export const ClearButton: Story = {
   args: {
-    strokeWidth: 3,
-    strokeColor: '#000000',
     canUndo: false,
     canRedo: false,
   },
@@ -125,28 +104,7 @@ export const ClearButton: Story = {
 
 export const Interactive: Story = {
   args: {
-    strokeWidth: 3,
-    strokeColor: '#000000',
     canUndo: true,
     canRedo: true,
-  },
-  render: (args) => {
-    const [width, setWidth] = React.useState(args.strokeWidth)
-    const [color, setColor] = React.useState(args.strokeColor)
-    return (
-      <Toolbar
-        {...args}
-        strokeWidth={width}
-        strokeColor={color}
-        onStrokeWidthChange={(newWidth) => {
-          setWidth(newWidth)
-          args.onStrokeWidthChange(newWidth)
-        }}
-        onStrokeColorChange={(newColor) => {
-          setColor(newColor)
-          args.onStrokeColorChange(newColor)
-        }}
-      />
-    )
   },
 }
