@@ -240,7 +240,7 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
 
             {/* SV indicator */}
             <div
-              className="absolute cursor-grab active:cursor-grabbing"
+              className="absolute"
               style={{
                 width: 12,
                 height: 12,
@@ -255,7 +255,7 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
 
             {/* Hue indicator */}
             <div
-              className="absolute cursor-grab active:cursor-grabbing"
+              className="absolute"
               style={{
                 width: RING_WIDTH - 4,
                 height: RING_WIDTH - 4,
