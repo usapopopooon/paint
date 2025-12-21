@@ -1,6 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { Toolbar } from './Toolbar'
+import type { TranslationKey } from '@/hooks/useLocale'
+
+// Mock translation function for stories
+const mockT = (key: TranslationKey): string => {
+  const translations: Record<TranslationKey, string> = {
+    pen: 'Pen',
+    eraser: 'Eraser',
+    undo: 'Undo',
+    redo: 'Redo',
+    clear: 'Clear',
+    lightMode: 'Light mode',
+    darkMode: 'Dark mode',
+    switchLanguage: 'Switch language',
+  }
+  return translations[key]
+}
 
 const meta = {
   title: 'Features/Toolbar/Toolbar',
@@ -13,6 +29,7 @@ const meta = {
     onUndo: fn(),
     onRedo: fn(),
     onClear: fn(),
+    t: mockT,
   },
   argTypes: {
     canUndo: {

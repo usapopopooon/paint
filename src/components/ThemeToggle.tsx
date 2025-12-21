@@ -1,14 +1,16 @@
 import { Moon, Sun } from 'lucide-react'
 import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import type { TranslationKey } from '@/hooks/useLocale'
 
 type ThemeToggleProps = {
   readonly isDark: boolean
   readonly onToggle: () => void
+  readonly t: (key: TranslationKey) => string
 }
 
-export const ThemeToggle = ({ isDark, onToggle }: ThemeToggleProps) => {
-  const label = isDark ? 'ライトモード' : 'ダークモード'
+export const ThemeToggle = ({ isDark, onToggle, t }: ThemeToggleProps) => {
+  const label = isDark ? t('lightMode') : t('darkMode')
 
   return (
     <Tooltip>

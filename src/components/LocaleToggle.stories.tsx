@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
-import { ThemeToggle } from './ThemeToggle'
+import { LocaleToggle } from './LocaleToggle'
 import type { TranslationKey } from '@/hooks/useLocale'
 
 // Mock translation function for stories
@@ -19,8 +19,8 @@ const mockT = (key: TranslationKey): string => {
 }
 
 const meta = {
-  title: 'Components/ThemeToggle',
-  component: ThemeToggle,
+  title: 'Components/LocaleToggle',
+  component: LocaleToggle,
   parameters: {
     layout: 'centered',
   },
@@ -30,39 +30,47 @@ const meta = {
     t: mockT,
   },
   argTypes: {
-    isDark: {
-      control: 'boolean',
+    locale: {
+      control: 'radio',
+      options: ['en', 'ja'],
     },
   },
-} satisfies Meta<typeof ThemeToggle>
+} satisfies Meta<typeof LocaleToggle>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Dark: Story = {
+export const English: Story = {
   args: {
-    isDark: true,
+    locale: 'en',
   },
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button', { name: 'Light mode' })
+    const button = canvas.getByRole('button')
 
-    await expect(button).toBeInTheDocument()
-
-    await userEvent.click(button)
-    await expect(args.onToggle).toHaveBeenCalledTimes(1)
+    await expect(button).toHaveTextContent('EN')
   },
 }
 
-export const Light: Story = {
+export const Japanese: Story = {
   args: {
-    isDark: false,
+    locale: 'ja',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button')
+
+    await expect(button).toHaveTextContent('JA')
+  },
+}
+
+export const ClickToToggle: Story = {
+  args: {
+    locale: 'en',
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button', { name: 'Dark mode' })
-
-    await expect(button).toBeInTheDocument()
+    const button = canvas.getByRole('button')
 
     await userEvent.click(button)
     await expect(args.onToggle).toHaveBeenCalledTimes(1)

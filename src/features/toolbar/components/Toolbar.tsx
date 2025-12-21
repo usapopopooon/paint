@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button'
+import type { TranslationKey } from '@/hooks/useLocale'
 
 type ToolbarProps = {
   readonly canUndo: boolean
@@ -6,6 +7,7 @@ type ToolbarProps = {
   readonly onUndo: () => void
   readonly onRedo: () => void
   readonly onClear: () => void
+  readonly t: (key: TranslationKey) => string
 }
 
 export const Toolbar = ({
@@ -14,6 +16,7 @@ export const Toolbar = ({
   onUndo,
   onRedo,
   onClear,
+  t,
 }: ToolbarProps) => {
   return (
     <div className="flex items-center gap-2">
@@ -23,7 +26,7 @@ export const Toolbar = ({
         onClick={onUndo}
         disabled={!canUndo}
       >
-        Undo
+        {t('undo')}
       </Button>
       <Button
         variant="secondary"
@@ -31,11 +34,11 @@ export const Toolbar = ({
         onClick={onRedo}
         disabled={!canRedo}
       >
-        Redo
+        {t('redo')}
       </Button>
       <div className="h-6 w-px bg-border" />
       <Button variant="outline" size="sm" onClick={onClear} className="text-foreground">
-        Clear
+        {t('clear')}
       </Button>
     </div>
   )

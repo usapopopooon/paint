@@ -1,5 +1,6 @@
 import { Eraser, Pencil } from 'lucide-react'
 import { useEffect } from 'react'
+import { LocaleToggle } from './components/LocaleToggle'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Button } from './components/ui/button'
 import { Slider } from './components/ui/slider'
@@ -7,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './components/ui/tooltip
 import { Canvas, useCanvas } from './features/canvas'
 import { ColorWheel } from './features/color'
 import { Toolbar } from './features/toolbar'
+import { useLocale } from './hooks/useLocale'
 import { useTheme } from './hooks/useTheme'
 
 const MIN_PEN_WIDTH = 1
@@ -31,6 +33,7 @@ const sliderToValue = (slider: number, min: number, max: number): number => {
 function App() {
   const canvas = useCanvas()
   const { isDark, toggleTheme } = useTheme()
+  const { locale, toggleLocale, t } = useLocale()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,8 +84,12 @@ function App() {
           onUndo={canvas.undo}
           onRedo={canvas.redo}
           onClear={canvas.clear}
+          t={t}
         />
-        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+        <div className="flex items-center gap-1">
+          <LocaleToggle locale={locale} onToggle={toggleLocale} t={t} />
+          <ThemeToggle isDark={isDark} onToggle={toggleTheme} t={t} />
+        </div>
       </header>
 
       {/* Main content */}
@@ -103,12 +110,12 @@ function App() {
                   variant={canvas.tool === 'pen' ? 'default' : 'secondary'}
                   size="sm"
                   onClick={() => canvas.setTool('pen')}
-                  aria-label="ペン"
+                  aria-label={t('pen')}
                 >
                   <Pencil className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">ペン</TooltipContent>
+              <TooltipContent side="right">{t('pen')}</TooltipContent>
             </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
@@ -132,12 +139,12 @@ function App() {
                   variant={canvas.tool === 'eraser' ? 'default' : 'secondary'}
                   size="sm"
                   onClick={() => canvas.setTool('eraser')}
-                  aria-label="消しゴム"
+                  aria-label={t('eraser')}
                 >
                   <Eraser className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">消しゴム</TooltipContent>
+              <TooltipContent side="right">{t('eraser')}</TooltipContent>
             </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
