@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Point, Stroke } from '../types'
 import { renderCanvas } from '../utils/renderer'
 
@@ -11,6 +11,20 @@ type CanvasProps = {
   readonly height?: number
   readonly backgroundColor?: string
   readonly fillContainer?: boolean
+  readonly strokeWidth?: number
+  readonly strokeColor?: string
+}
+
+const createCircleCursor = (size: number, color: string): string => {
+  const cursorSize = Math.max(size, 4)
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${cursorSize}" height="${cursorSize}" viewBox="0 0 ${cursorSize} ${cursorSize}">
+      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="${(cursorSize - 2) / 2}" fill="none" stroke="${color}" stroke-width="1"/>
+      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="1" fill="${color}"/>
+    </svg>
+  `
+  const encoded = encodeURIComponent(svg.trim())
+  return `url("data:image/svg+xml,${encoded}") ${cursorSize / 2} ${cursorSize / 2}, crosshair`
 }
 
 export const Canvas = ({
@@ -22,11 +36,18 @@ export const Canvas = ({
   height = 600,
   backgroundColor = '#ffffff',
   fillContainer = false,
+  strokeWidth = 3,
+  strokeColor = '#000000',
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const isDrawingRef = useRef(false)
   const [size, setSize] = useState({ width, height })
+
+  const cursor = useMemo(
+    () => createCircleCursor(strokeWidth, strokeColor),
+    [strokeWidth, strokeColor]
+  )
 
   // Handle resize when fillContainer is true
   useEffect(() => {
@@ -140,8 +161,7 @@ export const Canvas = ({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="cursor-crosshair"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'none', cursor }}
         />
       </div>
     )
@@ -159,8 +179,8 @@ export const Canvas = ({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="cursor-crosshair rounded-lg border border-border"
-      style={{ touchAction: 'none' }}
+      className="rounded-lg border border-border"
+      style={{ touchAction: 'none', cursor }}
     />
   )
 }

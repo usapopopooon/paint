@@ -84,6 +84,8 @@ function App() {
             onStartStroke={canvas.startStroke}
             onAddPoint={canvas.addPoint}
             onEndStroke={canvas.endStroke}
+            strokeWidth={canvas.strokeWidth}
+            strokeColor={canvas.strokeColor}
             fillContainer
           />
         </main>
