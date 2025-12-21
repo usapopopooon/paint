@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { Toolbar } from './Toolbar'
 
 const meta = {
-  title: 'Features/Canvas/Toolbar',
+  title: 'Features/Toolbar/Toolbar',
   component: Toolbar,
   parameters: {
     layout: 'centered',

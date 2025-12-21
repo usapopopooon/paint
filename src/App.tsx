@@ -1,7 +1,8 @@
-import { ColorWheel } from './components/ColorWheel'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Slider } from './components/ui/slider'
-import { Canvas, Toolbar, useCanvas } from './features/canvas'
+import { Canvas, useCanvas } from './features/canvas'
+import { ColorWheel } from './features/color'
+import { Toolbar } from './features/toolbar'
 import { useTheme } from './hooks/useTheme'
 
 const MIN_WIDTH = 1
