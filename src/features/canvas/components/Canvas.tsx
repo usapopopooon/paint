@@ -19,7 +19,7 @@ export const Canvas = ({
   onEndStroke,
   width = 800,
   height = 600,
-  backgroundColor = '#1a1a1a',
+  backgroundColor = '#ffffff',
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const isDrawingRef = useRef(false)

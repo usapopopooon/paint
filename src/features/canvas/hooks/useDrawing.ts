@@ -10,7 +10,7 @@ type DrawingState = {
 const createInitialState = (): DrawingState => ({
   currentStroke: null,
   strokeWidth: 3,
-  strokeColor: '#ffffff',
+  strokeColor: '#000000',
 })
 
 const createStroke = (
