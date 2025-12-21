@@ -29,10 +29,27 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      - name: Run tests
-        run: npm run test:run
+      - name: Run tests with coverage
+        run: npm run test:coverage
         env:
           HOME: /root
+
+      - name: Generate coverage badge
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | node -e "
+            const data = require('fs').readFileSync('/dev/stdin', 'utf8');
+            const json = JSON.parse(data);
+            console.log(Math.round(json.total.lines.pct));
+          ")
+          if [ "$COVERAGE" -ge 80 ]; then
+            COLOR="brightgreen"
+          elif [ "$COVERAGE" -ge 60 ]; then
+            COLOR="yellow"
+          else
+            COLOR="red"
+          fi
+          mkdir -p deploy
+          curl -s "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" > deploy/coverage-badge.svg
 
       - name: Build app
         run: npm run build
