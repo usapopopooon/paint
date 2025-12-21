@@ -3,6 +3,8 @@ export type Point = {
   readonly y: number
 }
 
+export type Tool = 'pen' | 'eraser'
+
 export type Stroke = {
   readonly points: readonly Point[]
   readonly width: number
@@ -14,6 +16,7 @@ export type CanvasState = {
   readonly currentStroke: Stroke | null
   readonly strokeWidth: number
   readonly strokeColor: string
+  readonly tool: Tool
 }
 
 export type CanvasHistory = {

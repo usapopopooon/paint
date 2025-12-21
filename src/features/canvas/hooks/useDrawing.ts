@@ -1,16 +1,22 @@
 import { useCallback, useState } from 'react'
-import type { Point, Stroke } from '../types'
+import type { Point, Stroke, Tool } from '../types'
 
 type DrawingState = {
   readonly currentStroke: Stroke | null
   readonly strokeWidth: number
   readonly strokeColor: string
+  readonly eraserWidth: number
+  readonly tool: Tool
 }
+
+const ERASER_COLOR = '#ffffff'
 
 const createInitialState = (): DrawingState => ({
   currentStroke: null,
   strokeWidth: 3,
   strokeColor: '#000000',
+  eraserWidth: 20,
+  tool: 'pen',
 })
 
 const createStroke = (
@@ -32,10 +38,14 @@ export const useDrawing = (onStrokeComplete: (stroke: Stroke) => void) => {
   const [state, setState] = useState<DrawingState>(createInitialState)
 
   const startStroke = useCallback((point: Point) => {
-    setState((prev) => ({
-      ...prev,
-      currentStroke: createStroke(point, prev.strokeWidth, prev.strokeColor),
-    }))
+    setState((prev) => {
+      const width = prev.tool === 'eraser' ? prev.eraserWidth : prev.strokeWidth
+      const color = prev.tool === 'eraser' ? ERASER_COLOR : prev.strokeColor
+      return {
+        ...prev,
+        currentStroke: createStroke(point, width, color),
+      }
+    })
   }, [])
 
   const addPoint = useCallback((point: Point) => {
@@ -67,14 +77,26 @@ export const useDrawing = (onStrokeComplete: (stroke: Stroke) => void) => {
     setState((prev) => ({ ...prev, strokeColor: color }))
   }, [])
 
+  const setEraserWidth = useCallback((width: number) => {
+    setState((prev) => ({ ...prev, eraserWidth: width }))
+  }, [])
+
+  const setTool = useCallback((tool: Tool) => {
+    setState((prev) => ({ ...prev, tool }))
+  }, [])
+
   return {
     currentStroke: state.currentStroke,
     strokeWidth: state.strokeWidth,
     strokeColor: state.strokeColor,
+    eraserWidth: state.eraserWidth,
+    tool: state.tool,
     startStroke,
     addPoint,
     endStroke,
     setStrokeWidth,
     setStrokeColor,
+    setEraserWidth,
+    setTool,
   } as const
 }

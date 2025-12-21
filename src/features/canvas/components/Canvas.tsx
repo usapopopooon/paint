@@ -13,14 +13,17 @@ type CanvasProps = {
   readonly fillContainer?: boolean
   readonly strokeWidth?: number
   readonly strokeColor?: string
+  readonly isEraser?: boolean
 }
 
-const createCircleCursor = (size: number, color: string): string => {
+const createCircleCursor = (size: number, color: string, isEraser = false): string => {
   const cursorSize = Math.max(size, 4)
+  // For eraser, use gray stroke so it's visible on white background
+  const strokeColor = isEraser ? '#888888' : color
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${cursorSize}" height="${cursorSize}" viewBox="0 0 ${cursorSize} ${cursorSize}">
-      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="${(cursorSize - 2) / 2}" fill="none" stroke="${color}" stroke-width="1"/>
-      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="1" fill="${color}"/>
+      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="${(cursorSize - 2) / 2}" fill="none" stroke="${strokeColor}" stroke-width="1"/>
+      <circle cx="${cursorSize / 2}" cy="${cursorSize / 2}" r="1" fill="${strokeColor}"/>
     </svg>
   `
   const encoded = encodeURIComponent(svg.trim())
@@ -38,6 +41,7 @@ export const Canvas = ({
   fillContainer = false,
   strokeWidth = 3,
   strokeColor = '#000000',
+  isEraser = false,
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -45,8 +49,8 @@ export const Canvas = ({
   const [size, setSize] = useState({ width, height })
 
   const cursor = useMemo(
-    () => createCircleCursor(strokeWidth, strokeColor),
-    [strokeWidth, strokeColor]
+    () => createCircleCursor(strokeWidth, strokeColor, isEraser),
+    [strokeWidth, strokeColor, isEraser]
   )
 
   // Handle resize when fillContainer is true
