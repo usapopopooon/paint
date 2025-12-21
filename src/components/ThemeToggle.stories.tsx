@@ -28,7 +28,7 @@ export const Dark: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button', { name: 'Switch to light mode' })
+    const button = canvas.getByRole('button', { name: 'ライトモード' })
 
     await expect(button).toBeInTheDocument()
 
@@ -43,7 +43,7 @@ export const Light: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button', { name: 'Switch to dark mode' })
+    const button = canvas.getByRole('button', { name: 'ダークモード' })
 
     await expect(button).toBeInTheDocument()
 

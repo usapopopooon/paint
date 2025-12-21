@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Button } from './components/ui/button'
 import { Slider } from './components/ui/slider'
+import { Tooltip, TooltipContent, TooltipTrigger } from './components/ui/tooltip'
 import { Canvas, useCanvas } from './features/canvas'
 import { ColorWheel } from './features/color'
 import { Toolbar } from './features/toolbar'
@@ -96,14 +97,19 @@ function App() {
 
           {/* Pen tool */}
           <div className="flex items-center gap-2">
-            <Button
-              variant={canvas.tool === 'pen' ? 'default' : 'secondary'}
-              size="sm"
-              onClick={() => canvas.setTool('pen')}
-              aria-label="Pen"
-            >
-              <Pencil className="size-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={canvas.tool === 'pen' ? 'default' : 'secondary'}
+                  size="sm"
+                  onClick={() => canvas.setTool('pen')}
+                  aria-label="ペン"
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">ペン</TooltipContent>
+            </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
                 value={[valueToSlider(canvas.strokeWidth, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
@@ -120,14 +126,19 @@ function App() {
 
           {/* Eraser tool */}
           <div className="flex items-center gap-2">
-            <Button
-              variant={canvas.tool === 'eraser' ? 'default' : 'secondary'}
-              size="sm"
-              onClick={() => canvas.setTool('eraser')}
-              aria-label="Eraser"
-            >
-              <Eraser className="size-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={canvas.tool === 'eraser' ? 'default' : 'secondary'}
+                  size="sm"
+                  onClick={() => canvas.setTool('eraser')}
+                  aria-label="消しゴム"
+                >
+                  <Eraser className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">消しゴム</TooltipContent>
+            </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
                 value={[valueToSlider(canvas.eraserWidth, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
