@@ -112,15 +112,33 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
       const squareHalf = SQUARE_SIZE / 2
       const innerRadius = WHEEL_SIZE / 2 - RING_WIDTH
 
-      if (Math.abs(x) <= squareHalf && Math.abs(y) <= squareHalf) {
+      // Add some padding to make edge indicators easier to grab
+      const padding = 8
+      if (Math.abs(x) <= squareHalf + padding && Math.abs(y) <= squareHalf + padding) {
         setDragMode('sv')
         updateSV(x, y)
-      } else if (distance >= innerRadius && distance <= WHEEL_SIZE / 2) {
+      } else if (distance >= innerRadius - padding && distance <= WHEEL_SIZE / 2 + padding) {
         setDragMode('hue')
         updateHue(x, y)
       }
     },
     [getPositionFromEvent, updateSV, updateHue]
+  )
+
+  const handleSvIndicatorMouseDown = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation()
+      setDragMode('sv')
+    },
+    []
+  )
+
+  const handleHueIndicatorMouseDown = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation()
+      setDragMode('hue')
+    },
+    []
   )
 
   const handleMouseMove = useCallback(
@@ -222,7 +240,7 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
 
             {/* SV indicator */}
             <div
-              className="absolute pointer-events-none"
+              className="absolute cursor-grab active:cursor-grabbing"
               style={{
                 width: 12,
                 height: 12,
@@ -232,11 +250,12 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
                 top: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorY - 6,
                 left: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorX - 6,
               }}
+              onMouseDown={handleSvIndicatorMouseDown}
             />
 
             {/* Hue indicator */}
             <div
-              className="absolute pointer-events-none"
+              className="absolute cursor-grab active:cursor-grabbing"
               style={{
                 width: RING_WIDTH - 4,
                 height: RING_WIDTH - 4,
@@ -246,6 +265,7 @@ export const ColorPicker = ({ color, onChange }: ColorPickerProps) => {
                 top: hueIndicatorY - (RING_WIDTH - 4) / 2,
                 left: hueIndicatorX - (RING_WIDTH - 4) / 2,
               }}
+              onMouseDown={handleHueIndicatorMouseDown}
             />
           </div>
           <div className="flex items-center gap-2">
