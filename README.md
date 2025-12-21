@@ -2,7 +2,49 @@
 
 ![version](https://img.shields.io/badge/version-0.0.1-blue) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
+A simple drawing app built with React and Canvas API.
+
 ![Screenshot](https://usapopopooon.github.io/paint/screenshot.png)
+
+## Features
+
+- Pen and eraser tools with adjustable width
+- HSV color wheel picker
+- Undo/Redo support
+- Dark/Light mode
+- i18n (English/Japanese)
+
+## Architecture
+
+### Design Principles
+
+- **Feature-based structure**: Code is organized by feature (canvas, color, toolbar) rather than by type
+- **Separation of concerns**: Business logic is extracted into custom hooks, UI stays in components
+- **Colocation**: Tests, stories, and components live together within each feature
+- **Reusable utilities**: Generic functions are placed in `lib/` for cross-feature use
+
+### Directory Structure
+
+```
+src/
+├── components/       # Shared UI components
+│   └── ui/           # Base UI components (Button, Slider, Tooltip, etc.)
+├── features/         # Feature modules
+│   ├── canvas/       # Drawing canvas feature
+│   │   ├── components/
+│   │   ├── hooks/    # useCanvas, useDrawing, useCanvasHistory
+│   │   ├── utils/    # Canvas rendering utilities
+│   │   └── types/
+│   ├── color/        # Color picker feature
+│   │   ├── components/
+│   │   ├── hooks/    # useColorWheel
+│   │   └── utils/
+│   └── toolbar/      # Toolbar feature
+│       └── components/
+├── hooks/            # Global hooks (useLocale, useTheme)
+├── lib/              # Shared utilities (color conversion, storage)
+└── test/             # Test utilities and mocks
+```
 
 ## Development
 
@@ -18,6 +60,9 @@ npm run storybook
 
 # Run tests
 npm test
+
+# Run unit tests
+npm run test:unit
 
 # Run tests with coverage
 npm run test:coverage
