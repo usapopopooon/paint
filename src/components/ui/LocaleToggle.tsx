@@ -1,4 +1,4 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 import type { Locale, TranslationKey } from '@/hooks/useLocale'
 
 type LocaleToggleProps = {

@@ -1,6 +1,6 @@
 import { Moon, Sun } from 'lucide-react'
-import { Button } from './ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { Button } from './button'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 import type { TranslationKey } from '@/hooks/useLocale'
 
 type ThemeToggleProps = {
