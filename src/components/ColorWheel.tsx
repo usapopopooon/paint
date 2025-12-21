@@ -64,6 +64,21 @@ const hexToHsv = (hex: string): { h: number; s: number; v: number } => {
 
 type DragMode = 'none' | 'hue' | 'sv'
 
+// Validate hex color format
+const isValidHex = (hex: string): boolean => {
+  return /^#?([a-f\d]{6}|[a-f\d]{3})$/i.test(hex)
+}
+
+// Normalize hex color (add # if missing, expand 3-digit to 6-digit)
+const normalizeHex = (hex: string): string => {
+  let normalized = hex.startsWith('#') ? hex : `#${hex}`
+  if (normalized.length === 4) {
+    // Expand 3-digit hex to 6-digit
+    normalized = `#${normalized[1]}${normalized[1]}${normalized[2]}${normalized[2]}${normalized[3]}${normalized[3]}`
+  }
+  return normalized.toLowerCase()
+}
+
 export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hsv, setHsv] = useState(() => hexToHsv(color))
@@ -256,7 +271,22 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
           className="size-6 rounded border border-border"
           style={{ backgroundColor: color }}
         />
-        <span className="text-sm font-mono text-foreground">{color.toUpperCase()}</span>
+        <input
+          type="text"
+          value={color.toUpperCase()}
+          onChange={(e) => {
+            const text = e.target.value.trim()
+            if (isValidHex(text)) {
+              const normalized = normalizeHex(text)
+              setHsv(hexToHsv(normalized))
+              onChange(normalized)
+            }
+          }}
+          onClick={(e) => {
+            (e.target as HTMLInputElement).select()
+          }}
+          className="w-20 px-1 py-0.5 text-sm font-mono text-foreground bg-transparent border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring"
+        />
       </div>
     </div>
   )
