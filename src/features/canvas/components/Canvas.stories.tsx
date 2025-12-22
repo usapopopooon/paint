@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn } from 'storybook/test'
 import { Canvas } from './Canvas'
-import type { Stroke } from '../types'
+import type { StrokeDrawable } from '@/features/drawable'
+import { createStrokeDrawable } from '@/features/drawable'
+import { createSolidBrushTip } from '@/features/brush'
 
 const meta = {
   title: 'Features/Canvas/Canvas',
@@ -14,6 +16,7 @@ const meta = {
     onStartStroke: fn(),
     onAddPoint: fn(),
     onEndStroke: fn(),
+    cursor: { size: 3, color: '#000000' },
   },
   argTypes: {
     width: {
@@ -31,40 +34,46 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-const sampleStrokes: readonly Stroke[] = [
-  {
-    points: [
+const sampleDrawables: readonly StrokeDrawable[] = [
+  createStrokeDrawable(
+    [
       { x: 100, y: 100 },
       { x: 150, y: 120 },
       { x: 200, y: 100 },
       { x: 250, y: 150 },
     ],
-    width: 3,
-    color: '#000000',
-  },
-  {
-    points: [
+    {
+      color: '#000000',
+      brushTip: createSolidBrushTip(3),
+      blendMode: 'normal',
+    }
+  ),
+  createStrokeDrawable(
+    [
       { x: 300, y: 200 },
       { x: 350, y: 250 },
       { x: 400, y: 200 },
     ],
-    width: 5,
-    color: '#ff0000',
-  },
+    {
+      color: '#ff0000',
+      brushTip: createSolidBrushTip(5),
+      blendMode: 'normal',
+    }
+  ),
 ]
 
 export const Empty: Story = {
   args: {
-    strokes: [],
+    drawables: [],
   },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('canvas')).toBeInTheDocument()
   },
 }
 
-export const WithStrokes: Story = {
+export const WithDrawables: Story = {
   args: {
-    strokes: sampleStrokes,
+    drawables: sampleDrawables,
   },
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('canvas')).toBeInTheDocument()
@@ -73,7 +82,7 @@ export const WithStrokes: Story = {
 
 export const SmallSize: Story = {
   args: {
-    strokes: [],
+    drawables: [],
     width: 400,
     height: 300,
   },
@@ -86,16 +95,15 @@ export const SmallSize: Story = {
 
 export const CustomBackground: Story = {
   args: {
-    strokes: sampleStrokes,
+    drawables: sampleDrawables,
     backgroundColor: '#f0f0f0',
   },
 }
 
 export const WithStrokeWidth: Story = {
   args: {
-    strokes: [],
-    strokeWidth: 10,
-    strokeColor: '#ff0000',
+    drawables: [],
+    cursor: { size: 10, color: '#ff0000' },
   },
   play: async ({ canvasElement }) => {
     const canvas = canvasElement.querySelector('canvas')
@@ -105,10 +113,8 @@ export const WithStrokeWidth: Story = {
 
 export const EraserMode: Story = {
   args: {
-    strokes: sampleStrokes,
-    strokeWidth: 20,
-    strokeColor: '#ffffff',
-    isEraser: true,
+    drawables: sampleDrawables,
+    cursor: { size: 20, color: '#ffffff' },
   },
   play: async ({ canvasElement }) => {
     const canvas = canvasElement.querySelector('canvas')
@@ -118,7 +124,7 @@ export const EraserMode: Story = {
 
 export const PointerInteraction: Story = {
   args: {
-    strokes: [],
+    drawables: [],
   },
   play: async ({ canvasElement, args }) => {
     const canvas = canvasElement.querySelector('canvas')

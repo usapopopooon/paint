@@ -3,9 +3,13 @@ type BrushCursorProps = {
   readonly y: number
   readonly size: number
   readonly color: string
+  readonly outline?: string
 }
 
-export const BrushCursor = ({ x, y, size, color }: BrushCursorProps) => {
+export const BrushCursor = ({ x, y, size, color, outline }: BrushCursorProps) => {
+  // Use box-shadow for outline effect when outline color is provided
+  const boxShadow = outline ? `0 0 0 1px ${outline}` : undefined
+
   return (
     <div
       style={{
@@ -16,6 +20,7 @@ export const BrushCursor = ({ x, y, size, color }: BrushCursorProps) => {
         height: size,
         borderRadius: '50%',
         border: `1px solid ${color}`,
+        boxShadow,
         pointerEvents: 'none',
       }}
     >

@@ -1,10 +1,12 @@
-import { useMemo } from 'react'
-import type { Point, Stroke } from '../types'
+import type { Drawable, Point } from '@/features/drawable'
+import type { Layer } from '@/features/layer'
+import type { CursorConfig } from '@/features/tools/types'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
 
 type CanvasProps = {
-  readonly strokes: readonly Stroke[]
+  readonly drawables?: readonly Drawable[]
+  readonly layers?: readonly Layer[]
   readonly onStartStroke: (point: Point) => void
   readonly onAddPoint: (point: Point) => void
   readonly onEndStroke: () => void
@@ -13,13 +15,12 @@ type CanvasProps = {
   readonly height?: number
   readonly backgroundColor?: string
   readonly fillContainer?: boolean
-  readonly strokeWidth?: number
-  readonly strokeColor?: string
-  readonly isEraser?: boolean
+  readonly cursor: CursorConfig
 }
 
 export const Canvas = ({
-  strokes,
+  drawables,
+  layers,
   onStartStroke,
   onAddPoint,
   onEndStroke,
@@ -28,15 +29,8 @@ export const Canvas = ({
   height = 600,
   backgroundColor = '#ffffff',
   fillContainer = false,
-  strokeWidth = 3,
-  strokeColor = '#000000',
-  isEraser = false,
+  cursor,
 }: CanvasProps) => {
-  const cursor = useMemo(
-    () => ({ size: strokeWidth, color: isEraser ? backgroundColor : strokeColor }),
-    [strokeWidth, isEraser, strokeColor, backgroundColor]
-  )
-
   return (
     <PointerInputLayer
       onStart={onStartStroke}
@@ -47,7 +41,8 @@ export const Canvas = ({
       className={fillContainer ? 'w-full h-full' : 'inline-block'}
     >
       <DrawingCanvas
-        strokes={strokes}
+        drawables={drawables}
+        layers={layers}
         width={width}
         height={height}
         backgroundColor={backgroundColor}

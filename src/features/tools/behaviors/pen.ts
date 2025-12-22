@@ -1,4 +1,6 @@
-import type { Stroke, Point } from '../../canvas/types'
+import { createSolidBrushTip } from '@/features/brush'
+import type { Point, StrokeDrawable } from '@/features/drawable'
+import { createStrokeDrawable } from '@/features/drawable'
 import type { PenToolConfig, CursorConfig } from '../types'
 
 export const penBehavior = {
@@ -10,12 +12,12 @@ export const penBehavior = {
     color: '#000000',
   }),
 
-  createStroke: (point: Point, config: PenToolConfig): Stroke => ({
-    points: [point],
-    width: config.width,
-    color: config.color,
-    isEraser: false,
-  }),
+  createStroke: (point: Point, config: PenToolConfig): StrokeDrawable =>
+    createStrokeDrawable([point], {
+      color: config.color,
+      brushTip: createSolidBrushTip(config.width),
+      blendMode: 'normal',
+    }),
 
   getCursor: (config: PenToolConfig): CursorConfig => ({
     size: config.width,

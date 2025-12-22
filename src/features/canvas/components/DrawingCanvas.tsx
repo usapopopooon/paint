@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Stroke } from '../types'
-import { renderCanvas } from '../utils/renderer'
+import type { Drawable } from '@/features/drawable'
+import type { Layer } from '@/features/layer'
+import { renderDrawables, renderLayers } from '../utils/renderer'
 
 type DrawingCanvasProps = {
-  readonly strokes: readonly Stroke[]
+  readonly drawables?: readonly Drawable[]
+  readonly layers?: readonly Layer[]
   readonly width?: number
   readonly height?: number
   readonly backgroundColor?: string
@@ -12,7 +14,8 @@ type DrawingCanvasProps = {
 }
 
 export const DrawingCanvas = ({
-  strokes,
+  drawables,
+  layers,
   width = 800,
   height = 600,
   backgroundColor = '#ffffff',
@@ -51,8 +54,17 @@ export const DrawingCanvas = ({
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
 
-    renderCanvas(ctx, strokes, size.width, size.height, backgroundColor)
-  }, [strokes, size.width, size.height, backgroundColor])
+    // Use layers if provided, otherwise fall back to drawables
+    if (layers) {
+      renderLayers(ctx, layers, size.width, size.height, backgroundColor)
+    } else if (drawables) {
+      renderDrawables(ctx, drawables, size.width, size.height, backgroundColor)
+    } else {
+      // No content, just fill with background
+      ctx.fillStyle = backgroundColor
+      ctx.fillRect(0, 0, size.width, size.height)
+    }
+  }, [drawables, layers, size.width, size.height, backgroundColor])
 
   if (fillContainer) {
     return (

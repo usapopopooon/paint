@@ -172,14 +172,12 @@ function App() {
         {/* Canvas area */}
         <main className="flex-1 overflow-hidden bg-muted/30">
           <Canvas
-            strokes={canvas.strokes}
+            layers={canvas.layers}
             onStartStroke={handleStartStroke}
             onAddPoint={canvas.addPoint}
             onEndStroke={canvas.endStroke}
             onWheel={handleWheel}
-            strokeWidth={cursor.size}
-            strokeColor={cursor.color}
-            isEraser={tool.currentType === 'eraser'}
+            cursor={cursor}
             fillContainer
           />
         </main>

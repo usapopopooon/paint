@@ -38,7 +38,13 @@ export const PointerInputLayer = ({
     >
       {children}
       {cursor && pointerPosition && (
-        <BrushCursor x={pointerPosition.x} y={pointerPosition.y} size={cursor.size} color={cursor.color} />
+        <BrushCursor
+          x={pointerPosition.x}
+          y={pointerPosition.y}
+          size={cursor.size}
+          color={cursor.color}
+          outline={cursor.outline}
+        />
       )}
     </div>
   )

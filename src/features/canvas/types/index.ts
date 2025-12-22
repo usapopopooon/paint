@@ -1,3 +1,5 @@
+import type { StrokeStyle } from '@/features/brush'
+
 export type Point = {
   readonly x: number
   readonly y: number
@@ -5,9 +7,7 @@ export type Point = {
 
 export type Stroke = {
   readonly points: readonly Point[]
-  readonly width: number
-  readonly color: string
-  readonly isEraser?: boolean
+  readonly style: StrokeStyle
 }
 
 export type CanvasHistory = {

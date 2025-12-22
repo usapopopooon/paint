@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react'
-import type { Point, Stroke } from '../types'
+import type { Drawable, StrokeDrawable, Point } from '@/features/drawable'
 import type { ToolConfig } from '../../tools/types'
 import { getToolBehavior } from '../../tools/registry'
 
-export const useDrawing = (onStrokeComplete: (stroke: Stroke) => void) => {
-  const [currentStroke, setCurrentStroke] = useState<Stroke | null>(null)
+export const useDrawing = (onDrawableComplete: (drawable: Drawable) => void) => {
+  const [currentStroke, setCurrentStroke] = useState<StrokeDrawable | null>(null)
 
   const startStroke = useCallback((point: Point, config: ToolConfig) => {
     const behavior = getToolBehavior(config.type)
@@ -21,11 +21,11 @@ export const useDrawing = (onStrokeComplete: (stroke: Stroke) => void) => {
   const endStroke = useCallback(() => {
     setCurrentStroke((prev) => {
       if (prev && prev.points.length > 1) {
-        onStrokeComplete(prev)
+        onDrawableComplete(prev)
       }
       return null
     })
-  }, [onStrokeComplete])
+  }, [onDrawableComplete])
 
   return {
     currentStroke,

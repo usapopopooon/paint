@@ -22,12 +22,12 @@ describe('getToolBehavior', () => {
       { x: 0, y: 0 },
       { type: 'pen', width: 5, color: '#000000' }
     )
-    expect(stroke.isEraser).toBe(false)
+    expect(stroke.style.blendMode).toBe('normal')
   })
 
   it('creates correct stroke for eraser via registry', () => {
     const behavior = getToolBehavior('eraser')
     const stroke = behavior.createStroke({ x: 0, y: 0 }, { type: 'eraser', width: 20 })
-    expect(stroke.isEraser).toBe(true)
+    expect(stroke.style.blendMode).toBe('erase')
   })
 })

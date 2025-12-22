@@ -1,4 +1,6 @@
-import type { Stroke, Point } from '../../canvas/types'
+import { createSolidBrushTip } from '@/features/brush'
+import type { Point, StrokeDrawable } from '@/features/drawable'
+import { createStrokeDrawable } from '@/features/drawable'
 import type { EraserToolConfig, CursorConfig } from '../types'
 
 export const eraserBehavior = {
@@ -9,15 +11,16 @@ export const eraserBehavior = {
     width: 20,
   }),
 
-  createStroke: (point: Point, config: EraserToolConfig): Stroke => ({
-    points: [point],
-    width: config.width,
-    color: 'transparent',
-    isEraser: true,
-  }),
+  createStroke: (point: Point, config: EraserToolConfig): StrokeDrawable =>
+    createStrokeDrawable([point], {
+      color: 'transparent',
+      brushTip: createSolidBrushTip(config.width),
+      blendMode: 'erase',
+    }),
 
-  getCursor: (config: EraserToolConfig, backgroundColor: string): CursorConfig => ({
+  getCursor: (config: EraserToolConfig, _backgroundColor: string): CursorConfig => ({
     size: config.width,
-    color: backgroundColor,
+    color: '#888888',
+    outline: '#ffffff',
   }),
 }

@@ -5,6 +5,7 @@ export type ToolType = 'pen' | 'eraser'
 export type CursorConfig = {
   readonly size: number
   readonly color: string
+  readonly outline?: string // Optional outline color for visibility
 }
 
 // ツール設定（判別共用体）
