@@ -1,27 +1,27 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { valueToSlider, sliderToValue } from './slider'
 
 describe('valueToSlider', () => {
-  it('returns 0 for min value', () => {
+  test('最小値に対して0を返す', () => {
     expect(valueToSlider(1, 1, 100)).toBe(0)
   })
 
-  it('returns 100 for max value', () => {
+  test('最大値に対して100を返す', () => {
     expect(valueToSlider(100, 1, 100)).toBe(100)
   })
 
-  it('returns ~50 for geometric mean of min and max', () => {
-    // geometric mean of 1 and 100 is 10
+  test('最小値と最大値の幾何平均に対して約50を返す', () => {
+    // 1と100の幾何平均は10
     const result = valueToSlider(10, 1, 100)
     expect(result).toBeCloseTo(50, 1)
   })
 
-  it('handles custom ranges', () => {
+  test('カスタム範囲を処理する', () => {
     expect(valueToSlider(5, 5, 300)).toBe(0)
     expect(valueToSlider(300, 5, 300)).toBe(100)
   })
 
-  it('handles mid-range values logarithmically', () => {
+  test('中間値を対数的に処理する', () => {
     const result = valueToSlider(50, 1, 300)
     expect(result).toBeGreaterThan(0)
     expect(result).toBeLessThan(100)
@@ -29,32 +29,32 @@ describe('valueToSlider', () => {
 })
 
 describe('sliderToValue', () => {
-  it('returns min value for 0', () => {
+  test('0に対して最小値を返す', () => {
     expect(sliderToValue(0, 1, 100)).toBe(1)
   })
 
-  it('returns max value for 100', () => {
+  test('100に対して最大値を返す', () => {
     expect(sliderToValue(100, 1, 100)).toBe(100)
   })
 
-  it('returns geometric mean for 50', () => {
-    // geometric mean of 1 and 100 is 10
+  test('50に対して幾何平均を返す', () => {
+    // 1と100の幾何平均は10
     expect(sliderToValue(50, 1, 100)).toBe(10)
   })
 
-  it('handles custom ranges', () => {
+  test('カスタム範囲を処理する', () => {
     expect(sliderToValue(0, 5, 300)).toBe(5)
     expect(sliderToValue(100, 5, 300)).toBe(300)
   })
 
-  it('rounds to integer', () => {
+  test('整数に丸める', () => {
     const result = sliderToValue(25, 1, 100)
     expect(Number.isInteger(result)).toBe(true)
   })
 })
 
-describe('valueToSlider and sliderToValue are inverse functions', () => {
-  it('roundtrips correctly for various values', () => {
+describe('valueToSliderとsliderToValueは逆関数', () => {
+  test('様々な値でラウンドトリップが正しく動作する', () => {
     const testCases = [
       { value: 1, min: 1, max: 100 },
       { value: 50, min: 1, max: 100 },

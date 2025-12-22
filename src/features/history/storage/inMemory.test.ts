@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest'
 import { createInMemoryStorage } from './inMemory'
 import type { HistoryStorage } from '../types/storage'
 import type { DrawableAddedAction } from '../types/actions'
@@ -27,7 +27,7 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('push', () => {
-    it('pushes an action and clears redo stack', async () => {
+    test('アクションをプッシュしてredoスタックをクリアする', async () => {
       const action = createTestDrawableAction('1')
       const result = await storage.push(action)
 
@@ -38,7 +38,7 @@ describe('createInMemoryStorage', () => {
       expect(info.success && info.data.redoCount).toBe(0)
     })
 
-    it('respects maxUndoLevels', async () => {
+    test('maxUndoLevelsを尊重する', async () => {
       const storageWithLimit = createInMemoryStorage({ maxUndoLevels: 3 })
 
       await storageWithLimit.push(createTestDrawableAction('1'))
@@ -52,14 +52,14 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('undo', () => {
-    it('returns null when undo stack is empty', async () => {
+    test('undoスタックが空の場合はnullを返す', async () => {
       const result = await storage.undo()
 
       expect(result.success).toBe(true)
       expect(result.success && result.data).toBeNull()
     })
 
-    it('returns the undone action and moves it to redo stack', async () => {
+    test('取り消したアクションを返してredoスタックに移動する', async () => {
       const action = createTestDrawableAction('1')
       await storage.push(action)
 
@@ -75,14 +75,14 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('redo', () => {
-    it('returns null when redo stack is empty', async () => {
+    test('redoスタックが空の場合はnullを返す', async () => {
       const result = await storage.redo()
 
       expect(result.success).toBe(true)
       expect(result.success && result.data).toBeNull()
     })
 
-    it('returns the redone action and moves it to undo stack', async () => {
+    test('やり直したアクションを返してundoスタックに移動する', async () => {
       const action = createTestDrawableAction('1')
       await storage.push(action)
       await storage.undo()
@@ -99,14 +99,14 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('peekUndo', () => {
-    it('returns null when undo stack is empty', async () => {
+    test('undoスタックが空の場合はnullを返す', async () => {
       const result = await storage.peekUndo()
 
       expect(result.success).toBe(true)
       expect(result.success && result.data).toBeNull()
     })
 
-    it('returns the next action to undo without modifying stack', async () => {
+    test('スタックを変更せずに次にundoするアクションを返す', async () => {
       const action = createTestDrawableAction('1')
       await storage.push(action)
 
@@ -121,14 +121,14 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('peekRedo', () => {
-    it('returns null when redo stack is empty', async () => {
+    test('redoスタックが空の場合はnullを返す', async () => {
       const result = await storage.peekRedo()
 
       expect(result.success).toBe(true)
       expect(result.success && result.data).toBeNull()
     })
 
-    it('returns the next action to redo without modifying stack', async () => {
+    test('スタックを変更せずに次にredoするアクションを返す', async () => {
       await storage.push(createTestDrawableAction('1'))
       await storage.undo()
 
@@ -143,7 +143,7 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('clear', () => {
-    it('clears both undo and redo stacks', async () => {
+    test('undoとredoの両スタックをクリアする', async () => {
       await storage.push(createTestDrawableAction('1'))
       await storage.push(createTestDrawableAction('2'))
       await storage.undo()
@@ -157,7 +157,7 @@ describe('createInMemoryStorage', () => {
   })
 
   describe('dispose', () => {
-    it('clears all data', async () => {
+    test('全データをクリアする', async () => {
       await storage.push(createTestDrawableAction('1'))
       await storage.dispose()
 
@@ -166,13 +166,13 @@ describe('createInMemoryStorage', () => {
     })
   })
 
-  describe('complex scenarios', () => {
-    it('handles undo/redo sequence correctly', async () => {
+  describe('複雑なシナリオ', () => {
+    test('undo/redoシーケンスを正しく処理する', async () => {
       await storage.push(createTestDrawableAction('1'))
       await storage.push(createTestDrawableAction('2'))
       await storage.push(createTestDrawableAction('3'))
 
-      // Undo twice
+      // 2回undo
       await storage.undo()
       await storage.undo()
 
@@ -180,14 +180,14 @@ describe('createInMemoryStorage', () => {
       expect(info.success && info.data.undoCount).toBe(1)
       expect(info.success && info.data.redoCount).toBe(2)
 
-      // Redo once
+      // 1回redo
       await storage.redo()
 
       info = await storage.getStackInfo()
       expect(info.success && info.data.undoCount).toBe(2)
       expect(info.success && info.data.redoCount).toBe(1)
 
-      // Push new action clears redo stack
+      // 新しいアクションをプッシュするとredoスタックがクリアされる
       await storage.push(createTestDrawableAction('4'))
 
       info = await storage.getStackInfo()

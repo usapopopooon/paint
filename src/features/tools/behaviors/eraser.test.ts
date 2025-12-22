@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { eraserBehavior } from './eraser'
 
 describe('eraserBehavior', () => {
   describe('type', () => {
-    it('returns eraser', () => {
+    test('eraserを返す', () => {
       expect(eraserBehavior.type).toBe('eraser')
     })
   })
 
   describe('defaultConfig', () => {
-    it('returns default eraser config', () => {
+    test('デフォルトのeraserコンフィグを返す', () => {
       const config = eraserBehavior.defaultConfig()
       expect(config).toEqual({
         type: 'eraser',
@@ -19,7 +19,7 @@ describe('eraserBehavior', () => {
   })
 
   describe('createStroke', () => {
-    it('creates an eraser stroke drawable with given point and config', () => {
+    test('指定されたポイントとコンフィグで消しゴムストロークDrawableを作成する', () => {
       const point = { x: 15, y: 25 }
       const config = { type: 'eraser' as const, width: 30 }
 
@@ -37,7 +37,7 @@ describe('eraserBehavior', () => {
   })
 
   describe('getCursor', () => {
-    it('returns cursor config with eraser width and visible colors', () => {
+    test('eraserの幅と視認可能な色を持つカーソルコンフィグを返す', () => {
       const config = { type: 'eraser' as const, width: 40 }
       const backgroundColor = '#ffffff'
 

@@ -1,20 +1,20 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { getPointerType, getPointerPoint } from './pointerUtils'
 
 describe('getPointerType', () => {
-  it('returns pen for pen pointer type', () => {
+  test('penポインタータイプに対してpenを返す', () => {
     expect(getPointerType('pen')).toBe('pen')
   })
 
-  it('returns touch for touch pointer type', () => {
+  test('touchポインタータイプに対してtouchを返す', () => {
     expect(getPointerType('touch')).toBe('touch')
   })
 
-  it('returns mouse for mouse pointer type', () => {
+  test('mouseポインタータイプに対してmouseを返す', () => {
     expect(getPointerType('mouse')).toBe('mouse')
   })
 
-  it('returns mouse for unknown pointer type', () => {
+  test('不明なポインタータイプに対してmouseを返す', () => {
     expect(getPointerType('unknown')).toBe('mouse')
     expect(getPointerType('')).toBe('mouse')
   })
@@ -33,7 +33,7 @@ describe('getPointerPoint', () => {
     toJSON: () => ({}),
   }
 
-  it('calculates point coordinates relative to element', () => {
+  test('要素に対する相対座標を計算する', () => {
     const point = getPointerPoint(150, 100, mockRect, 0.5, 'pen')
 
     expect(point.x).toBe(50) // 150 - 100
@@ -42,14 +42,14 @@ describe('getPointerPoint', () => {
     expect(point.pointerType).toBe('pen')
   })
 
-  it('handles zero pressure', () => {
+  test('筆圧0を処理する', () => {
     const point = getPointerPoint(200, 150, mockRect, 0, 'mouse')
 
     expect(point.pressure).toBe(0)
     expect(point.pointerType).toBe('mouse')
   })
 
-  it('handles touch pointer type', () => {
+  test('touchポインタータイプを処理する', () => {
     const point = getPointerPoint(300, 200, mockRect, 1, 'touch')
 
     expect(point.x).toBe(200) // 300 - 100
@@ -58,7 +58,7 @@ describe('getPointerPoint', () => {
     expect(point.pointerType).toBe('touch')
   })
 
-  it('handles negative coordinates when pointer is outside element', () => {
+  test('ポインターが要素外にある場合の負の座標を処理する', () => {
     const point = getPointerPoint(50, 25, mockRect, 0.5, 'pen')
 
     expect(point.x).toBe(-50) // 50 - 100

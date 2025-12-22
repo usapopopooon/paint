@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import {
   createDrawableAddedAction,
   createDrawablesClearedAction,
@@ -22,7 +22,7 @@ const testDrawable = createStrokeDrawable(
 )
 
 describe('createDrawableAddedAction', () => {
-  it('creates a drawable:added action', () => {
+  test('drawable:addedアクションを作成する', () => {
     const action = createDrawableAddedAction(testDrawable)
 
     expect(action.type).toBe('drawable:added')
@@ -32,7 +32,7 @@ describe('createDrawableAddedAction', () => {
     expect(action.layerId).toBeUndefined()
   })
 
-  it('includes layerId when provided', () => {
+  test('layerIdが指定された場合は含める', () => {
     const action = createDrawableAddedAction(testDrawable, 'layer-1')
 
     expect(action.layerId).toBe('layer-1')
@@ -40,7 +40,7 @@ describe('createDrawableAddedAction', () => {
 })
 
 describe('createDrawablesClearedAction', () => {
-  it('creates a drawables:cleared action', () => {
+  test('drawables:clearedアクションを作成する', () => {
     const drawables = [testDrawable]
     const action = createDrawablesClearedAction(drawables)
 
@@ -50,7 +50,7 @@ describe('createDrawablesClearedAction', () => {
     expect(action.timestamp).toBeGreaterThan(0)
   })
 
-  it('includes layerId when provided', () => {
+  test('layerIdが指定された場合は含める', () => {
     const action = createDrawablesClearedAction([], 'layer-2')
 
     expect(action.layerId).toBe('layer-2')
@@ -58,7 +58,7 @@ describe('createDrawablesClearedAction', () => {
 })
 
 describe('createLayerCreatedAction', () => {
-  it('creates a layer:created action', () => {
+  test('layer:createdアクションを作成する', () => {
     const action = createLayerCreatedAction('layer-1', 'Background', 0)
 
     expect(action.type).toBe('layer:created')
@@ -71,7 +71,7 @@ describe('createLayerCreatedAction', () => {
 })
 
 describe('createLayerDeletedAction', () => {
-  it('creates a layer:deleted action', () => {
+  test('layer:deletedアクションを作成する', () => {
     const snapshot = {
       id: 'layer-1',
       name: 'Layer 1',
@@ -91,7 +91,7 @@ describe('createLayerDeletedAction', () => {
 })
 
 describe('createLayerReorderedAction', () => {
-  it('creates a layer:reordered action', () => {
+  test('layer:reorderedアクションを作成する', () => {
     const action = createLayerReorderedAction('layer-1', 0, 2)
 
     expect(action.type).toBe('layer:reordered')
@@ -101,8 +101,8 @@ describe('createLayerReorderedAction', () => {
   })
 })
 
-describe('action ID uniqueness', () => {
-  it('generates unique IDs for each action', () => {
+describe('アクションIDのユニーク性', () => {
+  test('各アクションに対してユニークなIDを生成する', () => {
     const action1 = createDrawableAddedAction(testDrawable)
     const action2 = createDrawableAddedAction(testDrawable)
 

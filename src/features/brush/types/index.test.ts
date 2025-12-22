@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { createSolidBrushTip, createSoftBrushTip } from './index'
 
 describe('createSolidBrushTip', () => {
-  it('creates a solid brush tip with given size', () => {
+  test('指定サイズでソリッドブラシチップを作成する', () => {
     const tip = createSolidBrushTip(10)
 
     expect(tip).toEqual({
@@ -13,7 +13,7 @@ describe('createSolidBrushTip', () => {
     })
   })
 
-  it('always sets hardness and opacity to 1', () => {
+  test('hardnessとopacityは常に1に設定される', () => {
     const tip = createSolidBrushTip(5)
 
     expect(tip.hardness).toBe(1)
@@ -22,7 +22,7 @@ describe('createSolidBrushTip', () => {
 })
 
 describe('createSoftBrushTip', () => {
-  it('creates a soft brush tip with default hardness and opacity', () => {
+  test('デフォルトのhardnessとopacityでソフトブラシチップを作成する', () => {
     const tip = createSoftBrushTip(15)
 
     expect(tip).toEqual({
@@ -33,7 +33,7 @@ describe('createSoftBrushTip', () => {
     })
   })
 
-  it('creates a soft brush tip with custom hardness', () => {
+  test('カスタムhardnessでソフトブラシチップを作成する', () => {
     const tip = createSoftBrushTip(20, 0.3)
 
     expect(tip.type).toBe('soft')
@@ -42,7 +42,7 @@ describe('createSoftBrushTip', () => {
     expect(tip.opacity).toBe(1)
   })
 
-  it('creates a soft brush tip with custom hardness and opacity', () => {
+  test('カスタムhardnessとopacityでソフトブラシチップを作成する', () => {
     const tip = createSoftBrushTip(25, 0.7, 0.8)
 
     expect(tip).toEqual({

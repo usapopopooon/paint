@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import type { Point, Bounds } from './geometry'
 
-describe('Point type', () => {
-  it('represents 2D coordinates', () => {
+describe('Point型', () => {
+  test('2D座標を表現する', () => {
     const point: Point = { x: 10, y: 20 }
 
     expect(point.x).toBe(10)
@@ -10,8 +10,8 @@ describe('Point type', () => {
   })
 })
 
-describe('Bounds type', () => {
-  it('represents rectangle bounds', () => {
+describe('Bounds型', () => {
+  test('矩形の境界を表現する', () => {
     const bounds: Bounds = { x: 0, y: 0, width: 100, height: 50 }
 
     expect(bounds.x).toBe(0)

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import {
   createBackgroundLayer,
   createDrawingLayer,
@@ -6,7 +6,7 @@ import {
 } from './index'
 
 describe('createBackgroundLayer', () => {
-  it('creates a background layer with default values', () => {
+  test('デフォルト値で背景レイヤーを作成する', () => {
     const layer = createBackgroundLayer()
 
     expect(layer.id).toBe('background')
@@ -21,7 +21,7 @@ describe('createBackgroundLayer', () => {
 })
 
 describe('createDrawingLayer', () => {
-  it('creates a drawing layer with default values', () => {
+  test('デフォルト値で描画レイヤーを作成する', () => {
     const layer = createDrawingLayer()
 
     expect(layer.id).toMatch(/^layer-\d+-[a-z0-9]+$/)
@@ -34,14 +34,14 @@ describe('createDrawingLayer', () => {
     expect(layer.drawables).toEqual([])
   })
 
-  it('uses provided id and name', () => {
+  test('指定されたIDと名前を使用する', () => {
     const layer = createDrawingLayer('my-layer', 'Custom Layer')
 
     expect(layer.id).toBe('my-layer')
     expect(layer.name).toBe('Custom Layer')
   })
 
-  it('uses provided id with default name', () => {
+  test('指定されたIDとデフォルトの名前を使用する', () => {
     const layer = createDrawingLayer('layer-custom')
 
     expect(layer.id).toBe('layer-custom')
@@ -50,7 +50,7 @@ describe('createDrawingLayer', () => {
 })
 
 describe('createInitialLayerState', () => {
-  it('creates state with background and drawing layers', () => {
+  test('背景レイヤーと描画レイヤーを持つ状態を作成する', () => {
     const state = createInitialLayerState()
 
     expect(state.layers).toHaveLength(2)
@@ -58,13 +58,13 @@ describe('createInitialLayerState', () => {
     expect(state.layers[1].type).toBe('drawing')
   })
 
-  it('sets drawing layer as active', () => {
+  test('描画レイヤーをアクティブに設定する', () => {
     const state = createInitialLayerState()
 
     expect(state.activeLayerId).toBe('drawing')
   })
 
-  it('background layer is first (at the back)', () => {
+  test('背景レイヤーが最初（最背面）にある', () => {
     const state = createInitialLayerState()
 
     expect(state.layers[0].id).toBe('background')

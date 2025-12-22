@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import {
   isStrokeDrawable,
   generateDrawableId,
@@ -7,13 +7,13 @@ import {
 import { createSolidBrushTip } from '@/features/brush'
 
 describe('generateDrawableId', () => {
-  it('generates a unique ID with correct prefix', () => {
+  test('正しいプレフィックスでユニークなIDを生成する', () => {
     const id = generateDrawableId()
 
     expect(id).toMatch(/^drawable-\d+-[a-z0-9]+$/)
   })
 
-  it('generates unique IDs on each call', () => {
+  test('呼び出すたびにユニークなIDを生成する', () => {
     const id1 = generateDrawableId()
     const id2 = generateDrawableId()
 
@@ -32,7 +32,7 @@ describe('createStrokeDrawable', () => {
     blendMode: 'normal' as const,
   }
 
-  it('creates a stroke drawable with auto-generated ID', () => {
+  test('自動生成されたIDでストロークDrawableを作成する', () => {
     const drawable = createStrokeDrawable(testPoints, testStyle)
 
     expect(drawable.type).toBe('stroke')
@@ -42,14 +42,14 @@ describe('createStrokeDrawable', () => {
     expect(drawable.style).toEqual(testStyle)
   })
 
-  it('creates a stroke drawable with custom ID', () => {
+  test('カスタムIDでストロークDrawableを作成する', () => {
     const customId = 'custom-stroke-id'
     const drawable = createStrokeDrawable(testPoints, testStyle, customId)
 
     expect(drawable.id).toBe(customId)
   })
 
-  it('creates immutable points array', () => {
+  test('イミュータブルなポイント配列を作成する', () => {
     const drawable = createStrokeDrawable(testPoints, testStyle)
 
     expect(Object.isFrozen(drawable.points) || Array.isArray(drawable.points)).toBe(true)
@@ -57,7 +57,7 @@ describe('createStrokeDrawable', () => {
 })
 
 describe('isStrokeDrawable', () => {
-  it('returns true for stroke drawable', () => {
+  test('ストロークDrawableに対してtrueを返す', () => {
     const drawable = createStrokeDrawable(
       [{ x: 0, y: 0 }],
       {
@@ -70,7 +70,7 @@ describe('isStrokeDrawable', () => {
     expect(isStrokeDrawable(drawable)).toBe(true)
   })
 
-  it('correctly narrows type', () => {
+  test('型を正しく絞り込む', () => {
     const drawable = createStrokeDrawable(
       [{ x: 0, y: 0 }],
       {
@@ -81,7 +81,7 @@ describe('isStrokeDrawable', () => {
     )
 
     if (isStrokeDrawable(drawable)) {
-      // TypeScript should allow access to stroke-specific properties
+      // TypeScriptはストローク固有のプロパティへのアクセスを許可するべき
       expect(drawable.points).toBeDefined()
       expect(drawable.style).toBeDefined()
     }

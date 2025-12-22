@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { penBehavior } from './pen'
 
 describe('penBehavior', () => {
   describe('type', () => {
-    it('returns pen', () => {
+    test('penを返す', () => {
       expect(penBehavior.type).toBe('pen')
     })
   })
 
   describe('defaultConfig', () => {
-    it('returns default pen config', () => {
+    test('デフォルトのpenコンフィグを返す', () => {
       const config = penBehavior.defaultConfig()
       expect(config).toEqual({
         type: 'pen',
@@ -20,7 +20,7 @@ describe('penBehavior', () => {
   })
 
   describe('createStroke', () => {
-    it('creates a stroke drawable with given point and config', () => {
+    test('指定されたポイントとコンフィグでストロークDrawableを作成する', () => {
       const point = { x: 10, y: 20 }
       const config = { type: 'pen' as const, width: 5, color: '#ff0000' }
 
@@ -38,7 +38,7 @@ describe('penBehavior', () => {
   })
 
   describe('getCursor', () => {
-    it('returns cursor config matching pen config', () => {
+    test('penコンフィグに対応したカーソルコンフィグを返す', () => {
       const config = { type: 'pen' as const, width: 10, color: '#00ff00' }
 
       const cursor = penBehavior.getCursor(config)
