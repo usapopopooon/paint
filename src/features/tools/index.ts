@@ -8,3 +8,4 @@ export type {
 export { useTool } from './hooks'
 export { getToolBehavior } from './registry'
 export { penBehavior, eraserBehavior } from './behaviors'
+export { ToolPanel } from './components'

@@ -1,15 +1,11 @@
-import { Eraser, Pencil } from 'lucide-react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useMemo } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
-import { Button } from './components/ui/button'
-import { Slider } from './components/ui/slider'
-import { Tooltip, TooltipContent, TooltipTrigger } from './components/ui/tooltip'
 import { Canvas, useCanvas } from './features/canvas'
-import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { LocaleToggle, useLocale } from './features/i18n'
 import { Toolbar } from './features/toolbar'
-import { useTool } from './features/tools'
+import { useTool, ToolPanel } from './features/tools'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useTheme } from './hooks/useTheme'
 import { valueToSlider, sliderToValue } from './lib/slider'
 
@@ -24,56 +20,31 @@ function App() {
   const { isDark, toggleTheme } = useTheme()
   const { locale, toggleLocale, t } = useLocale()
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-        e.preventDefault()
-        if (e.shiftKey) {
-          canvas.redo()
-        } else {
-          canvas.undo()
-        }
+  // キーボードショートカット
+  useKeyboardShortcuts({
+    onUndo: canvas.undo,
+    onRedo: canvas.redo,
+    onClear: canvas.clear,
+  })
+
+  // ホイールでブラシサイズ変更
+  const handleWheel = useCallback(
+    (deltaY: number) => {
+      const step = deltaY > 0 ? -5 : 5
+      if (tool.currentType === 'pen') {
+        const currentSlider = valueToSlider(tool.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
+        const newSlider = Math.max(0, Math.min(100, currentSlider + step))
+        const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
+        tool.setPenWidth(newWidth)
+      } else {
+        const currentSlider = valueToSlider(tool.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+        const newSlider = Math.max(0, Math.min(100, currentSlider + step))
+        const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+        tool.setEraserWidth(newWidth)
       }
-      if (e.shiftKey && e.key === 'Delete') {
-        e.preventDefault()
-        canvas.clear()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [canvas])
-
-  const handlePenWidthChange = (values: number[]) => {
-    const sliderValue = values[0]
-    if (sliderValue !== undefined) {
-      const width = sliderToValue(sliderValue, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-      tool.setPenWidth(width)
-    }
-  }
-
-  const handleEraserWidthChange = (values: number[]) => {
-    const sliderValue = values[0]
-    if (sliderValue !== undefined) {
-      const width = sliderToValue(sliderValue, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-      tool.setEraserWidth(width)
-    }
-  }
-
-  const handleWheel = (deltaY: number) => {
-    const step = deltaY > 0 ? -5 : 5 // scroll down = smaller, scroll up = larger
-    if (tool.currentType === 'pen') {
-      const currentSlider = valueToSlider(tool.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-      const newSlider = Math.max(0, Math.min(100, currentSlider + step))
-      const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-      tool.setPenWidth(newWidth)
-    } else {
-      const currentSlider = valueToSlider(tool.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-      const newSlider = Math.max(0, Math.min(100, currentSlider + step))
-      const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-      tool.setEraserWidth(newWidth)
-    }
-  }
+    },
+    [tool]
+  )
 
   const handleStartStroke = useCallback(
     (point: Point) => {
@@ -82,7 +53,7 @@ function App() {
     [canvas, tool.currentConfig]
   )
 
-  const cursor = tool.getCursor('#ffffff')
+  const cursor = useMemo(() => tool.getCursor('#ffffff'), [tool])
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -104,69 +75,16 @@ function App() {
 
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar */}
-        <aside className="w-[232px] p-4 border-r border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background flex flex-col gap-6">
-          {/* Color picker */}
-          <ColorWheel color={tool.penConfig.color} onChange={tool.setPenColor} t={t} />
-
-          {/* Pen tool */}
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={tool.currentType === 'pen' ? 'default' : 'secondary'}
-                  size="sm"
-                  onClick={() => tool.setToolType('pen')}
-                  aria-label={t('tools.pen')}
-                >
-                  <Pencil className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t('tools.pen')}</TooltipContent>
-            </Tooltip>
-            <div className="flex-1 flex items-center gap-2">
-              <Slider
-                value={[valueToSlider(tool.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
-                onValueChange={handlePenWidthChange}
-                min={0}
-                max={100}
-                step={0.1}
-              />
-              <span className="text-sm font-mono text-foreground w-8 text-right">
-                {tool.penConfig.width}
-              </span>
-            </div>
-          </div>
-
-          {/* Eraser tool */}
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={tool.currentType === 'eraser' ? 'default' : 'secondary'}
-                  size="sm"
-                  onClick={() => tool.setToolType('eraser')}
-                  aria-label={t('tools.eraser')}
-                >
-                  <Eraser className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">{t('tools.eraser')}</TooltipContent>
-            </Tooltip>
-            <div className="flex-1 flex items-center gap-2">
-              <Slider
-                value={[valueToSlider(tool.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
-                onValueChange={handleEraserWidthChange}
-                min={0}
-                max={100}
-                step={0.1}
-              />
-              <span className="text-sm font-mono text-foreground w-8 text-right">
-                {tool.eraserConfig.width}
-              </span>
-            </div>
-          </div>
-        </aside>
+        <ToolPanel
+          currentType={tool.currentType}
+          penConfig={tool.penConfig}
+          eraserConfig={tool.eraserConfig}
+          onToolTypeChange={tool.setToolType}
+          onPenWidthChange={tool.setPenWidth}
+          onPenColorChange={tool.setPenColor}
+          onEraserWidthChange={tool.setEraserWidth}
+          t={t}
+        />
 
         {/* Canvas area */}
         <main className="flex-1 overflow-hidden bg-muted/30">

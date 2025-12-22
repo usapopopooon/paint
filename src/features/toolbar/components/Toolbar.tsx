@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -15,14 +16,14 @@ type ToolbarProps = {
   readonly t: (key: TranslationKey) => string
 }
 
-export const Toolbar = ({
+export const Toolbar = memo(function Toolbar({
   canUndo,
   canRedo,
   onUndo,
   onRedo,
   onClear,
   t,
-}: ToolbarProps) => {
+}: ToolbarProps) {
   return (
     <div className="flex items-center gap-2">
       <Tooltip>
@@ -72,4 +73,4 @@ export const Toolbar = ({
       </Tooltip>
     </div>
   )
-}
+})
