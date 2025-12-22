@@ -6,7 +6,7 @@ export { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from './types'
 export type { TranslationKey, TranslateFunction } from './locales'
 export { translations, getTranslation } from './locales'
 
-// Hook & Provider
+// フック & プロバイダー
 export { LocaleProvider, useLocale } from './hooks/useLocale'
 
 // コンポーネント

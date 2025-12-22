@@ -8,7 +8,7 @@ import {
 } from '@/features/history'
 
 /**
- * Options for useCanvasHistory hook
+ * useCanvasHistoryフックのオプション
  */
 export type UseCanvasHistoryOptions = {
   readonly storage?: HistoryStorage
@@ -16,19 +16,19 @@ export type UseCanvasHistoryOptions = {
 }
 
 /**
- * Canvas history hook with storage abstraction
+ * ストレージ抽象化を備えたキャンバス履歴フック
  *
  * 履歴のみを管理。実際のdrawables状態はuseLayersが単一のsource of truthとして保持。
  * このhookはundo/redo可能かどうかの判定と、アクションの記録・復元を担当。
  *
- * Usage:
+ * 使用例:
  *   const history = useCanvasHistory()
  */
 export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
 
-  // Storage instance (default: in-memory)
+  // ストレージインスタンス（デフォルト: インメモリ）
   const storageRef = useRef<HistoryStorage>(
     options?.storage ??
       createInMemoryStorage({
@@ -36,7 +36,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       })
   )
 
-  // Sync stack info from storage
+  // ストレージからスタック情報を同期
   const updateStackInfo = useCallback(async () => {
     const result = await storageRef.current.getStackInfo()
     if (result.success) {
@@ -89,7 +89,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     [updateStackInfo]
   )
 
-  // Cleanup on unmount
+  // アンマウント時にクリーンアップ
   useEffect(() => {
     const storage = storageRef.current
     return () => {

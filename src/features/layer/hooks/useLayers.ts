@@ -17,18 +17,18 @@ export type UseLayersReturn = {
 }
 
 /**
- * Hook for managing layer state
+ * レイヤー状態を管理するフック
  */
 export const useLayers = (): UseLayersReturn => {
   const [state, setState] = useState<LayerState>(createInitialLayerState)
 
-  // Get active layer
+  // アクティブレイヤーを取得
   const activeLayer = useMemo(
     () => state.layers.find((l) => l.id === state.activeLayerId)!,
     [state.layers, state.activeLayerId]
   )
 
-  // Add drawable to active layer
+  // アクティブレイヤーにDrawableを追加
   const addDrawable = useCallback((drawable: Drawable) => {
     setState((prev) => ({
       ...prev,
@@ -40,7 +40,7 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // Remove last drawable from active layer
+  // アクティブレイヤーから最後のDrawableを削除
   const removeLastDrawable = useCallback(() => {
     setState((prev) => ({
       ...prev,
@@ -52,7 +52,7 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // Set drawables for active layer
+  // アクティブレイヤーのDrawablesを設定
   const setDrawables = useCallback((drawables: readonly Drawable[]) => {
     setState((prev) => ({
       ...prev,
@@ -62,7 +62,7 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // Clear active layer
+  // アクティブレイヤーをクリア
   const clearActiveLayer = useCallback(() => {
     setState((prev) => ({
       ...prev,
@@ -72,12 +72,12 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // Switch active layer (for future use)
+  // アクティブレイヤーを切り替え（将来の拡張用）
   const setActiveLayer = useCallback((id: LayerId) => {
     setState((prev) => ({ ...prev, activeLayerId: id }))
   }, [])
 
-  // Set layer opacity (for future use)
+  // レイヤーの不透明度を設定（将来の拡張用）
   const setLayerOpacity = useCallback((id: LayerId, opacity: number) => {
     setState((prev) => ({
       ...prev,
@@ -87,7 +87,7 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // Set layer visibility (for future use)
+  // レイヤーの表示/非表示を設定（将来の拡張用）
   const setLayerVisibility = useCallback((id: LayerId, visible: boolean) => {
     setState((prev) => ({
       ...prev,

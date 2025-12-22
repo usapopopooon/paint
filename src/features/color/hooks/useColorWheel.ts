@@ -123,7 +123,7 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     setHsv(hexToHsv(hex))
   }, [])
 
-  // Calculate indicator positions
+  // インジケーター位置を計算
   const hueAngle = hsv.h - 90
   const ringMiddle = WHEEL_SIZE / 2 - RING_WIDTH / 2
   const hueIndicatorX = WHEEL_SIZE / 2 + Math.cos((hueAngle * Math.PI) / 180) * ringMiddle
