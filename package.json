@@ -16,7 +16,9 @@
     "test:unit": "vitest --config vitest.unit.config.ts",
     "test:storybook": "vitest --config vitest.config.ts",
     "test:run": "npm run test:unit -- --run && npm run test:storybook -- --run",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "npm run test:coverage:unit && npm run test:coverage:storybook",
+    "test:coverage:unit": "vitest --config vitest.unit.config.ts run --coverage",
+    "test:coverage:storybook": "vitest --config vitest.config.ts run --coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "deploy": "gh-pages -d dist"

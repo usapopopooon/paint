@@ -1,93 +1,25 @@
-{
-  "total": {
-    "lines": { "total": 358, "covered": 192, "skipped": 0, "pct": 53.63 },
-    "statements": { "total": 424, "covered": 199, "skipped": 0, "pct": 46.93 },
-    "functions": { "total": 77, "covered": 43, "skipped": 0, "pct": 55.84 },
-    "branches": { "total": 183, "covered": 84, "skipped": 0, "pct": 45.9 },
-    "branchesTrue": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/.storybook/preview.tsx": {
-    "lines": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 },
-    "functions": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "statements": { "total": 5, "covered": 5, "skipped": 0, "pct": 100 },
-    "branches": { "total": 4, "covered": 2, "skipped": 0, "pct": 50 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/index.css": {
-    "lines": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 },
-    "functions": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 },
-    "statements": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 },
-    "branches": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/components/LocaleToggle.tsx": {
-    "lines": { "total": 3, "covered": 3, "skipped": 0, "pct": 100 },
-    "functions": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "statements": { "total": 3, "covered": 3, "skipped": 0, "pct": 100 },
-    "branches": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/components/ThemeToggle.tsx": {
-    "lines": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 },
-    "functions": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "statements": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 },
-    "branches": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/components/ui/button.tsx": {
-    "lines": { "total": 5, "covered": 5, "skipped": 0, "pct": 100 },
-    "functions": { "total": 2, "covered": 2, "skipped": 0, "pct": 100 },
-    "statements": { "total": 5, "covered": 5, "skipped": 0, "pct": 100 },
-    "branches": { "total": 10, "covered": 9, "skipped": 0, "pct": 90 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/components/ui/popover.tsx": {
-    "lines": { "total": 5, "covered": 4, "skipped": 0, "pct": 80 },
-    "functions": { "total": 5, "covered": 4, "skipped": 0, "pct": 80 },
-    "statements": { "total": 6, "covered": 5, "skipped": 0, "pct": 83.33 },
-    "branches": { "total": 7, "covered": 6, "skipped": 0, "pct": 85.71 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/components/ui/slider.tsx": {
-    "lines": { "total": 6, "covered": 6, "skipped": 0, "pct": 100 },
-    "functions": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 },
-    "statements": { "total": 6, "covered": 6, "skipped": 0, "pct": 100 },
-    "branches": { "total": 11, "covered": 9, "skipped": 0, "pct": 81.81 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/components/ui/tooltip.tsx": {
-    "lines": { "total": 6, "covered": 6, "skipped": 0, "pct": 100 },
-    "functions": { "total": 5, "covered": 5, "skipped": 0, "pct": 100 },
-    "statements": { "total": 6, "covered": 6, "skipped": 0, "pct": 100 },
-    "branches": { "total": 7, "covered": 6, "skipped": 0, "pct": 85.71 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/features/canvas/components/Canvas.tsx": {
-    "lines": { "total": 65, "covered": 44, "skipped": 0, "pct": 67.69 },
-    "functions": { "total": 14, "covered": 8, "skipped": 0, "pct": 57.14 },
-    "statements": { "total": 73, "covered": 44, "skipped": 0, "pct": 60.27 },
-    "branches": { "total": 36, "covered": 19, "skipped": 0, "pct": 52.77 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/features/canvas/utils/renderer.ts": {
-    "lines": { "total": 16, "covered": 16, "skipped": 0, "pct": 100 },
-    "functions": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 },
-    "statements": { "total": 18, "covered": 17, "skipped": 0, "pct": 94.44 },
-    "branches": { "total": 2, "covered": 1, "skipped": 0, "pct": 50 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/features/color/components/ColorPicker.tsx": {
-    "lines": { "total": 111, "covered": 47, "skipped": 0, "pct": 42.34 },
-    "functions": { "total": 16, "covered": 5, "skipped": 0, "pct": 31.25 },
-    "statements": { "total": 138, "covered": 49, "skipped": 0, "pct": 35.5 },
-    "branches": { "total": 43, "covered": 10, "skipped": 0, "pct": 23.25 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/features/color/components/ColorWheel.tsx": {
-    "lines": { "total": 129, "covered": 49, "skipped": 0, "pct": 37.98 },
-    "functions": { "total": 22, "covered": 6, "skipped": 0, "pct": 27.27 },
-    "statements": { "total": 156, "covered": 51, "skipped": 0, "pct": 32.69 },
-    "branches": { "total": 51, "covered": 10, "skipped": 0, "pct": 19.6 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/features/toolbar/components/Toolbar.tsx": {
-    "lines": { "total": 3, "covered": 3, "skipped": 0, "pct": 100 },
-    "functions": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "statements": { "total": 3, "covered": 3, "skipped": 0, "pct": 100 },
-    "branches": { "total": 4, "covered": 4, "skipped": 0, "pct": 100 }
-  },
-  "/Users/katsuya.yoshizumi/git-usapo/paint/src/lib/utils.ts": {
-    "lines": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "functions": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "statements": { "total": 1, "covered": 1, "skipped": 0, "pct": 100 },
-    "branches": { "total": 0, "covered": 0, "skipped": 0, "pct": 100 }
-  }
+{"total": {"lines":{"total":193,"covered":173,"skipped":0,"pct":89.63},"statements":{"total":205,"covered":183,"skipped":0,"pct":89.26},"functions":{"total":54,"covered":50,"skipped":0,"pct":92.59},"branches":{"total":76,"covered":68,"skipped":0,"pct":89.47},"branchesTrue":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/brush/index.ts": {"lines":{"total":0,"covered":0,"skipped":0,"pct":100},"functions":{"total":0,"covered":0,"skipped":0,"pct":100},"statements":{"total":0,"covered":0,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/brush/types/index.ts": {"lines":{"total":3,"covered":3,"skipped":0,"pct":100},"functions":{"total":2,"covered":2,"skipped":0,"pct":100},"statements":{"total":4,"covered":4,"skipped":0,"pct":100},"branches":{"total":2,"covered":2,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/drawable/index.ts": {"lines":{"total":0,"covered":0,"skipped":0,"pct":100},"functions":{"total":0,"covered":0,"skipped":0,"pct":100},"statements":{"total":0,"covered":0,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/drawable/renderer/index.ts": {"lines":{"total":22,"covered":2,"skipped":0,"pct":9.09},"functions":{"total":3,"covered":0,"skipped":0,"pct":0},"statements":{"total":23,"covered":2,"skipped":0,"pct":8.69},"branches":{"total":7,"covered":0,"skipped":0,"pct":0}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/drawable/types/index.ts": {"lines":{"total":5,"covered":5,"skipped":0,"pct":100},"functions":{"total":3,"covered":3,"skipped":0,"pct":100},"statements":{"total":5,"covered":5,"skipped":0,"pct":100},"branches":{"total":2,"covered":2,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/history/actions/creators.ts": {"lines":{"total":10,"covered":10,"skipped":0,"pct":100},"functions":{"total":5,"covered":5,"skipped":0,"pct":100},"statements":{"total":10,"covered":10,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/history/storage/inMemory.ts": {"lines":{"total":31,"covered":31,"skipped":0,"pct":100},"functions":{"total":10,"covered":10,"skipped":0,"pct":100},"statements":{"total":31,"covered":31,"skipped":0,"pct":100},"branches":{"total":12,"covered":12,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/history/types/storage.ts": {"lines":{"total":2,"covered":2,"skipped":0,"pct":100},"functions":{"total":2,"covered":1,"skipped":0,"pct":50},"statements":{"total":4,"covered":3,"skipped":0,"pct":75},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/i18n/locales/en.json": {"lines":{"total":0,"covered":0,"skipped":0,"pct":100},"functions":{"total":0,"covered":0,"skipped":0,"pct":100},"statements":{"total":0,"covered":0,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/i18n/locales/index.ts": {"lines":{"total":3,"covered":3,"skipped":0,"pct":100},"functions":{"total":1,"covered":1,"skipped":0,"pct":100},"statements":{"total":3,"covered":3,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/i18n/locales/ja.json": {"lines":{"total":0,"covered":0,"skipped":0,"pct":100},"functions":{"total":0,"covered":0,"skipped":0,"pct":100},"statements":{"total":0,"covered":0,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/layer/types/index.ts": {"lines":{"total":3,"covered":3,"skipped":0,"pct":100},"functions":{"total":3,"covered":3,"skipped":0,"pct":100},"statements":{"total":6,"covered":6,"skipped":0,"pct":100},"branches":{"total":4,"covered":4,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/pointer/pointerUtils.ts": {"lines":{"total":7,"covered":7,"skipped":0,"pct":100},"functions":{"total":2,"covered":2,"skipped":0,"pct":100},"statements":{"total":7,"covered":7,"skipped":0,"pct":100},"branches":{"total":3,"covered":3,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/tools/registry.ts": {"lines":{"total":2,"covered":2,"skipped":0,"pct":100},"functions":{"total":1,"covered":1,"skipped":0,"pct":100},"statements":{"total":3,"covered":3,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/tools/behaviors/eraser.ts": {"lines":{"total":4,"covered":4,"skipped":0,"pct":100},"functions":{"total":3,"covered":3,"skipped":0,"pct":100},"statements":{"total":4,"covered":4,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/tools/behaviors/index.ts": {"lines":{"total":0,"covered":0,"skipped":0,"pct":100},"functions":{"total":0,"covered":0,"skipped":0,"pct":100},"statements":{"total":0,"covered":0,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/features/tools/behaviors/pen.ts": {"lines":{"total":4,"covered":4,"skipped":0,"pct":100},"functions":{"total":3,"covered":3,"skipped":0,"pct":100},"statements":{"total":4,"covered":4,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/hooks/useKeyboardShortcuts.ts": {"lines":{"total":13,"covered":13,"skipped":0,"pct":100},"functions":{"total":4,"covered":4,"skipped":0,"pct":100},"statements":{"total":14,"covered":14,"skipped":0,"pct":100},"branches":{"total":11,"covered":11,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/lib/color.ts": {"lines":{"total":61,"covered":61,"skipped":0,"pct":100},"functions":{"total":6,"covered":6,"skipped":0,"pct":100},"statements":{"total":62,"covered":62,"skipped":0,"pct":100},"branches":{"total":25,"covered":24,"skipped":0,"pct":96}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/lib/id.ts": {"lines":{"total":3,"covered":3,"skipped":0,"pct":100},"functions":{"total":1,"covered":1,"skipped":0,"pct":100},"statements":{"total":3,"covered":3,"skipped":0,"pct":100},"branches":{"total":2,"covered":2,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/lib/math.ts": {"lines":{"total":2,"covered":2,"skipped":0,"pct":100},"functions":{"total":1,"covered":1,"skipped":0,"pct":100},"statements":{"total":2,"covered":2,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/lib/slider.ts": {"lines":{"total":9,"covered":9,"skipped":0,"pct":100},"functions":{"total":2,"covered":2,"skipped":0,"pct":100},"statements":{"total":9,"covered":9,"skipped":0,"pct":100},"branches":{"total":0,"covered":0,"skipped":0,"pct":100}}
+,"/Users/katsuya.yoshizumi/git-usapo/paint/src/lib/storage.ts": {"lines":{"total":9,"covered":9,"skipped":0,"pct":100},"functions":{"total":2,"covered":2,"skipped":0,"pct":100},"statements":{"total":11,"covered":11,"skipped":0,"pct":100},"branches":{"total":8,"covered":8,"skipped":0,"pct":100}}
 }

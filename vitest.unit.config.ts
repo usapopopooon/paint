@@ -6,6 +6,9 @@ export default defineConfig({
     include: ['src/**/*.test.ts'],
     environment: 'jsdom',
     reporters: ['verbose'],
+    coverage: {
+      reporter: ['text', 'json-summary'],
+    },
   },
   resolve: {
     alias: {
