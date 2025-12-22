@@ -4,7 +4,7 @@ import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { themes } from 'storybook/theming'
 import { useDarkMode } from '@vueless/storybook-dark-mode'
 import '../src/index.css'
-import { LocaleProvider } from '../src/hooks/useLocale'
+import { LocaleProvider } from '../src/features/i18n'
 
 const ThemedDocsContainer: React.FC<React.ComponentProps<typeof DocsContainer>> = (props) => {
   const isDark = useDarkMode()

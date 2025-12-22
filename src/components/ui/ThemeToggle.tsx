@@ -1,7 +1,7 @@
 import { Moon, Sun } from 'lucide-react'
 import { Button } from './button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import type { TranslationKey } from '@/hooks/useLocale'
+import type { TranslationKey } from '@/features/i18n'
 
 type ThemeToggleProps = {
   readonly isDark: boolean

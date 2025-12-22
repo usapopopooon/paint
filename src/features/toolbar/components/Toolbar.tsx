@@ -4,7 +4,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/hooks/useLocale'
+import type { TranslationKey } from '@/features/i18n'
 
 type ToolbarProps = {
   readonly canUndo: boolean

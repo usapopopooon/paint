@@ -4,7 +4,7 @@ import { LocaleToggle } from './LocaleToggle'
 import { mockT } from '@/test/mocks'
 
 const meta = {
-  title: 'UI/LocaleToggle',
+  title: 'Features/I18n/LocaleToggle',
   component: LocaleToggle,
   parameters: {
     layout: 'centered',

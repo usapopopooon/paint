@@ -1,12 +1,16 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import type { Locale, TranslationKey } from '@/hooks/useLocale'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { Locale } from '../types'
+import type { TranslateFunction } from '../locales'
 
 type LocaleToggleProps = {
   readonly locale: Locale
   readonly onToggle: () => void
-  readonly t: (key: TranslationKey) => string
+  readonly t: TranslateFunction
 }
 
+/**
+ * 言語切り替えトグルコンポーネント
+ */
 export const LocaleToggle = ({ locale, onToggle, t }: LocaleToggleProps) => {
   return (
     <Tooltip>
