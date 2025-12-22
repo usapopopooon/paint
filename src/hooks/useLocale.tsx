@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { getStorageItem, setStorageItem } from '@/lib/storage'
 
 export type Locale = 'en' | 'ja'
 
 const STORAGE_KEY = 'locale'
+const ALLOWED_LOCALES = ['en', 'ja'] as const
 
 export const translations = {
   en: {
@@ -53,11 +55,9 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null)
 
 const getInitialLocale = (): Locale => {
+  const stored = getStorageItem(STORAGE_KEY, ALLOWED_LOCALES)
+  if (stored) return stored
   if (typeof window === 'undefined') return 'en'
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'en' || stored === 'ja') {
-    return stored
-  }
   const browserLang = navigator.language.toLowerCase()
   return browserLang.startsWith('ja') ? 'ja' : 'en'
 }
@@ -71,7 +71,7 @@ export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps)
   const [locale, setLocaleState] = useState<Locale>(defaultLocale ?? getInitialLocale)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, locale)
+    setStorageItem(STORAGE_KEY, locale)
   }, [locale])
 
   const setLocale = useCallback((newLocale: Locale) => {

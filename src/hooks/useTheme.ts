@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
+import { getStorageItem, setStorageItem } from '@/lib/storage'
 
 type Theme = 'light' | 'dark'
 
 const STORAGE_KEY = 'theme'
+const ALLOWED_THEMES = ['light', 'dark'] as const
 
 const getInitialTheme = (): Theme => {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === 'light' || stored === 'dark') {
-    return stored
-  }
+  const stored = getStorageItem(STORAGE_KEY, ALLOWED_THEMES)
+  if (stored) return stored
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
@@ -22,7 +22,7 @@ export const useTheme = () => {
     } else {
       root.classList.remove('dark')
     }
-    localStorage.setItem(STORAGE_KEY, theme)
+    setStorageItem(STORAGE_KEY, theme)
   }, [theme])
 
   const toggleTheme = useCallback(() => {

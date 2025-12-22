@@ -10,25 +10,12 @@ import { ColorWheel } from './features/color'
 import { Toolbar } from './features/toolbar'
 import { useLocale } from './hooks/useLocale'
 import { useTheme } from './hooks/useTheme'
+import { valueToSlider, sliderToValue } from './lib/slider'
 
 const MIN_PEN_WIDTH = 1
 const MAX_PEN_WIDTH = 300
 const MIN_ERASER_WIDTH = 5
 const MAX_ERASER_WIDTH = 300
-
-// Logarithmic scale conversion for smoother control of small values
-const valueToSlider = (value: number, min: number, max: number): number => {
-  const minLog = Math.log(min)
-  const maxLog = Math.log(max)
-  return ((Math.log(value) - minLog) / (maxLog - minLog)) * 100
-}
-
-const sliderToValue = (slider: number, min: number, max: number): number => {
-  const minLog = Math.log(min)
-  const maxLog = Math.log(max)
-  const value = Math.exp(minLog + (slider / 100) * (maxLog - minLog))
-  return Math.round(value)
-}
 
 function App() {
   const canvas = useCanvas()
