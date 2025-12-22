@@ -1,11 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ToolType, ToolConfig, PenToolConfig, EraserToolConfig, CursorConfig } from '../types'
-import {
-  MIN_PEN_WIDTH,
-  MAX_PEN_WIDTH,
-  MIN_ERASER_WIDTH,
-  MAX_ERASER_WIDTH,
-} from '../types'
+import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../types'
 import { penBehavior, eraserBehavior } from '../behaviors'
 import { getToolBehavior } from '../registry'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
@@ -107,14 +102,17 @@ export const useTool = () => {
         setEraserWidth(newWidth)
       }
     },
-    [state.currentType, state.penConfig.width, state.eraserConfig.width, setPenWidth, setEraserWidth]
+    [
+      state.currentType,
+      state.penConfig.width,
+      state.eraserConfig.width,
+      setPenWidth,
+      setEraserWidth,
+    ]
   )
 
   /** 現在のツール設定に基づくカーソル設定（白背景想定） */
-  const cursor = useMemo<CursorConfig>(
-    () => getCursor('#ffffff'),
-    [getCursor]
-  )
+  const cursor = useMemo<CursorConfig>(() => getCursor('#ffffff'), [getCursor])
 
   return {
     currentType: state.currentType,
