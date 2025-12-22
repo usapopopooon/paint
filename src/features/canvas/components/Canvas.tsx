@@ -8,6 +8,7 @@ type CanvasProps = {
   readonly onStartStroke: (point: Point) => void
   readonly onAddPoint: (point: Point) => void
   readonly onEndStroke: () => void
+  readonly onWheel?: (deltaY: number) => void
   readonly width?: number
   readonly height?: number
   readonly backgroundColor?: string
@@ -23,6 +24,7 @@ export const Canvas = ({
   onStartStroke,
   onAddPoint,
   onEndStroke,
+  onWheel,
   width = 800,
   height = 600,
   backgroundColor = '#ffffff',
@@ -152,6 +154,16 @@ export const Canvas = ({
     [onEndStroke]
   )
 
+  const handleWheel = useCallback(
+    (event: React.WheelEvent<HTMLCanvasElement>) => {
+      if (onWheel) {
+        event.preventDefault()
+        onWheel(event.deltaY)
+      }
+    },
+    [onWheel]
+  )
+
   const cursorColor = isEraser ? '#888888' : strokeColor
 
   if (fillContainer) {
@@ -169,6 +181,7 @@ export const Canvas = ({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
           style={{ touchAction: 'none', cursor: 'none' }}
         />
         {mousePos && (
@@ -192,6 +205,7 @@ export const Canvas = ({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
         className="rounded-lg border border-border"
         style={{ touchAction: 'none', cursor: 'none' }}
       />
