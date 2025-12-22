@@ -1,0 +1,10 @@
+export type {
+  ToolType,
+  ToolConfig,
+  PenToolConfig,
+  EraserToolConfig,
+  CursorConfig,
+} from './types'
+export { useTool } from './hooks'
+export { getToolBehavior } from './registry'
+export { penBehavior, eraserBehavior } from './behaviors'

@@ -1,6 +1,8 @@
 import type { Stroke } from '../types'
 
-const drawStroke = (ctx: CanvasRenderingContext2D, stroke: Stroke): void => {
+type RenderingContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+
+const drawStroke = (ctx: RenderingContext, stroke: Stroke): void => {
   if (stroke.points.length < 2) return
 
   ctx.save()
@@ -33,7 +35,19 @@ export const renderCanvas = (
   height: number,
   backgroundColor: string
 ): void => {
+  // Clear the main canvas and fill with background
   ctx.fillStyle = backgroundColor
   ctx.fillRect(0, 0, width, height)
-  strokes.forEach((stroke) => drawStroke(ctx, stroke))
+
+  // Create offscreen canvas for strokes (so eraser doesn't erase background)
+  const offscreen = new OffscreenCanvas(width, height)
+  const offCtx = offscreen.getContext('2d')
+  if (!offCtx) return
+
+  // Draw all strokes on offscreen canvas (transparent background)
+  offCtx.clearRect(0, 0, width, height)
+  strokes.forEach((stroke) => drawStroke(offCtx, stroke))
+
+  // Composite the strokes onto the main canvas
+  ctx.drawImage(offscreen, 0, 0)
 }

@@ -3,8 +3,6 @@ export type Point = {
   readonly y: number
 }
 
-export type Tool = 'pen' | 'eraser'
-
 export type Stroke = {
   readonly points: readonly Point[]
   readonly width: number

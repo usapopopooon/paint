@@ -91,7 +91,7 @@ export const usePointerInput = ({
   )
 
   const handlePointerLeave = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
+    (_event: React.PointerEvent<HTMLElement>) => {
       setPointerPosition(null)
       if (isDrawingRef.current) {
         isDrawingRef.current = false

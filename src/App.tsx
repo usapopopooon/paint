@@ -1,13 +1,15 @@
 import { Eraser, Pencil } from 'lucide-react'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { LocaleToggle } from './components/ui/LocaleToggle'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { Button } from './components/ui/button'
 import { Slider } from './components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from './components/ui/tooltip'
 import { Canvas, useCanvas } from './features/canvas'
+import type { Point } from './features/canvas/types'
 import { ColorWheel } from './features/color'
 import { Toolbar } from './features/toolbar'
+import { useTool } from './features/tools'
 import { useLocale } from './hooks/useLocale'
 import { useTheme } from './hooks/useTheme'
 import { valueToSlider, sliderToValue } from './lib/slider'
@@ -19,6 +21,7 @@ const MAX_ERASER_WIDTH = 300
 
 function App() {
   const canvas = useCanvas()
+  const tool = useTool()
   const { isDark, toggleTheme } = useTheme()
   const { locale, toggleLocale, t } = useLocale()
 
@@ -46,7 +49,7 @@ function App() {
     const sliderValue = values[0]
     if (sliderValue !== undefined) {
       const width = sliderToValue(sliderValue, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-      canvas.setStrokeWidth(width)
+      tool.setPenWidth(width)
     }
   }
 
@@ -54,27 +57,33 @@ function App() {
     const sliderValue = values[0]
     if (sliderValue !== undefined) {
       const width = sliderToValue(sliderValue, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-      canvas.setEraserWidth(width)
+      tool.setEraserWidth(width)
     }
   }
 
   const handleWheel = (deltaY: number) => {
     const step = deltaY > 0 ? -5 : 5 // scroll down = smaller, scroll up = larger
-    if (canvas.tool === 'pen') {
-      const currentSlider = valueToSlider(canvas.strokeWidth, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
+    if (tool.currentType === 'pen') {
+      const currentSlider = valueToSlider(tool.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
       const newSlider = Math.max(0, Math.min(100, currentSlider + step))
       const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-      canvas.setStrokeWidth(newWidth)
+      tool.setPenWidth(newWidth)
     } else {
-      const currentSlider = valueToSlider(canvas.eraserWidth, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+      const currentSlider = valueToSlider(tool.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
       const newSlider = Math.max(0, Math.min(100, currentSlider + step))
       const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-      canvas.setEraserWidth(newWidth)
+      tool.setEraserWidth(newWidth)
     }
   }
 
-  const currentWidth = canvas.tool === 'eraser' ? canvas.eraserWidth : canvas.strokeWidth
-  const currentColor = canvas.tool === 'eraser' ? '#ffffff' : canvas.strokeColor
+  const handleStartStroke = useCallback(
+    (point: Point) => {
+      canvas.startStroke(point, tool.currentConfig)
+    },
+    [canvas, tool.currentConfig]
+  )
+
+  const cursor = tool.getCursor('#ffffff')
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -99,20 +108,16 @@ function App() {
         {/* Left sidebar */}
         <aside className="w-[232px] p-4 border-r border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background flex flex-col gap-6">
           {/* Color picker */}
-          <ColorWheel
-            color={canvas.strokeColor}
-            onChange={canvas.setStrokeColor}
-            t={t}
-          />
+          <ColorWheel color={tool.penConfig.color} onChange={tool.setPenColor} t={t} />
 
           {/* Pen tool */}
           <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={canvas.tool === 'pen' ? 'default' : 'secondary'}
+                  variant={tool.currentType === 'pen' ? 'default' : 'secondary'}
                   size="sm"
-                  onClick={() => canvas.setTool('pen')}
+                  onClick={() => tool.setToolType('pen')}
                   aria-label={t('pen')}
                 >
                   <Pencil className="size-4" />
@@ -122,14 +127,14 @@ function App() {
             </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
-                value={[valueToSlider(canvas.strokeWidth, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
+                value={[valueToSlider(tool.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
                 onValueChange={handlePenWidthChange}
                 min={0}
                 max={100}
                 step={0.1}
               />
               <span className="text-sm font-mono text-foreground w-8 text-right">
-                {canvas.strokeWidth}
+                {tool.penConfig.width}
               </span>
             </div>
           </div>
@@ -139,9 +144,9 @@ function App() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={canvas.tool === 'eraser' ? 'default' : 'secondary'}
+                  variant={tool.currentType === 'eraser' ? 'default' : 'secondary'}
                   size="sm"
-                  onClick={() => canvas.setTool('eraser')}
+                  onClick={() => tool.setToolType('eraser')}
                   aria-label={t('eraser')}
                 >
                   <Eraser className="size-4" />
@@ -151,14 +156,14 @@ function App() {
             </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
-                value={[valueToSlider(canvas.eraserWidth, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
+                value={[valueToSlider(tool.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
                 onValueChange={handleEraserWidthChange}
                 min={0}
                 max={100}
                 step={0.1}
               />
               <span className="text-sm font-mono text-foreground w-8 text-right">
-                {canvas.eraserWidth}
+                {tool.eraserConfig.width}
               </span>
             </div>
           </div>
@@ -168,13 +173,13 @@ function App() {
         <main className="flex-1 overflow-hidden bg-muted/30">
           <Canvas
             strokes={canvas.strokes}
-            onStartStroke={canvas.startStroke}
+            onStartStroke={handleStartStroke}
             onAddPoint={canvas.addPoint}
             onEndStroke={canvas.endStroke}
             onWheel={handleWheel}
-            strokeWidth={currentWidth}
-            strokeColor={currentColor}
-            isEraser={canvas.tool === 'eraser'}
+            strokeWidth={cursor.size}
+            strokeColor={cursor.color}
+            isEraser={tool.currentType === 'eraser'}
             fillContainer
           />
         </main>

@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import type { Point, Stroke } from '../types'
+import type { ToolConfig } from '../../tools/types'
 import { useCanvasHistory } from './useCanvasHistory'
 import { useDrawing } from './useDrawing'
 
@@ -17,10 +18,15 @@ export const useCanvas = () => {
 
   const allStrokes = useMemo(
     (): readonly Stroke[] =>
-      drawing.currentStroke
-        ? [...history.strokes, drawing.currentStroke]
-        : history.strokes,
+      drawing.currentStroke ? [...history.strokes, drawing.currentStroke] : history.strokes,
     [history.strokes, drawing.currentStroke]
+  )
+
+  const startStroke = useCallback(
+    (point: Point, config: ToolConfig) => {
+      drawing.startStroke(point, config)
+    },
+    [drawing.startStroke]
   )
 
   const getPointFromEvent = useCallback(
@@ -41,19 +47,11 @@ export const useCanvas = () => {
 
   return {
     strokes: allStrokes,
-    strokeWidth: drawing.strokeWidth,
-    strokeColor: drawing.strokeColor,
-    eraserWidth: drawing.eraserWidth,
-    tool: drawing.tool,
     canUndo: history.canUndo,
     canRedo: history.canRedo,
-    startStroke: drawing.startStroke,
+    startStroke,
     addPoint: drawing.addPoint,
     endStroke: drawing.endStroke,
-    setStrokeWidth: drawing.setStrokeWidth,
-    setStrokeColor: drawing.setStrokeColor,
-    setEraserWidth: drawing.setEraserWidth,
-    setTool: drawing.setTool,
     undo: history.undo,
     redo: history.redo,
     clear: history.clear,
