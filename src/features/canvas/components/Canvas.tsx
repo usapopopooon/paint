@@ -33,8 +33,8 @@ export const Canvas = ({
   isEraser = false,
 }: CanvasProps) => {
   const cursor = useMemo(
-    () => ({ size: strokeWidth, color: isEraser ? '#888888' : strokeColor }),
-    [strokeWidth, isEraser, strokeColor]
+    () => ({ size: strokeWidth, color: isEraser ? backgroundColor : strokeColor }),
+    [strokeWidth, isEraser, strokeColor, backgroundColor]
   )
 
   return (
