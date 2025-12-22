@@ -27,12 +27,7 @@ jobs:
       - name: Spell check
         run: npm run spell:check
 
-      - name: Run tests
-        run: npm run test:run
-        env:
-          HOME: /root
-
-      - name: Check coverage
+      - name: Run tests with coverage
         run: npm run test:coverage
         env:
           HOME: /root
