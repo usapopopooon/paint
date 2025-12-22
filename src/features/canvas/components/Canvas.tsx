@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Point, Stroke } from '../types'
 import { renderCanvas } from '../utils/renderer'
 import { BrushCursor } from './BrushCursor'
+import { usePointerInput, type PointerPoint } from '../../pointer'
 
 type CanvasProps = {
   readonly strokes: readonly Stroke[]
@@ -17,7 +18,6 @@ type CanvasProps = {
   readonly strokeColor?: string
   readonly isEraser?: boolean
 }
-
 
 export const Canvas = ({
   strokes,
@@ -35,9 +35,28 @@ export const Canvas = ({
 }: CanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const isDrawingRef = useRef(false)
   const [size, setSize] = useState({ width, height })
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null)
+
+  const handleStart = useCallback(
+    (point: PointerPoint) => {
+      onStartStroke({ x: point.x, y: point.y })
+    },
+    [onStartStroke]
+  )
+
+  const handleMove = useCallback(
+    (point: PointerPoint) => {
+      onAddPoint({ x: point.x, y: point.y })
+    },
+    [onAddPoint]
+  )
+
+  const { pointerProps, pointerPosition } = usePointerInput({
+    onStart: handleStart,
+    onMove: handleMove,
+    onEnd: onEndStroke,
+    onWheel,
+  })
 
   // Handle resize when fillContainer is true
   useEffect(() => {
@@ -71,99 +90,6 @@ export const Canvas = ({
     renderCanvas(ctx, strokes, size.width, size.height, backgroundColor)
   }, [strokes, size.width, size.height, backgroundColor])
 
-  const getPoint = useCallback(
-    (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>): Point => {
-      const canvas = canvasRef.current
-      if (!canvas) return { x: 0, y: 0 }
-
-      const rect = canvas.getBoundingClientRect()
-      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-      const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top,
-      }
-    },
-    []
-  )
-
-  const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLCanvasElement>) => {
-      isDrawingRef.current = true
-      onStartStroke(getPoint(event))
-    },
-    [getPoint, onStartStroke]
-  )
-
-  const handleMouseMove = useCallback(
-    (event: React.MouseEvent<HTMLCanvasElement>) => {
-      const point = getPoint(event)
-      setMousePos(point)
-      if (!isDrawingRef.current) return
-      onAddPoint(point)
-    },
-    [getPoint, onAddPoint]
-  )
-
-  const handleMouseEnter = useCallback(
-    (event: React.MouseEvent<HTMLCanvasElement>) => {
-      setMousePos(getPoint(event))
-    },
-    [getPoint]
-  )
-
-  const handleMouseLeaveCanvas = useCallback(() => {
-    setMousePos(null)
-    if (isDrawingRef.current) {
-      isDrawingRef.current = false
-      onEndStroke()
-    }
-  }, [onEndStroke])
-
-  const handleMouseUp = useCallback(() => {
-    if (!isDrawingRef.current) return
-    isDrawingRef.current = false
-    onEndStroke()
-  }, [onEndStroke])
-
-  const handleTouchStart = useCallback(
-    (event: React.TouchEvent<HTMLCanvasElement>) => {
-      event.preventDefault()
-      isDrawingRef.current = true
-      onStartStroke(getPoint(event))
-    },
-    [getPoint, onStartStroke]
-  )
-
-  const handleTouchMove = useCallback(
-    (event: React.TouchEvent<HTMLCanvasElement>) => {
-      event.preventDefault()
-      if (!isDrawingRef.current) return
-      onAddPoint(getPoint(event))
-    },
-    [getPoint, onAddPoint]
-  )
-
-  const handleTouchEnd = useCallback(
-    (event: React.TouchEvent<HTMLCanvasElement>) => {
-      event.preventDefault()
-      if (!isDrawingRef.current) return
-      isDrawingRef.current = false
-      onEndStroke()
-    },
-    [onEndStroke]
-  )
-
-  const handleWheel = useCallback(
-    (event: React.WheelEvent<HTMLCanvasElement>) => {
-      if (onWheel) {
-        event.preventDefault()
-        onWheel(event.deltaY)
-      }
-    },
-    [onWheel]
-  )
-
   const cursorColor = isEraser ? '#888888' : strokeColor
 
   if (fillContainer) {
@@ -173,19 +99,11 @@ export const Canvas = ({
           ref={canvasRef}
           width={size.width}
           height={size.height}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeaveCanvas}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onWheel={handleWheel}
+          {...pointerProps}
           style={{ touchAction: 'none', cursor: 'none' }}
         />
-        {mousePos && (
-          <BrushCursor x={mousePos.x} y={mousePos.y} size={strokeWidth} color={cursorColor} />
+        {pointerPosition && (
+          <BrushCursor x={pointerPosition.x} y={pointerPosition.y} size={strokeWidth} color={cursorColor} />
         )}
       </div>
     )
@@ -197,20 +115,12 @@ export const Canvas = ({
         ref={canvasRef}
         width={size.width}
         height={size.height}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeaveCanvas}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onWheel={handleWheel}
+        {...pointerProps}
         className="rounded-lg border border-border"
         style={{ touchAction: 'none', cursor: 'none' }}
       />
-      {mousePos && (
-        <BrushCursor x={mousePos.x} y={mousePos.y} size={strokeWidth} color={cursorColor} />
+      {pointerPosition && (
+        <BrushCursor x={pointerPosition.x} y={pointerPosition.y} size={strokeWidth} color={cursorColor} />
       )}
     </div>
   )

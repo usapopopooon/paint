@@ -116,7 +116,7 @@ export const EraserMode: Story = {
   },
 }
 
-export const MouseInteraction: Story = {
+export const PointerInteraction: Story = {
   args: {
     strokes: [],
   },
@@ -127,22 +127,26 @@ export const MouseInteraction: Story = {
     if (canvas) {
       const rect = canvas.getBoundingClientRect()
 
-      // Simulate mouse down
-      const mouseDownEvent = new MouseEvent('mousedown', {
+      // Simulate pointer down
+      const pointerDownEvent = new PointerEvent('pointerdown', {
         bubbles: true,
         clientX: rect.left + 100,
         clientY: rect.top + 100,
+        pointerId: 1,
+        pointerType: 'mouse',
       })
-      canvas.dispatchEvent(mouseDownEvent)
+      canvas.dispatchEvent(pointerDownEvent)
       await expect(args.onStartStroke).toHaveBeenCalled()
 
-      // Simulate mouse up
-      const mouseUpEvent = new MouseEvent('mouseup', {
+      // Simulate pointer up
+      const pointerUpEvent = new PointerEvent('pointerup', {
         bubbles: true,
         clientX: rect.left + 150,
         clientY: rect.top + 150,
+        pointerId: 1,
+        pointerType: 'mouse',
       })
-      canvas.dispatchEvent(mouseUpEvent)
+      canvas.dispatchEvent(pointerUpEvent)
       await expect(args.onEndStroke).toHaveBeenCalled()
     }
   },
