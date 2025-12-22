@@ -145,6 +145,9 @@ function mergeCoverages(
   return merged
 }
 
+// Configuration
+const COVERAGE_THRESHOLD = 60
+
 // Main
 const unitCoverage = loadCoverage(unitCoveragePath)
 const storybookCoverage = loadCoverage(storybookCoveragePath)
@@ -158,8 +161,18 @@ const merged = mergeCoverages(unitCoverage, storybookCoverage)
 fs.mkdirSync(coverageDir, { recursive: true })
 fs.writeFileSync(outputPath, JSON.stringify(merged, null, 2))
 
-console.log(`Merged coverage: ${Math.round(merged.total.lines.pct)}%`)
+const coveragePct = Math.round(merged.total.lines.pct)
+
+console.log(`Merged coverage: ${coveragePct}%`)
 console.log(`  Lines: ${merged.total.lines.covered}/${merged.total.lines.total}`)
 console.log(`  Statements: ${merged.total.statements.covered}/${merged.total.statements.total}`)
 console.log(`  Functions: ${merged.total.functions.covered}/${merged.total.functions.total}`)
 console.log(`  Branches: ${merged.total.branches.covered}/${merged.total.branches.total}`)
+
+// Check threshold
+if (coveragePct < COVERAGE_THRESHOLD) {
+  console.error(`\nCoverage ${coveragePct}% is below threshold ${COVERAGE_THRESHOLD}%`)
+  process.exit(1)
+}
+
+console.log(`\nCoverage meets threshold (${COVERAGE_THRESHOLD}%)`)
