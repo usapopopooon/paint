@@ -117,12 +117,12 @@ function App() {
                   variant={tool.currentType === 'pen' ? 'default' : 'secondary'}
                   size="sm"
                   onClick={() => tool.setToolType('pen')}
-                  aria-label={t('pen')}
+                  aria-label={t('tools.pen')}
                 >
                   <Pencil className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">{t('pen')}</TooltipContent>
+              <TooltipContent side="right">{t('tools.pen')}</TooltipContent>
             </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider
@@ -146,12 +146,12 @@ function App() {
                   variant={tool.currentType === 'eraser' ? 'default' : 'secondary'}
                   size="sm"
                   onClick={() => tool.setToolType('eraser')}
-                  aria-label={t('eraser')}
+                  aria-label={t('tools.eraser')}
                 >
                   <Eraser className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">{t('eraser')}</TooltipContent>
+              <TooltipContent side="right">{t('tools.eraser')}</TooltipContent>
             </Tooltip>
             <div className="flex-1 flex items-center gap-2">
               <Slider

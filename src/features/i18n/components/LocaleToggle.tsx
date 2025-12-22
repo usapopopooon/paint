@@ -21,7 +21,7 @@ export const LocaleToggle = ({ locale, onToggle, t }: LocaleToggleProps) => {
           className="flex items-center text-xs rounded-full border border-border overflow-hidden cursor-pointer"
           role="switch"
           aria-checked={locale === 'ja'}
-          aria-label={t('switchLanguage')}
+          aria-label={t('locale.switch')}
         >
           <span
             className={`w-12 text-center py-1 transition-colors ${
@@ -43,7 +43,7 @@ export const LocaleToggle = ({ locale, onToggle, t }: LocaleToggleProps) => {
           </span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{t('switchLanguage')}</TooltipContent>
+      <TooltipContent side="bottom">{t('locale.switch')}</TooltipContent>
     </Tooltip>
   )
 }

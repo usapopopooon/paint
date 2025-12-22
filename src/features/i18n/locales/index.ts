@@ -1,5 +1,5 @@
-import { en } from './en'
-import { ja } from './ja'
+import en from './en.json'
+import ja from './ja.json'
 import type { Locale } from '../types'
 
 /**

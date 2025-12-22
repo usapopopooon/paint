@@ -122,12 +122,12 @@ export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
               size="icon"
               className="size-6"
               onClick={() => navigator.clipboard.writeText(color.toUpperCase())}
-              aria-label={t('copyColor')}
+              aria-label={t('color.copy')}
             >
               <Copy className="size-3" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>{t('copyColor')}</TooltipContent>
+          <TooltipContent>{t('color.copy')}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -143,12 +143,12 @@ export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
                   onChange(normalized)
                 }
               }}
-              aria-label={t('pasteColor')}
+              aria-label={t('color.paste')}
             >
               <ClipboardPaste className="size-3" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>{t('pasteColor')}</TooltipContent>
+          <TooltipContent>{t('color.paste')}</TooltipContent>
         </Tooltip>
       </div>
     </div>

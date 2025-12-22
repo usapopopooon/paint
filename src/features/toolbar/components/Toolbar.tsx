@@ -35,12 +35,12 @@ export const Toolbar = ({
               disabled={!canUndo}
               className="w-20"
             >
-              {t('undo')}
+              {t('actions.undo')}
             </Button>
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          {canUndo ? t('undoShortcut') : t('noUndoHistory')}
+          {canUndo ? t('shortcuts.undo') : t('messages.noUndoHistory')}
         </TooltipContent>
       </Tooltip>
       <Tooltip>
@@ -53,22 +53,22 @@ export const Toolbar = ({
               disabled={!canRedo}
               className="w-20"
             >
-              {t('redo')}
+              {t('actions.redo')}
             </Button>
           </span>
         </TooltipTrigger>
         <TooltipContent>
-          {canRedo ? t('redoShortcut') : t('noRedoHistory')}
+          {canRedo ? t('shortcuts.redo') : t('messages.noRedoHistory')}
         </TooltipContent>
       </Tooltip>
       <div className="h-6 w-px bg-border" />
       <Tooltip>
         <TooltipTrigger asChild>
           <Button variant="outline" size="sm" onClick={onClear} className="w-16 text-foreground">
-            {t('clear')}
+            {t('actions.clear')}
           </Button>
         </TooltipTrigger>
-        <TooltipContent>{t('clearShortcut')}</TooltipContent>
+        <TooltipContent>{t('shortcuts.clear')}</TooltipContent>
       </Tooltip>
     </div>
   )

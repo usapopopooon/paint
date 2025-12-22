@@ -10,7 +10,7 @@ type ThemeToggleProps = {
 }
 
 export const ThemeToggle = ({ isDark, onToggle, t }: ThemeToggleProps) => {
-  const label = isDark ? t('lightMode') : t('darkMode')
+  const label = isDark ? t('theme.lightMode') : t('theme.darkMode')
 
   return (
     <Tooltip>
