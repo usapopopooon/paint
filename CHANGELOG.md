@@ -1,5 +1,46 @@
 # Changelog
 
+## [0.0.4] - 2025-12-23
+
+### Architecture
+
+- **ポインタ入力処理の抽象化** (#12)
+  - `usePointerInput` hookでマウス/タッチ/ペン入力を統一
+  - CanvasをDrawingCanvasとPointerInputLayerに分離
+- **Drawable抽象化**: ストローク以外の描画要素に対応可能な設計
+- **ツールシステムの抽象化**: 拡張可能なレジストリパターン
+- **i18n/Theme のfeature化**: Context APIによる状態管理
+
+### Features
+
+- **キーボードショートカット**: P=ペン、E=消しゴム選択
+- **ツールチップにショートカット表示**
+
+### Developer Experience
+
+- **Prettier**: コードフォーマット統一
+- **cspell**: スペルチェック導入
+- **テストカバレッジ**: 60%閾値チェック、カバレッジバッジ
+- **CIにlintステップ追加**
+- **CIのテスト二重実行を修正**
+
+### Code Quality
+
+- JSDocコメント追加
+- コメントの日本語統一
+- READMEの日本語化
+- 重複コードの共通化（lib/に抽出）
+
+## [0.0.3] - 2025-12-22
+
+### Features
+
+- **マウスホイールでブラシサイズ変更** (#11)
+
+### Fixes
+
+- Storybookのテーマ切り替えを全UIモードで修正
+
 ## [0.0.2] - 2025-12-21
 
 ### Features
