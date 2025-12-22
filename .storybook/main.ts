@@ -8,7 +8,7 @@ const config: StorybookConfig = {
     "@storybook/addon-vitest",
     "@storybook/addon-a11y",
     "@storybook/addon-docs",
-    "@storybook/addon-themes",
+    "@vueless/storybook-dark-mode",
   ],
   framework: {
     name: "@storybook/react-vite",
@@ -30,6 +30,9 @@ const config: StorybookConfig = {
         include: [
           ...(config.optimizeDeps?.include ?? []),
           'react/jsx-dev-runtime',
+          'storybook/preview-api',
+          'storybook/theming',
+          '@vueless/storybook-dark-mode',
         ],
       },
     };
