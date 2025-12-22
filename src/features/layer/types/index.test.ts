@@ -24,7 +24,7 @@ describe('createDrawingLayer', () => {
   it('creates a drawing layer with default values', () => {
     const layer = createDrawingLayer()
 
-    expect(layer.id).toMatch(/^layer-\d+$/)
+    expect(layer.id).toMatch(/^layer-\d+-[a-z0-9]+$/)
     expect(layer.name).toBe('Layer 1')
     expect(layer.type).toBe('drawing')
     expect(layer.visible).toBe(true)

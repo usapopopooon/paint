@@ -1,12 +1,8 @@
 import type { StrokeStyle } from '@/features/brush'
+import { generateId } from '@/lib/id'
 
-/**
- * Point coordinates
- */
-export type Point = {
-  readonly x: number
-  readonly y: number
-}
+// Re-export Point from lib for convenience
+export type { Point } from '@/lib/geometry'
 
 /**
  * Unique identifier for drawable elements
@@ -72,8 +68,7 @@ export const isStrokeDrawable = (drawable: Drawable): drawable is StrokeDrawable
 /**
  * Generate unique drawable ID
  */
-export const generateDrawableId = (): DrawableId =>
-  `drawable-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+export const generateDrawableId = (): DrawableId => generateId('drawable')
 
 /**
  * Create a StrokeDrawable

@@ -1,4 +1,5 @@
 import type { Drawable } from '@/features/drawable'
+import { generateId } from '@/lib/id'
 
 /**
  * Layer identifier
@@ -64,7 +65,7 @@ export const createBackgroundLayer = (): Layer => ({
  * Create a drawing layer
  */
 export const createDrawingLayer = (id?: string, name?: string): Layer => ({
-  id: id ?? `layer-${Date.now()}`,
+  id: id ?? generateId('layer'),
   name: name ?? 'Layer 1',
   type: 'drawing',
   visible: true,
