@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import type { PointerPoint, PointerType } from './types'
+import { getPointerType, getPointerPoint } from './pointerUtils'
 
 type UsePointerInputOptions = {
   onStart: (point: PointerPoint) => void
@@ -12,39 +13,27 @@ type PointerInputProps = {
   onPointerDown: (event: React.PointerEvent<HTMLElement>) => void
   onPointerMove: (event: React.PointerEvent<HTMLElement>) => void
   onPointerUp: (event: React.PointerEvent<HTMLElement>) => void
+  onPointerCancel: (event: React.PointerEvent<HTMLElement>) => void
   onPointerLeave: (event: React.PointerEvent<HTMLElement>) => void
   onPointerEnter: (event: React.PointerEvent<HTMLElement>) => void
   onWheel: (event: React.WheelEvent<HTMLElement>) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>) => void
 }
 
 type UsePointerInputReturn = {
   pointerProps: PointerInputProps
   pointerPosition: { x: number; y: number } | null
   isDrawing: boolean
+  activePointerType: PointerType | null
 }
 
-const getPointerType = (event: React.PointerEvent): PointerType => {
-  switch (event.pointerType) {
-    case 'pen':
-      return 'pen'
-    case 'touch':
-      return 'touch'
-    default:
-      return 'mouse'
-  }
-}
-
-const getPointerPoint = (
+const extractPointerPoint = (
   event: React.PointerEvent<HTMLElement>,
   element: HTMLElement
 ): PointerPoint => {
   const rect = element.getBoundingClientRect()
-  return {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top,
-    pressure: event.pressure,
-    pointerType: getPointerType(event),
-  }
+  const pointerType = getPointerType(event.pointerType)
+  return getPointerPoint(event.clientX, event.clientY, rect, event.pressure, pointerType)
 }
 
 export const usePointerInput = ({
@@ -53,15 +42,47 @@ export const usePointerInput = ({
   onEnd,
   onWheel,
 }: UsePointerInputOptions): UsePointerInputReturn => {
-  const isDrawingRef = useRef(false)
+  // Track the active pointer ID to prevent multi-pointer conflicts
+  const activePointerIdRef = useRef<number | null>(null)
+  const activePointerTypeRef = useRef<PointerType | null>(null)
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null)
+  const [isDrawing, setIsDrawing] = useState(false)
+
+  const endStroke = useCallback(() => {
+    if (activePointerIdRef.current !== null) {
+      activePointerIdRef.current = null
+      activePointerTypeRef.current = null
+      setIsDrawing(false)
+      onEnd()
+    }
+  }, [onEnd])
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
+      // Ignore if already drawing with another pointer (prevents multi-touch conflicts)
+      if (activePointerIdRef.current !== null) {
+        return
+      }
+
+      // Only handle primary button (left mouse button, touch, or pen contact)
+      if (event.button !== 0) {
+        return
+      }
+
       const element = event.currentTarget
-      element.setPointerCapture(event.pointerId)
-      isDrawingRef.current = true
-      const point = getPointerPoint(event, element)
+
+      // Capture the pointer to receive events even if it leaves the element
+      try {
+        element.setPointerCapture(event.pointerId)
+      } catch {
+        // setPointerCapture can fail in some edge cases, continue anyway
+      }
+
+      activePointerIdRef.current = event.pointerId
+      activePointerTypeRef.current = getPointerType(event.pointerType)
+      setIsDrawing(true)
+
+      const point = extractPointerPoint(event, element)
       setPointerPosition({ x: point.x, y: point.y })
       onStart(point)
     },
@@ -71,9 +92,14 @@ export const usePointerInput = ({
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
-      const point = getPointerPoint(event, element)
+      const point = extractPointerPoint(event, element)
       setPointerPosition({ x: point.x, y: point.y })
-      if (!isDrawingRef.current) return
+
+      // Only process move events for the active pointer
+      if (activePointerIdRef.current !== event.pointerId) {
+        return
+      }
+
       onMove(point)
     },
     [onMove]
@@ -81,30 +107,65 @@ export const usePointerInput = ({
 
   const handlePointerUp = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
+      // Only handle the active pointer
+      if (activePointerIdRef.current !== event.pointerId) {
+        return
+      }
+
       const element = event.currentTarget
-      element.releasePointerCapture(event.pointerId)
-      if (!isDrawingRef.current) return
-      isDrawingRef.current = false
-      onEnd()
+
+      // Release pointer capture
+      try {
+        element.releasePointerCapture(event.pointerId)
+      } catch {
+        // releasePointerCapture can fail if capture was already released
+      }
+
+      endStroke()
     },
-    [onEnd]
+    [endStroke]
+  )
+
+  const handlePointerCancel = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      // Handle interrupted pointer (e.g., system gesture, palm rejection)
+      if (activePointerIdRef.current !== event.pointerId) {
+        return
+      }
+
+      endStroke()
+    },
+    [endStroke]
   )
 
   const handlePointerLeave = useCallback(
-    (_event: React.PointerEvent<HTMLElement>) => {
-      setPointerPosition(null)
-      if (isDrawingRef.current) {
-        isDrawingRef.current = false
-        onEnd()
+    (event: React.PointerEvent<HTMLElement>) => {
+      // If we have pointer capture, we'll still receive events, so don't end stroke
+      // Only clear position for non-captured pointers
+      if (activePointerIdRef.current !== event.pointerId) {
+        setPointerPosition(null)
+        return
+      }
+
+      // For the active pointer, check if we still have capture
+      // If not (shouldn't happen normally), end the stroke
+      try {
+        if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+          setPointerPosition(null)
+          endStroke()
+        }
+      } catch {
+        setPointerPosition(null)
+        endStroke()
       }
     },
-    [onEnd]
+    [endStroke]
   )
 
   const handlePointerEnter = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
-      const point = getPointerPoint(event, element)
+      const point = extractPointerPoint(event, element)
       setPointerPosition({ x: point.x, y: point.y })
     },
     []
@@ -120,16 +181,24 @@ export const usePointerInput = ({
     [onWheel]
   )
 
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    // Prevent context menu on right-click or long-press
+    event.preventDefault()
+  }, [])
+
   return {
     pointerProps: {
       onPointerDown: handlePointerDown,
       onPointerMove: handlePointerMove,
       onPointerUp: handlePointerUp,
+      onPointerCancel: handlePointerCancel,
       onPointerLeave: handlePointerLeave,
       onPointerEnter: handlePointerEnter,
       onWheel: handleWheel,
+      onContextMenu: handleContextMenu,
     },
     pointerPosition,
-    isDrawing: isDrawingRef.current,
+    isDrawing,
+    activePointerType: activePointerTypeRef.current,
   }
 }
