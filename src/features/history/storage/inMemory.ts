@@ -9,6 +9,8 @@ const DEFAULT_MAX_UNDO_LEVELS = 100
  *
  * 他のストレージが指定されていない場合に使用されるデフォルトストレージ。
  * ページをリフレッシュすると全データが失われる。
+ * @param config - ストレージ設定（maxUndoLevelsなど）
+ * @returns HistoryStorageインターフェースの実装
  */
 export const createInMemoryStorage: HistoryStorageFactory = (
   config?: HistoryStorageConfig

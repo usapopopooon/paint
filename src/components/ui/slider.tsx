@@ -3,6 +3,10 @@ import * as SliderPrimitive from '@radix-ui/react-slider'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * スライダーコンポーネント（Radix UIベース）
+ * @param props - スライダーのプロパティ（value, min, max等）
+ */
 function Slider({
   className,
   defaultValue,

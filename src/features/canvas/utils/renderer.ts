@@ -5,6 +5,11 @@ import { blendModeToCompositeOp } from '@/features/layer'
 
 /**
  * 描画要素をキャンバスにレンダリング
+ * @param ctx - 描画先のキャンバスコンテキスト
+ * @param drawables - レンダリングするDrawable配列
+ * @param width - キャンバスの幅
+ * @param height - キャンバスの高さ
+ * @param backgroundColor - 背景色
  */
 export const renderDrawables = (
   ctx: CanvasRenderingContext2D,
@@ -33,6 +38,11 @@ export const renderDrawables = (
 /**
  * レイヤーをキャンバスにレンダリング
  * 各レイヤーは独自のブレンドモードと不透明度でレンダリングされる
+ * @param ctx - 描画先のキャンバスコンテキスト
+ * @param layers - レンダリングするレイヤー配列
+ * @param width - キャンバスの幅
+ * @param height - キャンバスの高さ
+ * @param backgroundColor - 背景色
  */
 export const renderLayers = (
   ctx: CanvasRenderingContext2D,

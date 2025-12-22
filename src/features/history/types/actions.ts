@@ -96,11 +96,26 @@ export type HistoryAction = DrawableAction | LayerAction | BatchAction
 
 // === 型ガード ===
 
+/**
+ * DrawableActionの型ガード
+ * @param action - 判定する履歴アクション
+ * @returns DrawableActionの場合はtrue
+ */
 export const isDrawableAction = (action: HistoryAction): action is DrawableAction =>
   action.type.startsWith('drawable')
 
+/**
+ * LayerActionの型ガード
+ * @param action - 判定する履歴アクション
+ * @returns LayerActionの場合はtrue
+ */
 export const isLayerAction = (action: HistoryAction): action is LayerAction =>
   action.type.startsWith('layer')
 
+/**
+ * BatchActionの型ガード
+ * @param action - 判定する履歴アクション
+ * @returns BatchActionの場合はtrue
+ */
 export const isBatchAction = (action: HistoryAction): action is BatchAction =>
   action.type === 'batch'

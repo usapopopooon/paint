@@ -1,31 +1,13 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { getStorageItem, setStorageItem } from '@/lib/storage'
 import type { Theme } from '../types'
 import { ALLOWED_THEMES, THEME_STORAGE_KEY } from '../types'
-
-/**
- * ThemeContextの値の型
- */
-type ThemeContextValue = {
-  readonly theme: Theme
-  readonly isDark: boolean
-  readonly setTheme: (theme: Theme) => void
-  readonly toggleTheme: () => void
-}
-
-const ThemeContext = createContext<ThemeContextValue | null>(null)
+import { ThemeContext, type ThemeContextValue } from './ThemeContext'
 
 /**
  * 初期テーマを取得
  * 優先順位: LocalStorage > システム設定 > デフォルト(light)
+ * @returns 初期テーマ
  */
 const getInitialTheme = (): Theme => {
   const stored = getStorageItem(THEME_STORAGE_KEY, ALLOWED_THEMES)
@@ -36,13 +18,17 @@ const getInitialTheme = (): Theme => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+/**
+ * ThemeProviderコンポーネントのプロパティ
+ */
 type ThemeProviderProps = {
   readonly children: ReactNode
   readonly defaultTheme?: Theme
 }
 
 /**
- * テーマを管理するProvider
+ * テーマを管理するProviderコンポーネント
+ * @param props - ThemeProviderコンポーネントのプロパティ
  */
 export const ThemeProvider = ({ children, defaultTheme }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>(defaultTheme ?? getInitialTheme)
@@ -58,17 +44,20 @@ export const ThemeProvider = ({ children, defaultTheme }: ThemeProviderProps) =>
     setStorageItem(THEME_STORAGE_KEY, theme)
   }, [theme])
 
-  // メモ化されたsetTheme
+  /**
+   * テーマを設定
+   * @param newTheme - 新しいテーマ
+   */
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme)
   }, [])
 
-  // メモ化されたトグル関数
+  /** ライト/ダークテーマを切り替え */
   const toggleTheme = useCallback(() => {
     setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'))
   }, [])
 
-  // Context valueをメモ化（子コンポーネントの不要な再レンダリングを防ぐ）
+  /** Context valueをメモ化（子コンポーネントの不要な再レンダリングを防ぐ） */
   const value = useMemo<ThemeContextValue>(
     () => ({
       theme,
@@ -80,16 +69,4 @@ export const ThemeProvider = ({ children, defaultTheme }: ThemeProviderProps) =>
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
-}
-
-/**
- * テーマ関連の機能を使用するhook
- * @throws ThemeProvider外で使用された場合
- */
-export const useTheme = (): ThemeContextValue => {
-  const context = useContext(ThemeContext)
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
-  return context
 }

@@ -21,8 +21,11 @@ export type UseCanvasHistoryOptions = {
  * 履歴のみを管理。実際のdrawables状態はuseLayersが単一のsource of truthとして保持。
  * このhookはundo/redo可能かどうかの判定と、アクションの記録・復元を担当。
  *
- * 使用例:
- *   const history = useCanvasHistory()
+ * @param options - ストレージ設定オプション
+ * @returns undo/redo操作用のメソッドと状態
+ *
+ * @example
+ * const history = useCanvasHistory()
  */
 export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   const [canUndo, setCanUndo] = useState(false)
@@ -36,7 +39,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       })
   )
 
-  // ストレージからスタック情報を同期
+  /** ストレージからスタック情報を同期 */
   const updateStackInfo = useCallback(async () => {
     const result = await storageRef.current.getStackInfo()
     if (result.success) {
@@ -45,7 +48,10 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     }
   }, [])
 
-  // Drawableの追加を履歴に記録
+  /**
+   * Drawableの追加を履歴に記録
+   * @param drawable - 追加されたDrawable
+   */
   const addDrawable = useCallback(
     (drawable: Drawable) => {
       const action = createDrawableAddedAction(drawable)
@@ -54,7 +60,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     [updateStackInfo]
   )
 
-  // Undo操作を記録（実際のレイヤー操作は呼び出し側で行う）
+  /** Undo操作を記録（実際のレイヤー操作は呼び出し側で行う） */
   const undo = useCallback(async () => {
     const result = await storageRef.current.undo()
     if (result.success) {
@@ -62,7 +68,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     }
   }, [updateStackInfo])
 
-  // Redo操作を記録（実際のレイヤー操作は呼び出し側で行う）
+  /** Redo操作を記録（実際のレイヤー操作は呼び出し側で行う） */
   const redo = useCallback(async () => {
     const result = await storageRef.current.redo()
     if (result.success) {
@@ -70,7 +76,10 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     }
   }, [updateStackInfo])
 
-  // Redoで復元されるDrawableを取得
+  /**
+   * Redoで復元されるDrawableを取得
+   * @returns 復元されるDrawable、またはnull
+   */
   const getRedoDrawable = useCallback(async (): Promise<Drawable | null> => {
     const result = await storageRef.current.peekRedo()
     if (result.success && result.data && result.data.type === 'drawable:added') {
@@ -79,7 +88,10 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     return null
   }, [])
 
-  // クリア操作を履歴に記録
+  /**
+   * クリア操作を履歴に記録
+   * @param previousDrawables - クリア前のDrawable配列
+   */
   const recordClear = useCallback(
     async (previousDrawables: readonly Drawable[]) => {
       const action = createDrawablesClearedAction(previousDrawables)

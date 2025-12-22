@@ -7,7 +7,7 @@ export type { TranslationKey, TranslateFunction } from './locales'
 export { translations, getTranslation } from './locales'
 
 // フック & プロバイダー
-export { LocaleProvider, useLocale } from './hooks/useLocale'
+export { LocaleProvider, useLocale } from './hooks'
 
 // コンポーネント
 export { LocaleToggle } from './components/LocaleToggle'

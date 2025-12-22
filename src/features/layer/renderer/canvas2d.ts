@@ -4,6 +4,8 @@ import { renderDrawable } from '@/features/drawable'
 
 /**
  * LayerBlendModeをCanvas 2DのglobalCompositeOperationにマッピング
+ * @param mode - レイヤーブレンドモード
+ * @returns 対応するCanvas 2DのglobalCompositeOperation値
  */
 export const blendModeToCompositeOp = (mode: LayerBlendMode): GlobalCompositeOperation => {
   const map: Record<LayerBlendMode, GlobalCompositeOperation> = {
@@ -19,6 +21,7 @@ export const blendModeToCompositeOp = (mode: LayerBlendMode): GlobalCompositeOpe
 
 /**
  * Canvas 2Dレンダラーを作成
+ * @returns レイヤーレンダリング用のLayerRendererインスタンス
  */
 export const createCanvas2DRenderer = (): LayerRenderer => {
   const canvas = document.createElement('canvas')

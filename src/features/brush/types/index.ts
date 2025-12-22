@@ -29,6 +29,8 @@ export type StrokeStyle = {
 
 /**
  * デフォルト設定でソリッドブラシチップを作成
+ * @param size - ブラシのサイズ（ピクセル）
+ * @returns hardness=1, opacity=1のソリッドブラシチップ
  */
 export const createSolidBrushTip = (size: number): BrushTip => ({
   type: 'solid',
@@ -39,6 +41,10 @@ export const createSolidBrushTip = (size: number): BrushTip => ({
 
 /**
  * 設定可能なハードネスでソフトブラシチップを作成
+ * @param size - ブラシのサイズ（ピクセル）
+ * @param hardness - エッジの硬さ（0-1、デフォルト: 0.5）
+ * @param opacity - 不透明度（0-1、デフォルト: 1）
+ * @returns 指定されたパラメータのソフトブラシチップ
  */
 export const createSoftBrushTip = (
   size: number,

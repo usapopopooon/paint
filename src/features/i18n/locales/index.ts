@@ -22,6 +22,9 @@ export type TranslateFunction = (key: TranslationKey) => string
 
 /**
  * 指定ロケールの翻訳を取得
+ * @param locale - ロケール
+ * @param key - 翻訳キー
+ * @returns 翻訳されたテキスト
  */
 export const getTranslation = (locale: Locale, key: TranslationKey): string => {
   return translations[locale][key]

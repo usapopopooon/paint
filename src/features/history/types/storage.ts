@@ -82,6 +82,8 @@ export type HistoryStorageFactory = (config?: HistoryStorageConfig) => HistorySt
 
 /**
  * 成功結果を作成するヘルパー
+ * @param data - 成功時のデータ
+ * @returns 成功フラグとデータを含む結果オブジェクト
  */
 export const success = <T>(data: T): StorageResult<T> => ({
   success: true,
@@ -90,6 +92,8 @@ export const success = <T>(data: T): StorageResult<T> => ({
 
 /**
  * 失敗結果を作成するヘルパー
+ * @param error - エラーメッセージ
+ * @returns 失敗フラグとエラーを含む結果オブジェクト
  */
 export const failure = (error: string): StorageResult<never> => ({
   success: false,

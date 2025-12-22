@@ -4,6 +4,8 @@ type RenderingContext = CanvasRenderingContext2D | OffscreenCanvasRenderingConte
 
 /**
  * ストローク描画要素をキャンバスコンテキストにレンダリング
+ * @param ctx - 描画先のキャンバスコンテキスト
+ * @param stroke - レンダリングするストローク描画要素
  */
 const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
   if (stroke.points.length < 2) return
@@ -39,6 +41,8 @@ const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
 
 /**
  * 描画要素をキャンバスコンテキストにレンダリング（タイプ別にディスパッチ）
+ * @param ctx - 描画先のキャンバスコンテキスト
+ * @param drawable - レンダリングする描画要素
  */
 export const renderDrawable = (ctx: RenderingContext, drawable: Drawable): void => {
   switch (drawable.type) {

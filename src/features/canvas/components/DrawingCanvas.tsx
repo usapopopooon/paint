@@ -3,6 +3,9 @@ import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import { renderDrawables, renderLayers } from '../utils/renderer'
 
+/**
+ * DrawingCanvasコンポーネントのプロパティ
+ */
 type DrawingCanvasProps = {
   readonly drawables?: readonly Drawable[]
   readonly layers?: readonly Layer[]
@@ -13,6 +16,10 @@ type DrawingCanvasProps = {
   readonly className?: string
 }
 
+/**
+ * 描画要素をレンダリングするキャンバスコンポーネント
+ * @param props - DrawingCanvasコンポーネントのプロパティ
+ */
 export const DrawingCanvas = ({
   drawables,
   layers,
@@ -26,7 +33,10 @@ export const DrawingCanvas = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
 
-  // fillContainerの場合はコンテナサイズを使用、そうでなければpropsのサイズを使用
+  /**
+   * キャンバスサイズを計算
+   * fillContainerの場合はコンテナサイズを使用、そうでなければpropsのサイズを使用
+   */
   const size = useMemo(() => {
     if (fillContainer && containerSize) {
       return containerSize

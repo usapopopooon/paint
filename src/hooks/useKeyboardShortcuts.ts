@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
 
+/**
+ * キーボードショートカットハンドラの型
+ */
 type KeyboardShortcutsHandlers = {
   readonly onUndo: () => void
   readonly onRedo: () => void
@@ -11,6 +14,7 @@ type KeyboardShortcutsHandlers = {
  * - Ctrl+Z / Cmd+Z: 元に戻す
  * - Ctrl+Shift+Z / Cmd+Shift+Z: やり直す
  * - Shift+Delete: クリア
+ * @param handlers - ショートカットに対応するコールバック関数
  */
 export const useKeyboardShortcuts = ({ onUndo, onRedo, onClear }: KeyboardShortcutsHandlers) => {
   useEffect(() => {

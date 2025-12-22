@@ -1,22 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { hexToHsv, hsvToHex, type HSV } from '../utils/color'
 
+/** カラーホイールのサイズ（ピクセル） */
 export const WHEEL_SIZE = 200
+/** 色相リングの幅（ピクセル） */
 export const RING_WIDTH = 16
+/** 彩度・明度選択の正方形サイズ（ピクセル） */
 export const SQUARE_SIZE = (WHEEL_SIZE / 2 - RING_WIDTH) * Math.sqrt(2) - 4
 
+/** ドラッグモードの型 */
 type DragMode = 'none' | 'hue' | 'sv'
 
+/**
+ * useColorWheelフックのプロパティ
+ */
 type UseColorWheelProps = {
   color: string
   onChange: (color: string) => void
 }
 
+/**
+ * カラーホイールのインタラクションを管理するフック
+ * @param props - 現在の色とコールバック
+ * @returns カラーホイール操作用のメソッドと状態
+ */
 export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hsv, setHsv] = useState<HSV>(() => hexToHsv(color))
   const [dragMode, setDragMode] = useState<DragMode>('none')
 
+  /**
+   * マウスイベントからカラーホイール内の位置を取得
+   * @param event - マウスイベント
+   * @returns 中心からの相対座標と距離、またはnull
+   */
   const getPositionFromEvent = useCallback((event: React.MouseEvent | MouseEvent) => {
     const container = containerRef.current
     if (!container) return null
@@ -31,6 +48,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     return { x, y, distance }
   }, [])
 
+  /**
+   * 彩度・明度を更新
+   * @param x - X座標（中心からの相対位置）
+   * @param y - Y座標（中心からの相対位置）
+   */
   const updateSV = useCallback(
     (x: number, y: number) => {
       const squareHalf = SQUARE_SIZE / 2
@@ -43,6 +65,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     [hsv.h, onChange]
   )
 
+  /**
+   * 色相を更新
+   * @param x - X座標（中心からの相対位置）
+   * @param y - Y座標（中心からの相対位置）
+   */
   const updateHue = useCallback(
     (x: number, y: number) => {
       const angle = Math.atan2(y, x) * (180 / Math.PI)
@@ -54,6 +81,10 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     [hsv.s, hsv.v, onChange]
   )
 
+  /**
+   * マウスダウン時のハンドラ
+   * @param event - マウスイベント
+   */
   const handleMouseDown = useCallback(
     (event: React.MouseEvent) => {
       const pos = getPositionFromEvent(event)
@@ -75,16 +106,28 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     [getPositionFromEvent, updateSV, updateHue]
   )
 
+  /**
+   * 彩度・明度インジケーターのマウスダウンハンドラ
+   * @param event - マウスイベント
+   */
   const handleSvIndicatorMouseDown = useCallback((event: React.MouseEvent) => {
     event.stopPropagation()
     setDragMode('sv')
   }, [])
 
+  /**
+   * 色相インジケーターのマウスダウンハンドラ
+   * @param event - マウスイベント
+   */
   const handleHueIndicatorMouseDown = useCallback((event: React.MouseEvent) => {
     event.stopPropagation()
     setDragMode('hue')
   }, [])
 
+  /**
+   * マウス移動時のハンドラ
+   * @param event - マウスイベント
+   */
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
       if (dragMode === 'none') return
@@ -103,6 +146,7 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     [dragMode, getPositionFromEvent, updateSV, updateHue]
   )
 
+  /** マウスアップ時のハンドラ */
   const handleMouseUp = useCallback(() => {
     setDragMode('none')
   }, [])
@@ -119,6 +163,10 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     }
   }, [dragMode, handleMouseMove, handleMouseUp])
 
+  /**
+   * 外部からHex色を設定
+   * @param hex - Hex形式の色コード
+   */
   const setColor = useCallback((hex: string) => {
     setHsv(hexToHsv(hex))
   }, [])

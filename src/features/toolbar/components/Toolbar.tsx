@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { TranslationKey } from '@/features/i18n'
 
+/**
+ * Toolbarコンポーネントのプロパティ
+ */
 type ToolbarProps = {
   readonly canUndo: boolean
   readonly canRedo: boolean
@@ -12,6 +15,10 @@ type ToolbarProps = {
   readonly t: (key: TranslationKey) => string
 }
 
+/**
+ * Undo/Redo/Clearボタンを提供するツールバーコンポーネント
+ * @param props - Toolbarコンポーネントのプロパティ
+ */
 export const Toolbar = memo(function Toolbar({
   canUndo,
   canRedo,

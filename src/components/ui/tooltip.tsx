@@ -3,6 +3,10 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 
 import { cn } from '@/lib/utils'
 
+/**
+ * ツールチッププロバイダーコンポーネント
+ * @param props - プロバイダーのプロパティ
+ */
 function TooltipProvider({
   delayDuration = 0,
   ...props
@@ -16,6 +20,10 @@ function TooltipProvider({
   )
 }
 
+/**
+ * ツールチップルートコンポーネント
+ * @param props - ツールチップのプロパティ
+ */
 function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
   return (
     <TooltipProvider>
@@ -24,10 +32,18 @@ function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root
   )
 }
 
+/**
+ * ツールチップトリガーコンポーネント
+ * @param props - トリガーのプロパティ
+ */
 function TooltipTrigger({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
 }
 
+/**
+ * ツールチップコンテンツコンポーネント
+ * @param props - コンテンツのプロパティ
+ */
 function TooltipContent({
   className,
   sideOffset = 0,

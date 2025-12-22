@@ -5,12 +5,20 @@ import type { TranslationKey } from '@/features/i18n'
 import { useColorWheel, WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../hooks/useColorWheel'
 import { isValidHex, normalizeHex } from '../utils/color'
 
+/**
+ * ColorWheelコンポーネントのプロパティ
+ */
 type ColorWheelProps = {
   readonly color: string
   readonly onChange: (color: string) => void
   readonly t: (key: TranslationKey) => string
 }
 
+/**
+ * HSVカラーホイールコンポーネント
+ * 色相リングと彩度・明度の正方形で色を選択
+ * @param props - ColorWheelコンポーネントのプロパティ
+ */
 export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
   const {
     containerRef,

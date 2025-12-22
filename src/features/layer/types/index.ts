@@ -43,6 +43,7 @@ export type LayerState = {
 
 /**
  * 背景レイヤーを作成
+ * @returns 固定ID='background'、locked=trueの背景レイヤー
  */
 export const createBackgroundLayer = (): Layer => ({
   id: 'background',
@@ -57,6 +58,9 @@ export const createBackgroundLayer = (): Layer => ({
 
 /**
  * 描画レイヤーを作成
+ * @param id - レイヤーID（省略時は自動生成）
+ * @param name - レイヤー名（省略時は'Layer 1'）
+ * @returns 新しい描画レイヤー
  */
 export const createDrawingLayer = (id?: string, name?: string): Layer => ({
   id: id ?? generateId('layer'),
@@ -71,6 +75,7 @@ export const createDrawingLayer = (id?: string, name?: string): Layer => ({
 
 /**
  * 背景＋描画レイヤー1つの初期レイヤー状態を作成
+ * @returns 背景レイヤーとアクティブな描画レイヤーを含む初期状態
  */
 export const createInitialLayerState = (): LayerState => ({
   layers: [createBackgroundLayer(), createDrawingLayer('drawing', 'Layer 1')],

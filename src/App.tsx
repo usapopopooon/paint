@@ -9,11 +9,18 @@ import { useTheme } from './features/theme'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { valueToSlider, sliderToValue } from './lib/slider'
 
+/** ペンの最小幅（ピクセル） */
 const MIN_PEN_WIDTH = 1
+/** ペンの最大幅（ピクセル） */
 const MAX_PEN_WIDTH = 300
+/** 消しゴムの最小幅（ピクセル） */
 const MIN_ERASER_WIDTH = 5
+/** 消しゴムの最大幅（ピクセル） */
 const MAX_ERASER_WIDTH = 300
 
+/**
+ * ペイントアプリケーションのメインコンポーネント
+ */
 function App() {
   const canvas = useCanvas()
   const tool = useTool()
@@ -27,7 +34,10 @@ function App() {
     onClear: canvas.clear,
   })
 
-  // ホイールでブラシサイズ変更
+  /**
+   * ホイールでブラシサイズを変更するハンドラ
+   * @param deltaY - ホイールのスクロール量
+   */
   const handleWheel = useCallback(
     (deltaY: number) => {
       const step = deltaY > 0 ? -5 : 5
@@ -50,6 +60,10 @@ function App() {
     [tool]
   )
 
+  /**
+   * ストローク開始時のハンドラ
+   * @param point - 開始位置
+   */
   const handleStartStroke = useCallback(
     (point: Point) => {
       canvas.startStroke(point, tool.currentConfig)
@@ -57,6 +71,7 @@ function App() {
     [canvas, tool.currentConfig]
   )
 
+  /** 現在のツール設定に基づくカーソル設定 */
   const cursor = useMemo(() => tool.getCursor('#ffffff'), [tool])
 
   return (

@@ -4,6 +4,9 @@ import { BrushCursor } from './BrushCursor'
 import type { PointerPoint } from './types'
 import type { CursorConfig } from '../tools/types'
 
+/**
+ * PointerInputLayerコンポーネントのプロパティ
+ */
 type PointerInputLayerProps = {
   readonly children: ReactNode
   readonly onStart: (point: PointerPoint) => void
@@ -14,6 +17,10 @@ type PointerInputLayerProps = {
   readonly className?: string
 }
 
+/**
+ * ポインター入力とカスタムカーソルを提供するレイヤーコンポーネント
+ * @param props - PointerInputLayerコンポーネントのプロパティ
+ */
 export const PointerInputLayer = ({
   children,
   onStart,

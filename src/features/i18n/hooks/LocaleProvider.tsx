@@ -1,32 +1,14 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { getStorageItem, setStorageItem } from '@/lib/storage'
 import type { Locale } from '../types'
 import { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from '../types'
 import { getTranslation, type TranslationKey, type TranslateFunction } from '../locales'
-
-/**
- * LocaleContextの値の型
- */
-type LocaleContextValue = {
-  readonly locale: Locale
-  readonly setLocale: (locale: Locale) => void
-  readonly toggleLocale: () => void
-  readonly t: TranslateFunction
-}
-
-const LocaleContext = createContext<LocaleContextValue | null>(null)
+import { LocaleContext, type LocaleContextValue } from './LocaleContext'
 
 /**
  * 初期ロケールを取得
  * 優先順位: LocalStorage > ブラウザ設定 > デフォルト(en)
+ * @returns 初期ロケール
  */
 const getInitialLocale = (): Locale => {
   const stored = getStorageItem(LOCALE_STORAGE_KEY, ALLOWED_LOCALES)
@@ -38,13 +20,17 @@ const getInitialLocale = (): Locale => {
   return browserLang.startsWith('ja') ? 'ja' : 'en'
 }
 
+/**
+ * LocaleProviderコンポーネントのプロパティ
+ */
 type LocaleProviderProps = {
   readonly children: ReactNode
   readonly defaultLocale?: Locale
 }
 
 /**
- * ロケールを管理するProvider
+ * ロケールを管理するProviderコンポーネント
+ * @param props - LocaleProviderコンポーネントのプロパティ
  */
 export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps) => {
   const [locale, setLocaleState] = useState<Locale>(defaultLocale ?? getInitialLocale)
@@ -54,39 +40,34 @@ export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps)
     setStorageItem(LOCALE_STORAGE_KEY, locale)
   }, [locale])
 
-  // メモ化されたsetLocale
+  /**
+   * ロケールを設定
+   * @param newLocale - 新しいロケール
+   */
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale)
   }, [])
 
-  // メモ化されたトグル関数
+  /** 英語/日本語を切り替え */
   const toggleLocale = useCallback(() => {
     setLocaleState((prev) => (prev === 'en' ? 'ja' : 'en'))
   }, [])
 
-  // メモ化された翻訳関数
+  /**
+   * 翻訳関数
+   * @param key - 翻訳キー
+   * @returns 現在のロケールに対応する翻訳テキスト
+   */
   const t = useCallback<TranslateFunction>(
     (key: TranslationKey) => getTranslation(locale, key),
     [locale]
   )
 
-  // Context valueをメモ化（子コンポーネントの不要な再レンダリングを防ぐ）
+  /** Context valueをメモ化（子コンポーネントの不要な再レンダリングを防ぐ） */
   const value = useMemo<LocaleContextValue>(
     () => ({ locale, setLocale, toggleLocale, t }),
     [locale, setLocale, toggleLocale, t]
   )
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
-}
-
-/**
- * ロケール関連の機能を使用するhook
- * @throws LocaleProvider外で使用された場合
- */
-export const useLocale = (): LocaleContextValue => {
-  const context = useContext(LocaleContext)
-  if (!context) {
-    throw new Error('useLocale must be used within a LocaleProvider')
-  }
-  return context
 }

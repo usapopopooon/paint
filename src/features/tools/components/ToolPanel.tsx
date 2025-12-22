@@ -38,6 +38,10 @@ export const ToolPanel = memo(function ToolPanel({
   onEraserWidthChange,
   t,
 }: ToolPanelProps) {
+  /**
+   * ペンスライダー変更時のハンドラ
+   * @param values - スライダーの値配列
+   */
   const handlePenSliderChange = useCallback(
     (values: number[]) => {
       onToolTypeChange('pen')
@@ -50,6 +54,10 @@ export const ToolPanel = memo(function ToolPanel({
     [onToolTypeChange, onPenWidthChange]
   )
 
+  /**
+   * 消しゴムスライダー変更時のハンドラ
+   * @param values - スライダーの値配列
+   */
   const handleEraserSliderChange = useCallback(
     (values: number[]) => {
       onToolTypeChange('eraser')
@@ -62,10 +70,12 @@ export const ToolPanel = memo(function ToolPanel({
     [onToolTypeChange, onEraserWidthChange]
   )
 
+  /** ペンツールを選択 */
   const handleSelectPen = useCallback(() => {
     onToolTypeChange('pen')
   }, [onToolTypeChange])
 
+  /** 消しゴムツールを選択 */
   const handleSelectEraser = useCallback(() => {
     onToolTypeChange('eraser')
   }, [onToolTypeChange])

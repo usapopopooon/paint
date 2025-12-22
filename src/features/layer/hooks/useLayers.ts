@@ -18,17 +18,24 @@ export type UseLayersReturn = {
 
 /**
  * レイヤー状態を管理するフック
+ * @returns レイヤー操作用のメソッドと現在の状態
  */
 export const useLayers = (): UseLayersReturn => {
   const [state, setState] = useState<LayerState>(createInitialLayerState)
 
-  // アクティブレイヤーを取得
+  /**
+   * アクティブレイヤーを取得
+   * @returns 現在アクティブなレイヤー
+   */
   const activeLayer = useMemo(
     () => state.layers.find((l) => l.id === state.activeLayerId)!,
     [state.layers, state.activeLayerId]
   )
 
-  // アクティブレイヤーにDrawableを追加
+  /**
+   * アクティブレイヤーにDrawableを追加
+   * @param drawable - 追加するDrawable
+   */
   const addDrawable = useCallback((drawable: Drawable) => {
     setState((prev) => ({
       ...prev,
@@ -40,7 +47,7 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // アクティブレイヤーから最後のDrawableを削除
+  /** アクティブレイヤーから最後のDrawableを削除 */
   const removeLastDrawable = useCallback(() => {
     setState((prev) => ({
       ...prev,
@@ -52,7 +59,10 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // アクティブレイヤーのDrawablesを設定
+  /**
+   * アクティブレイヤーのDrawablesを設定
+   * @param drawables - 設定するDrawable配列
+   */
   const setDrawables = useCallback((drawables: readonly Drawable[]) => {
     setState((prev) => ({
       ...prev,
@@ -62,7 +72,7 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // アクティブレイヤーをクリア
+  /** アクティブレイヤーをクリア */
   const clearActiveLayer = useCallback(() => {
     setState((prev) => ({
       ...prev,
@@ -72,12 +82,19 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // アクティブレイヤーを切り替え（将来の拡張用）
+  /**
+   * アクティブレイヤーを切り替え
+   * @param id - 切り替え先のレイヤーID
+   */
   const setActiveLayer = useCallback((id: LayerId) => {
     setState((prev) => ({ ...prev, activeLayerId: id }))
   }, [])
 
-  // レイヤーの不透明度を設定（将来の拡張用）
+  /**
+   * レイヤーの不透明度を設定
+   * @param id - 対象のレイヤーID
+   * @param opacity - 不透明度（0〜1）
+   */
   const setLayerOpacity = useCallback((id: LayerId, opacity: number) => {
     setState((prev) => ({
       ...prev,
@@ -87,7 +104,11 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
-  // レイヤーの表示/非表示を設定（将来の拡張用）
+  /**
+   * レイヤーの表示/非表示を設定
+   * @param id - 対象のレイヤーID
+   * @param visible - 表示するかどうか
+   */
   const setLayerVisibility = useCallback((id: LayerId, visible: boolean) => {
     setState((prev) => ({
       ...prev,

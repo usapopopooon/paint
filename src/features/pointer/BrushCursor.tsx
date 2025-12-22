@@ -1,3 +1,6 @@
+/**
+ * BrushCursorコンポーネントのプロパティ
+ */
 type BrushCursorProps = {
   readonly x: number
   readonly y: number
@@ -6,6 +9,10 @@ type BrushCursorProps = {
   readonly outline?: string
 }
 
+/**
+ * ブラシサイズと色を示すカスタムカーソルコンポーネント
+ * @param props - BrushCursorコンポーネントのプロパティ
+ */
 export const BrushCursor = ({ x, y, size, color, outline }: BrushCursorProps) => {
   // アウトライン色が指定されている場合はbox-shadowでアウトライン効果を適用
   const boxShadow = outline ? `0 0 0 1px ${outline}` : undefined

@@ -4,6 +4,9 @@ import type { CursorConfig } from '@/features/tools/types'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
 
+/**
+ * Canvasコンポーネントのプロパティ
+ */
 type CanvasProps = {
   readonly drawables?: readonly Drawable[]
   readonly layers?: readonly Layer[]
@@ -18,6 +21,10 @@ type CanvasProps = {
   readonly cursor: CursorConfig
 }
 
+/**
+ * ポインター入力と描画キャンバスを統合したコンポーネント
+ * @param props - Canvasコンポーネントのプロパティ
+ */
 export const Canvas = ({
   drawables,
   layers,
