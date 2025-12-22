@@ -1,16 +1,24 @@
 import { ClipboardPaste, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/hooks/useLocale'
+import type { TranslationKey } from '@/features/i18n'
 import { useColorWheel, WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../hooks/useColorWheel'
 import { isValidHex, normalizeHex } from '../utils/color'
 
+/**
+ * ColorWheelコンポーネントのプロパティ
+ */
 type ColorWheelProps = {
   readonly color: string
   readonly onChange: (color: string) => void
   readonly t: (key: TranslationKey) => string
 }
 
+/**
+ * HSVカラーホイールコンポーネント
+ * 色相リングと彩度・明度の正方形で色を選択
+ * @param props - ColorWheelコンポーネントのプロパティ
+ */
 export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
   const {
     containerRef,
@@ -122,12 +130,12 @@ export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
               size="icon"
               className="size-6"
               onClick={() => navigator.clipboard.writeText(color.toUpperCase())}
-              aria-label={t('copyColor')}
+              aria-label={t('color.copy')}
             >
               <Copy className="size-3" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>{t('copyColor')}</TooltipContent>
+          <TooltipContent>{t('color.copy')}</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -143,12 +151,12 @@ export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
                   onChange(normalized)
                 }
               }}
-              aria-label={t('pasteColor')}
+              aria-label={t('color.paste')}
             >
               <ClipboardPaste className="size-3" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>{t('pasteColor')}</TooltipContent>
+          <TooltipContent>{t('color.paste')}</TooltipContent>
         </Tooltip>
       </div>
     </div>

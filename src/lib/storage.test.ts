@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
 import { getStorageItem, setStorageItem } from './storage'
 
 describe('getStorageItem', () => {
@@ -20,25 +20,25 @@ describe('getStorageItem', () => {
     vi.unstubAllGlobals()
   })
 
-  it('returns stored value if it is in allowed values', () => {
+  test('保存された値が許可リストにある場合はその値を返す', () => {
     mockLocalStorage.getItem.mockReturnValue('dark')
     const result = getStorageItem('theme', ['light', 'dark'] as const)
     expect(result).toBe('dark')
   })
 
-  it('returns null if stored value is not in allowed values', () => {
+  test('保存された値が許可リストにない場合はnullを返す', () => {
     mockLocalStorage.getItem.mockReturnValue('invalid')
     const result = getStorageItem('theme', ['light', 'dark'] as const)
     expect(result).toBeNull()
   })
 
-  it('returns null if no stored value', () => {
+  test('保存された値がない場合はnullを返す', () => {
     mockLocalStorage.getItem.mockReturnValue(null)
     const result = getStorageItem('theme', ['light', 'dark'] as const)
     expect(result).toBeNull()
   })
 
-  it('returns null if window is undefined', () => {
+  test('windowが未定義の場合はnullを返す', () => {
     vi.stubGlobal('window', undefined)
     const result = getStorageItem('theme', ['light', 'dark'] as const)
     expect(result).toBeNull()
@@ -50,7 +50,7 @@ describe('setStorageItem', () => {
     vi.unstubAllGlobals()
   })
 
-  it('sets item in localStorage', () => {
+  test('localStorageにアイテムを保存する', () => {
     const mockLocalStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),
@@ -66,7 +66,7 @@ describe('setStorageItem', () => {
     expect(mockLocalStorage.setItem).toHaveBeenCalledWith('theme', 'dark')
   })
 
-  it('does nothing if window is undefined', () => {
+  test('windowが未定義の場合は何もしない', () => {
     const mockLocalStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),

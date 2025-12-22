@@ -1,0 +1,67 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
+import { LocaleToggle } from './LocaleToggle'
+import { mockT } from '@/test/mocks'
+
+const meta = {
+  title: 'Features/I18n/LocaleToggle',
+  component: LocaleToggle,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+  args: {
+    onToggle: fn(),
+    t: mockT,
+  },
+  argTypes: {
+    locale: {
+      control: 'radio',
+      options: ['en', 'ja'],
+    },
+  },
+} satisfies Meta<typeof LocaleToggle>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+export const English: Story = {
+  args: {
+    locale: 'en',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggle = canvas.getByRole('switch')
+
+    await expect(toggle).toHaveTextContent('日本語')
+    await expect(toggle).toHaveTextContent('English')
+    await expect(toggle).toHaveAttribute('aria-checked', 'false')
+  },
+}
+
+export const Japanese: Story = {
+  args: {
+    locale: 'ja',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggle = canvas.getByRole('switch')
+
+    await expect(toggle).toHaveTextContent('日本語')
+    await expect(toggle).toHaveTextContent('English')
+    await expect(toggle).toHaveAttribute('aria-checked', 'true')
+  },
+}
+
+export const ClickToToggle: Story = {
+  args: {
+    locale: 'en',
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const toggle = canvas.getByRole('switch')
+
+    await userEvent.click(toggle)
+    await expect(args.onToggle).toHaveBeenCalledTimes(1)
+  },
+}

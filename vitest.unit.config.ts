@@ -4,7 +4,12 @@ import path from 'path'
 export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
-    environment: 'node',
+    environment: 'jsdom',
+    reporters: ['verbose'],
+    coverage: {
+      reporter: ['text', 'json-summary'],
+      reportsDirectory: './coverage/unit',
+    },
   },
   resolve: {
     alias: {

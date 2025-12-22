@@ -1,0 +1,17 @@
+{
+  "tools.pen": "Pen",
+  "tools.eraser": "Eraser",
+  "actions.undo": "Undo",
+  "actions.redo": "Redo",
+  "actions.clear": "Clear",
+  "theme.lightMode": "Light mode",
+  "theme.darkMode": "Dark mode",
+  "locale.switch": "Switch language",
+  "shortcuts.undo": "Ctrl+Z",
+  "shortcuts.redo": "Ctrl+Shift+Z",
+  "shortcuts.clear": "Shift+Delete",
+  "messages.noUndoHistory": "No undo history",
+  "messages.noRedoHistory": "No redo history",
+  "color.copy": "Copy",
+  "color.paste": "Paste"
+}

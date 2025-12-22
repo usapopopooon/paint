@@ -1,5 +1,18 @@
+/**
+ * HSV色空間の型定義
+ * @property h - 色相 (0-360)
+ * @property s - 彩度 (0-100)
+ * @property v - 明度 (0-100)
+ */
 export type HSV = { h: number; s: number; v: number }
 
+/**
+ * HSV色空間からHEXカラーコードに変換
+ * @param h - 色相 (0-360)
+ * @param s - 彩度 (0-100)
+ * @param v - 明度 (0-100)
+ * @returns HEXカラーコード（例: "#ff0000"）
+ */
 export const hsvToHex = (h: number, s: number, v: number): string => {
   const sNorm = s / 100
   const vNorm = v / 100
@@ -43,6 +56,11 @@ export const hsvToHex = (h: number, s: number, v: number): string => {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
 
+/**
+ * HEXカラーコードからHSV色空間に変換
+ * @param hex - HEXカラーコード（#付きまたは#なし）
+ * @returns HSVオブジェクト。無効な入力の場合はデフォルト値（白）を返す
+ */
 export const hexToHsv = (hex: string): HSV => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   if (!result) return { h: 0, s: 0, v: 100 }
@@ -75,10 +93,20 @@ export const hexToHsv = (hex: string): HSV => {
   return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) }
 }
 
+/**
+ * HEXカラーコードの形式が有効かどうかを検証
+ * @param hex - 検証するHEXカラーコード
+ * @returns 有効な形式の場合はtrue
+ */
 export const isValidHex = (hex: string): boolean => {
   return /^#?([a-f\d]{6}|[a-f\d]{3})$/i.test(hex)
 }
 
+/**
+ * HEXカラーコードを正規化（#付き6桁小文字形式に統一）
+ * @param hex - 正規化するHEXカラーコード
+ * @returns 正規化されたHEXカラーコード（例: "#ff0000"）
+ */
 export const normalizeHex = (hex: string): string => {
   let normalized = hex.startsWith('#') ? hex : `#${hex}`
   if (normalized.length === 4) {

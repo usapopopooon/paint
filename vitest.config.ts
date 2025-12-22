@@ -14,8 +14,10 @@ export default defineConfig({
       instances: [{ browser: 'chromium' }],
     },
     setupFiles: ['.storybook/vitest.setup.ts'],
+    reporters: ['verbose'],
     coverage: {
       reporter: ['text', 'json-summary'],
+      reportsDirectory: './coverage/storybook',
     },
   },
   resolve: {

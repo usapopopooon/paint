@@ -18,7 +18,16 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      - name: Run tests
-        run: npm run test:run
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Spell check
+        run: npm run spell:check
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
         env:
           HOME: /root

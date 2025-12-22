@@ -1,102 +1,51 @@
 import { useCallback, useState } from 'react'
-import type { Point, Stroke, Tool } from '../types'
+import type { Drawable, StrokeDrawable, Point } from '@/features/drawable'
+import type { ToolConfig } from '../../tools/types'
+import { getToolBehavior } from '../../tools/registry'
 
-type DrawingState = {
-  readonly currentStroke: Stroke | null
-  readonly strokeWidth: number
-  readonly strokeColor: string
-  readonly eraserWidth: number
-  readonly tool: Tool
-}
+/**
+ * 描画中のストローク状態を管理するフック
+ * @param onDrawableComplete - Drawable完成時に呼ばれるコールバック
+ * @returns ストローク操作用のメソッドと現在のストローク状態
+ */
+export const useDrawing = (onDrawableComplete: (drawable: Drawable) => void) => {
+  const [currentStroke, setCurrentStroke] = useState<StrokeDrawable | null>(null)
 
-const ERASER_COLOR = '#ffffff'
-
-const createInitialState = (): DrawingState => ({
-  currentStroke: null,
-  strokeWidth: 3,
-  strokeColor: '#000000',
-  eraserWidth: 20,
-  tool: 'pen',
-})
-
-const createStroke = (
-  point: Point,
-  width: number,
-  color: string
-): Stroke => ({
-  points: [point],
-  width,
-  color,
-})
-
-const addPointToStroke = (stroke: Stroke, point: Point): Stroke => ({
-  ...stroke,
-  points: [...stroke.points, point],
-})
-
-export const useDrawing = (onStrokeComplete: (stroke: Stroke) => void) => {
-  const [state, setState] = useState<DrawingState>(createInitialState)
-
-  const startStroke = useCallback((point: Point) => {
-    setState((prev) => {
-      const width = prev.tool === 'eraser' ? prev.eraserWidth : prev.strokeWidth
-      const color = prev.tool === 'eraser' ? ERASER_COLOR : prev.strokeColor
-      return {
-        ...prev,
-        currentStroke: createStroke(point, width, color),
-      }
-    })
+  /**
+   * ストロークを開始
+   * @param point - 開始位置
+   * @param config - ツール設定
+   */
+  const startStroke = useCallback((point: Point, config: ToolConfig) => {
+    const behavior = getToolBehavior(config.type)
+    setCurrentStroke(behavior.createStroke(point, config))
   }, [])
 
+  /**
+   * ストロークにポイントを追加
+   * @param point - 追加するポイント
+   */
   const addPoint = useCallback((point: Point) => {
-    setState((prev) => {
-      if (!prev.currentStroke) return prev
-      return {
-        ...prev,
-        currentStroke: addPointToStroke(prev.currentStroke, point),
-      }
+    setCurrentStroke((prev) => {
+      if (!prev) return prev
+      return { ...prev, points: [...prev.points, point] }
     })
   }, [])
 
+  /** ストロークを終了し、完成したDrawableをコールバックに渡す */
   const endStroke = useCallback(() => {
-    const stroke = state.currentStroke
-    if (stroke && stroke.points.length > 1) {
-      onStrokeComplete(stroke)
-    }
-    setState((prev) => ({
-      ...prev,
-      currentStroke: null,
-    }))
-  }, [onStrokeComplete, state.currentStroke])
-
-  const setStrokeWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, strokeWidth: width }))
-  }, [])
-
-  const setStrokeColor = useCallback((color: string) => {
-    setState((prev) => ({ ...prev, strokeColor: color }))
-  }, [])
-
-  const setEraserWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, eraserWidth: width }))
-  }, [])
-
-  const setTool = useCallback((tool: Tool) => {
-    setState((prev) => ({ ...prev, tool }))
-  }, [])
+    setCurrentStroke((prev) => {
+      if (prev && prev.points.length > 1) {
+        onDrawableComplete(prev)
+      }
+      return null
+    })
+  }, [onDrawableComplete])
 
   return {
-    currentStroke: state.currentStroke,
-    strokeWidth: state.strokeWidth,
-    strokeColor: state.strokeColor,
-    eraserWidth: state.eraserWidth,
-    tool: state.tool,
+    currentStroke,
     startStroke,
     addPoint,
     endStroke,
-    setStrokeWidth,
-    setStrokeColor,
-    setEraserWidth,
-    setTool,
   } as const
 }
