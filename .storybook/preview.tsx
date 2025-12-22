@@ -1,50 +1,41 @@
-import React from 'react'
+import * as React from 'react'
 import type { Preview } from '@storybook/react-vite'
-import { withThemeByClassName } from '@storybook/addon-themes'
+import { DocsContainer } from '@storybook/addon-docs/blocks'
 import { themes } from 'storybook/theming'
+import { useDarkMode } from '@vueless/storybook-dark-mode'
 import '../src/index.css'
 import { LocaleProvider } from '../src/hooks/useLocale'
 
+const ThemedDocsContainer: React.FC<React.ComponentProps<typeof DocsContainer>> = (props) => {
+  const isDark = useDarkMode()
+  return (
+    <DocsContainer {...props} theme={isDark ? themes.dark : themes.light}>
+      {props.children}
+    </DocsContainer>
+  )
+}
+
 const preview: Preview = {
-  initialGlobals: {
-    theme: 'dark',
-  },
   parameters: {
-    options: {
-      storySort: {
-        order: ['UI'],
-      },
-    },
     backgrounds: { disable: true },
+    darkMode: {
+      classTarget: 'html',
+      darkClass: ['dark'],
+      lightClass: ['light'],
+      stylePreview: true,
+    },
     docs: {
-      theme: themes.dark,
+      container: ThemedDocsContainer,
     },
   },
   decorators: [
-    (Story, context) => {
-      const theme = context.globals.theme || 'dark'
-      const isDark = theme === 'dark'
-
+    (Story) => {
       return (
         <LocaleProvider defaultLocale="en">
-          <div
-            style={{
-              backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
-              padding: '1rem',
-            }}
-          >
-            <Story />
-          </div>
+          <Story />
         </LocaleProvider>
       )
     },
-    withThemeByClassName({
-      themes: {
-        light: '',
-        dark: 'dark',
-      },
-      defaultTheme: 'dark',
-    }),
   ],
 }
 
