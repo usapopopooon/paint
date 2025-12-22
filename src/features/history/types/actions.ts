@@ -2,29 +2,29 @@ import type { Drawable } from '@/features/drawable'
 import type { LayerId } from '@/features/layer'
 import type { LayerSnapshot } from './layer'
 
-// Re-export LayerId for convenience
+// 便宜上LayerIdを再エクスポート
 export type { LayerId }
 
 /**
- * Unique identifier for history actions
+ * 履歴アクションのユニーク識別子
  */
 export type ActionId = string
 
 /**
- * Timestamp in milliseconds
+ * ミリ秒単位のタイムスタンプ
  */
 export type Timestamp = number
 
 /**
- * Base action metadata - all actions include this
+ * 基本アクションメタデータ - 全アクションに含まれる
  */
 export type ActionMetadata = {
   readonly id: ActionId
   readonly timestamp: Timestamp
-  readonly layerId?: LayerId // undefined = global action
+  readonly layerId?: LayerId // undefined = グローバルアクション
 }
 
-// === Drawable Actions ===
+// === 描画要素アクション ===
 
 export type DrawableAddedAction = ActionMetadata & {
   readonly type: 'drawable:added'
@@ -36,7 +36,7 @@ export type DrawablesClearedAction = ActionMetadata & {
   readonly previousDrawables: readonly Drawable[]
 }
 
-// === Layer Actions (for future support) ===
+// === レイヤーアクション（将来対応用） ===
 
 export type LayerCreatedAction = ActionMetadata & {
   readonly type: 'layer:created'
@@ -72,7 +72,7 @@ export type LayerRenamedAction = ActionMetadata & {
   readonly newName: string
 }
 
-// === Batch Action (for composite operations) ===
+// === バッチアクション（複合操作用） ===
 
 export type BatchAction = ActionMetadata & {
   readonly type: 'batch'
@@ -80,7 +80,7 @@ export type BatchAction = ActionMetadata & {
   readonly description?: string
 }
 
-// === Union types ===
+// === ユニオン型 ===
 
 export type DrawableAction = DrawableAddedAction | DrawablesClearedAction
 
@@ -94,7 +94,7 @@ export type LayerAction =
 
 export type HistoryAction = DrawableAction | LayerAction | BatchAction
 
-// === Type guards ===
+// === 型ガード ===
 
 export const isDrawableAction = (action: HistoryAction): action is DrawableAction =>
   action.type.startsWith('drawable')

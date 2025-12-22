@@ -10,7 +10,7 @@ import type {
 } from '../types/actions'
 import type { LayerSnapshot } from '../types/layer'
 
-// === Drawable Action Creators ===
+// === 描画要素アクションクリエイター ===
 
 export const createDrawableAddedAction = (
   drawable: Drawable,
@@ -34,7 +34,7 @@ export const createDrawablesClearedAction = (
   layerId,
 })
 
-// === Layer Action Creators ===
+// === レイヤーアクションクリエイター ===
 
 export const createLayerCreatedAction = (
   layerId: LayerId,

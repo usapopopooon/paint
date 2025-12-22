@@ -1,25 +1,25 @@
 /**
- * Brush tip type - determines how the brush renders
+ * ブラシチップタイプ - ブラシのレンダリング方法を決定
  */
 export type BrushTipType = 'solid' | 'soft' | 'airbrush'
 
 /**
- * Blend mode - determines how strokes composite with existing content
+ * ブレンドモード - ストロークが既存コンテンツとどう合成されるかを決定
  */
 export type BlendMode = 'normal' | 'erase'
 
 /**
- * Brush tip configuration
+ * ブラシチップ設定
  */
 export type BrushTip = {
   readonly type: BrushTipType
   readonly size: number
-  readonly hardness: number // 0-1, solid=1, soft edges=lower values
+  readonly hardness: number // 0-1, solid=1, ソフトエッジ=低い値
   readonly opacity: number // 0-1
 }
 
 /**
- * Complete stroke style including color, brush tip, and blend mode
+ * 色、ブラシチップ、ブレンドモードを含む完全なストロークスタイル
  */
 export type StrokeStyle = {
   readonly color: string
@@ -28,7 +28,7 @@ export type StrokeStyle = {
 }
 
 /**
- * Create a solid brush tip with default settings
+ * デフォルト設定でソリッドブラシチップを作成
  */
 export const createSolidBrushTip = (size: number): BrushTip => ({
   type: 'solid',
@@ -38,7 +38,7 @@ export const createSolidBrushTip = (size: number): BrushTip => ({
 })
 
 /**
- * Create a soft brush tip with configurable hardness
+ * 設定可能なハードネスでソフトブラシチップを作成
  */
 export const createSoftBrushTip = (
   size: number,

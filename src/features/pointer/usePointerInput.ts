@@ -42,7 +42,7 @@ export const usePointerInput = ({
   onEnd,
   onWheel,
 }: UsePointerInputOptions): UsePointerInputReturn => {
-  // Track the active pointer ID to prevent multi-pointer conflicts
+  // マルチポインターの競合を防ぐためアクティブなポインターIDを追跡
   const activePointerIdRef = useRef<number | null>(null)
   const activePointerTypeRef = useRef<PointerType | null>(null)
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null)
@@ -59,23 +59,23 @@ export const usePointerInput = ({
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
-      // Ignore if already drawing with another pointer (prevents multi-touch conflicts)
+      // 別のポインターで描画中の場合は無視（マルチタッチの競合を防止）
       if (activePointerIdRef.current !== null) {
         return
       }
 
-      // Only handle primary button (left mouse button, touch, or pen contact)
+      // プライマリボタンのみ処理（左マウスボタン、タッチ、またはペン接触）
       if (event.button !== 0) {
         return
       }
 
       const element = event.currentTarget
 
-      // Capture the pointer to receive events even if it leaves the element
+      // 要素を離れてもイベントを受信するためポインターをキャプチャ
       try {
         element.setPointerCapture(event.pointerId)
       } catch {
-        // setPointerCapture can fail in some edge cases, continue anyway
+        // setPointerCaptureはエッジケースで失敗することがある、続行
       }
 
       activePointerIdRef.current = event.pointerId
@@ -95,7 +95,7 @@ export const usePointerInput = ({
       const point = extractPointerPoint(event, element)
       setPointerPosition({ x: point.x, y: point.y })
 
-      // Only process move events for the active pointer
+      // アクティブなポインターのムーブイベントのみ処理
       if (activePointerIdRef.current !== event.pointerId) {
         return
       }
@@ -107,18 +107,18 @@ export const usePointerInput = ({
 
   const handlePointerUp = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
-      // Only handle the active pointer
+      // アクティブなポインターのみ処理
       if (activePointerIdRef.current !== event.pointerId) {
         return
       }
 
       const element = event.currentTarget
 
-      // Release pointer capture
+      // ポインターキャプチャを解放
       try {
         element.releasePointerCapture(event.pointerId)
       } catch {
-        // releasePointerCapture can fail if capture was already released
+        // キャプチャが既に解放されている場合は失敗することがある
       }
 
       endStroke()
@@ -128,7 +128,7 @@ export const usePointerInput = ({
 
   const handlePointerCancel = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
-      // Handle interrupted pointer (e.g., system gesture, palm rejection)
+      // 中断されたポインターを処理（例：システムジェスチャー、パームリジェクション）
       if (activePointerIdRef.current !== event.pointerId) {
         return
       }
@@ -140,15 +140,15 @@ export const usePointerInput = ({
 
   const handlePointerLeave = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
-      // If we have pointer capture, we'll still receive events, so don't end stroke
-      // Only clear position for non-captured pointers
+      // ポインターキャプチャがある場合はイベントを受信し続けるのでストロークを終了しない
+      // キャプチャされていないポインターの位置のみクリア
       if (activePointerIdRef.current !== event.pointerId) {
         setPointerPosition(null)
         return
       }
 
-      // For the active pointer, check if we still have capture
-      // If not (shouldn't happen normally), end the stroke
+      // アクティブなポインターの場合、まだキャプチャがあるか確認
+      // ない場合（通常は起こらないはず）、ストロークを終了
       try {
         if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
           setPointerPosition(null)
@@ -182,7 +182,7 @@ export const usePointerInput = ({
   )
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    // Prevent context menu on right-click or long-press
+    // 右クリックまたは長押しでコンテキストメニューを防止
     event.preventDefault()
   }, [])
 

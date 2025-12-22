@@ -1,4 +1,4 @@
-// Types
+// 型
 export type {
   ActionId,
   Timestamp,
@@ -26,13 +26,13 @@ export type {
   HistoryStorageFactory,
 } from './types'
 
-// Type guards
+// 型ガード
 export { isDrawableAction, isLayerAction, isBatchAction, success, failure } from './types'
 
-// Storage implementations
+// ストレージ実装
 export { createInMemoryStorage } from './storage'
 
-// Action creators
+// アクションクリエイター
 export {
   createDrawableAddedAction,
   createDrawablesClearedAction,

@@ -1,5 +1,5 @@
 /**
- * Logarithmic scale conversion for smoother control of small values
+ * 小さな値をより滑らかに操作するための対数スケール変換
  */
 export const valueToSlider = (value: number, min: number, max: number): number => {
   const minLog = Math.log(min)

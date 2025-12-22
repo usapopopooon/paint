@@ -9,10 +9,10 @@ import type { HistoryAction } from '../types/actions'
 const DEFAULT_MAX_UNDO_LEVELS = 100
 
 /**
- * In-memory history storage implementation
+ * インメモリ履歴ストレージの実装
  *
- * This is the default storage used when no other storage is specified.
- * All data is lost when the page is refreshed.
+ * 他のストレージが指定されていない場合に使用されるデフォルトストレージ。
+ * ページをリフレッシュすると全データが失われる。
  */
 export const createInMemoryStorage: HistoryStorageFactory = (
   config?: HistoryStorageConfig

@@ -3,7 +3,7 @@ import type { Drawable, StrokeDrawable } from '../types'
 type RenderingContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
 
 /**
- * Render a stroke drawable to canvas context
+ * ストローク描画要素をキャンバスコンテキストにレンダリング
  */
 const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
   if (stroke.points.length < 2) return
@@ -12,12 +12,12 @@ const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
 
   ctx.save()
 
-  // Set blend mode based on StrokeStyle
+  // StrokeStyleに基づいてブレンドモードを設定
   if (style.blendMode === 'erase') {
     ctx.globalCompositeOperation = 'destination-out'
   }
 
-  // Set opacity from brush tip
+  // ブラシチップから不透明度を設定
   ctx.globalAlpha = style.brushTip.opacity
 
   ctx.beginPath()
@@ -38,14 +38,14 @@ const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
 }
 
 /**
- * Render a drawable element to canvas context (dispatch by type)
+ * 描画要素をキャンバスコンテキストにレンダリング（タイプ別にディスパッチ）
  */
 export const renderDrawable = (ctx: RenderingContext, drawable: Drawable): void => {
   switch (drawable.type) {
     case 'stroke':
       renderStroke(ctx, drawable)
       break
-    // Future drawable types will be handled here:
+    // 将来の描画タイプはここで処理:
     // case 'fill': renderFill(ctx, drawable); break
     // case 'bezier': renderBezier(ctx, drawable); break
     // case 'shape': renderShape(ctx, drawable); break

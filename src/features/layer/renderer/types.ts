@@ -1,12 +1,12 @@
 import type { Layer } from '../types'
 
 /**
- * Renderer abstract interface
- * Can be implemented for both Canvas 2D and PixiJS
+ * レンダラー抽象インターフェース
+ * Canvas 2DとPixiJSの両方で実装可能
  */
 export interface LayerRenderer {
   /**
-   * Render layers
+   * レイヤーをレンダリング
    */
   readonly render: (
     layers: readonly Layer[],
@@ -16,17 +16,17 @@ export interface LayerRenderer {
   ) => void
 
   /**
-   * Release resources
+   * リソースを解放
    */
   readonly dispose: () => void
 
   /**
-   * Get canvas element (for DOM attachment)
+   * キャンバス要素を取得（DOM接続用）
    */
   readonly getCanvas: () => HTMLCanvasElement
 }
 
 /**
- * Renderer factory type
+ * レンダラーファクトリ型
  */
 export type LayerRendererFactory = () => LayerRenderer

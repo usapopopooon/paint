@@ -1,16 +1,16 @@
 import type { StrokeStyle } from '@/features/brush'
 import { generateId } from '@/lib/id'
 
-// Re-export Point from lib for convenience
+// 便宜上libからPointを再エクスポート
 export type { Point } from '@/lib/geometry'
 
 /**
- * Unique identifier for drawable elements
+ * 描画要素のユニーク識別子
  */
 export type DrawableId = string
 
 /**
- * Common metadata for all drawable elements
+ * 全描画要素に共通のメタデータ
  */
 export type DrawableMetadata = {
   readonly id: DrawableId
@@ -18,7 +18,7 @@ export type DrawableMetadata = {
 }
 
 /**
- * Stroke drawable - freehand drawing
+ * ストローク描画要素 - フリーハンド描画
  */
 export type StrokeDrawable = DrawableMetadata & {
   readonly type: 'stroke'
@@ -26,7 +26,7 @@ export type StrokeDrawable = DrawableMetadata & {
   readonly style: StrokeStyle
 }
 
-// Future drawable types (commented for documentation)
+// 将来の描画要素タイプ（ドキュメント用にコメント）
 // export type FillDrawable = DrawableMetadata & {
 //   readonly type: 'fill'
 //   readonly region: readonly Point[]
@@ -53,25 +53,25 @@ export type StrokeDrawable = DrawableMetadata & {
 // }
 
 /**
- * Union type for all drawable elements
- * Currently only StrokeDrawable, but designed for future extension
+ * 全描画要素のユニオン型
+ * 現在はStrokeDrawableのみだが、将来の拡張を考慮した設計
  */
 export type Drawable = StrokeDrawable
-// Future: | FillDrawable | BezierDrawable | ShapeDrawable | ImageDrawable
+// 将来: | FillDrawable | BezierDrawable | ShapeDrawable | ImageDrawable
 
 /**
- * Type guard for StrokeDrawable
+ * StrokeDrawableの型ガード
  */
 export const isStrokeDrawable = (drawable: Drawable): drawable is StrokeDrawable =>
   drawable.type === 'stroke'
 
 /**
- * Generate unique drawable ID
+ * ユニークな描画要素IDを生成
  */
 export const generateDrawableId = (): DrawableId => generateId('drawable')
 
 /**
- * Create a StrokeDrawable
+ * StrokeDrawableを作成
  */
 export const createStrokeDrawable = (
   points: readonly Point[],

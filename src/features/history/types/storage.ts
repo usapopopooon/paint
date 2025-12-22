@@ -1,21 +1,21 @@
 import type { HistoryAction } from './actions'
 
 /**
- * Result type for async storage operations
+ * 非同期ストレージ操作の結果型
  */
 export type StorageResult<T> =
   | { readonly success: true; readonly data: T }
   | { readonly success: false; readonly error: string }
 
 /**
- * Configuration for storage implementations
+ * ストレージ実装の設定
  */
 export type HistoryStorageConfig = {
-  readonly maxUndoLevels?: number // default: 100
+  readonly maxUndoLevels?: number // デフォルト: 100
 }
 
 /**
- * Stack information for UI state
+ * UI状態用のスタック情報
  */
 export type StackInfo = {
   readonly undoCount: number
@@ -23,65 +23,65 @@ export type StackInfo = {
 }
 
 /**
- * Abstract interface for history storage
+ * 履歴ストレージの抽象インターフェース
  *
- * Implementations:
- * - InMemoryStorage (default)
- * - IndexedDBStorage (future)
- * - LocalStorageStorage (future)
- * - CloudStorage (future)
+ * 実装:
+ * - InMemoryStorage（デフォルト）
+ * - IndexedDBStorage（将来）
+ * - LocalStorageStorage（将来）
+ * - CloudStorage（将来）
  */
 export interface HistoryStorage {
   /**
-   * Push a new action to the undo stack, clearing redo stack
+   * 新しいアクションをundoスタックにプッシュし、redoスタックをクリア
    */
   readonly push: (action: HistoryAction) => Promise<StorageResult<void>>
 
   /**
-   * Pop the most recent action from undo stack and push to redo stack
-   * Returns the action that was undone
+   * undoスタックから最新のアクションをポップしてredoスタックにプッシュ
+   * undoされたアクションを返す
    */
   readonly undo: () => Promise<StorageResult<HistoryAction | null>>
 
   /**
-   * Pop from redo stack and push to undo stack
-   * Returns the action that was redone
+   * redoスタックからポップしてundoスタックにプッシュ
+   * redoされたアクションを返す
    */
   readonly redo: () => Promise<StorageResult<HistoryAction | null>>
 
   /**
-   * Get current undo/redo stack sizes
+   * 現在のundo/redoスタックサイズを取得
    */
   readonly getStackInfo: () => Promise<StorageResult<StackInfo>>
 
   /**
-   * Peek at the next action to be undone (without modifying stacks)
+   * 次にundoされるアクションを覗き見（スタックは変更しない）
    */
   readonly peekUndo: () => Promise<StorageResult<HistoryAction | null>>
 
   /**
-   * Peek at the next action to be redone (without modifying stacks)
+   * 次にredoされるアクションを覗き見（スタックは変更しない）
    */
   readonly peekRedo: () => Promise<StorageResult<HistoryAction | null>>
 
   /**
-   * Clear all history
+   * 全履歴をクリア
    */
   readonly clear: () => Promise<StorageResult<void>>
 
   /**
-   * Dispose of resources (close connections, etc.)
+   * リソースを解放（接続を閉じる等）
    */
   readonly dispose: () => Promise<void>
 }
 
 /**
- * Factory function type for creating storage instances
+ * ストレージインスタンスを作成するファクトリ関数型
  */
 export type HistoryStorageFactory = (config?: HistoryStorageConfig) => HistoryStorage
 
 /**
- * Helper to create a success result
+ * 成功結果を作成するヘルパー
  */
 export const success = <T>(data: T): StorageResult<T> => ({
   success: true,
@@ -89,7 +89,7 @@ export const success = <T>(data: T): StorageResult<T> => ({
 })
 
 /**
- * Helper to create a failure result
+ * 失敗結果を作成するヘルパー
  */
 export const failure = (error: string): StorageResult<never> => ({
   success: false,

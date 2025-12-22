@@ -1,5 +1,5 @@
 /**
- * 2D point coordinates
+ * 2D座標
  */
 export type Point = {
   readonly x: number
@@ -7,7 +7,7 @@ export type Point = {
 }
 
 /**
- * Rectangle bounds
+ * 矩形の境界
  */
 export type Bounds = {
   readonly x: number

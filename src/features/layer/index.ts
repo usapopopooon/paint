@@ -1,4 +1,4 @@
-// Types
+// 型
 export type {
   LayerId,
   LayerType,
@@ -7,17 +7,17 @@ export type {
   LayerState,
 } from './types'
 
-// Factory functions
+// ファクトリ関数
 export {
   createBackgroundLayer,
   createDrawingLayer,
   createInitialLayerState,
 } from './types'
 
-// Renderer
+// レンダラー
 export type { LayerRenderer, LayerRendererFactory } from './renderer'
 export { createCanvas2DRenderer, blendModeToCompositeOp } from './renderer'
 
-// Hooks
+// フック
 export { useLayers } from './hooks'
 export type { UseLayersReturn } from './hooks'

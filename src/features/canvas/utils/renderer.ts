@@ -4,7 +4,7 @@ import type { Layer } from '@/features/layer'
 import { blendModeToCompositeOp } from '@/features/layer'
 
 /**
- * Render drawables to canvas
+ * 描画要素をキャンバスにレンダリング
  */
 export const renderDrawables = (
   ctx: CanvasRenderingContext2D,
@@ -13,26 +13,26 @@ export const renderDrawables = (
   height: number,
   backgroundColor: string
 ): void => {
-  // Clear the main canvas and fill with background
+  // メインキャンバスをクリアして背景で塗りつぶす
   ctx.fillStyle = backgroundColor
   ctx.fillRect(0, 0, width, height)
 
-  // Create offscreen canvas for drawables (so eraser doesn't erase background)
+  // 描画要素用のオフスクリーンキャンバスを作成（消しゴムが背景を消さないように）
   const offscreen = new OffscreenCanvas(width, height)
   const offCtx = offscreen.getContext('2d')
   if (!offCtx) return
 
-  // Draw all drawables on offscreen canvas (transparent background)
+  // オフスクリーンキャンバスに全描画要素を描画（透明背景）
   offCtx.clearRect(0, 0, width, height)
   drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
 
-  // Composite the drawables onto the main canvas
+  // 描画要素をメインキャンバスに合成
   ctx.drawImage(offscreen, 0, 0)
 }
 
 /**
- * Render layers to canvas
- * Each layer is rendered with its own blend mode and opacity
+ * レイヤーをキャンバスにレンダリング
+ * 各レイヤーは独自のブレンドモードと不透明度でレンダリングされる
  */
 export const renderLayers = (
   ctx: CanvasRenderingContext2D,
@@ -41,28 +41,28 @@ export const renderLayers = (
   height: number,
   backgroundColor: string
 ): void => {
-  // Fill background
+  // 背景を塗りつぶす
   ctx.fillStyle = backgroundColor
   ctx.fillRect(0, 0, width, height)
 
-  // Render each layer
+  // 各レイヤーをレンダリング
   for (const layer of layers) {
     if (!layer.visible || layer.drawables.length === 0) continue
 
-    // Create offscreen canvas for layer
+    // レイヤー用のオフスクリーンキャンバスを作成
     const offscreen = new OffscreenCanvas(width, height)
     const offCtx = offscreen.getContext('2d')
     if (!offCtx) continue
 
-    // Draw drawables on offscreen canvas
+    // オフスクリーンキャンバスに描画要素を描画
     layer.drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
 
-    // Apply blend mode and opacity
+    // ブレンドモードと不透明度を適用
     ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
     ctx.globalAlpha = layer.opacity
     ctx.drawImage(offscreen, 0, 0)
 
-    // Reset composite operation and alpha
+    // 合成操作とアルファをリセット
     ctx.globalCompositeOperation = 'source-over'
     ctx.globalAlpha = 1
   }

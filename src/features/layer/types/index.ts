@@ -2,20 +2,20 @@ import type { Drawable } from '@/features/drawable'
 import { generateId } from '@/lib/id'
 
 /**
- * Layer identifier
+ * レイヤー識別子
  */
 export type LayerId = string
 
 /**
- * Layer type
- * - background: Background layer (always at the back)
- * - drawing: Normal drawing layer
+ * レイヤータイプ
+ * - background: 背景レイヤー（常に最背面）
+ * - drawing: 通常の描画レイヤー
  */
 export type LayerType = 'background' | 'drawing'
 
 /**
- * Layer blend mode
- * Compatible with both Canvas 2D and PixiJS
+ * レイヤーブレンドモード
+ * Canvas 2DとPixiJSの両方と互換性あり
  */
 export type LayerBlendMode =
   | 'normal'
@@ -26,7 +26,7 @@ export type LayerBlendMode =
   | 'lighten'
 
 /**
- * Layer state
+ * レイヤー状態
  */
 export type Layer = {
   readonly id: LayerId
@@ -40,7 +40,7 @@ export type Layer = {
 }
 
 /**
- * Complete layer structure state
+ * 完全なレイヤー構造の状態
  */
 export type LayerState = {
   readonly layers: readonly Layer[]
@@ -48,7 +48,7 @@ export type LayerState = {
 }
 
 /**
- * Create a background layer
+ * 背景レイヤーを作成
  */
 export const createBackgroundLayer = (): Layer => ({
   id: 'background',
@@ -62,7 +62,7 @@ export const createBackgroundLayer = (): Layer => ({
 })
 
 /**
- * Create a drawing layer
+ * 描画レイヤーを作成
  */
 export const createDrawingLayer = (id?: string, name?: string): Layer => ({
   id: id ?? generateId('layer'),
@@ -76,7 +76,7 @@ export const createDrawingLayer = (id?: string, name?: string): Layer => ({
 })
 
 /**
- * Create initial layer state with background + one drawing layer
+ * 背景＋描画レイヤー1つの初期レイヤー状態を作成
  */
 export const createInitialLayerState = (): LayerState => ({
   layers: [createBackgroundLayer(), createDrawingLayer('drawing', 'Layer 1')],

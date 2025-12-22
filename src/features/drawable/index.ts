@@ -1,4 +1,4 @@
-// Types
+// 型
 export type {
   Point,
   DrawableId,
@@ -7,11 +7,11 @@ export type {
   Drawable,
 } from './types'
 
-// Type guards
+// 型ガード
 export { isStrokeDrawable } from './types'
 
-// Factory functions
+// ファクトリ関数
 export { generateDrawableId, createStrokeDrawable } from './types'
 
-// Renderer
+// レンダラー
 export { renderDrawable } from './renderer'

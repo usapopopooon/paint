@@ -1,11 +1,11 @@
 import type { Drawable } from '@/features/drawable'
 import type { LayerId, LayerBlendMode } from '@/features/layer'
 
-// Re-export for convenience
+// 便宜上再エクスポート
 export type { LayerBlendMode }
 
 /**
- * Complete layer state for snapshots (used in undo/redo)
+ * スナップショット用の完全なレイヤー状態（undo/redoで使用）
  */
 export type LayerSnapshot = {
   readonly id: LayerId
@@ -18,7 +18,7 @@ export type LayerSnapshot = {
 }
 
 /**
- * Minimal layer reference (without stroke data)
+ * 最小限のレイヤー参照（ストロークデータなし）
  */
 export type LayerRef = {
   readonly id: LayerId
