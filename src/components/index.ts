@@ -6,6 +6,5 @@ export {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-  LocaleToggle,
   ThemeToggle,
 } from './ui'

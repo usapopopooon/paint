@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { Canvas, useCanvas } from './features/canvas'
 import type { Point } from './features/drawable'
@@ -7,16 +7,6 @@ import { Toolbar } from './features/toolbar'
 import { useTool, ToolPanel } from './features/tools'
 import { useTheme } from './features/theme'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { valueToSlider, sliderToValue } from './lib/slider'
-
-/** ペンの最小幅（ピクセル） */
-const MIN_PEN_WIDTH = 1
-/** ペンの最大幅（ピクセル） */
-const MAX_PEN_WIDTH = 300
-/** 消しゴムの最小幅（ピクセル） */
-const MIN_ERASER_WIDTH = 5
-/** 消しゴムの最大幅（ピクセル） */
-const MAX_ERASER_WIDTH = 300
 
 /**
  * ペイントアプリケーションのメインコンポーネント
@@ -35,32 +25,6 @@ function App() {
   })
 
   /**
-   * ホイールでブラシサイズを変更するハンドラ
-   * @param deltaY - ホイールのスクロール量
-   */
-  const handleWheel = useCallback(
-    (deltaY: number) => {
-      const step = deltaY > 0 ? -5 : 5
-      if (tool.currentType === 'pen') {
-        const currentSlider = valueToSlider(tool.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        const newSlider = Math.max(0, Math.min(100, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        tool.setPenWidth(newWidth)
-      } else {
-        const currentSlider = valueToSlider(
-          tool.eraserConfig.width,
-          MIN_ERASER_WIDTH,
-          MAX_ERASER_WIDTH
-        )
-        const newSlider = Math.max(0, Math.min(100, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-        tool.setEraserWidth(newWidth)
-      }
-    },
-    [tool]
-  )
-
-  /**
    * ストローク開始時のハンドラ
    * @param point - 開始位置
    */
@@ -70,9 +34,6 @@ function App() {
     },
     [canvas, tool.currentConfig]
   )
-
-  /** 現在のツール設定に基づくカーソル設定 */
-  const cursor = useMemo(() => tool.getCursor('#ffffff'), [tool])
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -112,8 +73,8 @@ function App() {
             onStartStroke={handleStartStroke}
             onAddPoint={canvas.addPoint}
             onEndStroke={canvas.endStroke}
-            onWheel={handleWheel}
-            cursor={cursor}
+            onWheel={tool.adjustBrushSize}
+            cursor={tool.cursor}
             fillContainer
           />
         </main>

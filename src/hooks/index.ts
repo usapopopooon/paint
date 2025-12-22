@@ -1,2 +1,1 @@
-export { useTheme } from './useTheme'
-export { LocaleProvider, useLocale } from './useLocale'
+export { useKeyboardShortcuts } from './useKeyboardShortcuts'

@@ -1,4 +1,5 @@
 import type { StrokeStyle } from '@/features/brush'
+import type { Point } from '@/lib/geometry'
 import { generateId } from '@/lib/id'
 
 // 便宜上libからPointを再エクスポート

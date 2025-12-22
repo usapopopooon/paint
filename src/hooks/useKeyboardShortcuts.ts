@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 /**
  * キーボードショートカットハンドラの型
  */
-type KeyboardShortcutsHandlers = {
+export type KeyboardShortcutsHandlers = {
   readonly onUndo: () => void
   readonly onRedo: () => void
   readonly onClear: () => void

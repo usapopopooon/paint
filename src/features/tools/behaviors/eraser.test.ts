@@ -39,9 +39,8 @@ describe('eraserBehavior', () => {
   describe('getCursor', () => {
     test('eraserの幅と視認可能な色を持つカーソルコンフィグを返す', () => {
       const config = { type: 'eraser' as const, width: 40 }
-      const backgroundColor = '#ffffff'
 
-      const cursor = eraserBehavior.getCursor(config, backgroundColor)
+      const cursor = eraserBehavior.getCursor(config)
 
       expect(cursor).toEqual({
         size: 40,

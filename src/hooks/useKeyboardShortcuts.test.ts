@@ -1,13 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useKeyboardShortcuts } from './useKeyboardShortcuts'
+import { useKeyboardShortcuts, type KeyboardShortcutsHandlers } from './useKeyboardShortcuts'
 
 describe('useKeyboardShortcuts', () => {
-  let mockHandlers: {
-    onUndo: ReturnType<typeof vi.fn>
-    onRedo: ReturnType<typeof vi.fn>
-    onClear: ReturnType<typeof vi.fn>
-  }
+  let mockHandlers: KeyboardShortcutsHandlers
 
   beforeEach(() => {
     mockHandlers = {
