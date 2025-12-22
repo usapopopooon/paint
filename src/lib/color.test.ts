@@ -60,6 +60,35 @@ describe('hexToHsv', () => {
     expect(hexToHsv('#0000ff')).toEqual({ h: 240, s: 100, v: 100 })
   })
 
+  test('黄色を変換する (max=r, g>b)', () => {
+    expect(hexToHsv('#ffff00')).toEqual({ h: 60, s: 100, v: 100 })
+  })
+
+  test('マゼンタを変換する (max=r, g<b)', () => {
+    // #ff00ff - r=255, g=0, b=255 → max=r, g<b なので h = (g-b)/d + 6
+    expect(hexToHsv('#ff00ff')).toEqual({ h: 300, s: 100, v: 100 })
+  })
+
+  test('シアンを変換する (max=g)', () => {
+    expect(hexToHsv('#00ffff')).toEqual({ h: 180, s: 100, v: 100 })
+  })
+
+  test('オレンジを変換する (max=r, g>b)', () => {
+    // #ff8000 - r=255, g=128, b=0
+    const result = hexToHsv('#ff8000')
+    expect(result.h).toBe(30)
+    expect(result.s).toBe(100)
+    expect(result.v).toBe(100)
+  })
+
+  test('ピンクを変換する (max=r, g<b)', () => {
+    // #ff0080 - r=255, g=0, b=128 → max=r, g<b
+    const result = hexToHsv('#ff0080')
+    expect(result.h).toBe(330)
+    expect(result.s).toBe(100)
+    expect(result.v).toBe(100)
+  })
+
   test('#なしのHEXを処理する', () => {
     expect(hexToHsv('ff0000')).toEqual({ h: 0, s: 100, v: 100 })
   })
