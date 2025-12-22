@@ -10,6 +10,8 @@ describe('useKeyboardShortcuts', () => {
       onUndo: vi.fn(),
       onRedo: vi.fn(),
       onClear: vi.fn(),
+      onSelectPen: vi.fn(),
+      onSelectEraser: vi.fn(),
     }
   })
 
@@ -91,6 +93,55 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('Delete')
 
       expect(mockHandlers.onClear).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('ツール選択 (P / E)', () => {
+    it('Pキーでペンツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('p')
+
+      expect(mockHandlers.onSelectPen).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectEraser).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    it('大文字Pでもペンツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('P')
+
+      expect(mockHandlers.onSelectPen).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    it('Eキーで消しゴムツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('e')
+
+      expect(mockHandlers.onSelectEraser).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    it('大文字Eでも消しゴムツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('E')
+
+      expect(mockHandlers.onSelectEraser).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    it('Ctrl+Pはペンツール選択しない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('p', { ctrlKey: true })
+
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
       unmount()
     })
   })

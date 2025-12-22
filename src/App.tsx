@@ -22,6 +22,8 @@ function App() {
     onUndo: canvas.undo,
     onRedo: canvas.redo,
     onClear: canvas.clear,
+    onSelectPen: () => tool.setToolType('pen'),
+    onSelectEraser: () => tool.setToolType('eraser'),
   })
 
   /**

@@ -98,7 +98,7 @@ export const ToolPanel = memo(function ToolPanel({
               <Pencil className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">{t('tools.pen')}</TooltipContent>
+          <TooltipContent side="right">{t('tools.pen')} (P)</TooltipContent>
         </Tooltip>
         <div className="flex-1 flex items-center gap-2">
           <Slider
@@ -127,7 +127,7 @@ export const ToolPanel = memo(function ToolPanel({
               <Eraser className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="right">{t('tools.eraser')}</TooltipContent>
+          <TooltipContent side="right">{t('tools.eraser')} (E)</TooltipContent>
         </Tooltip>
         <div className="flex-1 flex items-center gap-2">
           <Slider
