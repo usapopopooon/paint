@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { BrushCursor } from './BrushCursor'
 
 const meta = {
-  title: 'Features/Canvas/BrushCursor',
+  title: 'Features/Pointer/BrushCursor',
   component: BrushCursor,
   parameters: {
     layout: 'centered',

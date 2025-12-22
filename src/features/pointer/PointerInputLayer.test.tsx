@@ -41,14 +41,14 @@ describe('PointerInputLayer', () => {
     expect(wrapper.style.cursor).toBe('none')
   })
 
-  it('should call onPositionChange with null initially', () => {
-    const onPositionChange = vi.fn()
-    render(
-      <PointerInputLayer {...defaultProps} onPositionChange={onPositionChange}>
+  it('should not render cursor when cursor prop is not provided', () => {
+    const { container } = render(
+      <PointerInputLayer {...defaultProps}>
         <div>Child</div>
       </PointerInputLayer>
     )
 
-    expect(onPositionChange).toHaveBeenCalledWith(null)
+    const cursor = container.querySelector('[style*="border-radius: 50%"]')
+    expect(cursor).not.toBeInTheDocument()
   })
 })
