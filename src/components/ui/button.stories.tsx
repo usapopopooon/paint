@@ -219,7 +219,10 @@ export const AllSizes: Story = {
     const canvas = within(canvasElement)
 
     await expect(canvas.getByRole('button', { name: 'Small' })).toHaveAttribute('data-size', 'sm')
-    await expect(canvas.getByRole('button', { name: 'Default' })).toHaveAttribute('data-size', 'default')
+    await expect(canvas.getByRole('button', { name: 'Default' })).toHaveAttribute(
+      'data-size',
+      'default'
+    )
     await expect(canvas.getByRole('button', { name: 'Large' })).toHaveAttribute('data-size', 'lg')
   },
 }

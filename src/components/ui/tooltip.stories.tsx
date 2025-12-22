@@ -21,9 +21,7 @@ export const Default: Story = {
       <TooltipTrigger asChild>
         <Button variant="outline">Hover me</Button>
       </TooltipTrigger>
-      <TooltipContent>
-        This is a tooltip
-      </TooltipContent>
+      <TooltipContent>This is a tooltip</TooltipContent>
     </Tooltip>
   ),
   play: async ({ canvasElement }) => {
@@ -40,9 +38,7 @@ export const SideTop: Story = {
       <TooltipTrigger asChild>
         <Button variant="outline">Top</Button>
       </TooltipTrigger>
-      <TooltipContent side="top">
-        Tooltip on top
-      </TooltipContent>
+      <TooltipContent side="top">Tooltip on top</TooltipContent>
     </Tooltip>
   ),
 }
@@ -53,9 +49,7 @@ export const SideBottom: Story = {
       <TooltipTrigger asChild>
         <Button variant="outline">Bottom</Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
-        Tooltip on bottom
-      </TooltipContent>
+      <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
     </Tooltip>
   ),
 }
@@ -66,9 +60,7 @@ export const SideLeft: Story = {
       <TooltipTrigger asChild>
         <Button variant="outline">Left</Button>
       </TooltipTrigger>
-      <TooltipContent side="left">
-        Tooltip on left
-      </TooltipContent>
+      <TooltipContent side="left">Tooltip on left</TooltipContent>
     </Tooltip>
   ),
 }
@@ -79,9 +71,7 @@ export const SideRight: Story = {
       <TooltipTrigger asChild>
         <Button variant="outline">Right</Button>
       </TooltipTrigger>
-      <TooltipContent side="right">
-        Tooltip on right
-      </TooltipContent>
+      <TooltipContent side="right">Tooltip on right</TooltipContent>
     </Tooltip>
   ),
 }
@@ -92,9 +82,7 @@ export const WithHover: Story = {
       <TooltipTrigger asChild>
         <Button>Hover to see tooltip</Button>
       </TooltipTrigger>
-      <TooltipContent>
-        ツールチップの内容
-      </TooltipContent>
+      <TooltipContent>ツールチップの内容</TooltipContent>
     </Tooltip>
   ),
   play: async ({ canvasElement }) => {
@@ -117,25 +105,33 @@ export const AllSides: Story = {
     <div className="flex items-center gap-8">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Top</Button>
+          <Button variant="outline" size="sm">
+            Top
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="top">Top tooltip</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Right</Button>
+          <Button variant="outline" size="sm">
+            Right
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="right">Right tooltip</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Bottom</Button>
+          <Button variant="outline" size="sm">
+            Bottom
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">Bottom tooltip</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Left</Button>
+          <Button variant="outline" size="sm">
+            Left
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="left">Left tooltip</TooltipContent>
       </Tooltip>

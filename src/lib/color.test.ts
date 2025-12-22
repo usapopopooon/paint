@@ -1,130 +1,159 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { hsvToHex, hexToHsv, isValidHex, normalizeHex } from './color'
 
 describe('hsvToHex', () => {
-  it('converts black (h=0, s=0, v=0)', () => {
+  test('黒を変換する (h=0, s=0, v=0)', () => {
     expect(hsvToHex(0, 0, 0)).toBe('#000000')
   })
 
-  it('converts white (h=0, s=0, v=100)', () => {
+  test('白を変換する (h=0, s=0, v=100)', () => {
     expect(hsvToHex(0, 0, 100)).toBe('#ffffff')
   })
 
-  it('converts red (h=0, s=100, v=100)', () => {
+  test('赤を変換する (h=0, s=100, v=100)', () => {
     expect(hsvToHex(0, 100, 100)).toBe('#ff0000')
   })
 
-  it('converts green (h=120, s=100, v=100)', () => {
+  test('緑を変換する (h=120, s=100, v=100)', () => {
     expect(hsvToHex(120, 100, 100)).toBe('#00ff00')
   })
 
-  it('converts blue (h=240, s=100, v=100)', () => {
+  test('青を変換する (h=240, s=100, v=100)', () => {
     expect(hsvToHex(240, 100, 100)).toBe('#0000ff')
   })
 
-  it('converts yellow (h=60, s=100, v=100)', () => {
+  test('黄色を変換する (h=60, s=100, v=100)', () => {
     expect(hsvToHex(60, 100, 100)).toBe('#ffff00')
   })
 
-  it('converts cyan (h=180, s=100, v=100)', () => {
+  test('シアンを変換する (h=180, s=100, v=100)', () => {
     expect(hsvToHex(180, 100, 100)).toBe('#00ffff')
   })
 
-  it('converts magenta (h=300, s=100, v=100)', () => {
+  test('マゼンタを変換する (h=300, s=100, v=100)', () => {
     expect(hsvToHex(300, 100, 100)).toBe('#ff00ff')
   })
 
-  it('converts gray (h=0, s=0, v=50)', () => {
+  test('グレーを変換する (h=0, s=0, v=50)', () => {
     expect(hsvToHex(0, 0, 50)).toBe('#808080')
   })
 })
 
 describe('hexToHsv', () => {
-  it('converts black', () => {
+  test('黒を変換する', () => {
     expect(hexToHsv('#000000')).toEqual({ h: 0, s: 0, v: 0 })
   })
 
-  it('converts white', () => {
+  test('白を変換する', () => {
     expect(hexToHsv('#ffffff')).toEqual({ h: 0, s: 0, v: 100 })
   })
 
-  it('converts red', () => {
+  test('赤を変換する', () => {
     expect(hexToHsv('#ff0000')).toEqual({ h: 0, s: 100, v: 100 })
   })
 
-  it('converts green', () => {
+  test('緑を変換する', () => {
     expect(hexToHsv('#00ff00')).toEqual({ h: 120, s: 100, v: 100 })
   })
 
-  it('converts blue', () => {
+  test('青を変換する', () => {
     expect(hexToHsv('#0000ff')).toEqual({ h: 240, s: 100, v: 100 })
   })
 
-  it('handles hex without #', () => {
+  test('黄色を変換する (max=r, g>b)', () => {
+    expect(hexToHsv('#ffff00')).toEqual({ h: 60, s: 100, v: 100 })
+  })
+
+  test('マゼンタを変換する (max=r, g<b)', () => {
+    // #ff00ff - r=255, g=0, b=255 → max=r, g<b なので h = (g-b)/d + 6
+    expect(hexToHsv('#ff00ff')).toEqual({ h: 300, s: 100, v: 100 })
+  })
+
+  test('シアンを変換する (max=g)', () => {
+    expect(hexToHsv('#00ffff')).toEqual({ h: 180, s: 100, v: 100 })
+  })
+
+  test('オレンジを変換する (max=r, g>b)', () => {
+    // #ff8000 - r=255, g=128, b=0
+    const result = hexToHsv('#ff8000')
+    expect(result.h).toBe(30)
+    expect(result.s).toBe(100)
+    expect(result.v).toBe(100)
+  })
+
+  test('ピンクを変換する (max=r, g<b)', () => {
+    // #ff0080 - r=255, g=0, b=128 → max=r, g<b
+    const result = hexToHsv('#ff0080')
+    expect(result.h).toBe(330)
+    expect(result.s).toBe(100)
+    expect(result.v).toBe(100)
+  })
+
+  test('#なしのHEXを処理する', () => {
     expect(hexToHsv('ff0000')).toEqual({ h: 0, s: 100, v: 100 })
   })
 
-  it('handles uppercase hex', () => {
+  test('大文字のHEXを処理する', () => {
     expect(hexToHsv('#FF0000')).toEqual({ h: 0, s: 100, v: 100 })
   })
 
-  it('returns default for invalid hex', () => {
+  test('無効なHEXにはデフォルト値を返す', () => {
     expect(hexToHsv('invalid')).toEqual({ h: 0, s: 0, v: 100 })
   })
 })
 
 describe('isValidHex', () => {
-  it('validates 6-digit hex with #', () => {
+  test('#付き6桁HEXを検証する', () => {
     expect(isValidHex('#ff0000')).toBe(true)
   })
 
-  it('validates 6-digit hex without #', () => {
+  test('#なし6桁HEXを検証する', () => {
     expect(isValidHex('ff0000')).toBe(true)
   })
 
-  it('validates 3-digit hex with #', () => {
+  test('#付き3桁HEXを検証する', () => {
     expect(isValidHex('#f00')).toBe(true)
   })
 
-  it('validates 3-digit hex without #', () => {
+  test('#なし3桁HEXを検証する', () => {
     expect(isValidHex('f00')).toBe(true)
   })
 
-  it('validates uppercase hex', () => {
+  test('大文字HEXを検証する', () => {
     expect(isValidHex('#FF0000')).toBe(true)
   })
 
-  it('rejects invalid characters', () => {
+  test('無効な文字を拒否する', () => {
     expect(isValidHex('#gggggg')).toBe(false)
   })
 
-  it('rejects wrong length', () => {
+  test('不正な長さを拒否する', () => {
     expect(isValidHex('#ff00')).toBe(false)
   })
 
-  it('rejects empty string', () => {
+  test('空文字列を拒否する', () => {
     expect(isValidHex('')).toBe(false)
   })
 })
 
 describe('normalizeHex', () => {
-  it('adds # if missing', () => {
+  test('#がない場合は追加する', () => {
     expect(normalizeHex('ff0000')).toBe('#ff0000')
   })
 
-  it('keeps # if present', () => {
+  test('#がある場合はそのまま保持する', () => {
     expect(normalizeHex('#ff0000')).toBe('#ff0000')
   })
 
-  it('expands 3-digit hex to 6-digit', () => {
+  test('3桁HEXを6桁に展開する', () => {
     expect(normalizeHex('#f00')).toBe('#ff0000')
   })
 
-  it('expands 3-digit hex without # to 6-digit', () => {
+  test('#なし3桁HEXを6桁に展開する', () => {
     expect(normalizeHex('f00')).toBe('#ff0000')
   })
 
-  it('converts to lowercase', () => {
+  test('小文字に変換する', () => {
     expect(normalizeHex('#FF0000')).toBe('#ff0000')
   })
 })

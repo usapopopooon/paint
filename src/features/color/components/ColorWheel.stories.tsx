@@ -87,27 +87,29 @@ export const InputField: Story = {
   },
 }
 
+const InteractiveColorWheel = (args: React.ComponentProps<typeof ColorWheel>) => {
+  const [color, setColor] = React.useState(args.color)
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <ColorWheel
+        color={color}
+        onChange={(newColor) => {
+          setColor(newColor)
+          args.onChange(newColor)
+        }}
+        t={mockT}
+      />
+      <div
+        className="w-32 h-32 rounded-lg border border-border"
+        style={{ backgroundColor: color }}
+      />
+    </div>
+  )
+}
+
 export const Interactive: Story = {
   args: {
     color: '#3366ff',
   },
-  render: (args) => {
-    const [color, setColor] = React.useState(args.color)
-    return (
-      <div className="flex flex-col items-center gap-4">
-        <ColorWheel
-          color={color}
-          onChange={(newColor) => {
-            setColor(newColor)
-            args.onChange(newColor)
-          }}
-          t={mockT}
-        />
-        <div
-          className="w-32 h-32 rounded-lg border border-border"
-          style={{ backgroundColor: color }}
-        />
-      </div>
-    )
-  },
+  render: (args) => <InteractiveColorWheel {...args} />,
 }

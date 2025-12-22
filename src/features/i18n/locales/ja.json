@@ -1,0 +1,17 @@
+{
+  "tools.pen": "ペン",
+  "tools.eraser": "消しゴム",
+  "actions.undo": "元に戻す",
+  "actions.redo": "やり直す",
+  "actions.clear": "クリア",
+  "theme.lightMode": "ライトモード",
+  "theme.darkMode": "ダークモード",
+  "locale.switch": "言語を切り替える",
+  "shortcuts.undo": "Ctrl+Z",
+  "shortcuts.redo": "Ctrl+Shift+Z",
+  "shortcuts.clear": "Shift+Delete",
+  "messages.noUndoHistory": "履歴がありません",
+  "messages.noRedoHistory": "履歴がありません",
+  "color.copy": "コピー",
+  "color.paste": "ペースト"
+}
