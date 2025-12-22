@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import type { PointerPoint, PointerType, PointerInputHandlers } from './types'
+import type { PointerPoint, PointerType } from './types'
 
 type UsePointerInputOptions = {
   onStart: (point: PointerPoint) => void

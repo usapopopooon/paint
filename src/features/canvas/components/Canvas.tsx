@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Point, Stroke } from '../types'
 import { DrawingCanvas } from './DrawingCanvas'
-import { PointerInputLayer, type PointerPoint } from '../../pointer'
+import { PointerInputLayer } from '../../pointer'
 
 type CanvasProps = {
   readonly strokes: readonly Stroke[]
@@ -32,35 +32,18 @@ export const Canvas = ({
   strokeColor = '#000000',
   isEraser = false,
 }: CanvasProps) => {
-  const handleStart = useCallback(
-    (point: PointerPoint) => {
-      onStartStroke({ x: point.x, y: point.y })
-    },
-    [onStartStroke]
-  )
-
-  const handleMove = useCallback(
-    (point: PointerPoint) => {
-      onAddPoint({ x: point.x, y: point.y })
-    },
-    [onAddPoint]
-  )
-
-  const cursorConfig = useMemo(
-    () => ({
-      size: strokeWidth,
-      color: isEraser ? '#888888' : strokeColor,
-    }),
+  const cursor = useMemo(
+    () => ({ size: strokeWidth, color: isEraser ? '#888888' : strokeColor }),
     [strokeWidth, isEraser, strokeColor]
   )
 
   return (
     <PointerInputLayer
-      onStart={handleStart}
-      onMove={handleMove}
+      onStart={onStartStroke}
+      onMove={onAddPoint}
       onEnd={onEndStroke}
       onWheel={onWheel}
-      cursor={cursorConfig}
+      cursor={cursor}
       className={fillContainer ? 'w-full h-full' : 'inline-block'}
     >
       <DrawingCanvas
