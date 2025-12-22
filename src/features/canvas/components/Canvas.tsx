@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { Point, Stroke } from '../types'
-import { renderCanvas } from '../utils/renderer'
+import { DrawingCanvas } from './DrawingCanvas'
 import { BrushCursor } from './BrushCursor'
-import { usePointerInput, type PointerPoint } from '../../pointer'
+import { PointerInputLayer, type PointerPoint } from '../../pointer'
 
 type CanvasProps = {
   readonly strokes: readonly Stroke[]
@@ -33,9 +33,7 @@ export const Canvas = ({
   strokeColor = '#000000',
   isEraser = false,
 }: CanvasProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [size, setSize] = useState({ width, height })
+  const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null)
 
   const handleStart = useCallback(
     (point: PointerPoint) => {
@@ -51,74 +49,27 @@ export const Canvas = ({
     [onAddPoint]
   )
 
-  const { pointerProps, pointerPosition } = usePointerInput({
-    onStart: handleStart,
-    onMove: handleMove,
-    onEnd: onEndStroke,
-    onWheel,
-  })
-
-  // Handle resize when fillContainer is true
-  useEffect(() => {
-    if (!fillContainer) {
-      setSize({ width, height })
-      return
-    }
-
-    const container = containerRef.current
-    if (!container) return
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (entry) {
-        setSize({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        })
-      }
-    })
-
-    resizeObserver.observe(container)
-    return () => resizeObserver.disconnect()
-  }, [fillContainer, width, height])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx) return
-
-    renderCanvas(ctx, strokes, size.width, size.height, backgroundColor)
-  }, [strokes, size.width, size.height, backgroundColor])
-
   const cursorColor = isEraser ? '#888888' : strokeColor
 
-  if (fillContainer) {
-    return (
-      <div ref={containerRef} className="w-full h-full relative">
-        <canvas
-          ref={canvasRef}
-          width={size.width}
-          height={size.height}
-          {...pointerProps}
-          style={{ touchAction: 'none', cursor: 'none' }}
-        />
-        {pointerPosition && (
-          <BrushCursor x={pointerPosition.x} y={pointerPosition.y} size={strokeWidth} color={cursorColor} />
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div className="relative inline-block">
-      <canvas
-        ref={canvasRef}
-        width={size.width}
-        height={size.height}
-        {...pointerProps}
-        className="rounded-lg border border-border"
-        style={{ touchAction: 'none', cursor: 'none' }}
-      />
+    <div className={fillContainer ? 'w-full h-full relative' : 'relative inline-block'}>
+      <PointerInputLayer
+        onStart={handleStart}
+        onMove={handleMove}
+        onEnd={onEndStroke}
+        onWheel={onWheel}
+        onPositionChange={setPointerPosition}
+        className={fillContainer ? 'w-full h-full' : undefined}
+      >
+        <DrawingCanvas
+          strokes={strokes}
+          width={width}
+          height={height}
+          backgroundColor={backgroundColor}
+          fillContainer={fillContainer}
+          className={fillContainer ? undefined : 'rounded-lg border border-border'}
+        />
+      </PointerInputLayer>
       {pointerPosition && (
         <BrushCursor x={pointerPosition.x} y={pointerPosition.y} size={strokeWidth} color={cursorColor} />
       )}
