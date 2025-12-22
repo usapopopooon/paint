@@ -1,9 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import {
-  createBackgroundLayer,
-  createDrawingLayer,
-  createInitialLayerState,
-} from './index'
+import { createBackgroundLayer, createDrawingLayer, createInitialLayerState } from './index'
 
 describe('createBackgroundLayer', () => {
   test('デフォルト値で背景レイヤーを作成する', () => {

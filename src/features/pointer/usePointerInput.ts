@@ -162,14 +162,11 @@ export const usePointerInput = ({
     [endStroke]
   )
 
-  const handlePointerEnter = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
-      const element = event.currentTarget
-      const point = extractPointerPoint(event, element)
-      setPointerPosition({ x: point.x, y: point.y })
-    },
-    []
-  )
+  const handlePointerEnter = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    const element = event.currentTarget
+    const point = extractPointerPoint(event, element)
+    setPointerPosition({ x: point.x, y: point.y })
+  }, [])
 
   const handleWheel = useCallback(
     (event: React.WheelEvent<HTMLElement>) => {

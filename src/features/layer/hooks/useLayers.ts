@@ -91,9 +91,7 @@ export const useLayers = (): UseLayersReturn => {
   const setLayerVisibility = useCallback((id: LayerId, visible: boolean) => {
     setState((prev) => ({
       ...prev,
-      layers: prev.layers.map((layer) =>
-        layer.id === id ? { ...layer, visible } : layer
-      ),
+      layers: prev.layers.map((layer) => (layer.id === id ? { ...layer, visible } : layer)),
     }))
   }, [])
 

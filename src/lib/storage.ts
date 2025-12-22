@@ -1,4 +1,7 @@
-export const getStorageItem = <T extends string>(key: string, allowedValues: readonly T[]): T | null => {
+export const getStorageItem = <T extends string>(
+  key: string,
+  allowedValues: readonly T[]
+): T | null => {
   if (typeof window === 'undefined') return null
   const stored = localStorage.getItem(key)
   if (stored && allowedValues.includes(stored as T)) {

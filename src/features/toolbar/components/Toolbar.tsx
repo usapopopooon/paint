@@ -1,10 +1,6 @@
 import { memo } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { TranslationKey } from '@/features/i18n'
 
 type ToolbarProps = {

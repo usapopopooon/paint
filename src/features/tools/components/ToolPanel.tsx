@@ -98,7 +98,9 @@ export const ToolPanel = memo(function ToolPanel({
             max={100}
             step={0.1}
           />
-          <span className="text-sm font-mono text-foreground w-8 text-right">{penConfig.width}</span>
+          <span className="text-sm font-mono text-foreground w-8 text-right">
+            {penConfig.width}
+          </span>
         </div>
       </div>
 
@@ -125,7 +127,9 @@ export const ToolPanel = memo(function ToolPanel({
             max={100}
             step={0.1}
           />
-          <span className="text-sm font-mono text-foreground w-8 text-right">{eraserConfig.width}</span>
+          <span className="text-sm font-mono text-foreground w-8 text-right">
+            {eraserConfig.width}
+          </span>
         </div>
       </div>
     </aside>

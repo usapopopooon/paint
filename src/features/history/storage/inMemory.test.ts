@@ -9,14 +9,11 @@ const createTestDrawableAction = (id: string): DrawableAddedAction => ({
   id,
   timestamp: Date.now(),
   type: 'drawable:added',
-  drawable: createStrokeDrawable(
-    [{ x: 0, y: 0 }],
-    {
-      color: '#000000',
-      brushTip: createSolidBrushTip(3),
-      blendMode: 'normal',
-    }
-  ),
+  drawable: createStrokeDrawable([{ x: 0, y: 0 }], {
+    color: '#000000',
+    brushTip: createSolidBrushTip(3),
+    blendMode: 'normal',
+  }),
 })
 
 describe('createInMemoryStorage', () => {

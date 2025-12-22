@@ -37,7 +37,11 @@ function App() {
         const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
         tool.setPenWidth(newWidth)
       } else {
-        const currentSlider = valueToSlider(tool.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+        const currentSlider = valueToSlider(
+          tool.eraserConfig.width,
+          MIN_ERASER_WIDTH,
+          MAX_ERASER_WIDTH
+        )
         const newSlider = Math.max(0, Math.min(100, currentSlider + step))
         const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
         tool.setEraserWidth(newWidth)

@@ -17,13 +17,7 @@ export type LayerType = 'background' | 'drawing'
  * レイヤーブレンドモード
  * Canvas 2DとPixiJSの両方と互換性あり
  */
-export type LayerBlendMode =
-  | 'normal'
-  | 'multiply'
-  | 'screen'
-  | 'overlay'
-  | 'darken'
-  | 'lighten'
+export type LayerBlendMode = 'normal' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten'
 
 /**
  * レイヤー状態

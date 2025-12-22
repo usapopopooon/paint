@@ -1,8 +1,4 @@
-import type {
-  HistoryStorage,
-  HistoryStorageConfig,
-  HistoryStorageFactory,
-} from '../types/storage'
+import type { HistoryStorage, HistoryStorageConfig, HistoryStorageFactory } from '../types/storage'
 import { success } from '../types/storage'
 import type { HistoryAction } from '../types/actions'
 

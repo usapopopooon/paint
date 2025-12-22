@@ -15,18 +15,11 @@ export const ThemeToggle = ({ isDark, onToggle, t }: ThemeToggleProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggle}
-          aria-label={label}
-        >
+        <Button variant="ghost" size="icon" onClick={onToggle} aria-label={label}>
           {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
-        {label}
-      </TooltipContent>
+      <TooltipContent side="bottom">{label}</TooltipContent>
     </Tooltip>
   )
 }

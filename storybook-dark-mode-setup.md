@@ -248,7 +248,7 @@ export default preview
 `@storybook/addon-vitest`でVitestと統合している場合、`preview.tsx`でJSXを使うと`React is not defined`エラーが出ることがあります。React 17以降はJSX Transformのおかげで通常は`import React`不要ですが、Vitest統合時はバンドルの仕方が異なるようで、明示的にインポートが必要でした。
 
 ```tsx
-import React from 'react'  // Vitest統合時に必要
+import React from 'react' // Vitest統合時に必要
 ```
 
 TypeScriptから「Reactが使われていない」という警告が出ますが、実行時に必要なので無視して大丈夫です。
@@ -257,12 +257,12 @@ TypeScriptから「Reactが使われていない」という警告が出ます�
 
 自分用のメモも兼ねて整理しておきます。
 
-| 設定 | 役割 |
-|------|------|
-| 背景色デコレーター | プレビュー領域の背景色をテーマに応じて切り替え |
-| `withThemeByClassName` | コンポーネントのルート要素に`dark`クラスを付与（Tailwind CSS用） |
-| `docs.theme` | Docsパネル（ArgsTable等）のテーマ |
-| `backgrounds: { disable: true }` | Storybookデフォルトの背景切り替え機能を無効化 |
+| 設定                             | 役割                                                             |
+| -------------------------------- | ---------------------------------------------------------------- |
+| 背景色デコレーター               | プレビュー領域の背景色をテーマに応じて切り替え                   |
+| `withThemeByClassName`           | コンポーネントのルート要素に`dark`クラスを付与（Tailwind CSS用） |
+| `docs.theme`                     | Docsパネル（ArgsTable等）のテーマ                                |
+| `backgrounds: { disable: true }` | Storybookデフォルトの背景切り替え機能を無効化                    |
 
 ## 4. Buttonコンポーネントのストーリー作成
 
@@ -372,8 +372,8 @@ npm run storybook
 
 こんな感じになりました。ツールバーでライトモードに切り替えると、プレビュー領域の背景とコンポーネントのスタイルが連動して切り替わります。ただ、上で触れた通りUIクロームはダーク固定なので、そこだけ少し惜しいところ。
 
-| ダークモード | ライトモード |
-|:---:|:---:|
+|                                        ダークモード                                        |                                        ライトモード                                        |
+| :----------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |
 | ![ダークモード](https://storage.googleapis.com/zenn-user-upload/6a93503eba45-20251221.png) | ![ライトモード](https://storage.googleapis.com/zenn-user-upload/fb7dc8915b21-20251221.png) |
 
 ## おわりに
