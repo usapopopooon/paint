@@ -1,5 +1,9 @@
 import type { Drawable } from '@/features/drawable'
+import type { LayerId } from '@/features/layer'
 import type { LayerSnapshot } from './layer'
+
+// Re-export LayerId for convenience
+export type { LayerId }
 
 /**
  * Unique identifier for history actions
@@ -10,11 +14,6 @@ export type ActionId = string
  * Timestamp in milliseconds
  */
 export type Timestamp = number
-
-/**
- * Layer identifier
- */
-export type LayerId = string
 
 /**
  * Base action metadata - all actions include this

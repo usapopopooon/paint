@@ -16,7 +16,7 @@ export {
 
 // Renderer
 export type { LayerRenderer, LayerRendererFactory } from './renderer'
-export { createCanvas2DRenderer } from './renderer'
+export { createCanvas2DRenderer, blendModeToCompositeOp } from './renderer'
 
 // Hooks
 export { useLayers } from './hooks'

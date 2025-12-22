@@ -1,13 +1,11 @@
 import type { LayerRenderer } from './types'
 import type { Layer, LayerBlendMode } from '../types'
-import type { Drawable, StrokeDrawable } from '@/features/drawable'
-
-type RenderingContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+import { renderDrawable } from '@/features/drawable'
 
 /**
  * Map LayerBlendMode to Canvas 2D globalCompositeOperation
  */
-const blendModeToCompositeOp = (mode: LayerBlendMode): GlobalCompositeOperation => {
+export const blendModeToCompositeOp = (mode: LayerBlendMode): GlobalCompositeOperation => {
   const map: Record<LayerBlendMode, GlobalCompositeOperation> = {
     normal: 'source-over',
     multiply: 'multiply',
@@ -17,52 +15,6 @@ const blendModeToCompositeOp = (mode: LayerBlendMode): GlobalCompositeOperation 
     lighten: 'lighten',
   }
   return map[mode]
-}
-
-/**
- * Render a stroke drawable
- */
-const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
-  if (stroke.points.length < 2) return
-
-  const { style } = stroke
-
-  ctx.save()
-
-  // Set blend mode based on StrokeStyle
-  if (style.blendMode === 'erase') {
-    ctx.globalCompositeOperation = 'destination-out'
-  }
-
-  // Set opacity from brush tip
-  ctx.globalAlpha = style.brushTip.opacity
-
-  ctx.beginPath()
-  ctx.strokeStyle = style.blendMode === 'erase' ? 'rgba(0,0,0,1)' : style.color
-  ctx.lineWidth = style.brushTip.size
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-
-  const [first, ...rest] = stroke.points
-  ctx.moveTo(first.x, first.y)
-
-  rest.forEach((point) => {
-    ctx.lineTo(point.x, point.y)
-  })
-
-  ctx.stroke()
-  ctx.restore()
-}
-
-/**
- * Render a drawable element (dispatch by type)
- */
-const renderDrawable = (ctx: RenderingContext, drawable: Drawable): void => {
-  switch (drawable.type) {
-    case 'stroke':
-      renderStroke(ctx, drawable)
-      break
-  }
 }
 
 /**

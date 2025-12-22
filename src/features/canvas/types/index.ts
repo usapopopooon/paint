@@ -1,17 +1,8 @@
-import type { StrokeStyle } from '@/features/brush'
+// Canvas types are now minimal - most types moved to dedicated features:
+// - Point, Drawable, StrokeDrawable -> @/features/drawable
+// - StrokeStyle, BrushTip -> @/features/brush
+// - Layer, LayerState -> @/features/layer
+// - HistoryAction, HistoryStorage -> @/features/history
 
-export type Point = {
-  readonly x: number
-  readonly y: number
-}
-
-export type Stroke = {
-  readonly points: readonly Point[]
-  readonly style: StrokeStyle
-}
-
-export type CanvasHistory = {
-  readonly past: readonly (readonly Stroke[])[]
-  readonly present: readonly Stroke[]
-  readonly future: readonly (readonly Stroke[])[]
-}
+// Re-export commonly used types for convenience
+export type { Point, Drawable, StrokeDrawable } from '@/features/drawable'

@@ -1,10 +1,8 @@
 import type { Drawable } from '@/features/drawable'
-import type { LayerId } from './actions'
+import type { LayerId, LayerBlendMode } from '@/features/layer'
 
-/**
- * Blend mode for layer compositing
- */
-export type LayerBlendMode = 'normal' | 'multiply' | 'screen' | 'overlay'
+// Re-export for convenience
+export type { LayerBlendMode }
 
 /**
  * Complete layer state for snapshots (used in undo/redo)

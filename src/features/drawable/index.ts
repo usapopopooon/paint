@@ -12,3 +12,6 @@ export { isStrokeDrawable } from './types'
 
 // Factory functions
 export { generateDrawableId, createStrokeDrawable } from './types'
+
+// Renderer
+export { renderDrawable } from './renderer'
