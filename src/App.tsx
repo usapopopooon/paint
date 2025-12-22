@@ -5,8 +5,8 @@ import type { Point } from './features/drawable'
 import { LocaleToggle, useLocale } from './features/i18n'
 import { Toolbar } from './features/toolbar'
 import { useTool, ToolPanel } from './features/tools'
+import { useTheme } from './features/theme'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { useTheme } from './hooks/useTheme'
 import { valueToSlider, sliderToValue } from './lib/slider'
 
 const MIN_PEN_WIDTH = 1
