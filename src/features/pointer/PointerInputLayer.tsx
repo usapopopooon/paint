@@ -2,11 +2,7 @@ import type { ReactNode } from 'react'
 import { usePointerInput } from './usePointerInput'
 import { BrushCursor } from './BrushCursor'
 import type { PointerPoint } from './types'
-
-type CursorConfig = {
-  readonly size: number
-  readonly color: string
-}
+import type { CursorConfig } from '../tools/types'
 
 type PointerInputLayerProps = {
   readonly children: ReactNode

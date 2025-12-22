@@ -29,22 +29,6 @@ export const useCanvas = () => {
     [drawing.startStroke]
   )
 
-  const getPointFromEvent = useCallback(
-    (
-      event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
-      canvas: HTMLCanvasElement
-    ): Point => {
-      const rect = canvas.getBoundingClientRect()
-      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-      const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
-      return {
-        x: clientX - rect.left,
-        y: clientY - rect.top,
-      }
-    },
-    []
-  )
-
   return {
     strokes: allStrokes,
     canUndo: history.canUndo,
@@ -55,6 +39,5 @@ export const useCanvas = () => {
     undo: history.undo,
     redo: history.redo,
     clear: history.clear,
-    getPointFromEvent,
   } as const
 }
