@@ -71,6 +71,21 @@ function App() {
     }
   }
 
+  const handleWheel = (deltaY: number) => {
+    const step = deltaY > 0 ? -5 : 5 // scroll down = smaller, scroll up = larger
+    if (canvas.tool === 'pen') {
+      const currentSlider = valueToSlider(canvas.strokeWidth, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
+      const newSlider = Math.max(0, Math.min(100, currentSlider + step))
+      const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
+      canvas.setStrokeWidth(newWidth)
+    } else {
+      const currentSlider = valueToSlider(canvas.eraserWidth, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+      const newSlider = Math.max(0, Math.min(100, currentSlider + step))
+      const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+      canvas.setEraserWidth(newWidth)
+    }
+  }
+
   const currentWidth = canvas.tool === 'eraser' ? canvas.eraserWidth : canvas.strokeWidth
   const currentColor = canvas.tool === 'eraser' ? '#ffffff' : canvas.strokeColor
 
@@ -169,6 +184,7 @@ function App() {
             onStartStroke={canvas.startStroke}
             onAddPoint={canvas.addPoint}
             onEndStroke={canvas.endStroke}
+            onWheel={handleWheel}
             strokeWidth={currentWidth}
             strokeColor={currentColor}
             isEraser={canvas.tool === 'eraser'}
