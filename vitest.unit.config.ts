@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     environment: 'jsdom',
+    reporters: ['verbose'],
   },
   resolve: {
     alias: {
