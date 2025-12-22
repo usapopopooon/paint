@@ -6,10 +6,19 @@ import { useLayers } from '@/features/layer'
 import { useCanvasHistory } from './useCanvasHistory'
 import { useDrawing } from './useDrawing'
 
+/**
+ * Canvas統合hook
+ *
+ * 状態の単一責任:
+ * - useLayers: drawablesの状態を管理（single source of truth）
+ * - useCanvasHistory: undo/redo履歴のみを管理
+ * - useDrawing: 描画中のストローク管理
+ */
 export const useCanvas = () => {
   const layerManager = useLayers()
   const history = useCanvasHistory()
 
+  // Drawable完成時: レイヤーに追加 + 履歴に記録
   const handleDrawableComplete = useCallback(
     (drawable: Drawable) => {
       layerManager.addDrawable(drawable)
@@ -20,7 +29,7 @@ export const useCanvas = () => {
 
   const drawing = useDrawing(handleDrawableComplete)
 
-  // Get drawables from active layer for backward compatibility
+  // アクティブレイヤーのdrawables（描画中含む）
   const allDrawables = useMemo(
     (): readonly Drawable[] =>
       drawing.currentStroke
@@ -29,7 +38,7 @@ export const useCanvas = () => {
     [layerManager.activeLayer.drawables, drawing.currentStroke]
   )
 
-  // Build layers with current stroke included for rendering
+  // レンダリング用レイヤー（描画中のストローク含む）
   const allLayers = useMemo((): readonly Layer[] => {
     if (!drawing.currentStroke) return layerManager.layers
 
@@ -47,7 +56,7 @@ export const useCanvas = () => {
     [drawing.startStroke]
   )
 
-  // Undo: remove last drawable from active layer and history
+  // Undo: レイヤーから削除 + 履歴を戻す
   const undo = useCallback(() => {
     if (history.canUndo) {
       layerManager.removeLastDrawable()
@@ -55,7 +64,7 @@ export const useCanvas = () => {
     }
   }, [history.canUndo, history.undo, layerManager.removeLastDrawable])
 
-  // Redo: add drawable back to active layer and history
+  // Redo: 履歴からdrawableを取得 + レイヤーに追加
   const redo = useCallback(async () => {
     if (history.canRedo) {
       const drawable = await history.getRedoDrawable()
@@ -66,11 +75,12 @@ export const useCanvas = () => {
     }
   }, [history.canRedo, history.getRedoDrawable, history.redo, layerManager.addDrawable])
 
-  // Clear: clear active layer and history
+  // Clear: レイヤーをクリア + 履歴に記録
   const clear = useCallback(() => {
+    const previousDrawables = layerManager.activeLayer.drawables
     layerManager.clearActiveLayer()
-    history.clear()
-  }, [layerManager.clearActiveLayer, history.clear])
+    history.recordClear(previousDrawables)
+  }, [layerManager.activeLayer.drawables, layerManager.clearActiveLayer, history.recordClear])
 
   return {
     drawables: allDrawables,

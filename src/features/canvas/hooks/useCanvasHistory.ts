@@ -18,14 +18,13 @@ export type UseCanvasHistoryOptions = {
 /**
  * Canvas history hook with storage abstraction
  *
- * Usage (backward compatible):
- *   const history = useCanvasHistory()
+ * 履歴のみを管理。実際のdrawables状態はuseLayersが単一のsource of truthとして保持。
+ * このhookはundo/redo可能かどうかの判定と、アクションの記録・復元を担当。
  *
- * Usage (with custom storage):
- *   const history = useCanvasHistory({ storage: myIndexedDBStorage })
+ * Usage:
+ *   const history = useCanvasHistory()
  */
 export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
-  const [drawables, setDrawables] = useState<readonly Drawable[]>([])
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
 
@@ -46,52 +45,32 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     }
   }, [])
 
+  // Drawableの追加を履歴に記録
   const addDrawable = useCallback(
     (drawable: Drawable) => {
       const action = createDrawableAddedAction(drawable)
-
-      // Optimistic update
-      setDrawables((prev) => [...prev, drawable])
-
-      // Push to storage
       storageRef.current.push(action).then(updateStackInfo)
     },
     [updateStackInfo]
   )
 
-  const undoAction = useCallback(async () => {
+  // Undo操作を記録（実際のレイヤー操作は呼び出し側で行う）
+  const undo = useCallback(async () => {
     const result = await storageRef.current.undo()
-    if (result.success && result.data) {
-      const action = result.data
-
-      // Apply reverse of action to state
-      if (action.type === 'drawable:added') {
-        setDrawables((prev) => prev.slice(0, -1))
-      } else if (action.type === 'drawables:cleared') {
-        setDrawables(action.previousDrawables)
-      }
-
+    if (result.success) {
       await updateStackInfo()
     }
   }, [updateStackInfo])
 
-  const redoAction = useCallback(async () => {
+  // Redo操作を記録（実際のレイヤー操作は呼び出し側で行う）
+  const redo = useCallback(async () => {
     const result = await storageRef.current.redo()
-    if (result.success && result.data) {
-      const action = result.data
-
-      // Reapply action to state
-      if (action.type === 'drawable:added') {
-        setDrawables((prev) => [...prev, action.drawable])
-      } else if (action.type === 'drawables:cleared') {
-        setDrawables([])
-      }
-
+    if (result.success) {
       await updateStackInfo()
     }
   }, [updateStackInfo])
 
-  // Get the drawable that would be redone (async)
+  // Redoで復元されるDrawableを取得
   const getRedoDrawable = useCallback(async (): Promise<Drawable | null> => {
     const result = await storageRef.current.peekRedo()
     if (result.success && result.data && result.data.type === 'drawable:added') {
@@ -100,17 +79,15 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     return null
   }, [])
 
-  const clear = useCallback(async () => {
-    const currentDrawables = drawables
-    const action = createDrawablesClearedAction(currentDrawables)
-
-    // Optimistic update
-    setDrawables([])
-
-    // Push to storage
-    await storageRef.current.push(action)
-    await updateStackInfo()
-  }, [drawables, updateStackInfo])
+  // クリア操作を履歴に記録
+  const recordClear = useCallback(
+    async (previousDrawables: readonly Drawable[]) => {
+      const action = createDrawablesClearedAction(previousDrawables)
+      await storageRef.current.push(action)
+      await updateStackInfo()
+    },
+    [updateStackInfo]
+  )
 
   // Cleanup on unmount
   useEffect(() => {
@@ -120,13 +97,12 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   }, [])
 
   return {
-    drawables,
     canUndo,
     canRedo,
     addDrawable,
-    undo: undoAction,
-    redo: redoAction,
+    undo,
+    redo,
     getRedoDrawable,
-    clear,
+    recordClear,
   } as const
 }
