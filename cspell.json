@@ -42,18 +42,14 @@
     "tseslint",
     "networkidle",
     "unstub",
+    "colocation",
+    "reportsDirectory",
     "Katsuya",
     "Yoshizumi",
     "usapo",
     "usapopopooon"
   ],
-  "ignorePaths": [
-    "node_modules",
-    "dist",
-    "package-lock.json",
-    "coverage",
-    "*.min.js"
-  ],
+  "ignorePaths": ["node_modules", "dist", "package-lock.json", "coverage", "*.min.js"],
   "ignoreRegExpList": [
     "/#[0-9a-fA-F]{3,8}/",
     "/[a-z]+-[a-z]+(-[a-z]+)*/",

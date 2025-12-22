@@ -17,6 +17,7 @@ export default defineConfig({
     reporters: ['verbose'],
     coverage: {
       reporter: ['text', 'json-summary'],
+      reportsDirectory: './coverage/storybook',
     },
   },
   resolve: {
