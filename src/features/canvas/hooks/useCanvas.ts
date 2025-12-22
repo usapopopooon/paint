@@ -24,7 +24,7 @@ export const useCanvas = () => {
       layerManager.addDrawable(drawable)
       history.addDrawable(drawable)
     },
-    [layerManager.addDrawable, history.addDrawable]
+    [layerManager, history]
   )
 
   const drawing = useDrawing(handleDrawableComplete)
@@ -35,7 +35,7 @@ export const useCanvas = () => {
       drawing.currentStroke
         ? [...layerManager.activeLayer.drawables, drawing.currentStroke]
         : layerManager.activeLayer.drawables,
-    [layerManager.activeLayer.drawables, drawing.currentStroke]
+    [layerManager, drawing]
   )
 
   // レンダリング用レイヤー（描画中のストローク含む）
@@ -47,13 +47,13 @@ export const useCanvas = () => {
         ? { ...layer, drawables: [...layer.drawables, drawing.currentStroke!] }
         : layer
     )
-  }, [layerManager.layers, layerManager.activeLayerId, drawing.currentStroke])
+  }, [layerManager, drawing])
 
   const startStroke = useCallback(
     (point: Point, config: ToolConfig) => {
       drawing.startStroke(point, config)
     },
-    [drawing.startStroke]
+    [drawing]
   )
 
   // Undo: レイヤーから削除 + 履歴を戻す
@@ -62,7 +62,7 @@ export const useCanvas = () => {
       layerManager.removeLastDrawable()
       history.undo()
     }
-  }, [history.canUndo, history.undo, layerManager.removeLastDrawable])
+  }, [history, layerManager])
 
   // Redo: 履歴からdrawableを取得 + レイヤーに追加
   const redo = useCallback(async () => {
@@ -73,14 +73,14 @@ export const useCanvas = () => {
         await history.redo()
       }
     }
-  }, [history.canRedo, history.getRedoDrawable, history.redo, layerManager.addDrawable])
+  }, [history, layerManager])
 
   // Clear: レイヤーをクリア + 履歴に記録
   const clear = useCallback(() => {
     const previousDrawables = layerManager.activeLayer.drawables
     layerManager.clearActiveLayer()
     history.recordClear(previousDrawables)
-  }, [layerManager.activeLayer.drawables, layerManager.clearActiveLayer, history.recordClear])
+  }, [layerManager, history])
 
   return {
     drawables: allDrawables,

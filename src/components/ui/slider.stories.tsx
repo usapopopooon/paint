@@ -134,23 +134,25 @@ export const Vertical: Story = {
   },
 }
 
+const ControlledSlider = (args: React.ComponentProps<typeof Slider>) => {
+  const [value, setValue] = React.useState([30])
+  return (
+    <div className="flex flex-col gap-4">
+      <Slider
+        {...args}
+        value={value}
+        onValueChange={(newValue) => {
+          setValue(newValue)
+          args.onValueChange?.(newValue)
+        }}
+      />
+      <span className="text-sm text-foreground">Value: {value[0]}</span>
+    </div>
+  )
+}
+
 export const Controlled: Story = {
-  render: (args) => {
-    const [value, setValue] = React.useState([30])
-    return (
-      <div className="flex flex-col gap-4">
-        <Slider
-          {...args}
-          value={value}
-          onValueChange={(newValue) => {
-            setValue(newValue)
-            args.onValueChange?.(newValue)
-          }}
-        />
-        <span className="text-sm text-foreground">Value: {value[0]}</span>
-      </div>
-    )
-  },
+  render: (args) => <ControlledSlider {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const slider = canvas.getByRole('slider')
@@ -165,6 +167,25 @@ export const Controlled: Story = {
   },
 }
 
+const StrokeWidthSlider = (args: React.ComponentProps<typeof Slider>) => {
+  const [value, setValue] = React.useState([args.defaultValue?.[0] ?? 3])
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-muted-foreground">Width:</span>
+      <Slider
+        {...args}
+        value={value}
+        onValueChange={(newValue) => {
+          setValue(newValue)
+          args.onValueChange?.(newValue)
+        }}
+        className="w-32"
+      />
+      <span className="w-6 text-sm text-foreground">{value[0]}</span>
+    </div>
+  )
+}
+
 export const StrokeWidth: Story = {
   args: {
     defaultValue: [3],
@@ -172,24 +193,7 @@ export const StrokeWidth: Story = {
     max: 20,
     step: 1,
   },
-  render: (args) => {
-    const [value, setValue] = React.useState([args.defaultValue?.[0] ?? 3])
-    return (
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground">Width:</span>
-        <Slider
-          {...args}
-          value={value}
-          onValueChange={(newValue) => {
-            setValue(newValue)
-            args.onValueChange?.(newValue)
-          }}
-          className="w-32"
-        />
-        <span className="w-6 text-sm text-foreground">{value[0]}</span>
-      </div>
-    )
-  },
+  render: (args) => <StrokeWidthSlider {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const slider = canvas.getByRole('slider')

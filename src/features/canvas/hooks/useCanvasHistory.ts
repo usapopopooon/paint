@@ -91,8 +91,9 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
 
   // Cleanup on unmount
   useEffect(() => {
+    const storage = storageRef.current
     return () => {
-      storageRef.current.dispose()
+      storage.dispose()
     }
   }, [])
 

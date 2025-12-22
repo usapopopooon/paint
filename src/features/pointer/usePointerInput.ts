@@ -44,14 +44,14 @@ export const usePointerInput = ({
 }: UsePointerInputOptions): UsePointerInputReturn => {
   // マルチポインターの競合を防ぐためアクティブなポインターIDを追跡
   const activePointerIdRef = useRef<number | null>(null)
-  const activePointerTypeRef = useRef<PointerType | null>(null)
+  const [activePointerType, setActivePointerType] = useState<PointerType | null>(null)
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
 
   const endStroke = useCallback(() => {
     if (activePointerIdRef.current !== null) {
       activePointerIdRef.current = null
-      activePointerTypeRef.current = null
+      setActivePointerType(null)
       setIsDrawing(false)
       onEnd()
     }
@@ -79,7 +79,7 @@ export const usePointerInput = ({
       }
 
       activePointerIdRef.current = event.pointerId
-      activePointerTypeRef.current = getPointerType(event.pointerType)
+      setActivePointerType(getPointerType(event.pointerType))
       setIsDrawing(true)
 
       const point = extractPointerPoint(event, element)
@@ -199,6 +199,6 @@ export const usePointerInput = ({
     },
     pointerPosition,
     isDrawing,
-    activePointerType: activePointerTypeRef.current,
+    activePointerType,
   }
 }

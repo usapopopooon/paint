@@ -18,7 +18,7 @@ export const eraserBehavior = {
       blendMode: 'erase',
     }),
 
-  getCursor: (config: EraserToolConfig, _backgroundColor: string): CursorConfig => ({
+  getCursor: (config: EraserToolConfig): CursorConfig => ({
     size: config.width,
     color: '#888888',
     outline: '#ffffff',

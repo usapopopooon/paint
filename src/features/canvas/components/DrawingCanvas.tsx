@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import { renderDrawables, renderLayers } from '../utils/renderer'
@@ -24,11 +24,18 @@ export const DrawingCanvas = ({
 }: DrawingCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const [size, setSize] = useState({ width, height })
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
+
+  // fillContainerの場合はコンテナサイズを使用、そうでなければpropsのサイズを使用
+  const size = useMemo(() => {
+    if (fillContainer && containerSize) {
+      return containerSize
+    }
+    return { width, height }
+  }, [fillContainer, containerSize, width, height])
 
   useEffect(() => {
     if (!fillContainer) {
-      setSize({ width, height })
       return
     }
 
@@ -38,7 +45,7 @@ export const DrawingCanvas = ({
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0]
       if (entry) {
-        setSize({
+        setContainerSize({
           width: entry.contentRect.width,
           height: entry.contentRect.height,
         })
@@ -47,7 +54,7 @@ export const DrawingCanvas = ({
 
     resizeObserver.observe(container)
     return () => resizeObserver.disconnect()
-  }, [fillContainer, width, height])
+  }, [fillContainer])
 
   useEffect(() => {
     const canvas = canvasRef.current
