@@ -9,8 +9,6 @@ type DrawingState = {
   readonly tool: Tool
 }
 
-const ERASER_COLOR = '#ffffff'
-
 const createInitialState = (): DrawingState => ({
   currentStroke: null,
   strokeWidth: 3,
@@ -22,11 +20,13 @@ const createInitialState = (): DrawingState => ({
 const createStroke = (
   point: Point,
   width: number,
-  color: string
+  color: string,
+  isEraser: boolean
 ): Stroke => ({
   points: [point],
   width,
   color,
+  isEraser,
 })
 
 const addPointToStroke = (stroke: Stroke, point: Point): Stroke => ({
@@ -39,11 +39,12 @@ export const useDrawing = (onStrokeComplete: (stroke: Stroke) => void) => {
 
   const startStroke = useCallback((point: Point) => {
     setState((prev) => {
-      const width = prev.tool === 'eraser' ? prev.eraserWidth : prev.strokeWidth
-      const color = prev.tool === 'eraser' ? ERASER_COLOR : prev.strokeColor
+      const isEraser = prev.tool === 'eraser'
+      const width = isEraser ? prev.eraserWidth : prev.strokeWidth
+      const color = prev.strokeColor
       return {
         ...prev,
-        currentStroke: createStroke(point, width, color),
+        currentStroke: createStroke(point, width, color, isEraser),
       }
     })
   }, [])

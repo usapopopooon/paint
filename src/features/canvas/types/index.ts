@@ -9,6 +9,7 @@ export type Stroke = {
   readonly points: readonly Point[]
   readonly width: number
   readonly color: string
+  readonly isEraser?: boolean
 }
 
 export type CanvasHistory = {
