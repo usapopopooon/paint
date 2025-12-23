@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { hexToHsv, hsvToHex, type HSV } from '../helpers'
+import { colorWheelState } from './colorWheelState'
 
 /** カラーホイールのサイズ（ピクセル） */
 export const WHEEL_SIZE = 200
@@ -173,12 +174,18 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   }, [])
 
   useEffect(() => {
-    if (dragMode === 'none') return
+    if (dragMode === 'none') {
+      colorWheelState.isDragging = false
+      return
+    }
+
+    colorWheelState.isDragging = true
 
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
 
     return () => {
+      colorWheelState.isDragging = false
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }

@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { usePointerInput } from './usePointerInput'
+import { colorWheelState } from '@/features/color/hooks/colorWheelState'
 
 describe('usePointerInput', () => {
   const mockOnStart = vi.fn()
@@ -9,6 +10,11 @@ describe('usePointerInput', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    colorWheelState.isDragging = false
+  })
+
+  afterEach(() => {
+    colorWheelState.isDragging = false
   })
 
   const createPointerEvent = (
@@ -55,7 +61,7 @@ describe('usePointerInput', () => {
   }
 
   describe('handlePointerEnter', () => {
-    it('ボタンが押されていない場合はストロークを開始しない', () => {
+    test('ボタンが押されていない場合はストロークを開始しない', () => {
       const { result } = renderHook(() =>
         usePointerInput({
           onStart: mockOnStart,
@@ -74,7 +80,7 @@ describe('usePointerInput', () => {
       expect(result.current.isDrawing).toBe(false)
     })
 
-    it('左ボタンが押されている場合はストロークを開始する', () => {
+    test('左ボタンが押されている場合はストロークを開始する', () => {
       const { result } = renderHook(() =>
         usePointerInput({
           onStart: mockOnStart,
@@ -93,7 +99,7 @@ describe('usePointerInput', () => {
       expect(result.current.isDrawing).toBe(true)
     })
 
-    it('右ボタンのみが押されている場合はストロークを開始しない', () => {
+    test('右ボタンのみが押されている場合はストロークを開始しない', () => {
       const { result } = renderHook(() =>
         usePointerInput({
           onStart: mockOnStart,
@@ -113,7 +119,7 @@ describe('usePointerInput', () => {
       expect(result.current.isDrawing).toBe(false)
     })
 
-    it('既に描画中の場合は新しいストロークを開始しない', () => {
+    test('既に描画中の場合は新しいストロークを開始しない', () => {
       const { result } = renderHook(() =>
         usePointerInput({
           onStart: mockOnStart,
@@ -148,7 +154,7 @@ describe('usePointerInput', () => {
       expect(mockOnStart).toHaveBeenCalledTimes(1) // 増えていない
     })
 
-    it('キャンバス外でのポインター位置を追跡してストローク開始位置として使用する', () => {
+    test('キャンバス外でのポインター位置を追跡してストローク開始位置として使用する', () => {
       const { result } = renderHook(() =>
         usePointerInput({
           onStart: mockOnStart,
@@ -190,6 +196,74 @@ describe('usePointerInput', () => {
       const startPoint = mockOnStart.mock.calls[0][0]
       expect(startPoint.x).toBe(-50) // キャンバス外の位置
       expect(startPoint.y).toBe(25)
+    })
+
+    test('ColorWheelがドラッグ中の場合はストロークを開始しない', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // ColorWheelがドラッグ中
+      colorWheelState.isDragging = true
+
+      const event = createPointerEvent('pointerenter', { buttons: 1 })
+
+      act(() => {
+        result.current.pointerProps.onPointerEnter(event)
+      })
+
+      expect(mockOnStart).not.toHaveBeenCalled()
+      expect(result.current.isDrawing).toBe(false)
+    })
+
+    test('ColorWheelがドラッグ中の場合はpending位置を記録しない', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // まずpointerEnterでcanvasElementRefを設定
+      const initialEnterEvent = createPointerEvent('pointerenter', { buttons: 0 })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(initialEnterEvent)
+      })
+
+      // ColorWheelがドラッグ中にウィンドウレベルでポインター移動
+      colorWheelState.isDragging = true
+      const windowPointerMoveEvent = new PointerEvent('pointermove', {
+        clientX: -50,
+        clientY: 25,
+        buttons: 1,
+        pressure: 0.7,
+        pointerType: 'mouse',
+      })
+      act(() => {
+        window.dispatchEvent(windowPointerMoveEvent)
+      })
+
+      // ColorWheelドラッグ終了後にキャンバスにenter
+      colorWheelState.isDragging = false
+      const enterEvent = createPointerEvent('pointerenter', {
+        buttons: 1,
+        clientX: 10,
+        clientY: 30,
+      })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(enterEvent)
+      })
+
+      expect(mockOnStart).toHaveBeenCalledTimes(1)
+      // pending位置は記録されていないので、enter位置が使われる
+      const startPoint = mockOnStart.mock.calls[0][0]
+      expect(startPoint.x).toBe(10)
+      expect(startPoint.y).toBe(30)
     })
   })
 })
