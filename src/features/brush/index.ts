@@ -1,8 +1,5 @@
-export {
-  type BrushTipType,
-  type BlendMode,
-  type BrushTip,
-  type StrokeStyle,
-  createSolidBrushTip,
-  createSoftBrushTip,
-} from './types'
+// 型
+export type { BrushTipType, BlendMode, BrushTip, StrokeStyle } from './types'
+
+// ドメイン（ファクトリ関数）
+export { createSolidBrushTip, createSoftBrushTip } from './domain'

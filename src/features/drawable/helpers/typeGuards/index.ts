@@ -1,0 +1,1 @@
+export { isStrokeDrawable } from './isStrokeDrawable'

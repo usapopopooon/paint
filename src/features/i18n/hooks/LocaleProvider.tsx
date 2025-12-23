@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { getStorageItem, setStorageItem } from '@/lib/storage'
 import type { Locale } from '../types'
 import { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from '../types'
-import { getTranslation, type TranslationKey, type TranslateFunction } from '../locales'
+import { getTranslation, type TranslationKey, type TranslateFunction } from '../infrastructure'
 import { LocaleContext, type LocaleContextValue } from './LocaleContext'
 
 /**

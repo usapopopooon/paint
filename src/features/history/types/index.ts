@@ -17,8 +17,6 @@ export type {
   HistoryAction,
 } from './actions'
 
-export { isDrawableAction, isLayerAction, isBatchAction } from './actions'
-
 export type { LayerBlendMode, LayerSnapshot, LayerRef } from './layer'
 
 export type {
@@ -28,5 +26,3 @@ export type {
   HistoryStorage,
   HistoryStorageFactory,
 } from './storage'
-
-export { success, failure } from './storage'

@@ -1,4 +1,11 @@
-export { usePointerInput } from './usePointerInput'
-export { PointerInputLayer } from './PointerInputLayer'
-export { getPointerType, getPointerPoint } from './pointerUtils'
+// 型
 export type { PointerPoint, PointerType } from './types'
+
+// ヘルパー
+export { getPointerType, getPointerPoint } from './helpers'
+
+// フック
+export { usePointerInput } from './hooks'
+
+// コンポーネント
+export { PointerInputLayer, BrushCursor } from './components'

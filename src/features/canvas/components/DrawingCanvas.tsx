@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
-import { renderDrawables, renderLayers } from '../utils/renderer'
+import { renderDrawables, renderLayers } from '../adapters'
 
 /**
  * DrawingCanvasコンポーネントのプロパティ

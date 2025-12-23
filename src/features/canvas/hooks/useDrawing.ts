@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import type { Drawable, StrokeDrawable, Point } from '@/features/drawable'
 import type { ToolConfig } from '../../tools/types'
-import { getToolBehavior } from '../../tools/registry'
+import { getToolBehavior } from '../../tools/domain'
 
 /**
  * 描画中のストローク状態を管理するフック
