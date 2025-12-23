@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.5] - 2025-12-23
+
+### Architecture
+
+- **Clean Architecture採用** (#20)
+  - Package by Feature + Clean Architectureによるディレクトリ構造の統一
+  - 各featureをtypes/domain/useCases/adapters/infrastructure/helpers/hooks/componentsレイヤーで構成
+  - 1ファイル1関数パターンでテストとの対応を明確化
+  - READMEにアーキテクチャ概念図（Mermaid）を追加
+
 ## [0.0.4] - 2025-12-23
 
 ### Architecture
