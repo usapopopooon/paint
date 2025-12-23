@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Locale } from '../types'
 import type { TranslateFunction } from '../infrastructure'
@@ -15,7 +16,7 @@ type LocaleToggleProps = {
  * 言語切り替えトグルコンポーネント
  * @param props - LocaleToggleコンポーネントのプロパティ
  */
-export const LocaleToggle = ({ locale, onToggle, t }: LocaleToggleProps) => {
+export const LocaleToggle = memo(function LocaleToggle({ locale, onToggle, t }: LocaleToggleProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -50,4 +51,4 @@ export const LocaleToggle = ({ locale, onToggle, t }: LocaleToggleProps) => {
       <TooltipContent side="bottom">{t('locale.switch')}</TooltipContent>
     </Tooltip>
   )
-}
+})
