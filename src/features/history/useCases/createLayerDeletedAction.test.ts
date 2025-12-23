@@ -20,8 +20,8 @@ describe('createLayerDeletedAction', () => {
     const snapshot = {
       id: 'layer-1',
       name: 'Layer 1',
-      visible: true,
-      locked: false,
+      isVisible: true,
+      isLocked: false,
       opacity: 1,
       blendMode: 'normal' as const,
       drawables: [testDrawable],
