@@ -48,7 +48,7 @@
     "Yoshizumi",
     "usapo",
     "usapopopooon",
-    "publicapi"
+    "entrypoint"
   ],
   "ignorePaths": ["node_modules", "dist", "package-lock.json", "coverage", "*.min.js"],
   "ignoreRegExpList": [

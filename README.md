@@ -66,9 +66,9 @@ flowchart TB
         hooks --> components
     end
 
-    publicapi["index.ts<br/>公開API"]
+    entrypoint["index.ts<br/>公開API"]
 
-    feature/foo --> publicapi
+    feature/foo --> entrypoint
 ```
 
 ### ディレクトリ構造
