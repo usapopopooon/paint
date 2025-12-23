@@ -31,7 +31,7 @@ ReactとCanvas APIで構築したお絵かきアプリ。
 
 ### 設計方針
 
-- **Package by Feature**: 機能（canvas, color, toolbar）単位でコードを整理
+- **Package by Feature**: 機能単位でコードを整理
 - **Clean Architecture**: 各機能内を types / domain / useCases / adapters / infrastructure / helpers / hooks / components のレイヤーで構成
 - **1ファイル1関数**: 単一責任原則に従い、テストとの対応を明確化
 - **コロケーション**: テスト・ストーリーを各機能内に配置
@@ -77,7 +77,7 @@ flowchart TB
 src/
 ├── components/ui/       # 共有UIコンポーネント（Button, Slider, Tooltip等）
 ├── features/            # 機能モジュール
-│   └── [feature]/       # 各機能（canvas, color, tools 等）
+│   └── [feature]/       # 各機能（詳細は機能一覧を参照）
 │       ├── types/           # 型定義のみ
 │       ├── domain/          # ドメインロジック
 │       │   ├── entities/    # エンティティ + ファクトリ（1ファイル1関数）
