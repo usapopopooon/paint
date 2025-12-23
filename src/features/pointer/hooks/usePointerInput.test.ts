@@ -147,5 +147,49 @@ describe('usePointerInput', () => {
 
       expect(mockOnStart).toHaveBeenCalledTimes(1) // 増えていない
     })
+
+    it('キャンバス外でのポインター位置を追跡してストローク開始位置として使用する', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // まずpointerEnterでcanvasElementRefを設定
+      const initialEnterEvent = createPointerEvent('pointerenter', { buttons: 0 })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(initialEnterEvent)
+      })
+
+      // ウィンドウレベルでポインター移動をシミュレート（キャンバス外でボタンを押しながら移動）
+      const windowPointerMoveEvent = new PointerEvent('pointermove', {
+        clientX: -50, // キャンバス外（左側）
+        clientY: 25,
+        buttons: 1,
+        pressure: 0.7,
+        pointerType: 'mouse',
+      })
+      act(() => {
+        window.dispatchEvent(windowPointerMoveEvent)
+      })
+
+      // キャンバスにenterする
+      const enterEvent = createPointerEvent('pointerenter', {
+        buttons: 1,
+        clientX: 10, // キャンバス内
+        clientY: 30,
+      })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(enterEvent)
+      })
+
+      expect(mockOnStart).toHaveBeenCalledTimes(1)
+      // pending位置（キャンバス外の位置）が使われる
+      const startPoint = mockOnStart.mock.calls[0][0]
+      expect(startPoint.x).toBe(-50) // キャンバス外の位置
+      expect(startPoint.y).toBe(25)
+    })
   })
 })
