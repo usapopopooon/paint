@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ToolType, ToolConfig, PenToolConfig, EraserToolConfig, CursorConfig } from '../types'
 import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../types'
-import { penBehavior, eraserBehavior } from '../behaviors'
-import { getToolBehavior } from '../registry'
+import { penBehavior, eraserBehavior, getToolBehavior } from '../domain'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 
 /**

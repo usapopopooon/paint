@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import type { Layer, LayerState, LayerId } from '../types'
-import { createInitialLayerState } from '../types'
+import { createInitialLayerState } from '../domain'
 import type { Drawable } from '@/features/drawable'
 
 export type UseLayersReturn = {

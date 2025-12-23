@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { hexToHsv, hsvToHex, type HSV } from '../utils/color'
+import { hexToHsv, hsvToHex, type HSV } from '../helpers'
 
 /** カラーホイールのサイズ（ピクセル） */
 export const WHEEL_SIZE = 200

@@ -2,9 +2,9 @@
 export type { Locale } from './types'
 export { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from './types'
 
-// 翻訳
-export type { TranslationKey, TranslateFunction } from './locales'
-export { translations, getTranslation } from './locales'
+// 翻訳（infrastructure）
+export type { TranslationKey, TranslateFunction } from './infrastructure'
+export { translations, getTranslation } from './infrastructure'
 
 // フック & プロバイダー
 export { LocaleProvider, useLocale } from './hooks'

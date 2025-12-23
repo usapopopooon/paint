@@ -27,65 +27,88 @@ ReactとCanvas APIで構築したお絵かきアプリ。
 
 ## アーキテクチャ
 
-**Package by Feature**アーキテクチャを採用しています。
+**Package by Feature** + **Clean Architecture** を採用しています。
 
 ### 設計方針
 
-- **Package by Feature**: レイヤー（components, hooks, utils）ではなく機能（canvas, color, toolbar）でコードを整理
-- **関心の分離**: ビジネスロジックはカスタムフックに抽出、UIはコンポーネントに集中
-- **コロケーション**: テスト・ストーリー・コンポーネントを各機能内に配置
-- **共有ユーティリティ**: 複数機能で使う汎用関数は`lib/`に配置
+- **Package by Feature**: 機能（canvas, color, toolbar）単位でコードを整理
+- **Clean Architecture**: 各機能内を types / domain / useCases / adapters / infrastructure / helpers / hooks / components のレイヤーで構成
+- **1ファイル1関数**: 単一責任原則に従い、テストとの対応を明確化
+- **コロケーション**: テスト・ストーリーを各機能内に配置
+
+### Feature 構造（概念図）
+
+```mermaid
+flowchart TB
+    subgraph feature/foo
+        types["types/<br/>型定義"]
+
+        subgraph domain["domain/"]
+            entities["entities/<br/>エンティティ・ファクトリ"]
+            services["services/<br/>ドメインサービス"]
+        end
+
+        useCases["useCases/<br/>アプリケーション操作"]
+        adapters["adapters/<br/>外部システム接続"]
+        infrastructure["infrastructure/<br/>具体的実装"]
+        helpers["helpers/<br/>純粋関数"]
+        hooks["hooks/<br/>状態管理"]
+        components["components/<br/>UI"]
+
+        types --> domain
+        domain --> useCases
+        domain --> adapters
+        domain --> infrastructure
+        useCases --> hooks
+        adapters --> hooks
+        infrastructure --> hooks
+        helpers -.-> hooks
+        hooks --> components
+    end
+
+    indexts["index.ts<br/>公開API"]
+
+    feature/foo --> indexts
+```
 
 ### ディレクトリ構造
 
 ```
 src/
-├── components/          # 共有UIコンポーネント
-│   └── ui/              # 基本UIコンポーネント（Button, Slider, Tooltip等）
+├── components/ui/       # 共有UIコンポーネント（Button, Slider, Tooltip等）
 ├── features/            # 機能モジュール
-│   ├── brush/           # ブラシ設定
-│   │   └── types/       # BrushTip, StrokeStyle等
-│   ├── canvas/          # キャンバス機能
-│   │   ├── components/  # Canvas
-│   │   ├── hooks/       # useCanvas, useDrawing, useCanvasHistory
-│   │   ├── utils/       # レンダリングユーティリティ
-│   │   └── types/
-│   ├── color/           # カラーピッカー機能
-│   │   ├── components/  # ColorWheel
-│   │   ├── hooks/       # useColorWheel
-│   │   └── utils/
-│   ├── drawable/        # 描画要素
-│   │   ├── renderer/    # 描画要素レンダラー
-│   │   └── types/       # Drawable, StrokeDrawable
-│   ├── history/         # 履歴管理
-│   │   ├── actions/     # アクションクリエイター
-│   │   ├── storage/     # インメモリストレージ
-│   │   └── types/       # HistoryAction
-│   ├── i18n/            # 多言語対応
-│   │   ├── components/  # LocaleToggle
-│   │   ├── hooks/       # LocaleProvider, useLocale
-│   │   ├── locales/     # 翻訳ファイル
-│   │   └── types/
-│   ├── layer/           # レイヤー管理
-│   │   ├── hooks/       # useLayers
-│   │   ├── renderer/    # レイヤーレンダラー
-│   │   └── types/
-│   ├── pointer/         # ポインター入力処理
-│   │   └── components/  # BrushCursor
-│   ├── theme/           # テーマ管理
-│   │   ├── hooks/       # ThemeProvider, useTheme
-│   │   └── types/
-│   ├── toolbar/         # ツールバー
-│   │   └── components/  # Toolbar
-│   └── tools/           # ツール管理
-│       ├── behaviors/   # ペン・消しゴムの動作定義
-│       ├── components/  # ToolPanel
-│       ├── hooks/       # useTool
-│       └── types/
+│   └── [feature]/       # 各機能（canvas, color, tools 等）
+│       ├── types/           # 型定義のみ
+│       ├── domain/          # ドメインロジック
+│       │   ├── entities/    # エンティティ + ファクトリ（1ファイル1関数）
+│       │   └── services/    # ドメインサービス
+│       ├── useCases/        # ユースケース（1ファイル1関数）
+│       ├── adapters/        # 外部アダプター（Canvas API等）
+│       ├── infrastructure/  # 外部システム統合（JSON, API等）
+│       ├── helpers/         # 純粋ユーティリティ
+│       ├── hooks/           # React hooks
+│       ├── components/      # UIコンポーネント
+│       └── index.ts         # 公開API
 ├── hooks/               # グローバルフック（useKeyboardShortcuts）
 ├── lib/                 # 共有ユーティリティ（色変換、ストレージ等）
 └── test/                # テストユーティリティ・モック
 ```
+
+### 機能一覧
+
+| 機能 | 説明 |
+|------|------|
+| **brush** | ブラシ設定（BrushTip, StrokeStyle） |
+| **canvas** | キャンバス描画・履歴管理 |
+| **color** | HSVカラーホイール |
+| **drawable** | 描画要素（Stroke等）とレンダラー |
+| **history** | Undo/Redo履歴管理 |
+| **i18n** | 多言語対応（英語/日本語） |
+| **layer** | レイヤー管理 |
+| **pointer** | ポインター入力・カーソル表示 |
+| **theme** | ダーク/ライトモード |
+| **toolbar** | ツールバーUI |
+| **tools** | ペン・消しゴムツール |
 
 ## 開発
 

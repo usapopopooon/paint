@@ -1,6 +1,5 @@
 import type { StrokeStyle } from '@/features/brush'
 import type { Point } from '@/lib/geometry'
-import { generateId } from '@/lib/id'
 
 // 便宜上libからPointを再エクスポート
 export type { Point } from '@/lib/geometry'
@@ -59,36 +58,3 @@ export type StrokeDrawable = DrawableMetadata & {
  */
 export type Drawable = StrokeDrawable
 // 将来: | FillDrawable | BezierDrawable | ShapeDrawable | ImageDrawable
-
-/**
- * StrokeDrawableの型ガード
- * @param drawable - 判定する描画要素
- * @returns StrokeDrawableの場合はtrue
- */
-export const isStrokeDrawable = (drawable: Drawable): drawable is StrokeDrawable =>
-  drawable.type === 'stroke'
-
-/**
- * ユニークな描画要素IDを生成
- * @returns 'drawable-'プレフィックス付きのユニークID
- */
-export const generateDrawableId = (): DrawableId => generateId('drawable')
-
-/**
- * StrokeDrawableを作成
- * @param points - ストロークを構成するポイントの配列
- * @param style - ストロークのスタイル設定
- * @param id - オプションのID（指定しない場合は自動生成）
- * @returns 新しいStrokeDrawableオブジェクト
- */
-export const createStrokeDrawable = (
-  points: readonly Point[],
-  style: StrokeStyle,
-  id?: DrawableId
-): StrokeDrawable => ({
-  id: id ?? generateDrawableId(),
-  createdAt: Date.now(),
-  type: 'stroke',
-  points,
-  style,
-})

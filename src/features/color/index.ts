@@ -1,3 +1,8 @@
-export { ColorWheel } from './components'
+// ヘルパー
+export { hsvToHex, hexToHsv, isValidHex, normalizeHex, type HSV } from './helpers'
+
+// フック
 export { useColorWheel } from './hooks'
-export { hsvToHex, hexToHsv, isValidHex, normalizeHex, type HSV } from './utils'
+
+// コンポーネント
+export { ColorWheel } from './components'

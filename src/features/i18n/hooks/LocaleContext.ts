@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 import type { Locale } from '../types'
-import type { TranslateFunction } from '../locales'
+import type { TranslateFunction } from '../infrastructure'
 
 /**
  * LocaleContextの値の型

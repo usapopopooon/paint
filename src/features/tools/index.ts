@@ -1,5 +1,11 @@
+// 型
 export type { ToolType, ToolConfig, PenToolConfig, EraserToolConfig, CursorConfig } from './types'
+
+// ドメイン
+export { penBehavior, eraserBehavior, getToolBehavior } from './domain'
+
+// フック
 export { useTool } from './hooks'
-export { getToolBehavior } from './registry'
-export { penBehavior, eraserBehavior } from './behaviors'
+
+// コンポーネント
 export { ToolPanel } from './components'

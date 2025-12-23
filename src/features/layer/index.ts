@@ -1,12 +1,12 @@
 // 型
 export type { LayerId, LayerType, LayerBlendMode, Layer, LayerState } from './types'
 
-// ファクトリ関数
-export { createBackgroundLayer, createDrawingLayer, createInitialLayerState } from './types'
+// ドメイン（エンティティ、インターフェース）
+export { createBackgroundLayer, createDrawingLayer, createInitialLayerState } from './domain'
+export type { LayerRenderer, LayerRendererFactory } from './domain'
 
-// レンダラー
-export type { LayerRenderer, LayerRendererFactory } from './renderer'
-export { createCanvas2DRenderer, blendModeToCompositeOp } from './renderer'
+// アダプター（Canvas2D）
+export { createCanvas2DRenderer, blendModeToCompositeOp } from './adapters'
 
 // フック
 export { useLayers } from './hooks'

@@ -1,1 +1,0 @@
-export { createInMemoryStorage } from './inMemory'

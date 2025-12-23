@@ -1,6 +1,6 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Locale } from '../types'
-import type { TranslateFunction } from '../locales'
+import type { TranslateFunction } from '../infrastructure'
 
 /**
  * LocaleToggleコンポーネントのプロパティ

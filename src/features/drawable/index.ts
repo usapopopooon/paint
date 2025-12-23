@@ -1,11 +1,11 @@
 // 型
 export type { Point, DrawableId, DrawableMetadata, StrokeDrawable, Drawable } from './types'
 
-// 型ガード
-export { isStrokeDrawable } from './types'
+// ドメイン（エンティティファクトリ）
+export { generateDrawableId, createStrokeDrawable } from './domain'
 
-// ファクトリ関数
-export { generateDrawableId, createStrokeDrawable } from './types'
+// ヘルパー（型ガード）
+export { isStrokeDrawable } from './helpers'
 
-// レンダラー
-export { renderDrawable } from './renderer'
+// アダプター（Canvas2Dレンダリング）
+export { renderDrawable } from './adapters'

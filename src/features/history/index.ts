@@ -26,17 +26,17 @@ export type {
   HistoryStorageFactory,
 } from './types'
 
-// 型ガード
-export { isDrawableAction, isLayerAction, isBatchAction, success, failure } from './types'
+// ヘルパー（型ガード、Result）
+export { isDrawableAction, isLayerAction, isBatchAction, success, failure } from './helpers'
 
-// ストレージ実装
-export { createInMemoryStorage } from './storage'
+// インフラストラクチャ（ストレージ実装）
+export { createInMemoryStorage } from './infrastructure'
 
-// アクションクリエイター
+// ユースケース（アクションクリエイター）
 export {
   createDrawableAddedAction,
   createDrawablesClearedAction,
   createLayerCreatedAction,
   createLayerDeletedAction,
   createLayerReorderedAction,
-} from './actions'
+} from './useCases'
