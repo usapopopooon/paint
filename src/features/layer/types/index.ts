@@ -25,8 +25,8 @@ export type Layer = {
   readonly id: LayerId
   readonly name: string
   readonly type: LayerType
-  readonly visible: boolean
-  readonly locked: boolean
+  readonly isVisible: boolean
+  readonly isLocked: boolean
   readonly opacity: number // 0-1
   readonly blendMode: LayerBlendMode
   readonly drawables: readonly Drawable[]

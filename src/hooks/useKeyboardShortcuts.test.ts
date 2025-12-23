@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useKeyboardShortcuts, type KeyboardShortcutsHandlers } from './useKeyboardShortcuts'
 
@@ -27,7 +27,7 @@ describe('useKeyboardShortcuts', () => {
   }
 
   describe('Undo (Ctrl+Z / Cmd+Z)', () => {
-    it('Ctrl+Zでundo', () => {
+    test('Ctrl+Zでundo', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('z', { ctrlKey: true })
@@ -37,7 +37,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('Cmd+Z (Mac)でundo', () => {
+    test('Cmd+Z (Mac)でundo', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('z', { metaKey: true })
@@ -46,7 +46,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('修飾キーなしのZは無視', () => {
+    test('修飾キーなしのZは無視', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('z')
@@ -57,7 +57,7 @@ describe('useKeyboardShortcuts', () => {
   })
 
   describe('Redo (Ctrl+Shift+Z / Cmd+Shift+Z)', () => {
-    it('Ctrl+Shift+Zでredo', () => {
+    test('Ctrl+Shift+Zでredo', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('z', { ctrlKey: true, shiftKey: true })
@@ -67,7 +67,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('Cmd+Shift+Z (Mac)でredo', () => {
+    test('Cmd+Shift+Z (Mac)でredo', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('z', { metaKey: true, shiftKey: true })
@@ -78,7 +78,7 @@ describe('useKeyboardShortcuts', () => {
   })
 
   describe('Clear (Shift+Delete)', () => {
-    it('Shift+Deleteでclear', () => {
+    test('Shift+Deleteでclear', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('Delete', { shiftKey: true })
@@ -87,7 +87,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('Deleteのみは無視', () => {
+    test('Deleteのみは無視', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('Delete')
@@ -98,7 +98,7 @@ describe('useKeyboardShortcuts', () => {
   })
 
   describe('ツール選択 (P / E)', () => {
-    it('Pキーでペンツール選択', () => {
+    test('Pキーでペンツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('p')
@@ -108,7 +108,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('大文字Pでもペンツール選択', () => {
+    test('大文字Pでもペンツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('P')
@@ -117,7 +117,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('Eキーで消しゴムツール選択', () => {
+    test('Eキーで消しゴムツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('e')
@@ -127,7 +127,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('大文字Eでも消しゴムツール選択', () => {
+    test('大文字Eでも消しゴムツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('E')
@@ -136,7 +136,7 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    it('Ctrl+Pはペンツール選択しない', () => {
+    test('Ctrl+Pはペンツール選択しない', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('p', { ctrlKey: true })
@@ -147,7 +147,7 @@ describe('useKeyboardShortcuts', () => {
   })
 
   describe('クリーンアップ', () => {
-    it('アンマウント時にイベントリスナーを削除', () => {
+    test('アンマウント時にイベントリスナーを削除', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       unmount()

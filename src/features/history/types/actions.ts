@@ -57,7 +57,7 @@ export type LayerReorderedAction = ActionMetadata & {
 
 export type LayerVisibilityChangedAction = ActionMetadata & {
   readonly type: 'layer:visibility-changed'
-  readonly visible: boolean
+  readonly isVisible: boolean
 }
 
 export type LayerOpacityChangedAction = ActionMetadata & {
