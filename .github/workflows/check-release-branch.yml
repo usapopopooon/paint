@@ -10,8 +10,8 @@ jobs:
     steps:
       - name: Check branch name
         run: |
-          if [[ ! "${{ github.head_ref }}" =~ ^release/ ]]; then
-            echo "Error: Only release/* branches can merge to main"
+          if [[ ! "${{ github.head_ref }}" =~ ^(release|hotfix)/ ]]; then
+            echo "Error: Only release/* or hotfix/* branches can merge to main"
             echo "Current branch: ${{ github.head_ref }}"
             exit 1
           fi
