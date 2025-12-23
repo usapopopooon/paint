@@ -33,7 +33,7 @@ export const createCanvas2DRenderer = (): LayerRenderer => {
 
     // 各レイヤーをレンダリング
     for (const layer of layers) {
-      if (!layer.visible || layer.drawables.length === 0) continue
+      if (!layer.isVisible || layer.drawables.length === 0) continue
 
       // レイヤー用のオフスクリーンキャンバスを作成
       const offscreen = new OffscreenCanvas(width, height)

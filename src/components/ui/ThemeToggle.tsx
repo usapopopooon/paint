@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from './button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
@@ -16,7 +17,7 @@ type ThemeToggleProps = {
  * ダーク/ライトモード切り替えトグルコンポーネント
  * @param props - ThemeToggleコンポーネントのプロパティ
  */
-export const ThemeToggle = ({ isDark, onToggle, t }: ThemeToggleProps) => {
+export const ThemeToggle = memo(function ThemeToggle({ isDark, onToggle, t }: ThemeToggleProps) {
   const label = isDark ? t('theme.lightMode') : t('theme.darkMode')
 
   return (
@@ -29,4 +30,4 @@ export const ThemeToggle = ({ isDark, onToggle, t }: ThemeToggleProps) => {
       <TooltipContent side="bottom">{label}</TooltipContent>
     </Tooltip>
   )
-}
+})

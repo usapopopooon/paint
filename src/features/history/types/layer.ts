@@ -10,8 +10,8 @@ export type { LayerBlendMode }
 export type LayerSnapshot = {
   readonly id: LayerId
   readonly name: string
-  readonly visible: boolean
-  readonly locked: boolean
+  readonly isVisible: boolean
+  readonly isLocked: boolean
   readonly opacity: number
   readonly blendMode: LayerBlendMode
   readonly drawables: readonly Drawable[]
@@ -23,8 +23,8 @@ export type LayerSnapshot = {
 export type LayerRef = {
   readonly id: LayerId
   readonly name: string
-  readonly visible: boolean
-  readonly locked: boolean
+  readonly isVisible: boolean
+  readonly isLocked: boolean
   readonly opacity: number
   readonly blendMode: LayerBlendMode
 }

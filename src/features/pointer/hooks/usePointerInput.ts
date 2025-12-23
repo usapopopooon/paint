@@ -1,6 +1,15 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PointerPoint, PointerType } from '../types'
 import { getPointerType, getPointerPoint } from '../helpers'
+import { colorWheelState } from '@/features/color/hooks/colorWheelState'
+
+/** キャンバス外でのポインター位置を追跡するための型 */
+type PendingStrokeStart = {
+  x: number
+  y: number
+  pressure: number
+  pointerType: PointerType
+}
 
 /**
  * usePointerInputフックのオプション
@@ -68,6 +77,10 @@ export const usePointerInput = ({
   const [activePointerType, setActivePointerType] = useState<PointerType | null>(null)
   const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
+  // キャンバス外でボタンが押された時の位置を保存
+  const pendingStrokeStartRef = useRef<PendingStrokeStart | null>(null)
+  // キャンバス要素の参照を保持
+  const canvasElementRef = useRef<HTMLElement | null>(null)
 
   /** ストロークを終了してポインター状態をリセット */
   const endStroke = useCallback(() => {
@@ -212,11 +225,17 @@ export const usePointerInput = ({
   const handlePointerEnter = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
+      canvasElementRef.current = element
       const point = extractPointerPoint(event, element)
       setPointerPosition({ x: point.x, y: point.y })
 
       // 別のポインターで描画中の場合は無視
       if (activePointerIdRef.current !== null) {
+        return
+      }
+
+      // ColorWheelがドラッグ中の場合は無視
+      if (colorWheelState.isDragging) {
         return
       }
 
@@ -232,7 +251,15 @@ export const usePointerInput = ({
         activePointerIdRef.current = event.pointerId
         setActivePointerType(getPointerType(event.pointerType))
         setIsDrawing(true)
-        onStart(point)
+
+        // キャンバス外で追跡していた位置があればそこから開始
+        const pending = pendingStrokeStartRef.current
+        if (pending) {
+          onStart(pending)
+          pendingStrokeStartRef.current = null
+        } else {
+          onStart(point)
+        }
       }
     },
     [onStart]
@@ -259,6 +286,51 @@ export const usePointerInput = ({
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
     // 右クリックまたは長押しでコンテキストメニューを防止
     event.preventDefault()
+  }, [])
+
+  // ウィンドウレベルでポインター位置を追跡（キャンバス外でもボタンが押されたら位置を記録）
+  useEffect(() => {
+    const handleWindowPointerMove = (event: PointerEvent) => {
+      // 描画中またはキャンバス要素がない場合は無視
+      if (activePointerIdRef.current !== null || !canvasElementRef.current) {
+        return
+      }
+
+      // ColorWheelがドラッグ中の場合はpendingをクリアして無視
+      if (colorWheelState.isDragging) {
+        pendingStrokeStartRef.current = null
+        return
+      }
+
+      // 左ボタンが押されている場合、キャンバス相対座標で位置を保存
+      if (event.buttons === 1) {
+        const rect = canvasElementRef.current.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+
+        pendingStrokeStartRef.current = {
+          x,
+          y,
+          pressure: event.pressure,
+          pointerType: getPointerType(event.pointerType),
+        }
+      } else {
+        // ボタンが離されたらクリア
+        pendingStrokeStartRef.current = null
+      }
+    }
+
+    const handleWindowPointerUp = () => {
+      pendingStrokeStartRef.current = null
+    }
+
+    window.addEventListener('pointermove', handleWindowPointerMove)
+    window.addEventListener('pointerup', handleWindowPointerUp)
+
+    return () => {
+      window.removeEventListener('pointermove', handleWindowPointerMove)
+      window.removeEventListener('pointerup', handleWindowPointerUp)
+    }
   }, [])
 
   return {

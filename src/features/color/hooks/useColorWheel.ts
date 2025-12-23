@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { hexToHsv, hsvToHex, type HSV } from '../helpers'
+import { colorWheelState } from './colorWheelState'
 
 /** カラーホイールのサイズ（ピクセル） */
 export const WHEEL_SIZE = 200
@@ -28,6 +29,8 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [hsv, setHsv] = useState<HSV>(() => hexToHsv(color))
   const [dragMode, setDragMode] = useState<DragMode>('none')
+  /** ドラッグ中のgetBoundingClientRect()結果をキャッシュ */
+  const cachedRectRef = useRef<DOMRect | null>(null)
 
   /**
    * マウスイベントからカラーホイール内の位置を取得
@@ -38,7 +41,8 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     const container = containerRef.current
     if (!container) return null
 
-    const rect = container.getBoundingClientRect()
+    // ドラッグ中はキャッシュを使用、それ以外は新規取得
+    const rect = cachedRectRef.current ?? container.getBoundingClientRect()
     const centerX = WHEEL_SIZE / 2
     const centerY = WHEEL_SIZE / 2
     const x = event.clientX - rect.left - centerX
@@ -87,6 +91,12 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
    */
   const handleMouseDown = useCallback(
     (event: React.MouseEvent) => {
+      // ドラッグ開始時にrectをキャッシュ
+      const container = containerRef.current
+      if (container) {
+        cachedRectRef.current = container.getBoundingClientRect()
+      }
+
       const pos = getPositionFromEvent(event)
       if (!pos) return
 
@@ -112,6 +122,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
    */
   const handleSvIndicatorMouseDown = useCallback((event: React.MouseEvent) => {
     event.stopPropagation()
+    // ドラッグ開始時にrectをキャッシュ
+    const container = containerRef.current
+    if (container) {
+      cachedRectRef.current = container.getBoundingClientRect()
+    }
     setDragMode('sv')
   }, [])
 
@@ -121,6 +136,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
    */
   const handleHueIndicatorMouseDown = useCallback((event: React.MouseEvent) => {
     event.stopPropagation()
+    // ドラッグ開始時にrectをキャッシュ
+    const container = containerRef.current
+    if (container) {
+      cachedRectRef.current = container.getBoundingClientRect()
+    }
     setDragMode('hue')
   }, [])
 
@@ -149,15 +169,23 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   /** マウスアップ時のハンドラ */
   const handleMouseUp = useCallback(() => {
     setDragMode('none')
+    // ドラッグ終了時にキャッシュをクリア
+    cachedRectRef.current = null
   }, [])
 
   useEffect(() => {
-    if (dragMode === 'none') return
+    if (dragMode === 'none') {
+      colorWheelState.isDragging = false
+      return
+    }
+
+    colorWheelState.isDragging = true
 
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
 
     return () => {
+      colorWheelState.isDragging = false
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }

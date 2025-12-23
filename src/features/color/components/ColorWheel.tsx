@@ -34,7 +34,7 @@ export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
   } = useColorWheel({ color, onChange })
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" onWheel={(e) => e.stopPropagation()}>
       <div
         ref={containerRef}
         className="relative cursor-crosshair"

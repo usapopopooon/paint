@@ -13,7 +13,7 @@ export type UseLayersReturn = {
   readonly clearActiveLayer: () => void
   readonly setActiveLayer: (id: LayerId) => void
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
-  readonly setLayerVisibility: (id: LayerId, visible: boolean) => void
+  readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
 }
 
 /**
@@ -107,12 +107,12 @@ export const useLayers = (): UseLayersReturn => {
   /**
    * レイヤーの表示/非表示を設定
    * @param id - 対象のレイヤーID
-   * @param visible - 表示するかどうか
+   * @param isVisible - 表示するかどうか
    */
-  const setLayerVisibility = useCallback((id: LayerId, visible: boolean) => {
+  const setLayerVisibility = useCallback((id: LayerId, isVisible: boolean) => {
     setState((prev) => ({
       ...prev,
-      layers: prev.layers.map((layer) => (layer.id === id ? { ...layer, visible } : layer)),
+      layers: prev.layers.map((layer) => (layer.id === id ? { ...layer, isVisible } : layer)),
     }))
   }, [])
 
