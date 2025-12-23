@@ -206,13 +206,37 @@ export const usePointerInput = ({
 
   /**
    * ポインターが要素に入った時のハンドラ
+   * キャンバス外でボタンを押しながら入った場合はストロークを開始
    * @param event - ポインターイベント
    */
-  const handlePointerEnter = useCallback((event: React.PointerEvent<HTMLElement>) => {
-    const element = event.currentTarget
-    const point = extractPointerPoint(event, element)
-    setPointerPosition({ x: point.x, y: point.y })
-  }, [])
+  const handlePointerEnter = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      const element = event.currentTarget
+      const point = extractPointerPoint(event, element)
+      setPointerPosition({ x: point.x, y: point.y })
+
+      // 別のポインターで描画中の場合は無視
+      if (activePointerIdRef.current !== null) {
+        return
+      }
+
+      // プライマリボタン（左クリック）が押されている場合はストロークを開始
+      // buttons: 1 = 左ボタン
+      if (event.buttons === 1) {
+        try {
+          element.setPointerCapture(event.pointerId)
+        } catch {
+          // setPointerCaptureはエッジケースで失敗することがある
+        }
+
+        activePointerIdRef.current = event.pointerId
+        setActivePointerType(getPointerType(event.pointerType))
+        setIsDrawing(true)
+        onStart(point)
+      }
+    },
+    [onStart]
+  )
 
   /**
    * ホイールイベントのハンドラ

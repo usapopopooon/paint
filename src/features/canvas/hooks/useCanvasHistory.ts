@@ -89,6 +89,30 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   }, [])
 
   /**
+   * Undoで戻されるアクションを取得（peek）
+   * @returns アクション、またはnull
+   */
+  const peekUndo = useCallback(async () => {
+    const result = await storageRef.current.peekUndo()
+    if (result.success && result.data) {
+      return result.data
+    }
+    return null
+  }, [])
+
+  /**
+   * Redoで復元されるアクションを取得（peek）
+   * @returns アクション、またはnull
+   */
+  const peekRedo = useCallback(async () => {
+    const result = await storageRef.current.peekRedo()
+    if (result.success && result.data) {
+      return result.data
+    }
+    return null
+  }, [])
+
+  /**
    * クリア操作を履歴に記録
    * @param previousDrawables - クリア前のDrawable配列
    */
@@ -116,6 +140,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     undo,
     redo,
     getRedoDrawable,
+    peekUndo,
+    peekRedo,
     recordClear,
   } as const
 }
