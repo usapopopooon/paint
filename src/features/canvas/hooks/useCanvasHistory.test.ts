@@ -9,11 +9,10 @@ const createMockDrawable = (id: string): Drawable => ({
   points: [{ x: 0, y: 0 }],
   style: {
     color: '#000000',
-    width: 2,
-    opacity: 1,
-    compositeOperation: 'source-over',
     brushTip: { type: 'solid', size: 2, hardness: 1, opacity: 1 },
+    blendMode: 'normal',
   },
+  createdAt: Date.now(),
 })
 
 describe('useCanvasHistory', () => {
