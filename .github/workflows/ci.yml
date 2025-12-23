@@ -31,3 +31,6 @@ jobs:
         run: npm run test:coverage
         env:
           HOME: /root
+
+      - name: Build
+        run: npm run build
