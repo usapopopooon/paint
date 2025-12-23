@@ -1,22 +1,22 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { translations, getTranslation, type TranslationKey } from './getTranslation'
 import en from './en.json'
 import ja from './ja.json'
 
 describe('i18n/locales', () => {
   describe('translations', () => {
-    it('英語と日本語の翻訳が存在する', () => {
+    test('英語と日本語の翻訳が存在する', () => {
       expect(translations.en).toBeDefined()
       expect(translations.ja).toBeDefined()
     })
 
-    it('英語と日本語で同じキーが定義されている', () => {
+    test('英語と日本語で同じキーが定義されている', () => {
       const enKeys = Object.keys(en).sort()
       const jaKeys = Object.keys(ja).sort()
       expect(enKeys).toEqual(jaKeys)
     })
 
-    it('すべてのキーが空文字列でない', () => {
+    test('すべてのキーが空文字列でない', () => {
       for (const key of Object.keys(en) as TranslationKey[]) {
         expect(en[key]).not.toBe('')
         expect(ja[key]).not.toBe('')
@@ -25,17 +25,17 @@ describe('i18n/locales', () => {
   })
 
   describe('getTranslation', () => {
-    it('英語の翻訳を取得できる', () => {
+    test('英語の翻訳を取得できる', () => {
       expect(getTranslation('en', 'tools.pen')).toBe('Pen')
       expect(getTranslation('en', 'actions.undo')).toBe('Undo')
     })
 
-    it('日本語の翻訳を取得できる', () => {
+    test('日本語の翻訳を取得できる', () => {
       expect(getTranslation('ja', 'tools.pen')).toBe('ペン')
       expect(getTranslation('ja', 'actions.undo')).toBe('元に戻す')
     })
 
-    it('すべてのキーで翻訳を取得できる', () => {
+    test('すべてのキーで翻訳を取得できる', () => {
       const keys = Object.keys(en) as TranslationKey[]
       for (const key of keys) {
         expect(typeof getTranslation('en', key)).toBe('string')
@@ -45,7 +45,7 @@ describe('i18n/locales', () => {
   })
 
   describe('翻訳キーの形式', () => {
-    it('すべてのキーがドット記法のフラット形式である', () => {
+    test('すべてのキーがドット記法のフラット形式である', () => {
       const keys = Object.keys(en)
       for (const key of keys) {
         // ドット記法: "category.name" 形式
@@ -53,7 +53,7 @@ describe('i18n/locales', () => {
       }
     })
 
-    it('期待されるカテゴリが含まれている', () => {
+    test('期待されるカテゴリが含まれている', () => {
       const keys = Object.keys(en)
       const categories = new Set(keys.map((k) => k.split('.')[0]))
       expect(categories).toContain('tools')

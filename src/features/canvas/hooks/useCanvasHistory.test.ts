@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { useCanvasHistory } from './useCanvasHistory'
 import type { Drawable } from '@/features/drawable'
 
@@ -17,7 +17,7 @@ const createMockDrawable = (id: string): Drawable => ({
 
 describe('useCanvasHistory', () => {
   describe('peekUndo', () => {
-    it('undoスタックが空の場合はnullを返す', async () => {
+    test('undoスタックが空の場合はnullを返す', async () => {
       const { result } = renderHook(() => useCanvasHistory())
 
       const action = await result.current.peekUndo()
@@ -25,7 +25,7 @@ describe('useCanvasHistory', () => {
       expect(action).toBeNull()
     })
 
-    it('drawable:addedアクションを正しく返す', async () => {
+    test('drawable:addedアクションを正しく返す', async () => {
       const { result } = renderHook(() => useCanvasHistory())
       const drawable = createMockDrawable('test-1')
 
@@ -47,7 +47,7 @@ describe('useCanvasHistory', () => {
       }
     })
 
-    it('drawables:clearedアクションを正しく返す', async () => {
+    test('drawables:clearedアクションを正しく返す', async () => {
       const { result } = renderHook(() => useCanvasHistory())
       const drawables = [createMockDrawable('test-1'), createMockDrawable('test-2')]
 
@@ -66,7 +66,7 @@ describe('useCanvasHistory', () => {
   })
 
   describe('peekRedo', () => {
-    it('redoスタックが空の場合はnullを返す', async () => {
+    test('redoスタックが空の場合はnullを返す', async () => {
       const { result } = renderHook(() => useCanvasHistory())
 
       const action = await result.current.peekRedo()
@@ -74,7 +74,7 @@ describe('useCanvasHistory', () => {
       expect(action).toBeNull()
     })
 
-    it('undo後にredoスタックからアクションを返す', async () => {
+    test('undo後にredoスタックからアクションを返す', async () => {
       const { result } = renderHook(() => useCanvasHistory())
       const drawable = createMockDrawable('test-1')
 
@@ -96,7 +96,7 @@ describe('useCanvasHistory', () => {
       expect(action?.type).toBe('drawable:added')
     })
 
-    it('drawables:clearedのundo後にredoスタックからアクションを返す', async () => {
+    test('drawables:clearedのundo後にredoスタックからアクションを返す', async () => {
       const { result } = renderHook(() => useCanvasHistory())
       const drawables = [createMockDrawable('test-1')]
 
@@ -116,7 +116,7 @@ describe('useCanvasHistory', () => {
   })
 
   describe('undo/redo with clear', () => {
-    it('クリア後のundoでcanRedoがtrueになる', async () => {
+    test('クリア後のundoでcanRedoがtrueになる', async () => {
       const { result } = renderHook(() => useCanvasHistory())
       const drawables = [createMockDrawable('test-1')]
 
@@ -135,7 +135,7 @@ describe('useCanvasHistory', () => {
       expect(result.current.canRedo).toBe(true)
     })
 
-    it('クリアのundo後にredoで元に戻る', async () => {
+    test('クリアのundo後にredoで元に戻る', async () => {
       const { result } = renderHook(() => useCanvasHistory())
       const drawables = [createMockDrawable('test-1')]
 
