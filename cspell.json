@@ -47,7 +47,8 @@
     "Katsuya",
     "Yoshizumi",
     "usapo",
-    "usapopopooon"
+    "usapopopooon",
+    "publicapi"
   ],
   "ignorePaths": ["node_modules", "dist", "package-lock.json", "coverage", "*.min.js"],
   "ignoreRegExpList": [
