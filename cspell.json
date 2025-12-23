@@ -47,8 +47,7 @@
     "Katsuya",
     "Yoshizumi",
     "usapo",
-    "usapopopooon",
-    "entrypoint"
+    "usapopopooon"
   ],
   "ignorePaths": ["node_modules", "dist", "package-lock.json", "coverage", "*.min.js"],
   "ignoreRegExpList": [
