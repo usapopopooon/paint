@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { usePointerInput } from './usePointerInput'
+import { colorWheelState } from '@/features/color/hooks/colorWheelState'
 
 describe('usePointerInput', () => {
   const mockOnStart = vi.fn()
@@ -190,6 +191,81 @@ describe('usePointerInput', () => {
       const startPoint = mockOnStart.mock.calls[0][0]
       expect(startPoint.x).toBe(-50) // キャンバス外の位置
       expect(startPoint.y).toBe(25)
+    })
+
+    it('ColorWheelドラッグ中はストロークを開始しない', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // ColorWheelがドラッグ中
+      colorWheelState.isDragging = true
+
+      const event = createPointerEvent('pointerenter', { buttons: 1 })
+
+      act(() => {
+        result.current.pointerProps.onPointerEnter(event)
+      })
+
+      expect(mockOnStart).not.toHaveBeenCalled()
+      expect(result.current.isDrawing).toBe(false)
+
+      // クリーンアップ
+      colorWheelState.isDragging = false
+    })
+
+    it('ColorWheelドラッグ中はウィンドウレベルのポインター追跡を無視する', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // まずpointerEnterでcanvasElementRefを設定
+      const initialEnterEvent = createPointerEvent('pointerenter', { buttons: 0 })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(initialEnterEvent)
+      })
+
+      // ColorWheelがドラッグ中
+      colorWheelState.isDragging = true
+
+      // ウィンドウレベルでポインター移動をシミュレート
+      const windowPointerMoveEvent = new PointerEvent('pointermove', {
+        clientX: -50,
+        clientY: 25,
+        buttons: 1,
+        pressure: 0.7,
+        pointerType: 'mouse',
+      })
+      act(() => {
+        window.dispatchEvent(windowPointerMoveEvent)
+      })
+
+      // ColorWheelドラッグ終了
+      colorWheelState.isDragging = false
+
+      // キャンバスにenterしてもpending位置が使われない（クリアされている）
+      const enterEvent = createPointerEvent('pointerenter', {
+        buttons: 1,
+        clientX: 10,
+        clientY: 30,
+      })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(enterEvent)
+      })
+
+      expect(mockOnStart).toHaveBeenCalledTimes(1)
+      // enter位置が使われる（pending位置ではない）
+      const startPoint = mockOnStart.mock.calls[0][0]
+      expect(startPoint.x).toBe(10)
+      expect(startPoint.y).toBe(30)
     })
   })
 })

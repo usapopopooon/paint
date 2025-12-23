@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PointerPoint, PointerType } from '../types'
 import { getPointerType, getPointerPoint } from '../helpers'
+import { colorWheelState } from '@/features/color/hooks/colorWheelState'
 
 /** キャンバス外でのポインター位置を追跡するための型 */
 type PendingStrokeStart = {
@@ -233,6 +234,11 @@ export const usePointerInput = ({
         return
       }
 
+      // ColorWheelドラッグ中はストロークを開始しない
+      if (colorWheelState.isDragging) {
+        return
+      }
+
       // プライマリボタン（左クリック）が押されている場合はストロークを開始
       // buttons: 1 = 左ボタン
       if (event.buttons === 1) {
@@ -287,6 +293,12 @@ export const usePointerInput = ({
     const handleWindowPointerMove = (event: PointerEvent) => {
       // 描画中またはキャンバス要素がない場合は無視
       if (activePointerIdRef.current !== null || !canvasElementRef.current) {
+        return
+      }
+
+      // ColorWheelドラッグ中はキャンバスイベントを無視
+      if (colorWheelState.isDragging) {
+        pendingStrokeStartRef.current = null
         return
       }
 
