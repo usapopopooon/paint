@@ -16,7 +16,6 @@ type CanvasProps = {
   readonly onWheel?: (deltaY: number) => void
   readonly width?: number
   readonly height?: number
-  readonly backgroundColor?: string
   readonly fillContainer?: boolean
   readonly cursor: CursorConfig
 }
@@ -34,7 +33,6 @@ export const Canvas = ({
   onWheel,
   width = 800,
   height = 600,
-  backgroundColor = '#ffffff',
   fillContainer = false,
   cursor,
 }: CanvasProps) => {
@@ -52,7 +50,6 @@ export const Canvas = ({
         layers={layers}
         width={width}
         height={height}
-        backgroundColor={backgroundColor}
         fillContainer={fillContainer}
         className={fillContainer ? undefined : 'rounded-lg border border-border'}
       />

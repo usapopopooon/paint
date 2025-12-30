@@ -3,6 +3,8 @@ import { describe, test, expect } from 'vitest'
 import { useCanvasHistory } from './useCanvasHistory'
 import type { Drawable } from '@/features/drawable'
 
+const TEST_LAYER_ID = 'layer-1'
+
 const createMockDrawable = (id: string): Drawable => ({
   id,
   type: 'stroke',
@@ -30,7 +32,7 @@ describe('useCanvasHistory', () => {
       const drawable = createMockDrawable('test-1')
 
       act(() => {
-        result.current.addDrawable(drawable)
+        result.current.addDrawable(drawable, TEST_LAYER_ID)
       })
 
       // 非同期の状態更新を待つ
@@ -52,7 +54,7 @@ describe('useCanvasHistory', () => {
       const drawables = [createMockDrawable('test-1'), createMockDrawable('test-2')]
 
       await act(async () => {
-        await result.current.recordClear(drawables)
+        await result.current.recordClear(drawables, TEST_LAYER_ID)
       })
 
       const action = await result.current.peekUndo()
@@ -79,7 +81,7 @@ describe('useCanvasHistory', () => {
       const drawable = createMockDrawable('test-1')
 
       act(() => {
-        result.current.addDrawable(drawable)
+        result.current.addDrawable(drawable, TEST_LAYER_ID)
       })
 
       await act(async () => {
@@ -101,7 +103,7 @@ describe('useCanvasHistory', () => {
       const drawables = [createMockDrawable('test-1')]
 
       await act(async () => {
-        await result.current.recordClear(drawables)
+        await result.current.recordClear(drawables, TEST_LAYER_ID)
       })
 
       await act(async () => {
@@ -121,7 +123,7 @@ describe('useCanvasHistory', () => {
       const drawables = [createMockDrawable('test-1')]
 
       await act(async () => {
-        await result.current.recordClear(drawables)
+        await result.current.recordClear(drawables, TEST_LAYER_ID)
       })
 
       expect(result.current.canUndo).toBe(true)
@@ -140,7 +142,7 @@ describe('useCanvasHistory', () => {
       const drawables = [createMockDrawable('test-1')]
 
       await act(async () => {
-        await result.current.recordClear(drawables)
+        await result.current.recordClear(drawables, TEST_LAYER_ID)
       })
 
       await act(async () => {

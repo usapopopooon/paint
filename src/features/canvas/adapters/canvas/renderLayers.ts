@@ -46,15 +46,17 @@ const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
  * RenderTextureを使用して消しゴムが正しく機能するようにする
  * @param app - PixiJS Application
  * @param layers - レンダリングするレイヤー配列
- * @param backgroundColor - 背景色
+ * @param backgroundColor - 背景色（nullの場合は背景を描画しない）
  */
 export const renderLayers = (
   app: Application,
   layers: readonly Layer[],
-  backgroundColor: string
+  backgroundColor: string | null
 ): void => {
   app.stage.removeChildren()
-  addBackground(app, backgroundColor)
+  if (backgroundColor) {
+    addBackground(app, backgroundColor)
+  }
 
   for (const layer of layers) {
     if (!layer.isVisible || layer.drawables.length === 0) continue

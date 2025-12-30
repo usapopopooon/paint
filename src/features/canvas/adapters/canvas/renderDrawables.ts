@@ -42,15 +42,17 @@ const renderToTexture = (app: Application, drawables: readonly Drawable[]): Spri
  * RenderTextureを使用して消しゴムが正しく機能するようにする
  * @param app - PixiJS Application
  * @param drawables - レンダリングするDrawable配列
- * @param backgroundColor - 背景色
+ * @param backgroundColor - 背景色（nullの場合は背景を描画しない）
  */
 export const renderDrawables = (
   app: Application,
   drawables: readonly Drawable[],
-  backgroundColor: string
+  backgroundColor: string | null
 ): void => {
   app.stage.removeChildren()
-  addBackground(app, backgroundColor)
+  if (backgroundColor) {
+    addBackground(app, backgroundColor)
+  }
 
   if (drawables.length === 0) return
 

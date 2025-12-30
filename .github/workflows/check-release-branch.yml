@@ -8,8 +8,25 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Get current PR base branch
+        id: pr-info
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BASE_BRANCH=$(gh pr view ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --json baseRefName --jq '.baseRefName')
+          echo "base_branch=$BASE_BRANCH" >> $GITHUB_OUTPUT
+          echo "Current base branch: $BASE_BRANCH"
+
       - name: Check branch name
         run: |
+          BASE_BRANCH="${{ steps.pr-info.outputs.base_branch }}"
+
+          # Skip if base branch is not main (e.g., after re-run with changed base)
+          if [[ "$BASE_BRANCH" != "main" ]]; then
+            echo "Base branch is '$BASE_BRANCH', not 'main'. Skipping check."
+            exit 0
+          fi
+
           if [[ ! "${{ github.head_ref }}" =~ ^(release|hotfix)/ ]]; then
             echo "Error: Only release/* or hotfix/* branches can merge to main"
             echo "Current branch: ${{ github.head_ref }}"
