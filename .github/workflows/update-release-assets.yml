@@ -5,14 +5,20 @@ on:
     branches:
       - main
     types: [opened]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Release branch (e.g. release/v0.0.16)'
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 jobs:
   update-assets:
-    # release/**ブランチからのPRのみ実行
-    if: startsWith(github.head_ref, 'release/')
+    # PR時はrelease/**ブランチからのPRのみ実行、手動実行時は常に実行
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -20,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.head_ref }}
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Configure git safe directory
@@ -44,7 +50,8 @@ jobs:
         id: version
         run: |
           # release/v0.0.13 -> 0.0.13
-          VERSION="${GITHUB_HEAD_REF#release/v}"
+          BRANCH="${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.head_ref }}"
+          VERSION="${BRANCH#release/v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Update package.json and README
