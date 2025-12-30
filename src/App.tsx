@@ -1,6 +1,12 @@
 import { useCallback } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
-import { Canvas, CanvasSizeInput, useCanvas, useCanvasSize, useCanvasOffset } from './features/canvas'
+import {
+  Canvas,
+  CanvasSizeInput,
+  useCanvas,
+  useCanvasSize,
+  useCanvasOffset,
+} from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { LocaleToggle } from './features/i18n'
@@ -64,7 +70,10 @@ function App() {
           <ToolbarDivider />
           <ClearButton onClick={canvas.clear} />
           <ToolbarDivider />
-          <HandButton isActive={tool.currentType === 'hand'} onClick={() => tool.setToolType('hand')} />
+          <HandButton
+            isActive={tool.currentType === 'hand'}
+            onClick={() => tool.setToolType('hand')}
+          />
           <CenterCanvasButton onClick={canvasOffset.reset} />
         </Toolbar>
         <CanvasSizeInput

@@ -14,11 +14,7 @@ export const HandButton = memo(function HandButton({ isActive, onClick }: HandBu
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button
-          variant={isActive ? 'default' : 'secondary'}
-          size="icon"
-          onClick={onClick}
-        >
+        <Button variant={isActive ? 'default' : 'secondary'} size="icon" onClick={onClick}>
           <Hand className="h-4 w-4" />
         </Button>
       </TooltipTrigger>

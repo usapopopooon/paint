@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
@@ -12,11 +13,13 @@ export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonPro
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="outline" size="sm" onClick={onClick} className="w-16 text-foreground">
-          {t('actions.clear')}
+        <Button variant="outline" size="icon" onClick={onClick} aria-label={t('actions.clear')}>
+          <Trash2 className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>{t('shortcuts.clear')}</TooltipContent>
+      <TooltipContent>
+        {t('actions.clear')} ({t('shortcuts.clear')})
+      </TooltipContent>
     </Tooltip>
   )
 })

@@ -1,4 +1,4 @@
-import type { Point, StrokeDrawable } from '@/features/drawable'
+import type { StrokeDrawable } from '@/features/drawable'
 import type { HandToolConfig, CursorConfig } from '../../types'
 
 /**
@@ -20,7 +20,7 @@ export const handBehavior = {
    * ハンドツールはストロークを作成しない
    * この関数は呼び出されるべきではない
    */
-  createStroke: (_point: Point, _config: HandToolConfig): StrokeDrawable => {
+  createStroke: (): StrokeDrawable => {
     throw new Error('Hand tool does not create strokes')
   },
 
@@ -28,7 +28,7 @@ export const handBehavior = {
    * ハンドツールのカーソル設定を取得
    * grab カーソルを使用
    */
-  getCursor: (_config: HandToolConfig): CursorConfig => ({
+  getCursor: (): CursorConfig => ({
     size: 0,
     color: 'transparent',
     // CSSカーソルとして 'grab' を使用するためのマーカー
