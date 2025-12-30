@@ -4,7 +4,7 @@
 
 [![version](https://img.shields.io/badge/version-0.0.17-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.17) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
-ReactとPixiJSで構築したお絵かきアプリ。
+ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみる](https://usapopopooon.github.io/paint/)
 
 ![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767114354.png)
 
