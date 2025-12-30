@@ -11,6 +11,7 @@ import {
   ClearButton,
   ToolbarDivider,
   HandButton,
+  CenterCanvasButton,
 } from './features/toolbar'
 import { useTool, ToolPanel, PenTool, EraserTool, LayerPanel } from './features/tools'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
@@ -64,6 +65,7 @@ function App() {
           <ClearButton onClick={canvas.clear} />
           <ToolbarDivider />
           <HandButton isActive={tool.currentType === 'hand'} onClick={() => tool.setToolType('hand')} />
+          <CenterCanvasButton onClick={canvasOffset.reset} />
         </Toolbar>
         <CanvasSizeInput
           width={canvasSize.width}

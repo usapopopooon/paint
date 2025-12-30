@@ -21,5 +21,6 @@
   "layers.hidden": "非表示",
   "layers.layer": "レイヤー",
   "canvas.width": "幅",
-  "canvas.height": "高さ"
+  "canvas.height": "高さ",
+  "canvas.center": "キャンバスを中央に"
 }
