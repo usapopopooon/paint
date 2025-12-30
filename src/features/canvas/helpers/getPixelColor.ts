@@ -4,7 +4,7 @@
  * @param canvas - HTMLCanvasElement
  * @param x - X座標
  * @param y - Y座標
- * @returns 色の16進数文字列 (#RRGGBB形式)、取得できない場合はnull
+ * @returns HEX形式の色文字列 (例: #ff0000)、取得できない場合はnull
  */
 export const getPixelColor = (canvas: HTMLCanvasElement, x: number, y: number): string | null => {
   const floorX = Math.floor(x)
