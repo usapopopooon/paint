@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 /** デフォルトのキャンバスサイズ */
 export const DEFAULT_CANVAS_WIDTH = 800
@@ -36,7 +36,9 @@ export const useCanvasSize = (onSizeChange?: OnSizeChangeCallback) => {
 
   // 現在のサイズをrefで保持（コールバック内で最新値を参照するため）
   const sizeRef = useRef(size)
-  sizeRef.current = size
+  useEffect(() => {
+    sizeRef.current = size
+  }, [size])
 
   /**
    * 幅を設定（中央を起点として拡大/縮小）
