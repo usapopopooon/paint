@@ -266,4 +266,101 @@ describe('usePointerInput', () => {
       expect(startPoint.y).toBe(30)
     })
   })
+
+  describe('canvasRef', () => {
+    test('canvasRefでキャンバス要素を設定するとキャンバス外からのストローク開始位置が追跡される', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // canvasRefでキャンバス要素を設定（マウント時の動作をシミュレート）
+      const mockElement = document.createElement('div')
+      mockElement.getBoundingClientRect = () => ({
+        left: 0,
+        top: 0,
+        width: 100,
+        height: 100,
+        right: 100,
+        bottom: 100,
+        x: 0,
+        y: 0,
+        toJSON: () => {},
+      })
+      mockElement.setPointerCapture = vi.fn()
+
+      act(() => {
+        result.current.canvasRef(mockElement)
+      })
+
+      // ウィンドウレベルでポインター移動をシミュレート（キャンバス外でボタンを押しながら移動）
+      const windowPointerMoveEvent = new PointerEvent('pointermove', {
+        clientX: -30,
+        clientY: 20,
+        buttons: 1,
+        pressure: 0.5,
+        pointerType: 'mouse',
+      })
+      act(() => {
+        window.dispatchEvent(windowPointerMoveEvent)
+      })
+
+      // キャンバスにenterする
+      const enterEvent = createPointerEvent('pointerenter', {
+        buttons: 1,
+        clientX: 5,
+        clientY: 15,
+      })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(enterEvent)
+      })
+
+      expect(mockOnStart).toHaveBeenCalledTimes(1)
+      // canvasRefで設定した要素を使ってpending位置が計算される
+      const startPoint = mockOnStart.mock.calls[0][0]
+      expect(startPoint.x).toBe(-30)
+      expect(startPoint.y).toBe(20)
+    })
+
+    test('canvasRefが呼ばれていない場合はキャンバス外のポインター位置は追跡されない', () => {
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+        })
+      )
+
+      // canvasRefを呼ばない状態でウィンドウレベルのポインター移動
+      const windowPointerMoveEvent = new PointerEvent('pointermove', {
+        clientX: -30,
+        clientY: 20,
+        buttons: 1,
+        pressure: 0.5,
+        pointerType: 'mouse',
+      })
+      act(() => {
+        window.dispatchEvent(windowPointerMoveEvent)
+      })
+
+      // キャンバスにenterする
+      const enterEvent = createPointerEvent('pointerenter', {
+        buttons: 1,
+        clientX: 5,
+        clientY: 15,
+      })
+      act(() => {
+        result.current.pointerProps.onPointerEnter(enterEvent)
+      })
+
+      expect(mockOnStart).toHaveBeenCalledTimes(1)
+      // pending位置は記録されていないので、enter位置が使われる
+      const startPoint = mockOnStart.mock.calls[0][0]
+      expect(startPoint.x).toBe(5)
+      expect(startPoint.y).toBe(15)
+    })
+  })
 })

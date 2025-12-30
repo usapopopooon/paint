@@ -43,6 +43,8 @@ type UsePointerInputReturn = {
   pointerPosition: { x: number; y: number } | null
   isDrawing: boolean
   activePointerType: PointerType | null
+  /** キャンバス要素のref（ウィンドウレベルのポインター追跡に必要） */
+  canvasRef: (element: HTMLElement | null) => void
 }
 
 /**
@@ -333,6 +335,11 @@ export const usePointerInput = ({
     }
   }, [])
 
+  // refコールバック: マウント時にキャンバス要素を設定
+  const canvasRef = useCallback((element: HTMLElement | null) => {
+    canvasElementRef.current = element
+  }, [])
+
   return {
     pointerProps: {
       onPointerDown: handlePointerDown,
@@ -347,5 +354,6 @@ export const usePointerInput = ({
     pointerPosition,
     isDrawing,
     activePointerType,
+    canvasRef,
   }
 }

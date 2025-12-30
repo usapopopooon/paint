@@ -30,7 +30,7 @@ export const PointerInputLayer = ({
   cursor,
   className,
 }: PointerInputLayerProps) => {
-  const { pointerProps, pointerPosition } = usePointerInput({
+  const { pointerProps, pointerPosition, canvasRef } = usePointerInput({
     onStart,
     onMove,
     onEnd,
@@ -39,6 +39,7 @@ export const PointerInputLayer = ({
 
   return (
     <div
+      ref={canvasRef}
       {...pointerProps}
       className={`relative ${className ?? ''}`}
       style={{ touchAction: 'none', cursor: 'none' }}
