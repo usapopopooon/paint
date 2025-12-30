@@ -65,6 +65,10 @@ function App() {
           onPenWidthChange={tool.setPenWidth}
           onPenColorChange={tool.setPenColor}
           onEraserWidthChange={tool.setEraserWidth}
+          layers={canvas.layers}
+          activeLayerId={canvas.activeLayerId}
+          onLayerSelect={canvas.setActiveLayer}
+          onLayerVisibilityChange={canvas.setLayerVisibility}
           t={t}
         />
 

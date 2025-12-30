@@ -112,5 +112,7 @@ export const useCanvas = () => {
     undo,
     redo,
     clear,
+    setActiveLayer: layerManager.setActiveLayer,
+    setLayerVisibility: layerManager.setLayerVisibility,
   } as const
 }
