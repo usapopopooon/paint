@@ -41,9 +41,6 @@ const meta = {
     height: {
       control: 'number',
     },
-    backgroundColor: {
-      control: 'color',
-    },
   },
 } satisfies Meta<typeof Canvas>
 
@@ -111,10 +108,9 @@ export const SmallSize: Story = {
   },
 }
 
-export const CustomBackground: Story = {
+export const WithSampleDrawables: Story = {
   args: {
     drawables: sampleDrawables,
-    backgroundColor: '#f0f0f0',
   },
 }
 
