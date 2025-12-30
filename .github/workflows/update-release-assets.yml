@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   test:
@@ -99,6 +100,11 @@ jobs:
             git pull --rebase origin $GITHUB_REF_NAME || true
             git push
           fi
+
+      - name: Trigger CI workflow
+        run: gh workflow run ci.yml --ref $GITHUB_REF_NAME
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload screenshot artifact
         uses: actions/upload-artifact@v4

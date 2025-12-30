@@ -2,6 +2,12 @@ name: CI
 
 on:
   push:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or commit to run CI on'
+        required: false
+        type: string
 
 jobs:
   test:
