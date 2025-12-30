@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { type ResizeAnchor, calculateResizeOffset } from '../types'
 
 /** デフォルトのキャンバスサイズ */
 export const DEFAULT_CANVAS_WIDTH = 800
@@ -7,6 +8,9 @@ export const DEFAULT_CANVAS_HEIGHT = 600
 /** キャンバスサイズの最小・最大値 */
 export const MIN_CANVAS_SIZE = 100
 export const MAX_CANVAS_SIZE = 4096
+
+/** デフォルトのリサイズ起点 */
+export const DEFAULT_RESIZE_ANCHOR: ResizeAnchor = 'center'
 
 /**
  * キャンバスサイズの型
@@ -18,8 +22,8 @@ export type CanvasSize = {
 
 /**
  * サイズ変更時のコールバック
- * @param offsetX - X方向のオフセット（中央基準）
- * @param offsetY - Y方向のオフセット（中央基準）
+ * @param offsetX - X方向のオフセット
+ * @param offsetY - Y方向のオフセット
  */
 export type OnSizeChangeCallback = (offsetX: number, offsetY: number) => void
 
@@ -59,15 +63,20 @@ export const useCanvasSize = (options?: UseCanvasSizeOptions | OnSizeChangeCallb
     width: DEFAULT_CANVAS_WIDTH,
     height: DEFAULT_CANVAS_HEIGHT,
   })
+  const [anchor, setAnchor] = useState<ResizeAnchor>(DEFAULT_RESIZE_ANCHOR)
 
   // 現在のサイズをrefで保持（コールバック内で最新値を参照するため）
   const sizeRef = useRef(size)
+  const anchorRef = useRef(anchor)
   useEffect(() => {
     sizeRef.current = size
   }, [size])
+  useEffect(() => {
+    anchorRef.current = anchor
+  }, [anchor])
 
   /**
-   * 幅を設定（中央を起点として拡大/縮小）
+   * 幅を設定（選択したアンカーを起点として拡大/縮小）
    * @param width - 新しい幅
    */
   const setWidth = useCallback(
@@ -75,16 +84,16 @@ export const useCanvasSize = (options?: UseCanvasSizeOptions | OnSizeChangeCallb
       const clampedWidth = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, width))
       const currentSize = sizeRef.current
       if (clampedWidth !== currentSize.width) {
-        // 中央を起点としたオフセットを計算
-        const offsetX = (clampedWidth - currentSize.width) / 2
-        onSizeChange?.(offsetX, 0)
+        const deltaWidth = clampedWidth - currentSize.width
+        const { offsetX, offsetY } = calculateResizeOffset(anchorRef.current, deltaWidth, 0)
+        onSizeChange?.(offsetX, offsetY)
         onSizeChangeForHistory?.(
           currentSize.width,
           currentSize.height,
           clampedWidth,
           currentSize.height,
           offsetX,
-          0
+          offsetY
         )
       }
       setSize((prev) => ({ ...prev, width: clampedWidth }))
@@ -93,7 +102,7 @@ export const useCanvasSize = (options?: UseCanvasSizeOptions | OnSizeChangeCallb
   )
 
   /**
-   * 高さを設定（中央を起点として拡大/縮小）
+   * 高さを設定（選択したアンカーを起点として拡大/縮小）
    * @param height - 新しい高さ
    */
   const setHeight = useCallback(
@@ -101,15 +110,15 @@ export const useCanvasSize = (options?: UseCanvasSizeOptions | OnSizeChangeCallb
       const clampedHeight = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, height))
       const currentSize = sizeRef.current
       if (clampedHeight !== currentSize.height) {
-        // 中央を起点としたオフセットを計算
-        const offsetY = (clampedHeight - currentSize.height) / 2
-        onSizeChange?.(0, offsetY)
+        const deltaHeight = clampedHeight - currentSize.height
+        const { offsetX, offsetY } = calculateResizeOffset(anchorRef.current, 0, deltaHeight)
+        onSizeChange?.(offsetX, offsetY)
         onSizeChangeForHistory?.(
           currentSize.width,
           currentSize.height,
           currentSize.width,
           clampedHeight,
-          0,
+          offsetX,
           offsetY
         )
       }
@@ -132,8 +141,10 @@ export const useCanvasSize = (options?: UseCanvasSizeOptions | OnSizeChangeCallb
   return {
     width: size.width,
     height: size.height,
+    anchor,
     setWidth,
     setHeight,
+    setAnchor,
     setSizeDirectly,
   } as const
 }

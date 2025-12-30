@@ -22,7 +22,9 @@
   "layers.visible": "Visible",
   "layers.hidden": "Hidden",
   "layers.layer": "Layer",
-  "canvas.width": "Width",
-  "canvas.height": "Height",
-  "canvas.center": "Center canvas"
+  "canvas.width": "Width:",
+  "canvas.height": "Height:",
+  "canvas.center": "Center canvas",
+  "canvas.resize": "Resize canvas",
+  "canvas.anchor": "Anchor:"
 }

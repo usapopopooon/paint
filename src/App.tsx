@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import {
   Canvas,
-  CanvasSizeInput,
+  CanvasResizeMenu,
   CanvasViewport,
   useCanvas,
   useCanvasSize,
@@ -109,13 +109,15 @@ function App() {
             isActive={tool.currentType === 'eyedropper'}
             onClick={() => tool.setToolType('eyedropper')}
           />
+          <CanvasResizeMenu
+            width={canvasSize.width}
+            height={canvasSize.height}
+            anchor={canvasSize.anchor}
+            onWidthChange={canvasSize.setWidth}
+            onHeightChange={canvasSize.setHeight}
+            onAnchorChange={canvasSize.setAnchor}
+          />
         </Toolbar>
-        <CanvasSizeInput
-          width={canvasSize.width}
-          height={canvasSize.height}
-          onWidthChange={canvasSize.setWidth}
-          onHeightChange={canvasSize.setHeight}
-        />
         <div className="flex items-center gap-1">
           <LocaleToggle />
           <ThemeToggle />
