@@ -1,5 +1,6 @@
 import { useCallback, useState, useRef, useEffect } from 'react'
 import type { Drawable } from '@/features/drawable'
+import type { LayerId } from '@/features/layer'
 import type { HistoryStorage } from '@/features/history'
 import {
   createInMemoryStorage,
@@ -59,10 +60,11 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   /**
    * Drawableの追加を履歴に記録
    * @param drawable - 追加されたDrawable
+   * @param layerId - 対象レイヤーID
    */
   const addDrawable = useCallback(
-    async (drawable: Drawable) => {
-      const action = createDrawableAddedAction(drawable)
+    async (drawable: Drawable, layerId: LayerId) => {
+      const action = createDrawableAddedAction(drawable, layerId)
       await getStorage().push(action)
       await updateStackInfo()
     },
@@ -130,10 +132,11 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   /**
    * クリア操作を履歴に記録
    * @param previousDrawables - クリア前のDrawable配列
+   * @param layerId - 対象レイヤーID
    */
   const recordClear = useCallback(
-    async (previousDrawables: readonly Drawable[]) => {
-      const action = createDrawablesClearedAction(previousDrawables)
+    async (previousDrawables: readonly Drawable[], layerId: LayerId) => {
+      const action = createDrawablesClearedAction(previousDrawables, layerId)
       await getStorage().push(action)
       await updateStackInfo()
     },

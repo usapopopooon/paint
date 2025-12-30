@@ -5,6 +5,14 @@ import type { Layer } from '@/features/layer'
 import { renderDrawables, renderLayers } from '../adapters'
 
 /**
+ * 透明パターン（チェッカーボード）のCSSスタイル
+ */
+const TRANSPARENCY_PATTERN_STYLE = {
+  background:
+    'conic-gradient(#ccc 90deg, #fff 90deg 180deg, #ccc 180deg 270deg, #fff 270deg) 0 0 / 20px 20px',
+} as const
+
+/**
  * DrawingCanvasコンポーネントのプロパティ
  */
 type DrawingCanvasProps = {
@@ -12,7 +20,6 @@ type DrawingCanvasProps = {
   readonly layers?: readonly Layer[]
   readonly width?: number
   readonly height?: number
-  readonly backgroundColor?: string
   readonly fillContainer?: boolean
   readonly className?: string
 }
@@ -26,7 +33,6 @@ export const DrawingCanvas = ({
   layers,
   width = 800,
   height = 600,
-  backgroundColor = '#ffffff',
   fillContainer = false,
   className,
 }: DrawingCanvasProps) => {
@@ -59,7 +65,7 @@ export const DrawingCanvas = ({
       .init({
         width,
         height,
-        backgroundColor,
+        backgroundAlpha: 0,
         antialias: true,
       })
       .then(() => {
@@ -84,7 +90,7 @@ export const DrawingCanvas = ({
       appRef.current = null
       setIsInitialized(false)
     }
-  }, [width, height, backgroundColor, className])
+  }, [width, height, className])
 
   // コンテナサイズの監視（fillContainerモード）
   useEffect(() => {
@@ -124,21 +130,20 @@ export const DrawingCanvas = ({
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {
-      renderLayers(app, layers, backgroundColor)
+      renderLayers(app, layers, null)
     } else if (drawables) {
-      renderDrawables(app, drawables, backgroundColor)
+      renderDrawables(app, drawables, null)
     } else {
-      // コンテンツなし、背景色のみ
+      // コンテンツなし
       app.stage.removeChildren()
-      app.renderer.background.color = backgroundColor
     }
-  }, [drawables, layers, backgroundColor, isInitialized])
+  }, [drawables, layers, isInitialized])
 
   return (
     <div
       ref={containerRef}
       className={fillContainer ? 'w-full h-full' : undefined}
-      style={{ backgroundColor }}
+      style={TRANSPARENCY_PATTERN_STYLE}
     />
   )
 }

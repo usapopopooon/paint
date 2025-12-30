@@ -13,5 +13,9 @@
   "messages.noUndoHistory": "履歴がありません",
   "messages.noRedoHistory": "履歴がありません",
   "color.copy": "コピー",
-  "color.paste": "ペースト"
+  "color.paste": "ペースト",
+  "layers.title": "レイヤー",
+  "layers.visible": "表示",
+  "layers.hidden": "非表示",
+  "layers.layer": "レイヤー"
 }

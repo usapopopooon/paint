@@ -1,10 +1,11 @@
 import { memo, useCallback } from 'react'
-import { Eraser, Pencil } from 'lucide-react'
+import { Eraser, Eye, EyeOff, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ColorWheel } from '@/features/color'
 import type { TranslationKey } from '@/features/i18n'
+import type { Layer, LayerId } from '@/features/layer'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 import type { ToolType, PenToolConfig, EraserToolConfig } from '../types'
 
@@ -21,6 +22,10 @@ type ToolPanelProps = {
   readonly onPenWidthChange: (width: number) => void
   readonly onPenColorChange: (color: string) => void
   readonly onEraserWidthChange: (width: number) => void
+  readonly layers: readonly Layer[]
+  readonly activeLayerId: LayerId
+  readonly onLayerSelect: (id: LayerId) => void
+  readonly onLayerVisibilityChange: (id: LayerId, isVisible: boolean) => void
   readonly t: (key: TranslationKey) => string
 }
 
@@ -36,6 +41,10 @@ export const ToolPanel = memo(function ToolPanel({
   onPenWidthChange,
   onPenColorChange,
   onEraserWidthChange,
+  layers,
+  activeLayerId,
+  onLayerSelect,
+  onLayerVisibilityChange,
   t,
 }: ToolPanelProps) {
   /**
@@ -140,6 +149,49 @@ export const ToolPanel = memo(function ToolPanel({
           <span className="text-sm font-mono text-foreground w-8 text-right">
             {eraserConfig.width}
           </span>
+        </div>
+      </div>
+
+      {/* Layer panel */}
+      <div className="flex flex-col gap-2">
+        <span className="text-sm font-medium text-foreground">{t('layers.title')}</span>
+        <div className="flex flex-col gap-1">
+          {[...layers].reverse().map((layer) => (
+            <div
+              key={layer.id}
+              className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
+                activeLayerId === layer.id ? 'bg-primary/20' : 'hover:bg-muted'
+              }`}
+              onClick={() => onLayerSelect(layer.id)}
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="size-6 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onLayerVisibilityChange(layer.id, !layer.isVisible)
+                    }}
+                    aria-label={layer.isVisible ? t('layers.visible') : t('layers.hidden')}
+                  >
+                    {layer.isVisible ? (
+                      <Eye className="size-4" />
+                    ) : (
+                      <EyeOff className="size-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {layer.isVisible ? t('layers.visible') : t('layers.hidden')}
+                </TooltipContent>
+              </Tooltip>
+              <span className="text-sm text-foreground">
+                {t('layers.layer')} {layer.name.replace(/\D/g, '')}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </aside>
