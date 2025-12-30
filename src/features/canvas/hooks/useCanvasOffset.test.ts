@@ -46,6 +46,31 @@ describe('useCanvasOffset', () => {
     })
   })
 
+  describe('setPosition', () => {
+    test('オフセットを絶対位置で設定できる', () => {
+      const { result } = renderHook(() => useCanvasOffset())
+
+      act(() => {
+        result.current.setPosition(-100, -200)
+      })
+
+      expect(result.current.offset).toEqual({ x: -100, y: -200 })
+    })
+
+    test('pan後にsetPositionで上書きできる', () => {
+      const { result } = renderHook(() => useCanvasOffset())
+
+      act(() => {
+        result.current.pan(50, 50)
+      })
+      act(() => {
+        result.current.setPosition(-30, -40)
+      })
+
+      expect(result.current.offset).toEqual({ x: -30, y: -40 })
+    })
+  })
+
   describe('reset', () => {
     test('オフセットを(0, 0)にリセットできる', () => {
       const { result } = renderHook(() => useCanvasOffset())

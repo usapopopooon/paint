@@ -8,4 +8,4 @@ export { renderDrawables, renderLayers } from './adapters'
 export { useCanvas, useCanvasOffset, useCanvasSize, type CanvasOffset } from './hooks'
 
 // コンポーネント
-export { Canvas, CanvasSizeInput } from './components'
+export { Canvas, CanvasSizeInput, CanvasViewport } from './components'

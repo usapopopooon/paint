@@ -3,6 +3,7 @@ import { ThemeToggle } from './components/ui/ThemeToggle'
 import {
   Canvas,
   CanvasSizeInput,
+  CanvasViewport,
   useCanvas,
   useCanvasSize,
   useCanvasOffset,
@@ -113,20 +114,27 @@ function App() {
         </ToolPanel>
 
         {/* Canvas area */}
-        <main className="flex-1 overflow-hidden bg-muted/30 flex items-center justify-center p-4">
-          <Canvas
-            layers={canvas.layers}
-            onStartStroke={handleStartStroke}
-            onAddPoint={canvas.addPoint}
-            onEndStroke={canvas.endStroke}
-            onWheel={tool.adjustBrushSize}
-            cursor={tool.cursor}
-            width={canvasSize.width}
-            height={canvasSize.height}
-            toolType={tool.currentType}
+        <main className="flex-1 overflow-hidden bg-muted/30">
+          <CanvasViewport
+            canvasWidth={canvasSize.width}
+            canvasHeight={canvasSize.height}
             offset={canvasOffset.offset}
-            onPan={canvasOffset.pan}
-          />
+            onOffsetChange={canvasOffset.setPosition}
+          >
+            <Canvas
+              layers={canvas.layers}
+              onStartStroke={handleStartStroke}
+              onAddPoint={canvas.addPoint}
+              onEndStroke={canvas.endStroke}
+              onWheel={tool.adjustBrushSize}
+              cursor={tool.cursor}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              toolType={tool.currentType}
+              offset={canvasOffset.offset}
+              onPan={canvasOffset.pan}
+            />
+          </CanvasViewport>
         </main>
       </div>
     </div>

@@ -24,6 +24,15 @@ export const useCanvasOffset = () => {
   }, [])
 
   /**
+   * オフセットを絶対位置で設定
+   * @param x - X座標
+   * @param y - Y座標
+   */
+  const setPosition = useCallback((x: number, y: number) => {
+    setOffset({ x, y })
+  }, [])
+
+  /**
    * オフセットをリセット
    */
   const reset = useCallback(() => {
@@ -33,6 +42,7 @@ export const useCanvasOffset = () => {
   return {
     offset,
     pan,
+    setPosition,
     reset,
   } as const
 }
