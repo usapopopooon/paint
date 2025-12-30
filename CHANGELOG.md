@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.11] - 2025-12-30
+
+### Features
+
+- **レイヤー対応** (#46)
+  - 3レイヤー固定構成とレイヤーパネルUIを追加
+  - Undo/Redoをレイヤー横断の統合履歴に変更
+
+### Refactor
+
+- **ToolbarとToolPanelをchildren構成にリファクタ** (#48)
+  - Toolbarをchildren構成に変更し、UndoButton, RedoButton, ClearButton, ToolbarDividerを分離
+  - ToolPanelをchildren構成に変更し、PenTool, EraserTool, LayerPanelを分離
+  - 各コンポーネントにStorybookファイルを追加
+
 ## [0.0.10] - 2025-12-30
 
 ### Features
