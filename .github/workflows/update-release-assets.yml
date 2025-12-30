@@ -1,9 +1,7 @@
 name: Update Release Assets
 
 on:
-  workflow_run:
-    workflows: ['CI']
-    types: [completed]
+  push:
     branches:
       - 'release/**'
 
@@ -11,11 +9,38 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    # [skip ci]コミットでは実行しない
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Spell check
+        run: npm run spell:check
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        env:
+          HOME: /root
+
   update-assets:
-    # CIが成功した場合のみ実行、[skip ci]コミットでは実行しない
-    if: |
-      github.event.workflow_run.conclusion == 'success' &&
-      !contains(github.event.workflow_run.head_commit.message, '[skip ci]')
+    needs: test
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -23,7 +48,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure git safe directory
@@ -47,8 +71,7 @@ jobs:
         id: version
         run: |
           # release/v0.0.13 -> 0.0.13
-          BRANCH="${{ github.event.workflow_run.head_branch }}"
-          VERSION="${BRANCH#release/v}"
+          VERSION="${GITHUB_REF_NAME#release/v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Update package.json and README
@@ -72,7 +95,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Update version to $VERSION and screenshot timestamp [skip ci]"
 
           # Pull latest changes before push to avoid conflicts
-          git pull --rebase origin ${{ github.event.workflow_run.head_branch }} || true
+          git pull --rebase origin $GITHUB_REF_NAME || true
           git push
 
       - name: Upload screenshot artifact
