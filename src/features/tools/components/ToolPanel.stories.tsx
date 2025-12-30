@@ -91,11 +91,7 @@ export const Layer2Active: Story = {
 
 export const LayerHidden: Story = {
   args: {
-    layers: [
-      { ...sampleLayers[0]!, isVisible: false },
-      sampleLayers[1]!,
-      sampleLayers[2]!,
-    ],
+    layers: [{ ...sampleLayers[0]!, isVisible: false }, sampleLayers[1]!, sampleLayers[2]!],
   },
 }
 

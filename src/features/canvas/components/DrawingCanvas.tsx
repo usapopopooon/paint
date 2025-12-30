@@ -8,7 +8,8 @@ import { renderDrawables, renderLayers } from '../adapters'
  * 透明パターン（チェッカーボード）のCSSスタイル
  */
 const TRANSPARENCY_PATTERN_STYLE = {
-  background: 'conic-gradient(#ccc 90deg, #fff 90deg 180deg, #ccc 180deg 270deg, #fff 270deg) 0 0 / 20px 20px',
+  background:
+    'conic-gradient(#ccc 90deg, #fff 90deg 180deg, #ccc 180deg 270deg, #fff 270deg) 0 0 / 20px 20px',
 } as const
 
 /**

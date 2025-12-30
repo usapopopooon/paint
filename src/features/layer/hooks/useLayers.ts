@@ -8,9 +8,13 @@ export type UseLayersReturn = {
   readonly activeLayer: Layer
   readonly activeLayerId: LayerId
   readonly addDrawable: (drawable: Drawable) => void
+  readonly addDrawableToLayer: (drawable: Drawable, layerId: LayerId) => void
   readonly removeLastDrawable: () => void
+  readonly removeLastDrawableFromLayer: (layerId: LayerId) => void
   readonly setDrawables: (drawables: readonly Drawable[]) => void
+  readonly setDrawablesToLayer: (drawables: readonly Drawable[], layerId: LayerId) => void
   readonly clearActiveLayer: () => void
+  readonly clearLayer: (layerId: LayerId) => void
   readonly setActiveLayer: (id: LayerId) => void
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
@@ -47,6 +51,20 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
+  /**
+   * 指定レイヤーにDrawableを追加
+   * @param drawable - 追加するDrawable
+   * @param layerId - 対象レイヤーID
+   */
+  const addDrawableToLayer = useCallback((drawable: Drawable, layerId: LayerId) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) =>
+        layer.id === layerId ? { ...layer, drawables: [...layer.drawables, drawable] } : layer
+      ),
+    }))
+  }, [])
+
   /** アクティブレイヤーから最後のDrawableを削除 */
   const removeLastDrawable = useCallback(() => {
     setState((prev) => ({
@@ -55,6 +73,19 @@ export const useLayers = (): UseLayersReturn => {
         layer.id === prev.activeLayerId
           ? { ...layer, drawables: layer.drawables.slice(0, -1) }
           : layer
+      ),
+    }))
+  }, [])
+
+  /**
+   * 指定レイヤーから最後のDrawableを削除
+   * @param layerId - 対象レイヤーID
+   */
+  const removeLastDrawableFromLayer = useCallback((layerId: LayerId) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) =>
+        layer.id === layerId ? { ...layer, drawables: layer.drawables.slice(0, -1) } : layer
       ),
     }))
   }, [])
@@ -72,12 +103,37 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
+  /**
+   * 指定レイヤーのDrawablesを設定
+   * @param drawables - 設定するDrawable配列
+   * @param layerId - 対象レイヤーID
+   */
+  const setDrawablesToLayer = useCallback((drawables: readonly Drawable[], layerId: LayerId) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) => (layer.id === layerId ? { ...layer, drawables } : layer)),
+    }))
+  }, [])
+
   /** アクティブレイヤーをクリア */
   const clearActiveLayer = useCallback(() => {
     setState((prev) => ({
       ...prev,
       layers: prev.layers.map((layer) =>
         layer.id === prev.activeLayerId ? { ...layer, drawables: [] } : layer
+      ),
+    }))
+  }, [])
+
+  /**
+   * 指定レイヤーをクリア
+   * @param layerId - 対象レイヤーID
+   */
+  const clearLayer = useCallback((layerId: LayerId) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) =>
+        layer.id === layerId ? { ...layer, drawables: [] } : layer
       ),
     }))
   }, [])
@@ -121,9 +177,13 @@ export const useLayers = (): UseLayersReturn => {
     activeLayer,
     activeLayerId: state.activeLayerId,
     addDrawable,
+    addDrawableToLayer,
     removeLastDrawable,
+    removeLastDrawableFromLayer,
     setDrawables,
+    setDrawablesToLayer,
     clearActiveLayer,
+    clearLayer,
     setActiveLayer,
     setLayerOpacity,
     setLayerVisibility,

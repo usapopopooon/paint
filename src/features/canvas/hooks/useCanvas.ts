@@ -26,7 +26,7 @@ export const useCanvas = () => {
   const handleDrawableComplete = useCallback(
     (drawable: Drawable) => {
       layerManager.addDrawable(drawable)
-      history.addDrawable(drawable)
+      history.addDrawable(drawable, layerManager.activeLayerId)
     },
     [layerManager, history]
   )
@@ -69,11 +69,20 @@ export const useCanvas = () => {
   const undo = useCallback(async () => {
     const action = await history.peekUndo()
     if (action) {
+      const targetLayerId = action.layerId
       if (action.type === 'drawable:added') {
-        layerManager.removeLastDrawable()
+        if (targetLayerId) {
+          layerManager.removeLastDrawableFromLayer(targetLayerId)
+        } else {
+          layerManager.removeLastDrawable()
+        }
       } else if (action.type === 'drawables:cleared') {
         // クリア前の状態を復元
-        layerManager.setDrawables(action.previousDrawables)
+        if (targetLayerId) {
+          layerManager.setDrawablesToLayer(action.previousDrawables, targetLayerId)
+        } else {
+          layerManager.setDrawables(action.previousDrawables)
+        }
       }
       await history.undo()
     }
@@ -83,11 +92,20 @@ export const useCanvas = () => {
   const redo = useCallback(async () => {
     const action = await history.peekRedo()
     if (action) {
+      const targetLayerId = action.layerId
       if (action.type === 'drawable:added') {
-        layerManager.addDrawable(action.drawable)
+        if (targetLayerId) {
+          layerManager.addDrawableToLayer(action.drawable, targetLayerId)
+        } else {
+          layerManager.addDrawable(action.drawable)
+        }
       } else if (action.type === 'drawables:cleared') {
         // クリア操作を再実行
-        layerManager.clearActiveLayer()
+        if (targetLayerId) {
+          layerManager.clearLayer(targetLayerId)
+        } else {
+          layerManager.clearActiveLayer()
+        }
       }
       await history.redo()
     }
@@ -96,8 +114,9 @@ export const useCanvas = () => {
   /** Clear: レイヤーをクリア + 履歴に記録 */
   const clear = useCallback(() => {
     const previousDrawables = layerManager.activeLayer.drawables
+    const targetLayerId = layerManager.activeLayerId
     layerManager.clearActiveLayer()
-    history.recordClear(previousDrawables)
+    history.recordClear(previousDrawables, targetLayerId)
   }, [layerManager, history])
 
   return {
