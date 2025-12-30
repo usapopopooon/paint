@@ -23,5 +23,4 @@ describe('isEraserStroke', () => {
 
     expect(isEraserStroke(drawable)).toBe(false)
   })
-
 })
