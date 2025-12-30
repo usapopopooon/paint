@@ -43,16 +43,21 @@ jobs:
         env:
           HOME: /root
 
-      - name: Get version from package.json
+      - name: Get version from branch name
         id: version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          # release/v0.0.13 -> 0.0.13
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
+          VERSION="${BRANCH#release/v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Update README version badge and screenshot timestamp
+      - name: Update package.json and README
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TIMESTAMP=$(date +%s)
+
+          # Update package.json version
+          node -e "const pkg = require('./package.json'); pkg.version = '$VERSION'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')"
 
           # Update version badge
           sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" README.md
@@ -63,8 +68,8 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          git diff --staged --quiet || git commit -m "Update version badge and screenshot timestamp [skip ci]"
+          git add package.json README.md
+          git diff --staged --quiet || git commit -m "Update version to $VERSION and screenshot timestamp [skip ci]"
 
           # Pull latest changes before push to avoid conflicts
           git pull --rebase origin ${{ github.event.workflow_run.head_branch }} || true
