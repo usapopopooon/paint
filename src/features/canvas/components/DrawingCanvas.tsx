@@ -52,7 +52,7 @@ export const DrawingCanvas = ({
     return { width, height }
   }, [fillContainer, containerSize, width, height])
 
-  // PixiJS Applicationの初期化
+  // PixiJS Applicationの初期化（一度だけ実行）
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -63,19 +63,17 @@ export const DrawingCanvas = ({
 
     app
       .init({
-        width,
-        height,
+        width: size.width,
+        height: size.height,
         backgroundAlpha: 0,
         antialias: true,
+        preserveDrawingBuffer: true, // スポイトツールでピクセルを読み取るために必要
       })
       .then(() => {
         // クリーンアップが先に呼ばれた場合は何もしない
         if (isCancelled) {
           app.destroy(true, { children: true })
           return
-        }
-        if (className) {
-          app.canvas.className = className
         }
         container.appendChild(app.canvas)
         setIsInitialized(true)
@@ -90,7 +88,18 @@ export const DrawingCanvas = ({
       appRef.current = null
       setIsInitialized(false)
     }
-  }, [width, height, className])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 初期化は一度だけ
+
+  // classNameの適用
+  useEffect(() => {
+    const app = appRef.current
+    if (!app || !isInitialized) return
+
+    if (className) {
+      app.canvas.className = className
+    }
+  }, [className, isInitialized])
 
   // コンテナサイズの監視（fillContainerモード）
   useEffect(() => {
@@ -118,7 +127,7 @@ export const DrawingCanvas = ({
   // サイズ変更時のリサイズ
   useEffect(() => {
     const app = appRef.current
-    if (!app || !isInitialized) return
+    if (!app || !isInitialized || !app.renderer) return
 
     app.renderer.resize(size.width, size.height)
   }, [size.width, size.height, isInitialized])
@@ -126,7 +135,7 @@ export const DrawingCanvas = ({
   // 描画要素のレンダリング
   useEffect(() => {
     const app = appRef.current
-    if (!app || !isInitialized) return
+    if (!app || !isInitialized || !app.renderer) return
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {

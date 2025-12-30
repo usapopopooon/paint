@@ -10,7 +10,7 @@ type ToolPanelProps = {
  */
 export const ToolPanel = memo(function ToolPanel({ children }: ToolPanelProps) {
   return (
-    <aside className="w-[232px] p-4 border-r border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background flex flex-col gap-6">
+    <aside className="w-[232px] p-4 border-r border-zinc-200 dark:border-zinc-700 bg-panel text-zinc-800 dark:text-zinc-100 flex flex-col gap-6">
       {children}
     </aside>
   )

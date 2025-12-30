@@ -1,28 +1,18 @@
 import { memo } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { Locale } from '../types'
-import type { TranslateFunction } from '../infrastructure'
-
-/**
- * LocaleToggleコンポーネントのプロパティ
- */
-type LocaleToggleProps = {
-  readonly locale: Locale
-  readonly onToggle: () => void
-  readonly t: TranslateFunction
-}
+import { useLocale } from '../hooks'
 
 /**
  * 言語切り替えトグルコンポーネント
- * @param props - LocaleToggleコンポーネントのプロパティ
  */
-export const LocaleToggle = memo(function LocaleToggle({ locale, onToggle, t }: LocaleToggleProps) {
+export const LocaleToggle = memo(function LocaleToggle() {
+  const { locale, toggleLocale, t } = useLocale()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          onClick={onToggle}
+          onClick={toggleLocale}
           className="flex items-center text-xs rounded-full border border-border overflow-hidden cursor-pointer"
           role="switch"
           aria-checked={locale === 'ja'}
@@ -31,8 +21,8 @@ export const LocaleToggle = memo(function LocaleToggle({ locale, onToggle, t }: 
           <span
             className={`w-12 text-center py-1 transition-colors ${
               locale === 'ja'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-transparent text-muted-foreground'
+                ? 'bg-control text-control-foreground dark:text-control-foreground'
+                : 'bg-transparent text-muted-foreground dark:text-white'
             }`}
           >
             日本語
@@ -40,8 +30,8 @@ export const LocaleToggle = memo(function LocaleToggle({ locale, onToggle, t }: 
           <span
             className={`w-12 text-center py-1 transition-colors ${
               locale === 'en'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-transparent text-muted-foreground'
+                ? 'bg-control text-control-foreground dark:text-control-foreground'
+                : 'bg-transparent text-muted-foreground dark:text-white'
             }`}
           >
             English

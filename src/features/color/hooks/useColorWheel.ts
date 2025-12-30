@@ -218,6 +218,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     setHsv(hexToHsv(hex))
   }, [])
 
+  // 外部からのcolor propの変更を検知してhsvを更新
+  useEffect(() => {
+    setHsv(hexToHsv(color))
+  }, [color])
+
   // インジケーター位置を計算
   const hueAngle = hsv.h - HUE_ANGLE_OFFSET
   const ringMiddle = WHEEL_SIZE / 2 - RING_WIDTH / 2

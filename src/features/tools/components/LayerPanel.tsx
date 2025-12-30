@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 import type { Layer, LayerId } from '@/features/layer'
 
 type LayerPanelProps = {
@@ -10,7 +10,6 @@ type LayerPanelProps = {
   readonly activeLayerId: LayerId
   readonly onLayerSelect: (id: LayerId) => void
   readonly onLayerVisibilityChange: (id: LayerId, isVisible: boolean) => void
-  readonly t: (key: TranslationKey) => string
 }
 
 export const LayerPanel = memo(function LayerPanel({
@@ -18,8 +17,8 @@ export const LayerPanel = memo(function LayerPanel({
   activeLayerId,
   onLayerSelect,
   onLayerVisibilityChange,
-  t,
 }: LayerPanelProps) {
+  const { t } = useLocale()
   return (
     <div className="flex flex-col gap-2">
       <span className="text-sm font-medium text-foreground">{t('layers.title')}</span>
@@ -28,7 +27,7 @@ export const LayerPanel = memo(function LayerPanel({
           <div
             key={layer.id}
             className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
-              activeLayerId === layer.id ? 'bg-primary/20' : 'hover:bg-muted'
+              activeLayerId === layer.id ? 'bg-control text-control-foreground' : 'hover:bg-muted'
             }`}
             onClick={() => onLayerSelect(layer.id)}
           >
@@ -55,7 +54,7 @@ export const LayerPanel = memo(function LayerPanel({
                 {layer.isVisible ? t('layers.visible') : t('layers.hidden')}
               </TooltipContent>
             </Tooltip>
-            <span className="text-sm text-foreground">
+            <span className="text-sm">
               {t('layers.layer')} {layer.name.replace(/\D/g, '')}
             </span>
           </div>

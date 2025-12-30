@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react'
 import type { Layer, LayerState, LayerId } from '../types'
 import { createInitialLayerState } from '../domain'
 import type { Drawable } from '@/features/drawable'
+import { translateDrawables } from '@/features/drawable'
 
 export type UseLayersReturn = {
   readonly layers: readonly Layer[]
@@ -18,6 +19,7 @@ export type UseLayersReturn = {
   readonly setActiveLayer: (id: LayerId) => void
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
+  readonly translateAllLayers: (offsetX: number, offsetY: number) => void
 }
 
 /**
@@ -172,6 +174,22 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
+  /**
+   * 全レイヤーの描画要素を座標移動
+   * @param offsetX - X方向のオフセット
+   * @param offsetY - Y方向のオフセット
+   */
+  const translateAllLayers = useCallback((offsetX: number, offsetY: number) => {
+    if (offsetX === 0 && offsetY === 0) return
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) => ({
+        ...layer,
+        drawables: translateDrawables(layer.drawables, offsetX, offsetY),
+      })),
+    }))
+  }, [])
+
   return {
     layers: state.layers,
     activeLayer,
@@ -187,5 +205,6 @@ export const useLayers = (): UseLayersReturn => {
     setActiveLayer,
     setLayerOpacity,
     setLayerVisibility,
+    translateAllLayers,
   }
 }

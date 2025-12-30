@@ -133,5 +133,6 @@ export const useCanvas = () => {
     clear,
     setActiveLayer: layerManager.setActiveLayer,
     setLayerVisibility: layerManager.setLayerVisibility,
+    translateAllLayers: layerManager.translateAllLayers,
   } as const
 }

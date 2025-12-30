@@ -5,6 +5,7 @@ import { themes } from 'storybook/theming'
 import { useDarkMode } from '@vueless/storybook-dark-mode'
 import '../src/index.css'
 import { LocaleProvider } from '../src/features/i18n'
+import { ThemeProvider } from '../src/features/theme'
 
 const ThemedDocsContainer: React.FC<React.ComponentProps<typeof DocsContainer>> = (props) => {
   const isDark = useDarkMode()
@@ -31,9 +32,11 @@ const preview: Preview = {
   decorators: [
     (Story) => {
       return (
-        <LocaleProvider defaultLocale="en">
-          <Story />
-        </LocaleProvider>
+        <ThemeProvider>
+          <LocaleProvider defaultLocale="en">
+            <Story />
+          </LocaleProvider>
+        </ThemeProvider>
       )
     },
   ],

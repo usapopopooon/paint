@@ -1,22 +1,25 @@
 import { memo } from 'react'
+import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 
 type ClearButtonProps = {
   readonly onClick: () => void
-  readonly t: (key: TranslationKey) => string
 }
 
-export const ClearButton = memo(function ClearButton({ onClick, t }: ClearButtonProps) {
+export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonProps) {
+  const { t } = useLocale()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="outline" size="sm" onClick={onClick} className="w-16 text-foreground">
-          {t('actions.clear')}
+        <Button variant="secondary" size="icon" onClick={onClick} aria-label={t('actions.clear')}>
+          <Trash2 className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>{t('shortcuts.clear')}</TooltipContent>
+      <TooltipContent>
+        {t('actions.clear')} ({t('shortcuts.clear')})
+      </TooltipContent>
     </Tooltip>
   )
 })

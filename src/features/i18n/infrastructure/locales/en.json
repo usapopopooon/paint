@@ -1,6 +1,8 @@
 {
   "tools.pen": "Pen",
   "tools.eraser": "Eraser",
+  "tools.hand": "Hand",
+  "tools.eyedropper": "Eyedropper",
   "actions.undo": "Undo",
   "actions.redo": "Redo",
   "actions.clear": "Clear",
@@ -10,6 +12,8 @@
   "shortcuts.undo": "Ctrl+Z",
   "shortcuts.redo": "Ctrl+Shift+Z",
   "shortcuts.clear": "Shift+Delete",
+  "shortcuts.hand": "H",
+  "shortcuts.eyedropper": "I",
   "messages.noUndoHistory": "No undo history",
   "messages.noRedoHistory": "No redo history",
   "color.copy": "Copy",
@@ -17,5 +21,8 @@
   "layers.title": "Layers",
   "layers.visible": "Visible",
   "layers.hidden": "Hidden",
-  "layers.layer": "Layer"
+  "layers.layer": "Layer",
+  "canvas.width": "Width",
+  "canvas.height": "Height",
+  "canvas.center": "Center canvas"
 }

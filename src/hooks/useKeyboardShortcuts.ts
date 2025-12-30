@@ -9,6 +9,8 @@ export type KeyboardShortcutsHandlers = {
   readonly onClear: () => void
   readonly onSelectPen: () => void
   readonly onSelectEraser: () => void
+  readonly onSelectHand: () => void
+  readonly onSelectEyedropper: () => void
 }
 
 /**
@@ -18,6 +20,8 @@ export type KeyboardShortcutsHandlers = {
  * - Shift+Delete: クリア
  * - P: ペンツール選択
  * - E: 消しゴムツール選択
+ * - H: ハンドツール選択
+ * - I: スポイトツール選択
  * @param handlers - ショートカットに対応するコールバック関数
  */
 export const useKeyboardShortcuts = ({
@@ -26,6 +30,8 @@ export const useKeyboardShortcuts = ({
   onClear,
   onSelectPen,
   onSelectEraser,
+  onSelectHand,
+  onSelectEyedropper,
 }: KeyboardShortcutsHandlers) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,10 +66,20 @@ export const useKeyboardShortcuts = ({
           onSelectEraser()
           return
         }
+        if (e.key === 'h' || e.key === 'H') {
+          e.preventDefault()
+          onSelectHand()
+          return
+        }
+        if (e.key === 'i' || e.key === 'I') {
+          e.preventDefault()
+          onSelectEyedropper()
+          return
+        }
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [onUndo, onRedo, onClear, onSelectPen, onSelectEraser])
+  }, [onUndo, onRedo, onClear, onSelectPen, onSelectEraser, onSelectHand, onSelectEyedropper])
 }

@@ -2,11 +2,11 @@
 
 > 🚧 **WIP** - このプロジェクトは開発中です。
 
-[![version](https://img.shields.io/badge/version-0.0.13-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.13) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
+[![version](https://img.shields.io/badge/version-0.0.14-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.14) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
 ReactとPixiJSで構築したお絵かきアプリ。
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot.png?t=1767093786)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot.png?t=1767110600)
 
 ## 機能
 
@@ -94,22 +94,6 @@ src/
 ├── lib/                 # 共有ユーティリティ（色変換、ストレージ等）
 └── test/                # テストユーティリティ・モック
 ```
-
-### 機能一覧
-
-| 機能         | 説明                                |
-| ------------ | ----------------------------------- |
-| **brush**    | ブラシ設定（BrushTip, StrokeStyle） |
-| **canvas**   | キャンバス描画・履歴管理            |
-| **color**    | HSVカラーホイール                   |
-| **drawable** | 描画要素（Stroke等）とレンダラー    |
-| **history**  | Undo/Redo履歴管理                   |
-| **i18n**     | 多言語対応（英語/日本語）           |
-| **layer**    | レイヤー管理                        |
-| **pointer**  | ポインター入力・カーソル表示        |
-| **theme**    | ダーク/ライトモード                 |
-| **toolbar**  | ツールバーUI                        |
-| **tools**    | ペン・消しゴムツール                |
 
 ## 開発
 
