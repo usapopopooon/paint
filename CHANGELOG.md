@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.17] - 2025-12-31
+
+### Fixes
+
+- スクリーンショット404エラーを修正
+  - deploy.ymlがREADMEからタイムスタンプを読み取って同じファイル名でスクリーンショットを生成
+  - update-release-assets.ymlをprepare-release.ymlにリネーム・簡素化
+
+### Refactor
+
+- READMEから機能一覧セクションを削除
+
 ## [0.0.16] - 2025-12-31
 
 ### Developer Experience
