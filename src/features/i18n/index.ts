@@ -1,6 +1,8 @@
 // 型
 export type { Locale } from './types'
-export { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from './types'
+
+// 定数
+export { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from './constants'
 
 // 翻訳（infrastructure）
 export type { TranslationKey, TranslateFunction } from './infrastructure'

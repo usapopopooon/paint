@@ -2,6 +2,7 @@ import { createSolidBrushTip } from '@/features/brush'
 import type { Point, StrokeDrawable } from '@/features/drawable'
 import { createStrokeDrawable } from '@/features/drawable'
 import type { PenToolConfig, CursorConfig } from '../../types'
+import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR } from '../../constants'
 
 /**
  * ペンツールのビヘイビア定義
@@ -15,8 +16,8 @@ export const penBehavior = {
    */
   defaultConfig: (): PenToolConfig => ({
     type: 'pen',
-    width: 3,
-    color: '#000000',
+    width: DEFAULT_PEN_WIDTH,
+    color: DEFAULT_PEN_COLOR,
   }),
 
   /**

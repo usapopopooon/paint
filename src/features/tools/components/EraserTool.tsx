@@ -5,9 +5,7 @@ import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
-
-const MIN_ERASER_WIDTH = 5
-const MAX_ERASER_WIDTH = 300
+import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../constants'
 
 type EraserToolProps = {
   readonly isActive: boolean
