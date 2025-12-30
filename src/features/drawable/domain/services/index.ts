@@ -1,1 +1,1 @@
-export { translateDrawable, translateDrawables } from './translateDrawable'
+export * from './translateDrawable'

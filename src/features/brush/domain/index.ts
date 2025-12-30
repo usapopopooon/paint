@@ -1,1 +1,1 @@
-export { createSolidBrushTip, createSoftBrushTip } from './entities'
+export * from './entities'

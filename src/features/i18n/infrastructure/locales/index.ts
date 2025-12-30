@@ -1,6 +1,1 @@
-export {
-  translations,
-  getTranslation,
-  type TranslationKey,
-  type TranslateFunction,
-} from './getTranslation'
+export * from './getTranslation'

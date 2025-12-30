@@ -1,1 +1,1 @@
-export { useTool } from './useTool'
+export * from './useTool'

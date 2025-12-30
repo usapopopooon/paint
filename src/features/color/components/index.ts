@@ -1,1 +1,1 @@
-export { ColorWheel } from './ColorWheel'
+export * from './ColorWheel'

@@ -1,1 +1,1 @@
-export type { LayerRenderer, LayerRendererFactory } from './LayerRenderer'
+export * from './LayerRenderer'

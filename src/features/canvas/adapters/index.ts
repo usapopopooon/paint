@@ -1,1 +1,1 @@
-export { renderDrawables, renderLayers } from './canvas'
+export * from './canvas'

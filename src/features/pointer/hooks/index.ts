@@ -1,1 +1,1 @@
-export { usePointerInput } from './usePointerInput'
+export * from './usePointerInput'

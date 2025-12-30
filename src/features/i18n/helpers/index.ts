@@ -1,1 +1,1 @@
-export { getInitialLocale } from './getInitialLocale'
+export * from './getInitialLocale'

@@ -1,2 +1,2 @@
-export { isStrokeDrawable } from './isStrokeDrawable'
-export { isEraserStroke } from './isEraserStroke'
+export * from './isStrokeDrawable'
+export * from './isEraserStroke'

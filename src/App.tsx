@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import {
   Canvas,
@@ -28,8 +28,35 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
  * ペイントアプリケーションのメインコンポーネント
  */
 function App() {
-  const canvas = useCanvas()
-  const canvasSize = useCanvasSize(canvas.translateAllLayers)
+  // canvasSizeのsetSizeDirectlyをrefで保持（循環依存を避けるため）
+  const setSizeDirectlyRef = useRef<(width: number, height: number) => void>(() => {})
+
+  // キャンバスリサイズundo/redo時のコールバック
+  const handleCanvasResize = useCallback((width: number, height: number) => {
+    setSizeDirectlyRef.current(width, height)
+  }, [])
+
+  const canvasOptions = useMemo(
+    () => ({ onCanvasResize: handleCanvasResize }),
+    [handleCanvasResize]
+  )
+  const canvas = useCanvas(canvasOptions)
+
+  // キャンバスサイズのオプション
+  const canvasSizeOptions = useMemo(
+    () => ({
+      onSizeChange: canvas.translateAllLayers,
+      onSizeChangeForHistory: canvas.recordCanvasResize,
+    }),
+    [canvas.translateAllLayers, canvas.recordCanvasResize]
+  )
+  const canvasSize = useCanvasSize(canvasSizeOptions)
+
+  // refを更新
+  useEffect(() => {
+    setSizeDirectlyRef.current = canvasSize.setSizeDirectly
+  }, [canvasSize.setSizeDirectly])
+
   const canvasOffset = useCanvasOffset()
   const tool = useTool()
 

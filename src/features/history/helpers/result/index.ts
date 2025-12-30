@@ -1,2 +1,2 @@
-export { success } from './success'
-export { failure } from './failure'
+export * from './success'
+export * from './failure'

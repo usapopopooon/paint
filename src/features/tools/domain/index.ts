@@ -1,2 +1,2 @@
-export { penBehavior, eraserBehavior } from './entities'
-export { getToolBehavior, type ToolBehavior } from './services'
+export * from './entities'
+export * from './services'

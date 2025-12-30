@@ -1,1 +1,1 @@
-export { createInitialToolState, type ToolState } from './createInitialToolState'
+export * from './createInitialToolState'

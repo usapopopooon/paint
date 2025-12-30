@@ -24,11 +24,37 @@ export type CanvasSize = {
 export type OnSizeChangeCallback = (offsetX: number, offsetY: number) => void
 
 /**
+ * サイズ変更時の履歴記録用コールバック
+ */
+export type OnSizeChangeForHistoryCallback = (
+  previousWidth: number,
+  previousHeight: number,
+  newWidth: number,
+  newHeight: number,
+  offsetX: number,
+  offsetY: number
+) => void
+
+/**
+ * useCanvasSizeフックのオプション
+ */
+export type UseCanvasSizeOptions = {
+  /** サイズ変更時のコールバック（描画要素の移動用） */
+  readonly onSizeChange?: OnSizeChangeCallback
+  /** サイズ変更時の履歴記録用コールバック */
+  readonly onSizeChangeForHistory?: OnSizeChangeForHistoryCallback
+}
+
+/**
  * キャンバスサイズを管理するhook
- * @param onSizeChange - サイズ変更時のコールバック（中央基準のオフセットを受け取る）
+ * @param options - オプション（コールバック関数群）
  * @returns キャンバスサイズの状態と更新関数
  */
-export const useCanvasSize = (onSizeChange?: OnSizeChangeCallback) => {
+export const useCanvasSize = (options?: UseCanvasSizeOptions | OnSizeChangeCallback) => {
+  // 後方互換性のため、関数が直接渡された場合はonSizeChangeとして扱う
+  const normalizedOptions: UseCanvasSizeOptions =
+    typeof options === 'function' ? { onSizeChange: options } : (options ?? {})
+  const { onSizeChange, onSizeChangeForHistory } = normalizedOptions
   const [size, setSize] = useState<CanvasSize>({
     width: DEFAULT_CANVAS_WIDTH,
     height: DEFAULT_CANVAS_HEIGHT,
@@ -47,15 +73,23 @@ export const useCanvasSize = (onSizeChange?: OnSizeChangeCallback) => {
   const setWidth = useCallback(
     (width: number) => {
       const clampedWidth = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, width))
-      const currentWidth = sizeRef.current.width
-      if (clampedWidth !== currentWidth) {
+      const currentSize = sizeRef.current
+      if (clampedWidth !== currentSize.width) {
         // 中央を起点としたオフセットを計算
-        const offsetX = (clampedWidth - currentWidth) / 2
+        const offsetX = (clampedWidth - currentSize.width) / 2
         onSizeChange?.(offsetX, 0)
+        onSizeChangeForHistory?.(
+          currentSize.width,
+          currentSize.height,
+          clampedWidth,
+          currentSize.height,
+          offsetX,
+          0
+        )
       }
       setSize((prev) => ({ ...prev, width: clampedWidth }))
     },
-    [onSizeChange]
+    [onSizeChange, onSizeChangeForHistory]
   )
 
   /**
@@ -65,21 +99,41 @@ export const useCanvasSize = (onSizeChange?: OnSizeChangeCallback) => {
   const setHeight = useCallback(
     (height: number) => {
       const clampedHeight = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, height))
-      const currentHeight = sizeRef.current.height
-      if (clampedHeight !== currentHeight) {
+      const currentSize = sizeRef.current
+      if (clampedHeight !== currentSize.height) {
         // 中央を起点としたオフセットを計算
-        const offsetY = (clampedHeight - currentHeight) / 2
+        const offsetY = (clampedHeight - currentSize.height) / 2
         onSizeChange?.(0, offsetY)
+        onSizeChangeForHistory?.(
+          currentSize.width,
+          currentSize.height,
+          currentSize.width,
+          clampedHeight,
+          0,
+          offsetY
+        )
       }
       setSize((prev) => ({ ...prev, height: clampedHeight }))
     },
-    [onSizeChange]
+    [onSizeChange, onSizeChangeForHistory]
   )
+
+  /**
+   * サイズを直接設定（履歴復元用、コールバックを呼ばない）
+   * @param width - 新しい幅
+   * @param height - 新しい高さ
+   */
+  const setSizeDirectly = useCallback((width: number, height: number) => {
+    const clampedWidth = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, width))
+    const clampedHeight = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, height))
+    setSize({ width: clampedWidth, height: clampedHeight })
+  }, [])
 
   return {
     width: size.width,
     height: size.height,
     setWidth,
     setHeight,
+    setSizeDirectly,
   } as const
 }

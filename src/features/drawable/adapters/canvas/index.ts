@@ -1,2 +1,2 @@
-export { renderDrawable } from './renderDrawable'
-export { renderStroke } from './renderStroke'
+export * from './renderDrawable'
+export * from './renderStroke'

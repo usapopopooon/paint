@@ -1,3 +1,4 @@
-export { isDrawableAction } from './isDrawableAction'
-export { isLayerAction } from './isLayerAction'
-export { isBatchAction } from './isBatchAction'
+export * from './isDrawableAction'
+export * from './isLayerAction'
+export * from './isCanvasAction'
+export * from './isBatchAction'
