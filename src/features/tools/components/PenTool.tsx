@@ -5,9 +5,7 @@ import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
-
-const MIN_PEN_WIDTH = 1
-const MAX_PEN_WIDTH = 300
+import { MIN_PEN_WIDTH, MAX_PEN_WIDTH } from '../constants'
 
 type PenToolProps = {
   readonly isActive: boolean

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
-import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../types'
+import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../constants'
 import { getToolBehavior } from '../domain'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { createInitialToolState, type ToolState } from '../helpers'

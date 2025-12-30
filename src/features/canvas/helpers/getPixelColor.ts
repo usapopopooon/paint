@@ -6,11 +6,7 @@
  * @param y - Y座標
  * @returns 色の16進数文字列 (#RRGGBB形式)、取得できない場合はnull
  */
-export const getPixelColor = (
-  canvas: HTMLCanvasElement,
-  x: number,
-  y: number
-): string | null => {
+export const getPixelColor = (canvas: HTMLCanvasElement, x: number, y: number): string | null => {
   const floorX = Math.floor(x)
   const floorY = Math.floor(y)
 
@@ -19,15 +15,7 @@ export const getPixelColor = (
   if (gl) {
     const pixel = new Uint8Array(4)
     // WebGLはY軸が反転しているので調整
-    gl.readPixels(
-      floorX,
-      canvas.height - floorY - 1,
-      1,
-      1,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      pixel
-    )
+    gl.readPixels(floorX, canvas.height - floorY - 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
     const r = pixel[0].toString(16).padStart(2, '0')
     const g = pixel[1].toString(16).padStart(2, '0')
     const b = pixel[2].toString(16).padStart(2, '0')

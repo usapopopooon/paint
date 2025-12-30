@@ -1,6 +1,6 @@
 import { getStorageItem } from '@/lib/storage'
 import type { Theme } from '../types'
-import { ALLOWED_THEMES, THEME_STORAGE_KEY } from '../types'
+import { ALLOWED_THEMES, THEME_STORAGE_KEY } from '../constants'
 
 /**
  * 初期テーマを取得

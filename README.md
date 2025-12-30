@@ -35,6 +35,7 @@ ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみ�
 flowchart TB
     subgraph feature/foo
         types["types/<br/>型定義"]
+        constants["constants/<br/>定数"]
 
         subgraph domain["domain/"]
             entities["entities/<br/>エンティティ・ファクトリ"]
@@ -49,6 +50,7 @@ flowchart TB
         components["components/<br/>UI"]
 
         types --> domain
+        constants --> domain
         domain --> useCases
         domain --> adapters
         domain --> infrastructure
@@ -72,6 +74,7 @@ src/
 ├── features/            # 機能モジュール
 │   └── [feature]/       # 各機能（詳細は機能一覧を参照）
 │       ├── types/           # 型定義のみ
+│       ├── constants/       # 定数
 │       ├── domain/          # ドメインロジック
 │       │   ├── entities/    # エンティティ + ファクトリ（1ファイル1関数）
 │       │   └── services/    # ドメインサービス

@@ -13,11 +13,5 @@ export const extractPointerPoint = (
 ): PointerPoint => {
   const rect = element.getBoundingClientRect()
   const pointerType = getPointerType(event.pointerType)
-  return getPointerPoint(
-    event.clientX,
-    event.clientY,
-    rect,
-    event.pressure,
-    pointerType
-  )
+  return getPointerPoint(event.clientX, event.clientY, rect, event.pressure, pointerType)
 }

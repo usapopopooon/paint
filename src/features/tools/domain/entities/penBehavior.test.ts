@@ -1,5 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { penBehavior } from './penBehavior'
+import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR } from '../../constants'
 
 describe('penBehavior', () => {
   describe('type', () => {
@@ -13,8 +14,8 @@ describe('penBehavior', () => {
       const config = penBehavior.defaultConfig()
       expect(config).toEqual({
         type: 'pen',
-        width: 3,
-        color: '#000000',
+        width: DEFAULT_PEN_WIDTH,
+        color: DEFAULT_PEN_COLOR,
       })
     })
   })

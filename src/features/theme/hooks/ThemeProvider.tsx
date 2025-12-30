@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { setStorageItem } from '@/lib/storage'
 import type { Theme } from '../types'
-import { THEME_STORAGE_KEY } from '../types'
+import { THEME_STORAGE_KEY } from '../constants'
 import { ThemeContext, type ThemeContextValue } from './ThemeContext'
 import { getInitialTheme } from '../helpers'
 

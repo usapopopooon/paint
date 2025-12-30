@@ -3,15 +3,6 @@
  */
 export type ToolType = 'pen' | 'eraser' | 'hand' | 'eyedropper'
 
-/** ペンの最小幅（ピクセル） */
-export const MIN_PEN_WIDTH = 1
-/** ペンの最大幅（ピクセル） */
-export const MAX_PEN_WIDTH = 300
-/** 消しゴムの最小幅（ピクセル） */
-export const MIN_ERASER_WIDTH = 5
-/** 消しゴムの最大幅（ピクセル） */
-export const MAX_ERASER_WIDTH = 300
-
 /**
  * カーソル設定
  */

@@ -1,6 +1,6 @@
 import { getStorageItem } from '@/lib/storage'
 import type { Locale } from '../types'
-import { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from '../types'
+import { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from '../constants'
 
 /**
  * 初期ロケールを取得
