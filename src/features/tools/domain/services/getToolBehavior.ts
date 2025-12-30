@@ -1,6 +1,12 @@
 import type { ToolType, ToolConfig, CursorConfig } from '../../types'
 import type { Point, StrokeDrawable } from '@/features/drawable'
-import { penBehavior, brushBehavior, eraserBehavior, handBehavior, eyedropperBehavior } from '../entities'
+import {
+  penBehavior,
+  brushBehavior,
+  eraserBehavior,
+  handBehavior,
+  eyedropperBehavior,
+} from '../entities'
 
 /**
  * ツールの動作を定義するインターフェース
