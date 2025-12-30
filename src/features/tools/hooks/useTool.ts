@@ -4,6 +4,13 @@ import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from
 import { penBehavior, eraserBehavior, getToolBehavior } from '../domain'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 
+/** ホイールでブラシサイズを調整する際のスライダー値のステップ */
+const BRUSH_SIZE_SLIDER_STEP = 5
+/** スライダーの最小値 */
+const SLIDER_MIN = 0
+/** スライダーの最大値 */
+const SLIDER_MAX = 100
+
 /**
  * ツール状態の型
  */
@@ -84,10 +91,10 @@ export const useTool = () => {
    */
   const adjustBrushSize = useCallback(
     (deltaY: number) => {
-      const step = deltaY > 0 ? -5 : 5
+      const step = deltaY > 0 ? -BRUSH_SIZE_SLIDER_STEP : BRUSH_SIZE_SLIDER_STEP
       if (state.currentType === 'pen') {
         const currentSlider = valueToSlider(state.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        const newSlider = Math.max(0, Math.min(100, currentSlider + step))
+        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
         const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
         setPenWidth(newWidth)
       } else {
@@ -96,7 +103,7 @@ export const useTool = () => {
           MIN_ERASER_WIDTH,
           MAX_ERASER_WIDTH
         )
-        const newSlider = Math.max(0, Math.min(100, currentSlider + step))
+        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
         const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
         setEraserWidth(newWidth)
       }

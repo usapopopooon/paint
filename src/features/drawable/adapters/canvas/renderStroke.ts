@@ -1,4 +1,5 @@
 import type { StrokeDrawable } from '../../types'
+import { hasMinimumPoints } from '../../constants'
 
 type RenderingContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
 
@@ -8,7 +9,7 @@ type RenderingContext = CanvasRenderingContext2D | OffscreenCanvasRenderingConte
  * @param stroke - レンダリングするストローク描画要素
  */
 export const renderStroke = (ctx: RenderingContext, stroke: StrokeDrawable): void => {
-  if (stroke.points.length < 2) return
+  if (!hasMinimumPoints(stroke.points.length)) return
 
   const { style } = stroke
 
