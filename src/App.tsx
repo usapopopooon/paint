@@ -94,6 +94,23 @@ function App() {
     tool.setToolType('eraser')
   }, [tool])
 
+  /**
+   * 色変更ハンドラ（ペンとブラシの両方に適用）
+   */
+  const handleColorChange = useCallback(
+    (color: string) => {
+      tool.setPenColor(color)
+      tool.setBrushColor(color)
+    },
+    [tool]
+  )
+
+  /**
+   * 現在選択中のツールに応じた色を取得
+   */
+  const currentColor =
+    tool.currentType === 'brush' ? tool.brushConfig.color : tool.penConfig.color
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top toolbar */}
@@ -131,7 +148,7 @@ function App() {
       {/* Main content */}
       <div className="flex flex-1 min-h-0">
         <ToolPanel>
-          <ColorWheel color={tool.penConfig.color} onChange={tool.setPenColor} />
+          <ColorWheel color={currentColor} onChange={handleColorChange} />
           <PenTool
             isActive={tool.currentType === 'pen'}
             width={tool.penConfig.width}
@@ -178,7 +195,7 @@ function App() {
               toolType={tool.currentType}
               offset={canvasOffset.offset}
               onPan={canvasOffset.pan}
-              onPickColor={tool.setPenColor}
+              onPickColor={handleColorChange}
             />
           </CanvasViewport>
         </main>
