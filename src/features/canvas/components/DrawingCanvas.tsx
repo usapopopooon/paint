@@ -134,5 +134,11 @@ export const DrawingCanvas = ({
     }
   }, [drawables, layers, backgroundColor, isInitialized])
 
-  return <div ref={containerRef} className={fillContainer ? 'w-full h-full' : undefined} />
+  return (
+    <div
+      ref={containerRef}
+      className={fillContainer ? 'w-full h-full' : undefined}
+      style={{ backgroundColor }}
+    />
+  )
 }
