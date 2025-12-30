@@ -10,8 +10,6 @@ permissions:
 
 jobs:
   test:
-    # [skip ci]または[skip update-assets]コミットでは実行しない
-    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip update-assets]')"
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -41,6 +39,8 @@ jobs:
 
   update-assets:
     needs: test
+    # [skip ci]コミットではスキップ
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -97,9 +97,6 @@ jobs:
           if ! git diff --staged --quiet; then
             git commit -m "Update version to $VERSION and screenshot timestamp [skip ci]"
             git pull --rebase origin $GITHUB_REF_NAME || true
-            git push
-            # Trigger CI with empty commit (so PR can be merged)
-            git commit --allow-empty -m "Trigger CI after version update [skip update-assets]"
             git push
           fi
 
