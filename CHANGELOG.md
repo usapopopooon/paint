@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.0.10] - 2025-12-30
+
+### Features
+
+- **PixiJS移行** (#7)
+  - 描画エンジンをCanvas 2D APIからPixiJS Graphics APIへ移行
+  - レイヤーのブレンドモード・不透明度をPixiJS Containerで実装
+  - 消しゴム機能をRenderTexture + blendMode='erase'で実装
+
+### Fixes
+
+- **undo初回実行が無視されるバグ修正**
+  - ストレージから直接状態を確認するよう変更
+- **StrictModeでのストレージ問題修正**
+  - 遅延初期化パターンで二重disposeを防止
+- **キャンバス初期化時のちらつき抑制**
+  - 背景色で初期化時の白フラッシュを防止
+- **passive event listener警告修正**
+  - wheelイベントのpassiveオプションを明示的に設定
+
+### Refactor
+
+- **共通ヘルパー関数の抽出**
+  - `blendModeToPixi`: LayerBlendMode→BLEND_MODES変換を共通化
+  - `isEraserStroke`: 消しゴム判定ロジックを共通化
+- **RenderTextureパターンの統一**
+  - renderDrawables/renderLayers/createCanvas2DRendererで統一
+- **未使用の履歴アクション型を削除**
+  - LayerVisibilityChangedAction, LayerOpacityChangedAction, LayerRenamedAction
+
 ## [0.0.9] - 2025-12-30
 
 ### Fixes
