@@ -40,11 +40,11 @@ export const BrushTool = memo(function BrushTool({
           <Button
             variant={isActive ? 'default' : 'secondary'}
             size="icon"
-            className="size-7"
+            className="size-6"
             onClick={onSelect}
             aria-label={t('tools.brush')}
           >
-            <Brush className="size-4" />
+            <Brush className="size-3.5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">{t('tools.brush')} (B)</TooltipContent>

@@ -108,8 +108,7 @@ function App() {
   /**
    * 現在選択中のツールに応じた色を取得
    */
-  const currentColor =
-    tool.currentType === 'brush' ? tool.brushConfig.color : tool.penConfig.color
+  const currentColor = tool.currentType === 'brush' ? tool.brushConfig.color : tool.penConfig.color
 
   return (
     <div className="h-screen flex flex-col">

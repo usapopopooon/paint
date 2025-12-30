@@ -40,11 +40,11 @@ export const EraserTool = memo(function EraserTool({
           <Button
             variant={isActive ? 'default' : 'secondary'}
             size="icon"
-            className="size-7"
+            className="size-6"
             onClick={onSelect}
             aria-label={t('tools.eraser')}
           >
-            <Eraser className="size-4" />
+            <Eraser className="size-3.5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">{t('tools.eraser')} (E)</TooltipContent>

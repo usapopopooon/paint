@@ -40,11 +40,11 @@ export const PenTool = memo(function PenTool({
           <Button
             variant={isActive ? 'default' : 'secondary'}
             size="icon"
-            className="size-7"
+            className="size-6"
             onClick={onSelect}
             aria-label={t('tools.pen')}
           >
-            <Pencil className="size-4" />
+            <Pencil className="size-3.5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">{t('tools.pen')} (P)</TooltipContent>
