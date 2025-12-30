@@ -19,8 +19,8 @@ export const Default: Story = {
     const canvas = within(canvasElement)
     const toggle = canvas.getByRole('switch')
 
-    await expect(toggle).toHaveTextContent('日本語')
-    await expect(toggle).toHaveTextContent('English')
+    await expect(toggle).toHaveTextContent('日あ')
+    await expect(toggle).toHaveTextContent('Aa')
   },
 }
 
