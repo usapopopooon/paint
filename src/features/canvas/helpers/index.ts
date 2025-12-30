@@ -1,0 +1,1 @@
+export { getPixelColor } from './getPixelColor'
