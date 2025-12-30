@@ -1,5 +1,5 @@
-import type { PenToolConfig, EraserToolConfig, ToolType } from '../types'
-import { penBehavior, eraserBehavior } from '../domain'
+import type { PenToolConfig, BrushToolConfig, EraserToolConfig, ToolType } from '../types'
+import { penBehavior, brushBehavior, eraserBehavior } from '../domain'
 
 /**
  * ツール状態の型
@@ -7,6 +7,7 @@ import { penBehavior, eraserBehavior } from '../domain'
 export type ToolState = {
   readonly currentType: ToolType
   readonly penConfig: PenToolConfig
+  readonly brushConfig: BrushToolConfig
   readonly eraserConfig: EraserToolConfig
 }
 
@@ -17,5 +18,6 @@ export type ToolState = {
 export const createInitialToolState = (): ToolState => ({
   currentType: 'hand',
   penConfig: penBehavior.defaultConfig(),
+  brushConfig: brushBehavior.defaultConfig(),
   eraserConfig: eraserBehavior.defaultConfig(),
 })

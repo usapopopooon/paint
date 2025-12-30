@@ -34,12 +34,13 @@ export const PenTool = memo(function PenTool({
   )
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant={isActive ? 'default' : 'secondary'}
-            size="sm"
+            size="icon"
+            className="size-7"
             onClick={onSelect}
             aria-label={t('tools.pen')}
           >
@@ -48,7 +49,7 @@ export const PenTool = memo(function PenTool({
         </TooltipTrigger>
         <TooltipContent side="right">{t('tools.pen')} (P)</TooltipContent>
       </Tooltip>
-      <div className="flex-1 flex items-center gap-2">
+      <div className="flex-1 flex items-center gap-1.5">
         <Slider
           value={[valueToSlider(width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
           onValueChange={handleSliderChange}

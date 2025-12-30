@@ -1,4 +1,5 @@
 export * from './penBehavior'
+export * from './brushBehavior'
 export * from './eraserBehavior'
 export * from './handBehavior'
 export * from './eyedropperBehavior'

@@ -1,32 +1,32 @@
 import { memo, useCallback } from 'react'
-import { Eraser } from 'lucide-react'
+import { Brush } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
-import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../constants'
+import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from '../constants'
 
-type EraserToolProps = {
+type BrushToolProps = {
   readonly isActive: boolean
   readonly width: number
   readonly onSelect: () => void
   readonly onWidthChange: (width: number) => void
 }
 
-export const EraserTool = memo(function EraserTool({
+export const BrushTool = memo(function BrushTool({
   isActive,
   width,
   onSelect,
   onWidthChange,
-}: EraserToolProps) {
+}: BrushToolProps) {
   const { t } = useLocale()
   const handleSliderChange = useCallback(
     (values: number[]) => {
       onSelect()
       const sliderValue = values[0]
       if (sliderValue !== undefined) {
-        const newWidth = sliderToValue(sliderValue, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
+        const newWidth = sliderToValue(sliderValue, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH)
         onWidthChange(newWidth)
       }
     },
@@ -42,16 +42,16 @@ export const EraserTool = memo(function EraserTool({
             size="icon"
             className="size-7"
             onClick={onSelect}
-            aria-label={t('tools.eraser')}
+            aria-label={t('tools.brush')}
           >
-            <Eraser className="size-4" />
+            <Brush className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="right">{t('tools.eraser')} (E)</TooltipContent>
+        <TooltipContent side="right">{t('tools.brush')} (B)</TooltipContent>
       </Tooltip>
       <div className="flex-1 flex items-center gap-1.5">
         <Slider
-          value={[valueToSlider(width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
+          value={[valueToSlider(width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH)]}
           onValueChange={handleSliderChange}
           onPointerDown={onSelect}
           min={0}

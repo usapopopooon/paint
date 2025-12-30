@@ -21,7 +21,7 @@ import {
   EyedropperButton,
   CenterCanvasButton,
 } from './features/toolbar'
-import { useTool, ToolPanel, PenTool, EraserTool, LayerPanel } from './features/tools'
+import { useTool, ToolPanel, PenTool, BrushTool, EraserTool, LayerPanel } from './features/tools'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 /**
@@ -86,6 +86,10 @@ function App() {
     tool.setToolType('pen')
   }, [tool])
 
+  const handleSelectBrush = useCallback(() => {
+    tool.setToolType('brush')
+  }, [tool])
+
   const handleSelectEraser = useCallback(() => {
     tool.setToolType('eraser')
   }, [tool])
@@ -133,6 +137,12 @@ function App() {
             width={tool.penConfig.width}
             onSelect={handleSelectPen}
             onWidthChange={tool.setPenWidth}
+          />
+          <BrushTool
+            isActive={tool.currentType === 'brush'}
+            width={tool.brushConfig.width}
+            onSelect={handleSelectBrush}
+            onWidthChange={tool.setBrushWidth}
           />
           <EraserTool
             isActive={tool.currentType === 'eraser'}
