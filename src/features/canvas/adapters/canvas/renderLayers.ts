@@ -1,26 +1,49 @@
-import { Application, Container, Graphics } from 'pixi.js'
-import type { BLEND_MODES } from 'pixi.js'
-import type { Layer, LayerBlendMode } from '@/features/layer'
-import { renderDrawable } from '@/features/drawable'
+import { Application, Container, Graphics, RenderTexture, Sprite } from 'pixi.js'
+import type { Layer } from '@/features/layer'
+import { blendModeToPixi } from '@/features/layer'
+import { renderDrawable, isEraserStroke } from '@/features/drawable'
 
 /**
- * LayerBlendModeをPixiJSのブレンドモードにマッピング
+ * 背景をステージに追加
  */
-const blendModeToPixi = (mode: LayerBlendMode): BLEND_MODES => {
-  const map: Record<LayerBlendMode, BLEND_MODES> = {
-    normal: 'normal',
-    multiply: 'multiply',
-    screen: 'screen',
-    overlay: 'overlay',
-    darken: 'darken',
-    lighten: 'lighten',
+const addBackground = (app: Application, backgroundColor: string): void => {
+  const background = new Graphics()
+  background.rect(0, 0, app.screen.width, app.screen.height)
+  background.fill(backgroundColor)
+  app.stage.addChild(background)
+}
+
+/**
+ * レイヤーをRenderTextureにレンダリングしてSpriteとして返す
+ */
+const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
+  const renderTexture = RenderTexture.create({
+    width: app.screen.width,
+    height: app.screen.height,
+  })
+
+  const tempContainer = new Container()
+  for (const drawable of layer.drawables) {
+    const graphics = new Graphics()
+    if (isEraserStroke(drawable)) {
+      graphics.blendMode = 'erase'
+    }
+    renderDrawable(graphics, drawable)
+    tempContainer.addChild(graphics)
   }
-  return map[mode]
+
+  app.renderer.render({ container: tempContainer, target: renderTexture })
+  tempContainer.destroy({ children: true })
+
+  const sprite = new Sprite(renderTexture)
+  sprite.alpha = layer.opacity
+  sprite.blendMode = blendModeToPixi(layer.blendMode)
+  return sprite
 }
 
 /**
  * レイヤーをPixiJS Applicationにレンダリング
- * 各レイヤーは独自のブレンドモードと不透明度でレンダリングされる
+ * RenderTextureを使用して消しゴムが正しく機能するようにする
  * @param app - PixiJS Application
  * @param layers - レンダリングするレイヤー配列
  * @param backgroundColor - 背景色
@@ -30,33 +53,12 @@ export const renderLayers = (
   layers: readonly Layer[],
   backgroundColor: string
 ): void => {
-  // ステージをクリア
   app.stage.removeChildren()
+  addBackground(app, backgroundColor)
 
-  // 背景色を設定
-  app.renderer.background.color = backgroundColor
-
-  // 各レイヤーをレンダリング
   for (const layer of layers) {
     if (!layer.isVisible || layer.drawables.length === 0) continue
-
-    // レイヤー用のコンテナを作成
-    const layerContainer = new Container()
-    layerContainer.alpha = layer.opacity
-    layerContainer.blendMode = blendModeToPixi(layer.blendMode)
-    app.stage.addChild(layerContainer)
-
-    // レイヤー内の各描画要素をレンダリング
-    layer.drawables.forEach((drawable) => {
-      const graphics = new Graphics()
-
-      // 消しゴムの場合はブレンドモードを設定
-      if (drawable.type === 'stroke' && drawable.style.blendMode === 'erase') {
-        graphics.blendMode = 'erase'
-      }
-
-      renderDrawable(graphics, drawable)
-      layerContainer.addChild(graphics)
-    })
+    const layerSprite = renderLayerToTexture(app, layer)
+    app.stage.addChild(layerSprite)
   }
 }

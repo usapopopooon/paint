@@ -11,13 +11,13 @@ export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void =
   if (!hasMinimumPoints(stroke.points.length)) return
 
   const { style } = stroke
+  const isEraser = style.blendMode === 'erase'
 
-  // 消しゴムの場合は黒色で描画（後でブレンドモードで消去）
-  const color = style.blendMode === 'erase' ? 0x000000 : style.color
-
+  // 消しゴムの場合：アルファ値が消去量になる（1.0で完全消去、0.5で半分消去など）
+  // 将来的にぼかし消去にも対応可能
   graphics.setStrokeStyle({
     width: style.brushTip.size,
-    color,
+    color: isEraser ? 0xffffff : style.color,
     alpha: style.brushTip.opacity,
     cap: 'round',
     join: 'round',

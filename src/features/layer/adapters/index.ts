@@ -1,1 +1,1 @@
-export { createCanvas2DRenderer, blendModeToCompositeOp } from './canvas'
+export { createCanvas2DRenderer, blendModeToCompositeOp, blendModeToPixi } from './canvas'

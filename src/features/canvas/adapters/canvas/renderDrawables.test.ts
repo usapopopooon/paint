@@ -14,11 +14,18 @@ const createMockApp = () => {
     background: {
       color: '',
     },
+    render: vi.fn(),
+  }
+
+  const mockScreen = {
+    width: 800,
+    height: 600,
   }
 
   return {
     stage: mockStage,
     renderer: mockRenderer,
+    screen: mockScreen,
   } as unknown as Application
 }
 
@@ -31,13 +38,13 @@ describe('renderDrawables', () => {
     app = createMockApp()
   })
 
-  test('ステージをクリアして背景色を設定する', async () => {
+  test('ステージをクリアしてコンテナと背景を追加する', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
     renderDrawables(app, [], '#ff0000')
 
     expect(app.stage.removeChildren).toHaveBeenCalled()
-    expect(app.renderer.background.color).toBe('#ff0000')
+    expect(app.stage.addChild).toHaveBeenCalled()
   })
 
   test('コンテナをステージに追加する', async () => {
@@ -54,7 +61,7 @@ describe('renderDrawables', () => {
     expect(() => renderDrawables(app, [], '#ffffff')).not.toThrow()
   })
 
-  test('描画要素がある場合にGraphicsを作成してコンテナに追加する', async () => {
+  test('描画要素がある場合にRenderTextureにレンダリングしてSpriteをステージに追加する', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
     const drawables: StrokeDrawable[] = [
@@ -76,11 +83,24 @@ describe('renderDrawables', () => {
 
     renderDrawables(app, drawables, '#ffffff')
 
-    // ステージにコンテナが追加されていることを確認
-    expect(app.stage.addChild).toHaveBeenCalled()
+    // RenderTextureにレンダリングされることを確認
+    expect(app.renderer.render).toHaveBeenCalled()
+    // 背景 + レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
-  test('消しゴムモードのストロークを処理する', async () => {
+  test('空の描画要素配列の場合はRenderTextureにレンダリングしない', async () => {
+    const { renderDrawables } = await import('./renderDrawables')
+
+    renderDrawables(app, [], '#ffffff')
+
+    // 描画要素がない場合はRenderTextureにレンダリングしない
+    expect(app.renderer.render).not.toHaveBeenCalled()
+    // 背景のみがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+  })
+
+  test('消しゴムモードのストロークをRenderTextureにレンダリングする', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
     const eraserStroke: StrokeDrawable = {
@@ -100,5 +120,7 @@ describe('renderDrawables', () => {
 
     // エラーなく実行されることを確認
     expect(() => renderDrawables(app, [eraserStroke], '#ffffff')).not.toThrow()
+    // RenderTextureにレンダリングされることを確認（消しゴムが透過として機能するため）
+    expect(app.renderer.render).toHaveBeenCalled()
   })
 })

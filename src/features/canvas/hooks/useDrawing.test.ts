@@ -17,12 +17,12 @@ describe('useDrawing', () => {
 
       // ストロークを開始
       act(() => {
-        result.current.startStroke({ x: 0, y: 0, pressure: 1 }, createPenConfig())
+        result.current.startStroke({ x: 0, y: 0 }, createPenConfig())
       })
 
       // ポイントを追加（最低2点必要）
       act(() => {
-        result.current.addPoint({ x: 10, y: 10, pressure: 1 })
+        result.current.addPoint({ x: 10, y: 10 })
       })
 
       // ストロークを終了
@@ -47,8 +47,8 @@ describe('useDrawing', () => {
       const { result } = renderHook(() => useDrawing(onComplete))
 
       act(() => {
-        result.current.startStroke({ x: 0, y: 0, pressure: 1 }, createPenConfig())
-        result.current.addPoint({ x: 10, y: 10, pressure: 1 })
+        result.current.startStroke({ x: 0, y: 0 }, createPenConfig())
+        result.current.addPoint({ x: 10, y: 10 })
       })
 
       expect(result.current.currentStroke).not.toBeNull()
@@ -65,7 +65,7 @@ describe('useDrawing', () => {
       const { result } = renderHook(() => useDrawing(onComplete))
 
       act(() => {
-        result.current.startStroke({ x: 0, y: 0, pressure: 1 }, createPenConfig())
+        result.current.startStroke({ x: 0, y: 0 }, createPenConfig())
       })
 
       act(() => {
@@ -95,7 +95,7 @@ describe('useDrawing', () => {
       expect(result.current.currentStroke).toBeNull()
 
       act(() => {
-        result.current.startStroke({ x: 5, y: 10, pressure: 0.5 }, createPenConfig())
+        result.current.startStroke({ x: 5, y: 10 }, createPenConfig())
       })
 
       expect(result.current.currentStroke).not.toBeNull()
@@ -111,19 +111,19 @@ describe('useDrawing', () => {
       const { result } = renderHook(() => useDrawing(onComplete))
 
       act(() => {
-        result.current.startStroke({ x: 0, y: 0, pressure: 1 }, createPenConfig())
+        result.current.startStroke({ x: 0, y: 0 }, createPenConfig())
       })
 
       expect(result.current.currentStroke?.points.length).toBe(1)
 
       act(() => {
-        result.current.addPoint({ x: 10, y: 10, pressure: 1 })
+        result.current.addPoint({ x: 10, y: 10 })
       })
 
       expect(result.current.currentStroke?.points.length).toBe(2)
 
       act(() => {
-        result.current.addPoint({ x: 20, y: 20, pressure: 1 })
+        result.current.addPoint({ x: 20, y: 20 })
       })
 
       expect(result.current.currentStroke?.points.length).toBe(3)
@@ -134,7 +134,7 @@ describe('useDrawing', () => {
       const { result } = renderHook(() => useDrawing(onComplete))
 
       act(() => {
-        result.current.addPoint({ x: 10, y: 10, pressure: 1 })
+        result.current.addPoint({ x: 10, y: 10 })
       })
 
       expect(result.current.currentStroke).toBeNull()

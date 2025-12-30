@@ -117,7 +117,7 @@ describe('renderDrawable', () => {
       expect(graphics.lineTo).toHaveBeenNthCalledWith(3, 150, 50)
     })
 
-    test('eraseブレンドモードで黒色を使用する', () => {
+    test('eraseブレンドモードでは描画した部分を透過にする', () => {
       const stroke: StrokeDrawable = {
         id: 'test-5',
         type: 'stroke',
@@ -137,7 +137,7 @@ describe('renderDrawable', () => {
 
       expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
         width: 20,
-        color: 0x000000,
+        color: 0xffffff,
         alpha: 1,
         cap: 'round',
         join: 'round',

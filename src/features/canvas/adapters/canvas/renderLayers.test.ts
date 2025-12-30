@@ -14,11 +14,18 @@ const createMockApp = () => {
     background: {
       color: '',
     },
+    render: vi.fn(),
+  }
+
+  const mockScreen = {
+    width: 800,
+    height: 600,
   }
 
   return {
     stage: mockStage,
     renderer: mockRenderer,
+    screen: mockScreen,
   } as unknown as Application
 }
 
@@ -31,13 +38,14 @@ describe('renderLayers', () => {
     app = createMockApp()
   })
 
-  test('ステージをクリアして背景色を設定する', async () => {
+  test('ステージをクリアして背景を追加する', async () => {
     const { renderLayers } = await import('./renderLayers')
 
     renderLayers(app, [], '#00ff00')
 
     expect(app.stage.removeChildren).toHaveBeenCalled()
-    expect(app.renderer.background.color).toBe('#00ff00')
+    // 背景がステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalled()
   })
 
   test('空のレイヤー配列でもエラーにならない', async () => {
@@ -79,8 +87,8 @@ describe('renderLayers', () => {
 
     renderLayers(app, layers, '#ffffff')
 
-    // 非表示レイヤーはステージに追加されない
-    expect(app.stage.addChild).not.toHaveBeenCalled()
+    // 背景のみがステージに追加される（非表示レイヤーはスキップ）
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
   test('描画要素が空のレイヤーはスキップする', async () => {
@@ -101,11 +109,11 @@ describe('renderLayers', () => {
 
     renderLayers(app, layers, '#ffffff')
 
-    // 空レイヤーはステージに追加されない
-    expect(app.stage.addChild).not.toHaveBeenCalled()
+    // 背景のみがステージに追加される（空レイヤーはスキップ）
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
-  test('表示レイヤーをステージに追加する', async () => {
+  test('表示レイヤーをRenderTextureにレンダリングしてSpriteをステージに追加する', async () => {
     const { renderLayers } = await import('./renderLayers')
 
     const layers: Layer[] = [
@@ -138,10 +146,13 @@ describe('renderLayers', () => {
 
     renderLayers(app, layers, '#ffffff')
 
-    expect(app.stage.addChild).toHaveBeenCalled()
+    // RenderTextureにレンダリングされることを確認
+    expect(app.renderer.render).toHaveBeenCalled()
+    // 背景 + レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
-  test('複数の表示レイヤーを処理する', async () => {
+  test('複数の表示レイヤーを各々RenderTextureにレンダリングする', async () => {
     const { renderLayers } = await import('./renderLayers')
 
     const layers: Layer[] = [
@@ -199,11 +210,13 @@ describe('renderLayers', () => {
 
     renderLayers(app, layers, '#ffffff')
 
-    // 2つのレイヤーがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
+    // 各レイヤーごとにRenderTextureにレンダリングされる
+    expect(app.renderer.render).toHaveBeenCalledTimes(2)
+    // 背景 + 2つのレイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(3)
   })
 
-  test('消しゴムモードのストロークを含むレイヤーを処理する', async () => {
+  test('消しゴムモードのストロークを含むレイヤーをRenderTextureにレンダリングする', async () => {
     const { renderLayers } = await import('./renderLayers')
 
     const layers: Layer[] = [
@@ -236,5 +249,44 @@ describe('renderLayers', () => {
 
     // エラーなく実行されることを確認
     expect(() => renderLayers(app, layers, '#ffffff')).not.toThrow()
+    // RenderTextureにレンダリングされることを確認（消しゴムが透過として機能するため）
+    expect(app.renderer.render).toHaveBeenCalled()
+  })
+
+  test('非表示レイヤーはRenderTextureにレンダリングしない', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Hidden Layer',
+        type: 'drawing',
+        isVisible: false,
+        isLocked: false,
+        opacity: 1,
+        blendMode: 'normal',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: createSolidBrushTip(3),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+    ]
+
+    renderLayers(app, layers, '#ffffff')
+
+    // 非表示レイヤーはRenderTextureにレンダリングしない
+    expect(app.renderer.render).not.toHaveBeenCalled()
   })
 })
