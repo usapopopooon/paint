@@ -52,6 +52,6 @@ jobs:
 
           # Check if there are changes to commit
           if ! git diff --staged --quiet; then
-            git commit -m "Release v$VERSION: update version, badge, and screenshot"
+            git commit -m "Release v$VERSION: update version, badge, and screenshot's url"
             git push
           fi
