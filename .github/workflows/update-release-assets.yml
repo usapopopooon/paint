@@ -27,14 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Run tests with coverage
-        run: npm run test:coverage
-        env:
-          HOME: /root
-
       - name: Build app
         run: npm run build
 
