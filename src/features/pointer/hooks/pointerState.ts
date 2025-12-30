@@ -1,3 +1,5 @@
+import { isPrimaryButton, isPrimaryButtonPressed } from '../helpers'
+
 /** ポインター移動時のコールバック型 */
 type PointerMoveCallback = (x: number, y: number, event: PointerEvent) => void
 
@@ -21,13 +23,13 @@ export const setPointerMoveCallback = (callback: PointerMoveCallback | null): vo
 // ウィンドウレベルでポインター状態を追跡
 if (typeof window !== 'undefined') {
   window.addEventListener('pointerdown', (event) => {
-    if (event.button === 0) {
+    if (isPrimaryButton(event.button)) {
       pointerState.isPrimaryPressing = true
     }
   })
 
   window.addEventListener('pointerup', (event) => {
-    if (event.button === 0) {
+    if (isPrimaryButton(event.button)) {
       pointerState.isPrimaryPressing = false
     }
   })
@@ -37,8 +39,7 @@ if (typeof window !== 'undefined') {
   })
 
   window.addEventListener('pointermove', (event) => {
-    // プライマリボタンが押されている時のみコールバック
-    if ((event.buttons & 1) !== 0) {
+    if (isPrimaryButtonPressed(event.buttons)) {
       pointerState.onPointerMove?.(event.clientX, event.clientY, event)
     }
   })

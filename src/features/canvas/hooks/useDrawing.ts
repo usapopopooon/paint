@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import type { Drawable, StrokeDrawable, Point } from '@/features/drawable'
+import { hasMinimumPoints } from '@/features/drawable'
 import type { ToolConfig } from '../../tools/types'
 import { getToolBehavior } from '../../tools/domain'
 
@@ -35,7 +36,7 @@ export const useDrawing = (onDrawableComplete: (drawable: Drawable) => void) => 
   /** ストロークを終了し、完成したDrawableをコールバックに渡す */
   const endStroke = useCallback(() => {
     setCurrentStroke((prev) => {
-      if (prev && prev.points.length > 1) {
+      if (prev && hasMinimumPoints(prev.points.length)) {
         onDrawableComplete(prev)
       }
       return null

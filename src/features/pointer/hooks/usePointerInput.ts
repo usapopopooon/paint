@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PointerPoint, PointerType } from '../types'
-import { getPointerType, getPointerPoint } from '../helpers'
+import {
+  getPointerType,
+  getPointerPoint,
+  isPrimaryButton,
+  isPrimaryButtonPressed,
+} from '../helpers'
 import { colorWheelState } from '@/features/color/hooks/colorWheelState'
 
 /** キャンバス外でのポインター位置を追跡するための型 */
@@ -43,6 +48,8 @@ type UsePointerInputReturn = {
   pointerPosition: { x: number; y: number } | null
   isDrawing: boolean
   activePointerType: PointerType | null
+  /** キャンバス要素のref（ウィンドウレベルのポインター追跡に必要） */
+  canvasRef: (element: HTMLElement | null) => void
 }
 
 /**
@@ -104,7 +111,7 @@ export const usePointerInput = ({
       }
 
       // プライマリボタンのみ処理（左マウスボタン、タッチ、またはペン接触）
-      if (event.button !== 0) {
+      if (!isPrimaryButton(event.button)) {
         return
       }
 
@@ -239,9 +246,7 @@ export const usePointerInput = ({
         return
       }
 
-      // プライマリボタン（左クリック）が押されている場合はストロークを開始
-      // buttons: 1 = 左ボタン
-      if (event.buttons === 1) {
+      if (isPrimaryButtonPressed(event.buttons)) {
         try {
           element.setPointerCapture(event.pointerId)
         } catch {
@@ -302,8 +307,7 @@ export const usePointerInput = ({
         return
       }
 
-      // 左ボタンが押されている場合、キャンバス相対座標で位置を保存
-      if (event.buttons === 1) {
+      if (isPrimaryButtonPressed(event.buttons)) {
         const rect = canvasElementRef.current.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
@@ -333,6 +337,11 @@ export const usePointerInput = ({
     }
   }, [])
 
+  // refコールバック: マウント時にキャンバス要素を設定
+  const canvasRef = useCallback((element: HTMLElement | null) => {
+    canvasElementRef.current = element
+  }, [])
+
   return {
     pointerProps: {
       onPointerDown: handlePointerDown,
@@ -347,5 +356,6 @@ export const usePointerInput = ({
     pointerPosition,
     isDrawing,
     activePointerType,
+    canvasRef,
   }
 }
