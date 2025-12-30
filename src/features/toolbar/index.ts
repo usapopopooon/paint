@@ -5,5 +5,6 @@ export {
   ClearButton,
   ToolbarDivider,
   HandButton,
+  EyedropperButton,
   CenterCanvasButton,
 } from './components'

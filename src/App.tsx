@@ -18,6 +18,7 @@ import {
   ClearButton,
   ToolbarDivider,
   HandButton,
+  EyedropperButton,
   CenterCanvasButton,
 } from './features/toolbar'
 import { useTool, ToolPanel, PenTool, EraserTool, LayerPanel } from './features/tools'
@@ -40,6 +41,7 @@ function App() {
     onSelectPen: () => tool.setToolType('pen'),
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
+    onSelectEyedropper: () => tool.setToolType('eyedropper'),
   })
 
   /**
@@ -76,6 +78,10 @@ function App() {
             onClick={() => tool.setToolType('hand')}
           />
           <CenterCanvasButton onClick={canvasOffset.reset} />
+          <EyedropperButton
+            isActive={tool.currentType === 'eyedropper'}
+            onClick={() => tool.setToolType('eyedropper')}
+          />
         </Toolbar>
         <CanvasSizeInput
           width={canvasSize.width}
@@ -133,6 +139,7 @@ function App() {
               toolType={tool.currentType}
               offset={canvasOffset.offset}
               onPan={canvasOffset.pan}
+              onPickColor={tool.setPenColor}
             />
           </CanvasViewport>
         </main>

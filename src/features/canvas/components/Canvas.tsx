@@ -1,10 +1,28 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import type { Drawable, Point } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import type { CursorConfig, ToolType } from '@/features/tools/types'
 import type { CanvasOffset } from '../hooks/useCanvasOffset'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
+
+/**
+ * キャンバス上の指定位置からピクセルカラーを取得
+ * @param canvas - HTMLCanvasElement
+ * @param x - X座標
+ * @param y - Y座標
+ * @returns 色の16進数文字列 (#RRGGBB形式)
+ */
+const getPixelColor = (canvas: HTMLCanvasElement, x: number, y: number): string | null => {
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) return null
+
+  const pixel = ctx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data
+  const r = pixel[0].toString(16).padStart(2, '0')
+  const g = pixel[1].toString(16).padStart(2, '0')
+  const b = pixel[2].toString(16).padStart(2, '0')
+  return `#${r}${g}${b}`
+}
 
 /**
  * Canvasコンポーネントのプロパティ
@@ -23,6 +41,8 @@ type CanvasProps = {
   readonly toolType?: ToolType
   readonly offset?: CanvasOffset
   readonly onPan?: (deltaX: number, deltaY: number) => void
+  /** セカンダリクリック（右クリック等）で色を取得した時のコールバック */
+  readonly onPickColor?: (color: string) => void
 }
 
 /**
@@ -43,12 +63,44 @@ export const Canvas = ({
   toolType = 'pen',
   offset = { x: 0, y: 0 },
   onPan,
+  onPickColor,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
+  const isEyedropperTool = toolType === 'eyedropper'
   const containerRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const lastClientPosRef = useRef<{ x: number; y: number } | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+
+  /**
+   * セカンダリクリック（右クリック等）で色を取得
+   */
+  const handleSecondaryClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!onPickColor) return
+
+      // コンテキストメニューを防止
+      e.preventDefault()
+
+      const container = containerRef.current
+      if (!container) return
+
+      // キャンバス要素を取得
+      const canvas = container.querySelector('canvas')
+      if (!canvas) return
+
+      // クリック位置をキャンバス座標に変換
+      const rect = canvas.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      const color = getPixelColor(canvas, x, y)
+      if (color) {
+        onPickColor(color)
+      }
+    },
+    [onPickColor]
+  )
 
   // ハンドツール時はネイティブポインターイベントでパン処理
   // clientX/clientYを使うことでtransformの影響を受けずに正確に計算できる
@@ -106,6 +158,33 @@ export const Canvas = ({
           cursor: isDragging ? 'grabbing' : 'grab',
         }}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        onContextMenu={handleSecondaryClick}
+      >
+        <DrawingCanvas
+          drawables={drawables}
+          layers={layers}
+          width={width}
+          height={height}
+          fillContainer={fillContainer}
+          className={fillContainer ? undefined : 'rounded-lg border border-border'}
+        />
+      </div>
+    )
+  }
+
+  // スポイトツール時は専用UIを表示
+  if (isEyedropperTool) {
+    return (
+      <div
+        ref={containerRef}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          touchAction: 'none',
+          cursor: 'crosshair',
+        }}
+        className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        onClick={handleSecondaryClick}
+        onContextMenu={handleSecondaryClick}
       >
         <DrawingCanvas
           drawables={drawables}
@@ -121,9 +200,11 @@ export const Canvas = ({
 
   return (
     <div
+      ref={containerRef}
       style={{
         transform: `translate(${offset.x}px, ${offset.y}px)`,
       }}
+      onContextMenu={handleSecondaryClick}
     >
       <PointerInputLayer
         onStart={onStartStroke}
