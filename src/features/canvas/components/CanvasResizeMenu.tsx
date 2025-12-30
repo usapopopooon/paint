@@ -1,12 +1,41 @@
-import { useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLocale } from '@/features/i18n'
 import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { AnchorSelector } from './AnchorSelector'
 import type { ResizeAnchor } from '../types'
 import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../hooks/useCanvasSize'
 
 /** ホイールスクロール1回あたりの変化量 */
 const WHEEL_STEP = 10
+
+/**
+ * ホイールイベントでpreventDefaultを使用するためのカスタムフック
+ * passive: false でイベントリスナーを登録する
+ */
+const useWheelHandler = (
+  value: number,
+  onChange: (value: number) => void
+): React.RefObject<HTMLInputElement | null> => {
+  const ref = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP
+      const newValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, value + delta))
+      onChange(newValue)
+    }
+
+    element.addEventListener('wheel', handleWheel, { passive: false })
+    return () => element.removeEventListener('wheel', handleWheel)
+  }, [value, onChange])
+
+  return ref
+}
 
 /**
  * リサイズアイコン（Scale/Resize風）
@@ -69,33 +98,21 @@ export const CanvasResizeMenu = ({
     }
   }
 
-  const handleWidthWheel = useCallback(
-    (e: React.WheelEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP
-      const newValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, width + delta))
-      onWidthChange(newValue)
-    },
-    [width, onWidthChange]
-  )
-
-  const handleHeightWheel = useCallback(
-    (e: React.WheelEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP
-      const newValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, height + delta))
-      onHeightChange(newValue)
-    },
-    [height, onHeightChange]
-  )
+  const widthInputRef = useWheelHandler(width, onWidthChange)
+  const heightInputRef = useWheelHandler(height, onHeightChange)
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="secondary" size="icon" aria-label={t('canvas.resize')}>
-          <ResizeIcon />
-        </Button>
-      </PopoverTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <Button variant="secondary" size="icon" aria-label={t('canvas.resize')}>
+              <ResizeIcon />
+            </Button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{t('canvas.resize')}</TooltipContent>
+      </Tooltip>
       <PopoverContent align="center" className="w-auto min-w-[200px]">
         {/* アンカーセレクター */}
         <div className="flex items-center justify-between mb-3">
@@ -108,10 +125,10 @@ export const CanvasResizeMenu = ({
           <label className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">{t('canvas.width')}</span>
             <input
+              ref={widthInputRef}
               type="number"
               value={width}
               onChange={handleWidthChange}
-              onWheel={handleWidthWheel}
               min={MIN_CANVAS_SIZE}
               max={MAX_CANVAS_SIZE}
               className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
@@ -120,10 +137,10 @@ export const CanvasResizeMenu = ({
           <label className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">{t('canvas.height')}</span>
             <input
+              ref={heightInputRef}
               type="number"
               value={height}
               onChange={handleHeightChange}
-              onWheel={handleHeightWheel}
               min={MIN_CANVAS_SIZE}
               max={MAX_CANVAS_SIZE}
               className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"

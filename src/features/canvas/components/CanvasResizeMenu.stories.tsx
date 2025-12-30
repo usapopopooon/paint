@@ -120,3 +120,17 @@ export const ChangeAnchor: Story = {
     await expect(args.onAnchorChange).toHaveBeenCalledWith('top-left')
   },
 }
+
+export const ShowTooltipOnHover: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const menuButton = canvas.getByRole('button')
+
+    // ホバーしてツールチップが表示されることを確認
+    await userEvent.hover(menuButton)
+
+    const body = within(document.body)
+    const tooltip = await body.findByRole('tooltip')
+    await expect(tooltip).toBeInTheDocument()
+  },
+}
