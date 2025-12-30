@@ -36,7 +36,6 @@ type PointerInputProps = {
   onPointerCancel: (event: React.PointerEvent<HTMLElement>) => void
   onPointerLeave: (event: React.PointerEvent<HTMLElement>) => void
   onPointerEnter: (event: React.PointerEvent<HTMLElement>) => void
-  onWheel: (event: React.WheelEvent<HTMLElement>) => void
   onContextMenu: (event: React.MouseEvent<HTMLElement>) => void
 }
 
@@ -270,19 +269,7 @@ export const usePointerInput = ({
     [onStart]
   )
 
-  /**
-   * ホイールイベントのハンドラ
-   * @param event - ホイールイベント
-   */
-  const handleWheel = useCallback(
-    (event: React.WheelEvent<HTMLElement>) => {
-      if (onWheel) {
-        event.preventDefault()
-        onWheel(event.deltaY)
-      }
-    },
-    [onWheel]
-  )
+  // ホイールイベントはpassive: falseでネイティブリスナーを使用（useEffect内で設定）
 
   /**
    * コンテキストメニューのハンドラ（右クリック無効化）
@@ -342,6 +329,22 @@ export const usePointerInput = ({
     canvasElementRef.current = element
   }, [])
 
+  // ホイールイベントリスナー（passive: falseでpreventDefaultを有効化）
+  useEffect(() => {
+    const element = canvasElementRef.current
+    if (!element || !onWheel) return
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      onWheel(event.deltaY)
+    }
+
+    element.addEventListener('wheel', handleWheel, { passive: false })
+    return () => {
+      element.removeEventListener('wheel', handleWheel)
+    }
+  }, [onWheel])
+
   return {
     pointerProps: {
       onPointerDown: handlePointerDown,
@@ -350,7 +353,6 @@ export const usePointerInput = ({
       onPointerCancel: handlePointerCancel,
       onPointerLeave: handlePointerLeave,
       onPointerEnter: handlePointerEnter,
-      onWheel: handleWheel,
       onContextMenu: handleContextMenu,
     },
     pointerPosition,
