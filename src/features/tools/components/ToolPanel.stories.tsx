@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
 import { ToolPanel } from './ToolPanel'
+import { PenTool } from './PenTool'
+import { EraserTool } from './EraserTool'
+import { LayerPanel } from './LayerPanel'
+import { ColorWheel } from '@/features/color'
 import type { Layer } from '@/features/layer'
 
 const sampleLayers: readonly Layer[] = [
@@ -41,6 +45,7 @@ const mockT = (key: string) => {
     'tools.pen': 'Pen',
     'tools.eraser': 'Eraser',
     'layers.title': 'Layers',
+    'layers.layer': 'Layer',
     'layers.visible': 'Visible',
     'layers.hidden': 'Hidden',
     'color.copy': 'Copy',
@@ -56,54 +61,127 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  args: {
-    currentType: 'pen',
-    penConfig: { type: 'pen', color: '#000000', width: 3 },
-    eraserConfig: { type: 'eraser', width: 20 },
-    onToolTypeChange: fn(),
-    onPenWidthChange: fn(),
-    onPenColorChange: fn(),
-    onEraserWidthChange: fn(),
-    layers: sampleLayers,
-    activeLayerId: 'layer-1',
-    onLayerSelect: fn(),
-    onLayerVisibilityChange: fn(),
-    t: mockT,
-  },
 } satisfies Meta<typeof ToolPanel>
 
 export default meta
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof ToolPanel>
 
-export const Default: Story = {}
+export const Default: Story = {
+  args: {
+    children: null,
+  },
+  render: () => (
+    <ToolPanel>
+      <ColorWheel color="#000000" onChange={fn()} t={mockT} />
+      <PenTool isActive={true} width={3} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <LayerPanel
+        layers={sampleLayers}
+        activeLayerId="layer-1"
+        onLayerSelect={fn()}
+        onLayerVisibilityChange={fn()}
+        t={mockT}
+      />
+    </ToolPanel>
+  ),
+}
 
 export const EraserSelected: Story = {
   args: {
-    currentType: 'eraser',
+    children: null,
   },
+  render: () => (
+    <ToolPanel>
+      <ColorWheel color="#000000" onChange={fn()} t={mockT} />
+      <PenTool isActive={false} width={3} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <EraserTool isActive={true} width={20} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <LayerPanel
+        layers={sampleLayers}
+        activeLayerId="layer-1"
+        onLayerSelect={fn()}
+        onLayerVisibilityChange={fn()}
+        t={mockT}
+      />
+    </ToolPanel>
+  ),
 }
 
 export const Layer2Active: Story = {
   args: {
-    activeLayerId: 'layer-2',
+    children: null,
   },
+  render: () => (
+    <ToolPanel>
+      <ColorWheel color="#000000" onChange={fn()} t={mockT} />
+      <PenTool isActive={true} width={3} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <LayerPanel
+        layers={sampleLayers}
+        activeLayerId="layer-2"
+        onLayerSelect={fn()}
+        onLayerVisibilityChange={fn()}
+        t={mockT}
+      />
+    </ToolPanel>
+  ),
 }
 
 export const LayerHidden: Story = {
   args: {
-    layers: [{ ...sampleLayers[0]!, isVisible: false }, sampleLayers[1]!, sampleLayers[2]!],
+    children: null,
   },
+  render: () => (
+    <ToolPanel>
+      <ColorWheel color="#000000" onChange={fn()} t={mockT} />
+      <PenTool isActive={true} width={3} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <LayerPanel
+        layers={[{ ...sampleLayers[0]!, isVisible: false }, sampleLayers[1]!, sampleLayers[2]!]}
+        activeLayerId="layer-1"
+        onLayerSelect={fn()}
+        onLayerVisibilityChange={fn()}
+        t={mockT}
+      />
+    </ToolPanel>
+  ),
 }
 
 export const CustomPenSettings: Story = {
   args: {
-    penConfig: { type: 'pen', color: '#ff0000', width: 10 },
+    children: null,
   },
+  render: () => (
+    <ToolPanel>
+      <ColorWheel color="#ff0000" onChange={fn()} t={mockT} />
+      <PenTool isActive={true} width={10} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <LayerPanel
+        layers={sampleLayers}
+        activeLayerId="layer-1"
+        onLayerSelect={fn()}
+        onLayerVisibilityChange={fn()}
+        t={mockT}
+      />
+    </ToolPanel>
+  ),
 }
 
 export const LargeEraser: Story = {
   args: {
-    currentType: 'eraser',
-    eraserConfig: { type: 'eraser', width: 100 },
+    children: null,
   },
+  render: () => (
+    <ToolPanel>
+      <ColorWheel color="#000000" onChange={fn()} t={mockT} />
+      <PenTool isActive={false} width={3} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <EraserTool isActive={true} width={100} onSelect={fn()} onWidthChange={fn()} t={mockT} />
+      <LayerPanel
+        layers={sampleLayers}
+        activeLayerId="layer-1"
+        onLayerSelect={fn()}
+        onLayerVisibilityChange={fn()}
+        t={mockT}
+      />
+    </ToolPanel>
+  ),
 }

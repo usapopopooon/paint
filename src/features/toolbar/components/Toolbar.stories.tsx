@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { Toolbar } from './Toolbar'
+import { UndoButton } from './UndoButton'
+import { RedoButton } from './RedoButton'
+import { ClearButton } from './ClearButton'
+import { ToolbarDivider } from './ToolbarDivider'
 import { mockT } from '@/test/mocks'
 
 const meta = {
@@ -10,30 +14,23 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  args: {
-    onUndo: fn(),
-    onRedo: fn(),
-    onClear: fn(),
-    t: mockT,
-  },
-  argTypes: {
-    canUndo: {
-      control: 'boolean',
-    },
-    canRedo: {
-      control: 'boolean',
-    },
-  },
 } satisfies Meta<typeof Toolbar>
 
 export default meta
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof Toolbar>
 
 export const Default: Story = {
   args: {
-    canUndo: false,
-    canRedo: false,
+    children: null,
   },
+  render: () => (
+    <Toolbar>
+      <UndoButton disabled={true} onClick={fn()} t={mockT} />
+      <RedoButton disabled={true} onClick={fn()} t={mockT} />
+      <ToolbarDivider />
+      <ClearButton onClick={fn()} t={mockT} />
+    </Toolbar>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
@@ -43,12 +40,20 @@ export const Default: Story = {
   },
 }
 
+const onUndoFn = fn()
 export const WithUndoEnabled: Story = {
   args: {
-    canUndo: true,
-    canRedo: false,
+    children: null,
   },
-  play: async ({ canvasElement, args }) => {
+  render: () => (
+    <Toolbar>
+      <UndoButton disabled={false} onClick={onUndoFn} t={mockT} />
+      <RedoButton disabled={true} onClick={fn()} t={mockT} />
+      <ToolbarDivider />
+      <ClearButton onClick={fn()} t={mockT} />
+    </Toolbar>
+  ),
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const undoButton = canvas.getByRole('button', { name: 'Undo' })
 
@@ -56,16 +61,24 @@ export const WithUndoEnabled: Story = {
     await expect(canvas.getByRole('button', { name: 'Redo' })).toBeDisabled()
 
     await userEvent.click(undoButton)
-    await expect(args.onUndo).toHaveBeenCalledTimes(1)
+    await expect(onUndoFn).toHaveBeenCalledTimes(1)
   },
 }
 
+const onRedoFn = fn()
 export const WithRedoEnabled: Story = {
   args: {
-    canUndo: false,
-    canRedo: true,
+    children: null,
   },
-  play: async ({ canvasElement, args }) => {
+  render: () => (
+    <Toolbar>
+      <UndoButton disabled={true} onClick={fn()} t={mockT} />
+      <RedoButton disabled={false} onClick={onRedoFn} t={mockT} />
+      <ToolbarDivider />
+      <ClearButton onClick={fn()} t={mockT} />
+    </Toolbar>
+  ),
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const redoButton = canvas.getByRole('button', { name: 'Redo' })
 
@@ -73,15 +86,22 @@ export const WithRedoEnabled: Story = {
     await expect(redoButton).toBeEnabled()
 
     await userEvent.click(redoButton)
-    await expect(args.onRedo).toHaveBeenCalledTimes(1)
+    await expect(onRedoFn).toHaveBeenCalledTimes(1)
   },
 }
 
 export const WithBothEnabled: Story = {
   args: {
-    canUndo: true,
-    canRedo: true,
+    children: null,
   },
+  render: () => (
+    <Toolbar>
+      <UndoButton disabled={false} onClick={fn()} t={mockT} />
+      <RedoButton disabled={false} onClick={fn()} t={mockT} />
+      <ToolbarDivider />
+      <ClearButton onClick={fn()} t={mockT} />
+    </Toolbar>
+  ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
@@ -90,23 +110,38 @@ export const WithBothEnabled: Story = {
   },
 }
 
-export const ClearButton: Story = {
+const onClearFn = fn()
+export const ClearButtonStory: Story = {
   args: {
-    canUndo: false,
-    canRedo: false,
+    children: null,
   },
-  play: async ({ canvasElement, args }) => {
+  render: () => (
+    <Toolbar>
+      <UndoButton disabled={true} onClick={fn()} t={mockT} />
+      <RedoButton disabled={true} onClick={fn()} t={mockT} />
+      <ToolbarDivider />
+      <ClearButton onClick={onClearFn} t={mockT} />
+    </Toolbar>
+  ),
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const clearButton = canvas.getByRole('button', { name: 'Clear' })
 
     await userEvent.click(clearButton)
-    await expect(args.onClear).toHaveBeenCalledTimes(1)
+    await expect(onClearFn).toHaveBeenCalledTimes(1)
   },
 }
 
 export const Interactive: Story = {
   args: {
-    canUndo: true,
-    canRedo: true,
+    children: null,
   },
+  render: () => (
+    <Toolbar>
+      <UndoButton disabled={false} onClick={fn()} t={mockT} />
+      <RedoButton disabled={false} onClick={fn()} t={mockT} />
+      <ToolbarDivider />
+      <ClearButton onClick={fn()} t={mockT} />
+    </Toolbar>
+  ),
 }

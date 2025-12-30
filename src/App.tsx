@@ -1,10 +1,11 @@
 import { useCallback } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { Canvas, useCanvas } from './features/canvas'
+import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { LocaleToggle, useLocale } from './features/i18n'
-import { Toolbar } from './features/toolbar'
-import { useTool, ToolPanel } from './features/tools'
+import { Toolbar, UndoButton, RedoButton, ClearButton, ToolbarDivider } from './features/toolbar'
+import { useTool, ToolPanel, PenTool, EraserTool, LayerPanel } from './features/tools'
 import { useTheme } from './features/theme'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
@@ -37,18 +38,24 @@ function App() {
     [canvas, tool.currentConfig]
   )
 
+  const handleSelectPen = useCallback(() => {
+    tool.setToolType('pen')
+  }, [tool])
+
+  const handleSelectEraser = useCallback(() => {
+    tool.setToolType('eraser')
+  }, [tool])
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Top toolbar */}
       <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background">
-        <Toolbar
-          canUndo={canvas.canUndo}
-          canRedo={canvas.canRedo}
-          onUndo={canvas.undo}
-          onRedo={canvas.redo}
-          onClear={canvas.clear}
-          t={t}
-        />
+        <Toolbar>
+          <UndoButton disabled={!canvas.canUndo} onClick={canvas.undo} t={t} />
+          <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} t={t} />
+          <ToolbarDivider />
+          <ClearButton onClick={canvas.clear} t={t} />
+        </Toolbar>
         <div className="flex items-center gap-1">
           <LocaleToggle locale={locale} onToggle={toggleLocale} t={t} />
           <ThemeToggle isDark={isDark} onToggle={toggleTheme} t={t} />
@@ -57,20 +64,30 @@ function App() {
 
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        <ToolPanel
-          currentType={tool.currentType}
-          penConfig={tool.penConfig}
-          eraserConfig={tool.eraserConfig}
-          onToolTypeChange={tool.setToolType}
-          onPenWidthChange={tool.setPenWidth}
-          onPenColorChange={tool.setPenColor}
-          onEraserWidthChange={tool.setEraserWidth}
-          layers={canvas.layers}
-          activeLayerId={canvas.activeLayerId}
-          onLayerSelect={canvas.setActiveLayer}
-          onLayerVisibilityChange={canvas.setLayerVisibility}
-          t={t}
-        />
+        <ToolPanel>
+          <ColorWheel color={tool.penConfig.color} onChange={tool.setPenColor} t={t} />
+          <PenTool
+            isActive={tool.currentType === 'pen'}
+            width={tool.penConfig.width}
+            onSelect={handleSelectPen}
+            onWidthChange={tool.setPenWidth}
+            t={t}
+          />
+          <EraserTool
+            isActive={tool.currentType === 'eraser'}
+            width={tool.eraserConfig.width}
+            onSelect={handleSelectEraser}
+            onWidthChange={tool.setEraserWidth}
+            t={t}
+          />
+          <LayerPanel
+            layers={canvas.layers}
+            activeLayerId={canvas.activeLayerId}
+            onLayerSelect={canvas.setActiveLayer}
+            onLayerVisibilityChange={canvas.setLayerVisibility}
+            t={t}
+          />
+        </ToolPanel>
 
         {/* Canvas area */}
         <main className="flex-1 overflow-hidden bg-muted/30">
