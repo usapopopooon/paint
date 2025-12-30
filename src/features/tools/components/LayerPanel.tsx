@@ -46,7 +46,9 @@ export const LayerPanel = memo(function LayerPanel({
                   aria-label={layer.isVisible ? t('layers.visible') : t('layers.hidden')}
                 >
                   {layer.isVisible ? (
-                    <Eye className="size-4" />
+                    <Eye
+                      className={`size-4 ${activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
+                    />
                   ) : (
                     <EyeOff className="size-4 text-muted-foreground" />
                   )}
