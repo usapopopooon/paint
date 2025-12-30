@@ -4,8 +4,8 @@ export type { Point, DrawableId, DrawableMetadata, StrokeDrawable, Drawable } fr
 // 定数
 export { MIN_STROKE_POINTS, hasMinimumPoints } from './constants'
 
-// ドメイン（エンティティファクトリ）
-export { generateDrawableId, createStrokeDrawable } from './domain'
+// ドメイン（エンティティファクトリ、サービス）
+export { generateDrawableId, createStrokeDrawable, translateDrawable, translateDrawables } from './domain'
 
 // ヘルパー（型ガード）
 export { isStrokeDrawable, isEraserStroke } from './helpers'

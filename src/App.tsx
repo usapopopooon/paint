@@ -13,7 +13,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
  */
 function App() {
   const canvas = useCanvas()
-  const canvasSize = useCanvasSize()
+  const canvasSize = useCanvasSize(canvas.translateAllLayers)
   const tool = useTool()
 
   // キーボードショートカット
