@@ -32,7 +32,7 @@ export type ToolState = {
  * @returns 初期ToolState
  */
 const createInitialState = (): ToolState => ({
-  currentType: 'pen',
+  currentType: 'hand',
   penConfig: penBehavior.defaultConfig(),
   eraserConfig: eraserBehavior.defaultConfig(),
 })

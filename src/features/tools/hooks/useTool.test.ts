@@ -4,10 +4,10 @@ import { useTool } from './useTool'
 
 describe('useTool', () => {
   describe('初期状態', () => {
-    test('ペンツールがデフォルトで選択される', () => {
+    test('ハンドツールがデフォルトで選択される', () => {
       const { result } = renderHook(() => useTool())
 
-      expect(result.current.currentType).toBe('pen')
+      expect(result.current.currentType).toBe('hand')
     })
 
     test('デフォルトのペン設定を持つ', () => {
@@ -93,6 +93,10 @@ describe('useTool', () => {
     test('ペン選択時はpenConfigを返す', () => {
       const { result } = renderHook(() => useTool())
 
+      act(() => {
+        result.current.setToolType('pen')
+      })
+
       expect(result.current.currentConfig).toEqual(result.current.penConfig)
     })
 
@@ -110,6 +114,10 @@ describe('useTool', () => {
   describe('cursor', () => {
     test('ペン選択時のカーソル設定を返す', () => {
       const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setToolType('pen')
+      })
 
       expect(result.current.cursor).toEqual({
         size: 3,
@@ -135,6 +143,7 @@ describe('useTool', () => {
       const { result } = renderHook(() => useTool())
 
       act(() => {
+        result.current.setToolType('pen')
         result.current.setPenWidth(15)
       })
 
@@ -157,6 +166,10 @@ describe('useTool', () => {
     test('背景色を指定してカーソル設定を取得する', () => {
       const { result } = renderHook(() => useTool())
 
+      act(() => {
+        result.current.setToolType('pen')
+      })
+
       const cursor = result.current.getCursor('#000000')
 
       expect(cursor).toEqual({
@@ -169,6 +182,11 @@ describe('useTool', () => {
   describe('adjustBrushSize', () => {
     test('正のdeltaYでペンサイズが縮小する', () => {
       const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setToolType('pen')
+      })
+
       const initialWidth = result.current.penConfig.width
 
       act(() => {
@@ -180,6 +198,11 @@ describe('useTool', () => {
 
     test('負のdeltaYでペンサイズが拡大する', () => {
       const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setToolType('pen')
+      })
+
       const initialWidth = result.current.penConfig.width
 
       act(() => {
@@ -208,6 +231,10 @@ describe('useTool', () => {
     test('最小値を下回らない', () => {
       const { result } = renderHook(() => useTool())
 
+      act(() => {
+        result.current.setToolType('pen')
+      })
+
       // 複数回縮小操作を実行
       act(() => {
         for (let i = 0; i < 50; i++) {
@@ -220,6 +247,10 @@ describe('useTool', () => {
 
     test('最大値を超えない', () => {
       const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setToolType('pen')
+      })
 
       // 複数回拡大操作を実行
       act(() => {
