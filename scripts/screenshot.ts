@@ -1,4 +1,6 @@
 import { chromium } from 'playwright'
+import fs from 'fs'
+import path from 'path'
 
 const takeScreenshot = async () => {
   const browser = await chromium.launch()
@@ -12,6 +14,9 @@ const takeScreenshot = async () => {
 
   // ページが完全に読み込まれるまで待機
   await page.waitForLoadState('networkidle')
+
+  // ペンツールを選択（デフォルトはハンドツールのため）
+  await page.keyboard.press('p')
 
   // 少し描画する（デモ用）
   const canvas = page.locator('canvas')
@@ -43,14 +48,28 @@ const takeScreenshot = async () => {
     await page.mouse.up()
   }
 
-  // スクリーンショットを撮影
+  // 古いスクリーンショットを削除
+  const deployDir = 'deploy'
+  if (!fs.existsSync(deployDir)) {
+    fs.mkdirSync(deployDir, { recursive: true })
+  }
+  const files = fs.readdirSync(deployDir)
+  for (const file of files) {
+    if (file.startsWith('screenshot_') && file.endsWith('.png')) {
+      fs.unlinkSync(path.join(deployDir, file))
+    }
+  }
+
+  // タイムスタンプ付きファイル名でスクリーンショットを撮影
+  const timestamp = Math.floor(Date.now() / 1000)
+  const filename = `screenshot_${timestamp}.png`
   await page.screenshot({
-    path: 'deploy/screenshot.png',
+    path: `deploy/${filename}`,
     fullPage: false,
   })
 
   await browser.close()
-  console.log('Screenshot saved to deploy/screenshot.png')
+  console.log(`Screenshot saved to deploy/${filename}`)
 }
 
 takeScreenshot().catch(console.error)
