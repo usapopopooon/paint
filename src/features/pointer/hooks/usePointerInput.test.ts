@@ -267,6 +267,52 @@ describe('usePointerInput', () => {
     })
   })
 
+  describe('onWheel', () => {
+    test('pointerPropsにonWheelが含まれていない（ネイティブイベントリスナーを使用）', () => {
+      const mockOnWheel = vi.fn()
+      const { result } = renderHook(() =>
+        usePointerInput({
+          onStart: mockOnStart,
+          onMove: mockOnMove,
+          onEnd: mockOnEnd,
+          onWheel: mockOnWheel,
+        })
+      )
+
+      // pointerPropsにonWheelプロパティが含まれていないことを確認
+      // （Reactのpassiveイベントリスナーではなくネイティブリスナーを使用するため）
+      expect(result.current.pointerProps).not.toHaveProperty('onWheel')
+    })
+
+    test('onWheelコールバックを受け取ることができる', () => {
+      const mockOnWheel = vi.fn()
+      // onWheelを渡してもエラーにならないことを確認
+      expect(() =>
+        renderHook(() =>
+          usePointerInput({
+            onStart: mockOnStart,
+            onMove: mockOnMove,
+            onEnd: mockOnEnd,
+            onWheel: mockOnWheel,
+          })
+        )
+      ).not.toThrow()
+    })
+
+    test('onWheelコールバックなしでも正常に動作する', () => {
+      expect(() =>
+        renderHook(() =>
+          usePointerInput({
+            onStart: mockOnStart,
+            onMove: mockOnMove,
+            onEnd: mockOnEnd,
+            // onWheel is not provided
+          })
+        )
+      ).not.toThrow()
+    })
+  })
+
   describe('canvasRef', () => {
     test('canvasRefでキャンバス要素を設定するとキャンバス外からのストローク開始位置が追跡される', () => {
       const { result } = renderHook(() =>

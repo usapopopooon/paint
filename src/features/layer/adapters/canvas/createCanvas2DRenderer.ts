@@ -1,18 +1,77 @@
+import { Application, Container, Graphics, RenderTexture, Sprite } from 'pixi.js'
 import type { LayerRenderer } from '../../domain/interfaces'
 import type { Layer } from '../../types'
-import { renderDrawable } from '@/features/drawable'
-import { blendModeToCompositeOp } from './blendModeToCompositeOp'
+import { blendModeToPixi } from './blendModeToPixi'
+import { renderDrawable, isEraserStroke } from '@/features/drawable'
 
 /**
- * Canvas 2Dレンダラーを作成
+ * 背景をステージに追加
+ */
+const addBackground = (
+  app: Application,
+  width: number,
+  height: number,
+  backgroundColor: string
+): void => {
+  const background = new Graphics()
+  background.rect(0, 0, width, height)
+  background.fill(backgroundColor)
+  app.stage.addChild(background)
+}
+
+/**
+ * レイヤーをRenderTextureにレンダリングしてSpriteとして返す
+ */
+const renderLayerToTexture = (
+  app: Application,
+  layer: Layer,
+  width: number,
+  height: number
+): Sprite => {
+  const renderTexture = RenderTexture.create({ width, height })
+
+  const tempContainer = new Container()
+  for (const drawable of layer.drawables) {
+    const graphics = new Graphics()
+    if (isEraserStroke(drawable)) {
+      graphics.blendMode = 'erase'
+    }
+    renderDrawable(graphics, drawable)
+    tempContainer.addChild(graphics)
+  }
+
+  app.renderer.render({ container: tempContainer, target: renderTexture })
+  tempContainer.destroy({ children: true })
+
+  const sprite = new Sprite(renderTexture)
+  sprite.alpha = layer.opacity
+  sprite.blendMode = blendModeToPixi(layer.blendMode)
+  return sprite
+}
+
+/**
+ * PixiJSレンダラーを作成
  * @returns レイヤーレンダリング用のLayerRendererインスタンス
  */
 export const createCanvas2DRenderer = (): LayerRenderer => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+  let app: Application | null = null
+  let isInitialized = false
+  let pendingRender: (() => void) | null = null
 
-  if (!ctx) {
-    throw new Error('Failed to get 2D context')
+  const initApp = async (width: number, height: number, backgroundColor: string) => {
+    app = new Application()
+    await app.init({
+      width,
+      height,
+      backgroundColor,
+      antialias: true,
+    })
+    isInitialized = true
+
+    if (pendingRender) {
+      pendingRender()
+      pendingRender = null
+    }
   }
 
   const render = (
@@ -21,49 +80,42 @@ export const createCanvas2DRenderer = (): LayerRenderer => {
     height: number,
     backgroundColor: string
   ): void => {
-    // 必要に応じてキャンバスサイズを更新
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width
-      canvas.height = height
+    if (!app || !isInitialized) {
+      if (!app) {
+        pendingRender = () => render(layers, width, height, backgroundColor)
+        initApp(width, height, backgroundColor)
+      }
+      return
     }
 
-    // 背景を塗りつぶす
-    ctx.fillStyle = backgroundColor
-    ctx.fillRect(0, 0, width, height)
+    if (app.canvas.width !== width || app.canvas.height !== height) {
+      app.renderer.resize(width, height)
+    }
 
-    // 各レイヤーをレンダリング
+    app.stage.removeChildren()
+    addBackground(app, width, height, backgroundColor)
+
     for (const layer of layers) {
       if (!layer.isVisible || layer.drawables.length === 0) continue
-
-      // レイヤー用のオフスクリーンキャンバスを作成
-      const offscreen = new OffscreenCanvas(width, height)
-      const offCtx = offscreen.getContext('2d')
-      if (!offCtx) continue
-
-      // オフスクリーンキャンバスに描画要素を描画
-      layer.drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
-
-      // ブレンドモードと不透明度を適用
-      ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
-      ctx.globalAlpha = layer.opacity
-      ctx.drawImage(offscreen, 0, 0)
-
-      // 合成操作とアルファをリセット
-      ctx.globalCompositeOperation = 'source-over'
-      ctx.globalAlpha = 1
+      const layerSprite = renderLayerToTexture(app, layer, width, height)
+      app.stage.addChild(layerSprite)
     }
   }
 
   const dispose = (): void => {
-    // Canvas 2Dは明示的なクリーンアップ不要
-    // ただしPixiJS互換性のためインターフェースでこのメソッドが必要
+    if (app) {
+      app.destroy(true, { children: true })
+      app = null
+      isInitialized = false
+    }
   }
 
-  const getCanvas = (): HTMLCanvasElement => canvas
-
-  return {
-    render,
-    dispose,
-    getCanvas,
+  const getCanvas = (): HTMLCanvasElement => {
+    if (!app) {
+      return document.createElement('canvas')
+    }
+    return app.canvas
   }
+
+  return { render, dispose, getCanvas }
 }

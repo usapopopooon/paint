@@ -1,46 +1,64 @@
+import { Application, Container, Graphics, RenderTexture, Sprite } from 'pixi.js'
 import type { Layer } from '@/features/layer'
-import { blendModeToCompositeOp } from '@/features/layer'
-import { renderDrawable } from '@/features/drawable'
+import { blendModeToPixi } from '@/features/layer'
+import { renderDrawable, isEraserStroke } from '@/features/drawable'
 
 /**
- * レイヤーをキャンバスにレンダリング
- * 各レイヤーは独自のブレンドモードと不透明度でレンダリングされる
- * @param ctx - 描画先のキャンバスコンテキスト
+ * 背景をステージに追加
+ */
+const addBackground = (app: Application, backgroundColor: string): void => {
+  const background = new Graphics()
+  background.rect(0, 0, app.screen.width, app.screen.height)
+  background.fill(backgroundColor)
+  app.stage.addChild(background)
+}
+
+/**
+ * レイヤーをRenderTextureにレンダリングしてSpriteとして返す
+ */
+const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
+  const renderTexture = RenderTexture.create({
+    width: app.screen.width,
+    height: app.screen.height,
+  })
+
+  const tempContainer = new Container()
+  for (const drawable of layer.drawables) {
+    const graphics = new Graphics()
+    if (isEraserStroke(drawable)) {
+      graphics.blendMode = 'erase'
+    }
+    renderDrawable(graphics, drawable)
+    tempContainer.addChild(graphics)
+  }
+
+  app.renderer.render({ container: tempContainer, target: renderTexture })
+  tempContainer.destroy({ children: true })
+
+  const sprite = new Sprite(renderTexture)
+  sprite.alpha = layer.opacity
+  sprite.blendMode = blendModeToPixi(layer.blendMode)
+  return sprite
+}
+
+/**
+ * レイヤーをPixiJS Applicationにレンダリング
+ * RenderTextureを使用して消しゴムが正しく機能するようにする
+ * @param app - PixiJS Application
  * @param layers - レンダリングするレイヤー配列
- * @param width - キャンバスの幅
- * @param height - キャンバスの高さ
  * @param backgroundColor - 背景色
  */
 export const renderLayers = (
-  ctx: CanvasRenderingContext2D,
+  app: Application,
   layers: readonly Layer[],
-  width: number,
-  height: number,
   backgroundColor: string
 ): void => {
-  // 背景を塗りつぶす
-  ctx.fillStyle = backgroundColor
-  ctx.fillRect(0, 0, width, height)
+  app.stage.removeChildren()
+  addBackground(app, backgroundColor)
 
-  // 各レイヤーをレンダリング
   for (const layer of layers) {
     if (!layer.isVisible || layer.drawables.length === 0) continue
-
-    // レイヤー用のオフスクリーンキャンバスを作成
-    const offscreen = new OffscreenCanvas(width, height)
-    const offCtx = offscreen.getContext('2d')
-    if (!offCtx) continue
-
-    // オフスクリーンキャンバスに描画要素を描画
-    layer.drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
-
-    // ブレンドモードと不透明度を適用
-    ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
-    ctx.globalAlpha = layer.opacity
-    ctx.drawImage(offscreen, 0, 0)
-
-    // 合成操作とアルファをリセット
-    ctx.globalCompositeOperation = 'source-over'
-    ctx.globalAlpha = 1
+    const layerSprite = renderLayerToTexture(app, layer)
+    app.stage.addChild(layerSprite)
   }
 }

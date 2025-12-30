@@ -1,9 +1,25 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn } from 'storybook/test'
+import { expect, fn, waitFor } from 'storybook/test'
 import { Canvas } from './Canvas'
 import type { StrokeDrawable } from '@/features/drawable'
 import { createStrokeDrawable } from '@/features/drawable'
 import { createSolidBrushTip } from '@/features/brush'
+
+/**
+ * PixiJSの非同期初期化を待ってからキャンバス要素を取得
+ */
+const waitForCanvas = async (canvasElement: HTMLElement): Promise<HTMLCanvasElement | null> => {
+  let canvas: HTMLCanvasElement | null = null
+  await waitFor(
+    () => {
+      canvas = canvasElement.querySelector('canvas')
+      if (!canvas) throw new Error('Canvas not found')
+      return canvas
+    },
+    { timeout: 3000 }
+  )
+  return canvas
+}
 
 const meta = {
   title: 'Features/Canvas/Canvas',
@@ -67,7 +83,8 @@ export const Empty: Story = {
     drawables: [],
   },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector('canvas')).toBeInTheDocument()
+    const canvas = await waitForCanvas(canvasElement)
+    await expect(canvas).toBeInTheDocument()
   },
 }
 
@@ -76,7 +93,8 @@ export const WithDrawables: Story = {
     drawables: sampleDrawables,
   },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector('canvas')).toBeInTheDocument()
+    const canvas = await waitForCanvas(canvasElement)
+    await expect(canvas).toBeInTheDocument()
   },
 }
 
@@ -87,7 +105,7 @@ export const SmallSize: Story = {
     height: 300,
   },
   play: async ({ canvasElement }) => {
-    const canvas = canvasElement.querySelector('canvas')
+    const canvas = await waitForCanvas(canvasElement)
     await expect(canvas).toHaveAttribute('width', '400')
     await expect(canvas).toHaveAttribute('height', '300')
   },
@@ -106,7 +124,7 @@ export const WithStrokeWidth: Story = {
     cursor: { size: 10, color: '#ff0000' },
   },
   play: async ({ canvasElement }) => {
-    const canvas = canvasElement.querySelector('canvas')
+    const canvas = await waitForCanvas(canvasElement)
     await expect(canvas).toBeInTheDocument()
   },
 }
@@ -117,7 +135,7 @@ export const EraserMode: Story = {
     cursor: { size: 20, color: '#ffffff' },
   },
   play: async ({ canvasElement }) => {
-    const canvas = canvasElement.querySelector('canvas')
+    const canvas = await waitForCanvas(canvasElement)
     await expect(canvas).toBeInTheDocument()
   },
 }
@@ -127,7 +145,7 @@ export const PointerInteraction: Story = {
     drawables: [],
   },
   play: async ({ canvasElement, args }) => {
-    const canvas = canvasElement.querySelector('canvas')
+    const canvas = await waitForCanvas(canvasElement)
     await expect(canvas).toBeInTheDocument()
 
     if (canvas) {

@@ -6,7 +6,7 @@ export { createBackgroundLayer, createDrawingLayer, createInitialLayerState } fr
 export type { LayerRenderer, LayerRendererFactory } from './domain'
 
 // アダプター（Canvas2D）
-export { createCanvas2DRenderer, blendModeToCompositeOp } from './adapters'
+export { createCanvas2DRenderer, blendModeToCompositeOp, blendModeToPixi } from './adapters'
 
 // フック
 export { useLayers } from './hooks'

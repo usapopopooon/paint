@@ -55,23 +55,6 @@ export type LayerReorderedAction = ActionMetadata & {
   readonly toIndex: number
 }
 
-export type LayerVisibilityChangedAction = ActionMetadata & {
-  readonly type: 'layer:visibility-changed'
-  readonly isVisible: boolean
-}
-
-export type LayerOpacityChangedAction = ActionMetadata & {
-  readonly type: 'layer:opacity-changed'
-  readonly previousOpacity: number
-  readonly newOpacity: number
-}
-
-export type LayerRenamedAction = ActionMetadata & {
-  readonly type: 'layer:renamed'
-  readonly previousName: string
-  readonly newName: string
-}
-
 // === バッチアクション（複合操作用） ===
 
 export type BatchAction = ActionMetadata & {
@@ -84,12 +67,6 @@ export type BatchAction = ActionMetadata & {
 
 export type DrawableAction = DrawableAddedAction | DrawablesClearedAction
 
-export type LayerAction =
-  | LayerCreatedAction
-  | LayerDeletedAction
-  | LayerReorderedAction
-  | LayerVisibilityChangedAction
-  | LayerOpacityChangedAction
-  | LayerRenamedAction
+export type LayerAction = LayerCreatedAction | LayerDeletedAction | LayerReorderedAction
 
 export type HistoryAction = DrawableAction | LayerAction | BatchAction
