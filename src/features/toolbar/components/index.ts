@@ -1,1 +1,5 @@
 export { Toolbar } from './Toolbar'
+export { UndoButton } from './UndoButton'
+export { RedoButton } from './RedoButton'
+export { ClearButton } from './ClearButton'
+export { ToolbarDivider } from './ToolbarDivider'

@@ -8,4 +8,4 @@ export { penBehavior, eraserBehavior, getToolBehavior } from './domain'
 export { useTool } from './hooks'
 
 // コンポーネント
-export { ToolPanel } from './components'
+export { ToolPanel, PenTool, EraserTool, LayerPanel } from './components'

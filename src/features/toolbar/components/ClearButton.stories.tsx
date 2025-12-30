@@ -1,0 +1,34 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, fn, userEvent, within } from 'storybook/test'
+import { ClearButton } from './ClearButton'
+import { mockT } from '@/test/mocks'
+
+const meta = {
+  title: 'Features/Toolbar/ClearButton',
+  component: ClearButton,
+  parameters: {
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+  args: {
+    t: mockT,
+  },
+} satisfies Meta<typeof ClearButton>
+
+export default meta
+type Story = StoryObj<typeof ClearButton>
+
+const onClickFn = fn()
+export const Default: Story = {
+  args: {
+    onClick: onClickFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button', { name: 'Clear' })
+
+    await expect(button).toBeEnabled()
+    await userEvent.click(button)
+    await expect(onClickFn).toHaveBeenCalledTimes(1)
+  },
+}
