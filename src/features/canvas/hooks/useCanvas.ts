@@ -7,15 +7,35 @@ import { useCanvasHistory } from './useCanvasHistory'
 import { useDrawing } from './useDrawing'
 
 /**
+ * キャンバスリサイズundo/redo用のコールバック
+ */
+export type OnCanvasResizeCallback = (
+  width: number,
+  height: number,
+  offsetX: number,
+  offsetY: number
+) => void
+
+/**
+ * useCanvasフックのオプション
+ */
+export type UseCanvasOptions = {
+  /** キャンバスリサイズundo/redo時のコールバック */
+  readonly onCanvasResize?: OnCanvasResizeCallback
+}
+
+/**
  * Canvas統合hook
  *
  * 状態の単一責任:
  * - useLayers: drawablesの状態を管理（single source of truth）
  * - useCanvasHistory: undo/redo履歴のみを管理
  * - useDrawing: 描画中のストローク管理
+ * @param options - オプション
  * @returns キャンバス操作用のメソッドと現在の状態
  */
-export const useCanvas = () => {
+export const useCanvas = (options?: UseCanvasOptions) => {
+  const { onCanvasResize } = options ?? {}
   const layerManager = useLayers()
   const history = useCanvasHistory()
 
@@ -83,10 +103,30 @@ export const useCanvas = () => {
         } else {
           layerManager.setDrawables(action.previousDrawables)
         }
+      } else if (action.type === 'layer:visibility-changed' && targetLayerId) {
+        // 可視性を元に戻す
+        layerManager.setLayerVisibility(targetLayerId, action.previousValue)
+      } else if (action.type === 'layer:opacity-changed' && targetLayerId) {
+        // 不透明度を元に戻す
+        layerManager.setLayerOpacity(targetLayerId, action.previousValue)
+      } else if (action.type === 'layer:renamed' && targetLayerId) {
+        // レイヤー名を元に戻す
+        layerManager.setLayerName(targetLayerId, action.previousName)
+      } else if (action.type === 'canvas:resized') {
+        // キャンバスリサイズを元に戻す
+        const reverseOffsetX = -action.offsetX
+        const reverseOffsetY = -action.offsetY
+        layerManager.translateAllLayers(reverseOffsetX, reverseOffsetY)
+        onCanvasResize?.(
+          action.previousWidth,
+          action.previousHeight,
+          reverseOffsetX,
+          reverseOffsetY
+        )
       }
       await history.undo()
     }
-  }, [history, layerManager])
+  }, [history, layerManager, onCanvasResize])
 
   /** Redo: アクション種別に応じてレイヤーを更新 + 履歴を進める */
   const redo = useCallback(async () => {
@@ -106,10 +146,23 @@ export const useCanvas = () => {
         } else {
           layerManager.clearActiveLayer()
         }
+      } else if (action.type === 'layer:visibility-changed' && targetLayerId) {
+        // 可視性を再適用
+        layerManager.setLayerVisibility(targetLayerId, action.newValue)
+      } else if (action.type === 'layer:opacity-changed' && targetLayerId) {
+        // 不透明度を再適用
+        layerManager.setLayerOpacity(targetLayerId, action.newValue)
+      } else if (action.type === 'layer:renamed' && targetLayerId) {
+        // レイヤー名を再適用
+        layerManager.setLayerName(targetLayerId, action.newName)
+      } else if (action.type === 'canvas:resized') {
+        // キャンバスリサイズを再適用
+        layerManager.translateAllLayers(action.offsetX, action.offsetY)
+        onCanvasResize?.(action.newWidth, action.newHeight, action.offsetX, action.offsetY)
       }
       await history.redo()
     }
-  }, [history, layerManager])
+  }, [history, layerManager, onCanvasResize])
 
   /** Clear: レイヤーをクリア + 履歴に記録 */
   const clear = useCallback(() => {
@@ -118,6 +171,57 @@ export const useCanvas = () => {
     layerManager.clearActiveLayer()
     history.recordClear(previousDrawables, targetLayerId)
   }, [layerManager, history])
+
+  /**
+   * レイヤーの可視性を変更 + 履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param isVisible - 新しい可視性
+   */
+  const setLayerVisibility = useCallback(
+    (layerId: string, isVisible: boolean) => {
+      const layer = layerManager.layers.find((l) => l.id === layerId)
+      if (!layer || layer.isVisible === isVisible) return
+
+      const previousValue = layer.isVisible
+      layerManager.setLayerVisibility(layerId, isVisible)
+      history.recordLayerVisibilityChange(layerId, previousValue, isVisible)
+    },
+    [layerManager, history]
+  )
+
+  /**
+   * レイヤーの不透明度を変更 + 履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param opacity - 新しい不透明度
+   */
+  const setLayerOpacity = useCallback(
+    (layerId: string, opacity: number) => {
+      const layer = layerManager.layers.find((l) => l.id === layerId)
+      if (!layer || layer.opacity === opacity) return
+
+      const previousValue = layer.opacity
+      layerManager.setLayerOpacity(layerId, opacity)
+      history.recordLayerOpacityChange(layerId, previousValue, opacity)
+    },
+    [layerManager, history]
+  )
+
+  /**
+   * レイヤー名を変更 + 履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param name - 新しいレイヤー名
+   */
+  const setLayerName = useCallback(
+    (layerId: string, name: string) => {
+      const layer = layerManager.layers.find((l) => l.id === layerId)
+      if (!layer || layer.name === name) return
+
+      const previousName = layer.name
+      layerManager.setLayerName(layerId, name)
+      history.recordLayerNameChange(layerId, previousName, name)
+    },
+    [layerManager, history]
+  )
 
   return {
     drawables: allDrawables,
@@ -132,7 +236,10 @@ export const useCanvas = () => {
     redo,
     clear,
     setActiveLayer: layerManager.setActiveLayer,
-    setLayerVisibility: layerManager.setLayerVisibility,
+    setLayerVisibility,
+    setLayerOpacity,
+    setLayerName,
     translateAllLayers: layerManager.translateAllLayers,
+    recordCanvasResize: history.recordCanvasResize,
   } as const
 }

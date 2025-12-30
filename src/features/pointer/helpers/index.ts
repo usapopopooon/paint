@@ -1,3 +1,4 @@
-export { getPointerType } from './getPointerType'
-export { getPointerPoint } from './getPointerPoint'
-export { isPrimaryButton, isPrimaryButtonPressed } from './pointerButton'
+export * from './getPointerType'
+export * from './getPointerPoint'
+export * from './pointerButton'
+export * from './extractPointerPoint'

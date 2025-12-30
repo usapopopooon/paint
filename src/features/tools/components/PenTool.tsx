@@ -5,9 +5,7 @@ import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
-
-const MIN_PEN_WIDTH = 1
-const MAX_PEN_WIDTH = 300
+import { MIN_PEN_WIDTH, MAX_PEN_WIDTH } from '../constants'
 
 type PenToolProps = {
   readonly isActive: boolean
@@ -36,24 +34,26 @@ export const PenTool = memo(function PenTool({
   )
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant={isActive ? 'default' : 'secondary'}
-            size="sm"
+            size="icon"
+            className="size-6"
             onClick={onSelect}
             aria-label={t('tools.pen')}
           >
-            <Pencil className="size-4" />
+            <Pencil className="size-3.5" />
           </Button>
         </TooltipTrigger>
         <TooltipContent side="right">{t('tools.pen')} (P)</TooltipContent>
       </Tooltip>
-      <div className="flex-1 flex items-center gap-2">
+      <div className="flex-1 flex items-center gap-1.5">
         <Slider
           value={[valueToSlider(width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
           onValueChange={handleSliderChange}
+          onPointerDown={onSelect}
           min={0}
           max={100}
           step={0.1}

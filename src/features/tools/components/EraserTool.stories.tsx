@@ -74,3 +74,19 @@ export const MaxWidth: Story = {
     width: 300,
   },
 }
+
+const onSliderSelectFn = fn()
+export const SliderClickToSelect: Story = {
+  args: {
+    isActive: false,
+    width: 50,
+    onSelect: onSliderSelectFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const slider = canvas.getByRole('slider')
+
+    await userEvent.click(slider)
+    await expect(onSliderSelectFn).toHaveBeenCalled()
+  },
+}

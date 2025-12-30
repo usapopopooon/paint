@@ -55,6 +55,36 @@ export type LayerReorderedAction = ActionMetadata & {
   readonly toIndex: number
 }
 
+export type LayerVisibilityChangedAction = ActionMetadata & {
+  readonly type: 'layer:visibility-changed'
+  readonly previousValue: boolean
+  readonly newValue: boolean
+}
+
+export type LayerOpacityChangedAction = ActionMetadata & {
+  readonly type: 'layer:opacity-changed'
+  readonly previousValue: number
+  readonly newValue: number
+}
+
+export type LayerRenamedAction = ActionMetadata & {
+  readonly type: 'layer:renamed'
+  readonly previousName: string
+  readonly newName: string
+}
+
+// === キャンバスアクション ===
+
+export type CanvasResizedAction = ActionMetadata & {
+  readonly type: 'canvas:resized'
+  readonly previousWidth: number
+  readonly previousHeight: number
+  readonly newWidth: number
+  readonly newHeight: number
+  readonly offsetX: number
+  readonly offsetY: number
+}
+
 // === バッチアクション（複合操作用） ===
 
 export type BatchAction = ActionMetadata & {
@@ -67,6 +97,14 @@ export type BatchAction = ActionMetadata & {
 
 export type DrawableAction = DrawableAddedAction | DrawablesClearedAction
 
-export type LayerAction = LayerCreatedAction | LayerDeletedAction | LayerReorderedAction
+export type LayerAction =
+  | LayerCreatedAction
+  | LayerDeletedAction
+  | LayerReorderedAction
+  | LayerVisibilityChangedAction
+  | LayerOpacityChangedAction
+  | LayerRenamedAction
 
-export type HistoryAction = DrawableAction | LayerAction | BatchAction
+export type CanvasAction = CanvasResizedAction
+
+export type HistoryAction = DrawableAction | LayerAction | CanvasAction | BatchAction

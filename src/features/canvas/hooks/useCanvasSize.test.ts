@@ -6,6 +6,7 @@ import {
   DEFAULT_CANVAS_HEIGHT,
   MIN_CANVAS_SIZE,
   MAX_CANVAS_SIZE,
+  DEFAULT_RESIZE_ANCHOR,
 } from './useCanvasSize'
 
 describe('useCanvasSize', () => {
@@ -20,6 +21,13 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize())
 
       expect(result.current.height).toBe(DEFAULT_CANVAS_HEIGHT)
+    })
+
+    test('デフォルトのアンカーはcenter', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      expect(result.current.anchor).toBe(DEFAULT_RESIZE_ANCHOR)
+      expect(result.current.anchor).toBe('center')
     })
   })
 
@@ -209,6 +217,173 @@ describe('useCanvasSize', () => {
           result.current.setHeight(800)
         })
       }).not.toThrow()
+    })
+  })
+
+  describe('onSizeChangeForHistory コールバック', () => {
+    test('幅変更時に履歴記録用コールバックが呼ばれる', () => {
+      const onSizeChangeForHistory = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
+
+      act(() => {
+        result.current.setWidth(900) // 800 -> 900
+      })
+
+      expect(onSizeChangeForHistory).toHaveBeenCalledWith(
+        800, // previousWidth
+        600, // previousHeight
+        900, // newWidth
+        600, // newHeight (unchanged)
+        50, // offsetX
+        0 // offsetY
+      )
+    })
+
+    test('高さ変更時に履歴記録用コールバックが呼ばれる', () => {
+      const onSizeChangeForHistory = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
+
+      act(() => {
+        result.current.setHeight(700) // 600 -> 700
+      })
+
+      expect(onSizeChangeForHistory).toHaveBeenCalledWith(
+        800, // previousWidth (unchanged)
+        600, // previousHeight
+        800, // newWidth (unchanged)
+        700, // newHeight
+        0, // offsetX
+        50 // offsetY
+      )
+    })
+
+    test('オプション形式でonSizeChangeとonSizeChangeForHistoryの両方を指定できる', () => {
+      const onSizeChange = vi.fn()
+      const onSizeChangeForHistory = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange, onSizeChangeForHistory }))
+
+      act(() => {
+        result.current.setWidth(1000)
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(100, 0)
+      expect(onSizeChangeForHistory).toHaveBeenCalledWith(800, 600, 1000, 600, 100, 0)
+    })
+
+    test('同じ幅を設定した場合は履歴記録用コールバックが呼ばれない', () => {
+      const onSizeChangeForHistory = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
+
+      act(() => {
+        result.current.setWidth(DEFAULT_CANVAS_WIDTH)
+      })
+
+      expect(onSizeChangeForHistory).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('setSizeDirectly', () => {
+    test('サイズを直接設定できる', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      act(() => {
+        result.current.setSizeDirectly(1024, 768)
+      })
+
+      expect(result.current.width).toBe(1024)
+      expect(result.current.height).toBe(768)
+    })
+
+    test('コールバックを呼ばずにサイズを設定する', () => {
+      const onSizeChange = vi.fn()
+      const onSizeChangeForHistory = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange, onSizeChangeForHistory }))
+
+      act(() => {
+        result.current.setSizeDirectly(1024, 768)
+      })
+
+      expect(onSizeChange).not.toHaveBeenCalled()
+      expect(onSizeChangeForHistory).not.toHaveBeenCalled()
+    })
+
+    test('最小値を下回らない', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      act(() => {
+        result.current.setSizeDirectly(50, 50)
+      })
+
+      expect(result.current.width).toBe(MIN_CANVAS_SIZE)
+      expect(result.current.height).toBe(MIN_CANVAS_SIZE)
+    })
+
+    test('最大値を超えない', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      act(() => {
+        result.current.setSizeDirectly(5000, 5000)
+      })
+
+      expect(result.current.width).toBe(MAX_CANVAS_SIZE)
+      expect(result.current.height).toBe(MAX_CANVAS_SIZE)
+    })
+  })
+
+  describe('アンカー', () => {
+    test('setAnchorでアンカーを変更できる', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      act(() => {
+        result.current.setAnchor('top-left')
+      })
+
+      expect(result.current.anchor).toBe('top-left')
+    })
+
+    test('左上アンカーで幅拡大時にオフセット0でコールバックが呼ばれる', () => {
+      const onSizeChange = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange }))
+
+      act(() => {
+        result.current.setAnchor('top-left')
+      })
+
+      act(() => {
+        result.current.setWidth(900) // 800 -> 900 = +100
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(0, 0)
+    })
+
+    test('右下アンカーで幅拡大時に全体オフセットでコールバックが呼ばれる', () => {
+      const onSizeChange = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange }))
+
+      act(() => {
+        result.current.setAnchor('bottom-right')
+      })
+
+      act(() => {
+        result.current.setWidth(900) // 800 -> 900 = +100
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(100, 0)
+    })
+
+    test('左アンカーで高さ拡大時に半分のY方向オフセットでコールバックが呼ばれる', () => {
+      const onSizeChange = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange }))
+
+      act(() => {
+        result.current.setAnchor('left')
+      })
+
+      act(() => {
+        result.current.setHeight(700) // 600 -> 700 = +100
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(0, 50)
     })
   })
 })

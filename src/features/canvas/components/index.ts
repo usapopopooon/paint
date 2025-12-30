@@ -1,3 +1,5 @@
-export { Canvas } from './Canvas'
-export { CanvasSizeInput } from './CanvasSizeInput'
-export { CanvasViewport } from './CanvasViewport'
+export * from './AnchorSelector'
+export * from './Canvas'
+export * from './CanvasResizeMenu'
+export * from './CanvasSizeInput'
+export * from './CanvasViewport'

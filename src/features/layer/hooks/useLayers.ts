@@ -19,6 +19,7 @@ export type UseLayersReturn = {
   readonly setActiveLayer: (id: LayerId) => void
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
+  readonly setLayerName: (id: LayerId, name: string) => void
   readonly translateAllLayers: (offsetX: number, offsetY: number) => void
 }
 
@@ -175,6 +176,18 @@ export const useLayers = (): UseLayersReturn => {
   }, [])
 
   /**
+   * レイヤー名を設定
+   * @param id - 対象のレイヤーID
+   * @param name - 新しいレイヤー名
+   */
+  const setLayerName = useCallback((id: LayerId, name: string) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) => (layer.id === id ? { ...layer, name } : layer)),
+    }))
+  }, [])
+
+  /**
    * 全レイヤーの描画要素を座標移動
    * @param offsetX - X方向のオフセット
    * @param offsetY - Y方向のオフセット
@@ -205,6 +218,7 @@ export const useLayers = (): UseLayersReturn => {
     setActiveLayer,
     setLayerOpacity,
     setLayerVisibility,
+    setLayerName,
     translateAllLayers,
   }
 }

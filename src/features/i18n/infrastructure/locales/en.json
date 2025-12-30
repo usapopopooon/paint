@@ -1,5 +1,6 @@
 {
   "tools.pen": "Pen",
+  "tools.brush": "Brush",
   "tools.eraser": "Eraser",
   "tools.hand": "Hand",
   "tools.eyedropper": "Eyedropper",
@@ -22,7 +23,9 @@
   "layers.visible": "Visible",
   "layers.hidden": "Hidden",
   "layers.layer": "Layer",
-  "canvas.width": "Width",
-  "canvas.height": "Height",
-  "canvas.center": "Center canvas"
+  "canvas.width": "Width:",
+  "canvas.height": "Height:",
+  "canvas.center": "Center canvas",
+  "canvas.resize": "Resize canvas",
+  "canvas.anchor": "Anchor:"
 }

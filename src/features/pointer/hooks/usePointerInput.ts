@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PointerPoint, PointerType } from '../types'
 import {
   getPointerType,
-  getPointerPoint,
   isPrimaryButton,
   isPrimaryButtonPressed,
+  extractPointerPoint,
 } from '../helpers'
 import { colorWheelState } from '@/features/color/hooks/colorWheelState'
 
@@ -49,21 +49,6 @@ type UsePointerInputReturn = {
   activePointerType: PointerType | null
   /** キャンバス要素のref（ウィンドウレベルのポインター追跡に必要） */
   canvasRef: (element: HTMLElement | null) => void
-}
-
-/**
- * ポインターイベントからPointerPointを抽出
- * @param event - ポインターイベント
- * @param element - 対象のHTML要素
- * @returns ローカル座標のPointerPoint
- */
-const extractPointerPoint = (
-  event: React.PointerEvent<HTMLElement>,
-  element: HTMLElement
-): PointerPoint => {
-  const rect = element.getBoundingClientRect()
-  const pointerType = getPointerType(event.pointerType)
-  return getPointerPoint(event.clientX, event.clientY, rect, event.pressure, pointerType)
 }
 
 /**

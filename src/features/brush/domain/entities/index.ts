@@ -1,2 +1,2 @@
-export { createSolidBrushTip } from './createSolidBrushTip'
-export { createSoftBrushTip } from './createSoftBrushTip'
+export * from './createSolidBrushTip'
+export * from './createSoftBrushTip'

@@ -2,11 +2,11 @@
 
 > 🚧 **WIP** - このプロジェクトは開発中です。
 
-[![version](https://img.shields.io/badge/version-0.0.17-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.17) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
+[![version](https://img.shields.io/badge/version-0.0.18-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.18) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
-ReactとPixiJSで構築したお絵かきアプリ。
+ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみる](https://usapopopooon.github.io/paint/)
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767114354.png)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767127989.png)
 
 ## 技術スタック
 
@@ -35,6 +35,7 @@ ReactとPixiJSで構築したお絵かきアプリ。
 flowchart TB
     subgraph feature/foo
         types["types/<br/>型定義"]
+        constants["constants/<br/>定数"]
 
         subgraph domain["domain/"]
             entities["entities/<br/>エンティティ・ファクトリ"]
@@ -49,6 +50,7 @@ flowchart TB
         components["components/<br/>UI"]
 
         types --> domain
+        constants --> domain
         domain --> useCases
         domain --> adapters
         domain --> infrastructure
@@ -72,6 +74,7 @@ src/
 ├── features/            # 機能モジュール
 │   └── [feature]/       # 各機能（詳細は機能一覧を参照）
 │       ├── types/           # 型定義のみ
+│       ├── constants/       # 定数
 │       ├── domain/          # ドメインロジック
 │       │   ├── entities/    # エンティティ + ファクトリ（1ファイル1関数）
 │       │   └── services/    # ドメインサービス

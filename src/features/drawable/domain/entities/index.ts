@@ -1,2 +1,2 @@
-export { generateDrawableId } from './generateDrawableId'
-export { createStrokeDrawable } from './createStrokeDrawable'
+export * from './generateDrawableId'
+export * from './createStrokeDrawable'

@@ -2,6 +2,7 @@ import { createSolidBrushTip } from '@/features/brush'
 import type { Point, StrokeDrawable } from '@/features/drawable'
 import { createStrokeDrawable } from '@/features/drawable'
 import type { EraserToolConfig, CursorConfig } from '../../types'
+import { DEFAULT_ERASER_WIDTH } from '../../constants'
 
 /**
  * 消しゴムツールのビヘイビア定義
@@ -15,7 +16,7 @@ export const eraserBehavior = {
    */
   defaultConfig: (): EraserToolConfig => ({
     type: 'eraser',
-    width: 20,
+    width: DEFAULT_ERASER_WIDTH,
   }),
 
   /**

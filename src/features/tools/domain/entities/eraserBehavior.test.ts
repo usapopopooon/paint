@@ -1,5 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { eraserBehavior } from './eraserBehavior'
+import { DEFAULT_ERASER_WIDTH } from '../../constants'
 
 describe('eraserBehavior', () => {
   describe('type', () => {
@@ -13,7 +14,7 @@ describe('eraserBehavior', () => {
       const config = eraserBehavior.defaultConfig()
       expect(config).toEqual({
         type: 'eraser',
-        width: 20,
+        width: DEFAULT_ERASER_WIDTH,
       })
     })
   })

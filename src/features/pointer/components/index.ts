@@ -1,2 +1,2 @@
-export { PointerInputLayer } from './PointerInputLayer'
-export { BrushCursor } from './BrushCursor'
+export * from './PointerInputLayer'
+export * from './BrushCursor'

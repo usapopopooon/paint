@@ -1,3 +1,3 @@
-export { createBackgroundLayer } from './createBackgroundLayer'
-export { createDrawingLayer } from './createDrawingLayer'
-export { createInitialLayerState } from './createInitialLayerState'
+export * from './createBackgroundLayer'
+export * from './createDrawingLayer'
+export * from './createInitialLayerState'

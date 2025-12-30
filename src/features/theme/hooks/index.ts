@@ -1,2 +1,2 @@
-export { ThemeProvider } from './ThemeProvider'
-export { useTheme } from './useTheme'
+export * from './ThemeProvider'
+export * from './useTheme'

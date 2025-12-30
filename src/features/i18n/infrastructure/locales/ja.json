@@ -1,5 +1,6 @@
 {
   "tools.pen": "ペン",
+  "tools.brush": "ブラシ",
   "tools.eraser": "消しゴム",
   "tools.hand": "ハンドツール",
   "tools.eyedropper": "スポイト",
@@ -22,7 +23,9 @@
   "layers.visible": "表示",
   "layers.hidden": "非表示",
   "layers.layer": "レイヤー",
-  "canvas.width": "幅",
-  "canvas.height": "高さ",
-  "canvas.center": "キャンバスを中央に"
+  "canvas.width": "幅:",
+  "canvas.height": "高さ:",
+  "canvas.center": "キャンバスを中央に",
+  "canvas.resize": "キャンバスサイズ変更",
+  "canvas.anchor": "基準点:"
 }

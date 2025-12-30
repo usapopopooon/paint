@@ -1,6 +1,14 @@
 import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTool } from './useTool'
+import { penBehavior, eraserBehavior } from '../domain'
+import {
+  DEFAULT_PEN_WIDTH,
+  DEFAULT_PEN_COLOR,
+  DEFAULT_ERASER_WIDTH,
+  MIN_PEN_WIDTH,
+  MAX_PEN_WIDTH,
+} from '../constants'
 
 describe('useTool', () => {
   describe('初期状態', () => {
@@ -13,20 +21,13 @@ describe('useTool', () => {
     test('デフォルトのペン設定を持つ', () => {
       const { result } = renderHook(() => useTool())
 
-      expect(result.current.penConfig).toEqual({
-        type: 'pen',
-        width: 3,
-        color: '#000000',
-      })
+      expect(result.current.penConfig).toEqual(penBehavior.defaultConfig())
     })
 
     test('デフォルトの消しゴム設定を持つ', () => {
       const { result } = renderHook(() => useTool())
 
-      expect(result.current.eraserConfig).toEqual({
-        type: 'eraser',
-        width: 20,
-      })
+      expect(result.current.eraserConfig).toEqual(eraserBehavior.defaultConfig())
     })
   })
 
@@ -120,8 +121,8 @@ describe('useTool', () => {
       })
 
       expect(result.current.cursor).toEqual({
-        size: 3,
-        color: '#000000',
+        size: DEFAULT_PEN_WIDTH,
+        color: DEFAULT_PEN_COLOR,
       })
     })
 
@@ -133,7 +134,7 @@ describe('useTool', () => {
       })
 
       expect(result.current.cursor).toEqual({
-        size: 20,
+        size: DEFAULT_ERASER_WIDTH,
         color: '#888888',
         outline: '#ffffff',
       })
@@ -173,8 +174,8 @@ describe('useTool', () => {
       const cursor = result.current.getCursor('#000000')
 
       expect(cursor).toEqual({
-        size: 3,
-        color: '#000000',
+        size: DEFAULT_PEN_WIDTH,
+        color: DEFAULT_PEN_COLOR,
       })
     })
   })
@@ -242,7 +243,7 @@ describe('useTool', () => {
         }
       })
 
-      expect(result.current.penConfig.width).toBeGreaterThanOrEqual(1)
+      expect(result.current.penConfig.width).toBeGreaterThanOrEqual(MIN_PEN_WIDTH)
     })
 
     test('最大値を超えない', () => {
@@ -259,7 +260,7 @@ describe('useTool', () => {
         }
       })
 
-      expect(result.current.penConfig.width).toBeLessThanOrEqual(300)
+      expect(result.current.penConfig.width).toBeLessThanOrEqual(MAX_PEN_WIDTH)
     })
   })
 })

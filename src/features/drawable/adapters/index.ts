@@ -1,1 +1,1 @@
-export { renderDrawable, renderStroke } from './canvas'
+export * from './canvas'

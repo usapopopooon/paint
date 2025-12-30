@@ -1,15 +1,16 @@
 import { useCallback, useMemo, useState } from 'react'
-import type {
-  ToolType,
-  ToolConfig,
-  PenToolConfig,
-  EraserToolConfig,
-  HandToolConfig,
-  CursorConfig,
-} from '../types'
-import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../types'
-import { penBehavior, eraserBehavior, getToolBehavior } from '../domain'
+import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
+import {
+  MIN_PEN_WIDTH,
+  MAX_PEN_WIDTH,
+  MIN_BRUSH_WIDTH,
+  MAX_BRUSH_WIDTH,
+  MIN_ERASER_WIDTH,
+  MAX_ERASER_WIDTH,
+} from '../constants'
+import { getToolBehavior } from '../domain'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
+import { createInitialToolState, type ToolState } from '../helpers'
 
 /** ホイールでブラシサイズを調整する際のスライダー値のステップ */
 const BRUSH_SIZE_SLIDER_STEP = 5
@@ -19,30 +20,11 @@ const SLIDER_MIN = 0
 const SLIDER_MAX = 100
 
 /**
- * ツール状態の型
- */
-export type ToolState = {
-  readonly currentType: ToolType
-  readonly penConfig: PenToolConfig
-  readonly eraserConfig: EraserToolConfig
-}
-
-/**
- * ツールの初期状態を作成
- * @returns 初期ToolState
- */
-const createInitialState = (): ToolState => ({
-  currentType: 'hand',
-  penConfig: penBehavior.defaultConfig(),
-  eraserConfig: eraserBehavior.defaultConfig(),
-})
-
-/**
  * ツール状態を管理するフック
  * @returns ツール操作用のメソッドと現在の状態
  */
 export const useTool = () => {
-  const [state, setState] = useState<ToolState>(createInitialState)
+  const [state, setState] = useState<ToolState>(createInitialToolState)
 
   /**
    * ツールタイプを切り替え
@@ -69,6 +51,22 @@ export const useTool = () => {
   }, [])
 
   /**
+   * ブラシの幅を設定
+   * @param width - ブラシの幅（ピクセル）
+   */
+  const setBrushWidth = useCallback((width: number) => {
+    setState((prev) => ({ ...prev, brushConfig: { ...prev.brushConfig, width } }))
+  }, [])
+
+  /**
+   * ブラシの色を設定
+   * @param color - ブラシの色（CSS色文字列）
+   */
+  const setBrushColor = useCallback((color: string) => {
+    setState((prev) => ({ ...prev, brushConfig: { ...prev.brushConfig, color } }))
+  }, [])
+
+  /**
    * 消しゴムの幅を設定
    * @param width - 消しゴムの幅（ピクセル）
    */
@@ -81,9 +79,11 @@ export const useTool = () => {
   const currentConfig: ToolConfig =
     state.currentType === 'pen'
       ? state.penConfig
-      : state.currentType === 'eraser'
-        ? state.eraserConfig
-        : handConfig
+      : state.currentType === 'brush'
+        ? state.brushConfig
+        : state.currentType === 'eraser'
+          ? state.eraserConfig
+          : handConfig
 
   /**
    * カーソル設定を取得
@@ -110,7 +110,16 @@ export const useTool = () => {
         const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
         const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
         setPenWidth(newWidth)
-      } else {
+      } else if (state.currentType === 'brush') {
+        const currentSlider = valueToSlider(
+          state.brushConfig.width,
+          MIN_BRUSH_WIDTH,
+          MAX_BRUSH_WIDTH
+        )
+        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
+        const newWidth = sliderToValue(newSlider, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH)
+        setBrushWidth(newWidth)
+      } else if (state.currentType === 'eraser') {
         const currentSlider = valueToSlider(
           state.eraserConfig.width,
           MIN_ERASER_WIDTH,
@@ -124,8 +133,10 @@ export const useTool = () => {
     [
       state.currentType,
       state.penConfig.width,
+      state.brushConfig.width,
       state.eraserConfig.width,
       setPenWidth,
+      setBrushWidth,
       setEraserWidth,
     ]
   )
@@ -137,11 +148,14 @@ export const useTool = () => {
     currentType: state.currentType,
     currentConfig,
     penConfig: state.penConfig,
+    brushConfig: state.brushConfig,
     eraserConfig: state.eraserConfig,
     cursor,
     setToolType,
     setPenWidth,
     setPenColor,
+    setBrushWidth,
+    setBrushColor,
     setEraserWidth,
     getCursor,
     adjustBrushSize,

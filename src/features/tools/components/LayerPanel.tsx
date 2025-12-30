@@ -26,15 +26,17 @@ export const LayerPanel = memo(function LayerPanel({
         {[...layers].reverse().map((layer) => (
           <div
             key={layer.id}
-            className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
-              activeLayerId === layer.id ? 'bg-control text-control-foreground' : 'hover:bg-muted'
+            className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${
+              activeLayerId === layer.id
+                ? 'bg-control text-control-foreground'
+                : 'hover:bg-secondary/80 dark:hover:bg-white/10'
             }`}
             onClick={() => onLayerSelect(layer.id)}
           >
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="sm"
                   className="size-6 p-0"
                   onClick={(e) => {
@@ -44,7 +46,9 @@ export const LayerPanel = memo(function LayerPanel({
                   aria-label={layer.isVisible ? t('layers.visible') : t('layers.hidden')}
                 >
                   {layer.isVisible ? (
-                    <Eye className="size-4" />
+                    <Eye
+                      className={`size-4 ${activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
+                    />
                   ) : (
                     <EyeOff className="size-4 text-muted-foreground" />
                   )}
