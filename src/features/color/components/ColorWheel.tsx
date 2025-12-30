@@ -126,7 +126,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
+              variant="secondary"
               size="icon"
               className="size-6"
               onClick={() => navigator.clipboard.writeText(color.toUpperCase())}
@@ -140,7 +140,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              variant="ghost"
+              variant="secondary"
               size="icon"
               className="size-6"
               onClick={async () => {
