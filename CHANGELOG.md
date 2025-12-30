@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.16] - 2025-12-31
+
+### Developer Experience
+
+- Update Release Assetsワークフローをmainブランチから手動実行可能に
+  - 最新のリリースタグからバージョンを自動取得
+
 ## [0.0.15] - 2025-12-31
 
 ### Fixes
