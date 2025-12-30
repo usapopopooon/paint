@@ -8,14 +8,6 @@ ReactとPixiJSで構築したお絵かきアプリ。
 
 ![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767113397.png)
 
-## 機能
-
-- ペン・消しゴムツール（幅調整可能）
-- HSVカラーホイール
-- Undo/Redo
-- ダーク/ライトモード
-- 多言語対応（英語/日本語）
-
 ## 技術スタック
 
 - **フレームワーク**: React 19, TypeScript
