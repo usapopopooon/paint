@@ -13,6 +13,9 @@ const takeScreenshot = async () => {
   // ページが完全に読み込まれるまで待機
   await page.waitForLoadState('networkidle')
 
+  // ペンツールを選択（デフォルトはハンドツールのため）
+  await page.keyboard.press('p')
+
   // 少し描画する（デモ用）
   const canvas = page.locator('canvas')
   const box = await canvas.boundingBox()
