@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getPixelColor } from './getPixelColor'
+import { TRANSPARENT_THRESHOLD } from '../constants'
 
 describe('getPixelColor', () => {
   beforeEach(() => {
@@ -78,6 +79,66 @@ describe('getPixelColor', () => {
 
       expect(result).toBe('#00050f')
     })
+
+    it('透明なピクセル（alpha=0）の場合はnullを返す', () => {
+      const mockImageData = {
+        data: new Uint8ClampedArray([0, 0, 0, 0]), // 完全に透明
+      }
+      const mockCtx = {
+        getImageData: vi.fn().mockReturnValue(mockImageData),
+      }
+      const mockCanvas = {
+        getContext: vi.fn((type: string) => {
+          if (type === '2d') return mockCtx
+          return null
+        }),
+        height: 100,
+      } as unknown as HTMLCanvasElement
+
+      const result = getPixelColor(mockCanvas, 10, 20)
+
+      expect(result).toBeNull()
+    })
+
+    it('ほぼ透明なピクセル（alpha<TRANSPARENT_THRESHOLD）の場合はnullを返す', () => {
+      const mockImageData = {
+        data: new Uint8ClampedArray([100, 50, 25, TRANSPARENT_THRESHOLD - 1]),
+      }
+      const mockCtx = {
+        getImageData: vi.fn().mockReturnValue(mockImageData),
+      }
+      const mockCanvas = {
+        getContext: vi.fn((type: string) => {
+          if (type === '2d') return mockCtx
+          return null
+        }),
+        height: 100,
+      } as unknown as HTMLCanvasElement
+
+      const result = getPixelColor(mockCanvas, 10, 20)
+
+      expect(result).toBeNull()
+    })
+
+    it('alpha=TRANSPARENT_THRESHOLDのピクセルは色を返す（しきい値境界）', () => {
+      const mockImageData = {
+        data: new Uint8ClampedArray([100, 50, 25, TRANSPARENT_THRESHOLD]),
+      }
+      const mockCtx = {
+        getImageData: vi.fn().mockReturnValue(mockImageData),
+      }
+      const mockCanvas = {
+        getContext: vi.fn((type: string) => {
+          if (type === '2d') return mockCtx
+          return null
+        }),
+        height: 100,
+      } as unknown as HTMLCanvasElement
+
+      const result = getPixelColor(mockCanvas, 10, 20)
+
+      expect(result).toBe('#643219')
+    })
   })
 
   describe('WebGL context', () => {
@@ -149,6 +210,40 @@ describe('getPixelColor', () => {
 
       expect(mockGl2.readPixels).toHaveBeenCalled()
       expect(mockGl.readPixels).not.toHaveBeenCalled()
+    })
+
+    it('WebGLで透明なピクセルの場合はnullを返す', () => {
+      const mockGl = {
+        readPixels: vi.fn(
+          (
+            _x: number,
+            _y: number,
+            _w: number,
+            _h: number,
+            _format: number,
+            _type: number,
+            pixels: Uint8Array
+          ) => {
+            pixels[0] = 0
+            pixels[1] = 0
+            pixels[2] = 0
+            pixels[3] = 0 // 透明
+          }
+        ),
+        RGBA: 6408,
+        UNSIGNED_BYTE: 5121,
+      }
+      const mockCanvas = {
+        getContext: vi.fn((type: string) => {
+          if (type === 'webgl2') return mockGl
+          return null
+        }),
+        height: 100,
+      } as unknown as HTMLCanvasElement
+
+      const result = getPixelColor(mockCanvas, 10, 20)
+
+      expect(result).toBeNull()
     })
   })
 })
