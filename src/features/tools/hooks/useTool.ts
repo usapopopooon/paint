@@ -1,15 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
-import type {
-  ToolType,
-  ToolConfig,
-  PenToolConfig,
-  EraserToolConfig,
-  HandToolConfig,
-  CursorConfig,
-} from '../types'
+import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
 import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../types'
-import { penBehavior, eraserBehavior, getToolBehavior } from '../domain'
+import { getToolBehavior } from '../domain'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
+import { createInitialToolState, type ToolState } from '../helpers'
 
 /** ホイールでブラシサイズを調整する際のスライダー値のステップ */
 const BRUSH_SIZE_SLIDER_STEP = 5
@@ -19,30 +13,11 @@ const SLIDER_MIN = 0
 const SLIDER_MAX = 100
 
 /**
- * ツール状態の型
- */
-export type ToolState = {
-  readonly currentType: ToolType
-  readonly penConfig: PenToolConfig
-  readonly eraserConfig: EraserToolConfig
-}
-
-/**
- * ツールの初期状態を作成
- * @returns 初期ToolState
- */
-const createInitialState = (): ToolState => ({
-  currentType: 'hand',
-  penConfig: penBehavior.defaultConfig(),
-  eraserConfig: eraserBehavior.defaultConfig(),
-})
-
-/**
  * ツール状態を管理するフック
  * @returns ツール操作用のメソッドと現在の状態
  */
 export const useTool = () => {
-  const [state, setState] = useState<ToolState>(createInitialState)
+  const [state, setState] = useState<ToolState>(createInitialToolState)
 
   /**
    * ツールタイプを切り替え

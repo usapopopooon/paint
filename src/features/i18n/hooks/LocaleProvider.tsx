@@ -1,24 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { getStorageItem, setStorageItem } from '@/lib/storage'
+import { setStorageItem } from '@/lib/storage'
 import type { Locale } from '../types'
-import { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from '../types'
+import { LOCALE_STORAGE_KEY } from '../types'
 import { getTranslation, type TranslationKey, type TranslateFunction } from '../infrastructure'
 import { LocaleContext, type LocaleContextValue } from './LocaleContext'
-
-/**
- * 初期ロケールを取得
- * 優先順位: LocalStorage > ブラウザ設定 > デフォルト(en)
- * @returns 初期ロケール
- */
-const getInitialLocale = (): Locale => {
-  const stored = getStorageItem(LOCALE_STORAGE_KEY, ALLOWED_LOCALES)
-  if (stored) return stored
-
-  if (typeof window === 'undefined') return 'en'
-
-  const browserLang = navigator.language.toLowerCase()
-  return browserLang.startsWith('ja') ? 'ja' : 'en'
-}
+import { getInitialLocale } from '../helpers'
 
 /**
  * LocaleProviderコンポーネントのプロパティ
