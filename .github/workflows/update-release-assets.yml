@@ -59,8 +59,8 @@ jobs:
           sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" README.md
           sed -i "s|releases/tag/v[0-9.]*|releases/tag/v${VERSION}|g" README.md
 
-          # Update screenshot timestamp
-          sed -i "s|screenshot\.png[^)]*|screenshot.png?t=${TIMESTAMP}|g" README.md
+          # Update screenshot filename with timestamp
+          sed -i "s|screenshot_[0-9]*\.png|screenshot_${TIMESTAMP}.png|g" README.md
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -76,4 +76,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: screenshot
-          path: deploy/screenshot.png
+          path: deploy/screenshot_*.png
