@@ -1,3 +1,5 @@
 export { useCanvas } from './useCanvas'
 export { useCanvasHistory } from './useCanvasHistory'
+export { useCanvasOffset, type CanvasOffset } from './useCanvasOffset'
+export { useCanvasSize } from './useCanvasSize'
 export { useDrawing } from './useDrawing'

@@ -171,3 +171,29 @@ export const PointerInteraction: Story = {
     }
   },
 }
+
+export const LargeSize: Story = {
+  args: {
+    drawables: [],
+    width: 1200,
+    height: 900,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = await waitForCanvas(canvasElement)
+    await expect(canvas).toHaveAttribute('width', '1200')
+    await expect(canvas).toHaveAttribute('height', '900')
+  },
+}
+
+export const MinimumSize: Story = {
+  args: {
+    drawables: [],
+    width: 100,
+    height: 100,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = await waitForCanvas(canvasElement)
+    await expect(canvas).toHaveAttribute('width', '100')
+    await expect(canvas).toHaveAttribute('height', '100')
+  },
+}

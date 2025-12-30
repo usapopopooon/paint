@@ -42,7 +42,7 @@ export const PointerInputLayer = ({
       ref={canvasRef}
       {...pointerProps}
       className={`relative ${className ?? ''}`}
-      style={{ touchAction: 'none', cursor: 'none' }}
+      style={{ touchAction: 'none', cursor: cursor ? 'none' : undefined }}
     >
       {children}
       {cursor && pointerPosition && (

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { LayerPanel } from './LayerPanel'
-import { mockT } from '@/test/mocks'
 import type { Layer } from '@/features/layer'
 
 const sampleLayers: readonly Layer[] = [
@@ -45,7 +44,6 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    t: mockT,
     layers: sampleLayers,
     onLayerSelect: fn(),
     onLayerVisibilityChange: fn(),

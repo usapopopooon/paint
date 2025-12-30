@@ -1,7 +1,7 @@
 import { ClipboardPaste, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 import { useColorWheel, WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../hooks/useColorWheel'
 import { isValidHex, normalizeHex } from '../helpers'
 
@@ -11,7 +11,6 @@ import { isValidHex, normalizeHex } from '../helpers'
 type ColorWheelProps = {
   readonly color: string
   readonly onChange: (color: string) => void
-  readonly t: (key: TranslationKey) => string
 }
 
 /**
@@ -19,7 +18,8 @@ type ColorWheelProps = {
  * 色相リングと彩度・明度の正方形で色を選択
  * @param props - ColorWheelコンポーネントのプロパティ
  */
-export const ColorWheel = ({ color, onChange, t }: ColorWheelProps) => {
+export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
+  const { t } = useLocale()
   const {
     containerRef,
     hsv,

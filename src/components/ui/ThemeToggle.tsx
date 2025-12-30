@@ -2,28 +2,21 @@ import { memo } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from './button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import type { TranslationKey } from '@/features/i18n'
-
-/**
- * ThemeToggleコンポーネントのプロパティ
- */
-type ThemeToggleProps = {
-  readonly isDark: boolean
-  readonly onToggle: () => void
-  readonly t: (key: TranslationKey) => string
-}
+import { useLocale } from '@/features/i18n'
+import { useTheme } from '@/features/theme'
 
 /**
  * ダーク/ライトモード切り替えトグルコンポーネント
- * @param props - ThemeToggleコンポーネントのプロパティ
  */
-export const ThemeToggle = memo(function ThemeToggle({ isDark, onToggle, t }: ThemeToggleProps) {
+export const ThemeToggle = memo(function ThemeToggle() {
+  const { isDark, toggleTheme } = useTheme()
+  const { t } = useLocale()
   const label = isDark ? t('theme.lightMode') : t('theme.darkMode')
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={onToggle} aria-label={label}>
+        <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={label}>
           {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
         </Button>
       </TooltipTrigger>

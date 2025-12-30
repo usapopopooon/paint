@@ -1,6 +1,6 @@
 import type { ToolType, ToolConfig, CursorConfig } from '../../types'
 import type { Point, StrokeDrawable } from '@/features/drawable'
-import { penBehavior, eraserBehavior } from '../entities'
+import { penBehavior, eraserBehavior, handBehavior } from '../entities'
 
 /**
  * ツールの動作を定義するインターフェース
@@ -15,6 +15,7 @@ export type ToolBehavior = {
 const behaviors: Record<ToolType, ToolBehavior> = {
   pen: penBehavior as ToolBehavior,
   eraser: eraserBehavior as ToolBehavior,
+  hand: handBehavior as ToolBehavior,
 }
 
 /**

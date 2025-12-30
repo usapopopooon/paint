@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 import type { Layer, LayerId } from '@/features/layer'
 
 type LayerPanelProps = {
@@ -10,7 +10,6 @@ type LayerPanelProps = {
   readonly activeLayerId: LayerId
   readonly onLayerSelect: (id: LayerId) => void
   readonly onLayerVisibilityChange: (id: LayerId, isVisible: boolean) => void
-  readonly t: (key: TranslationKey) => string
 }
 
 export const LayerPanel = memo(function LayerPanel({
@@ -18,8 +17,8 @@ export const LayerPanel = memo(function LayerPanel({
   activeLayerId,
   onLayerSelect,
   onLayerVisibilityChange,
-  t,
 }: LayerPanelProps) {
+  const { t } = useLocale()
   return (
     <div className="flex flex-col gap-2">
       <span className="text-sm font-medium text-foreground">{t('layers.title')}</span>

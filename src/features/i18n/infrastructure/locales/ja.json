@@ -1,6 +1,7 @@
 {
   "tools.pen": "ペン",
   "tools.eraser": "消しゴム",
+  "tools.hand": "ハンドツール",
   "actions.undo": "元に戻す",
   "actions.redo": "やり直す",
   "actions.clear": "クリア",
@@ -10,6 +11,7 @@
   "shortcuts.undo": "Ctrl+Z",
   "shortcuts.redo": "Ctrl+Shift+Z",
   "shortcuts.clear": "Shift+Delete",
+  "shortcuts.hand": "H",
   "messages.noUndoHistory": "履歴がありません",
   "messages.noRedoHistory": "履歴がありません",
   "color.copy": "コピー",
@@ -17,5 +19,8 @@
   "layers.title": "レイヤー",
   "layers.visible": "表示",
   "layers.hidden": "非表示",
-  "layers.layer": "レイヤー"
+  "layers.layer": "レイヤー",
+  "canvas.width": "幅",
+  "canvas.height": "高さ",
+  "canvas.center": "キャンバスを中央に"
 }

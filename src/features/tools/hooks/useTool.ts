@@ -1,5 +1,12 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { ToolType, ToolConfig, PenToolConfig, EraserToolConfig, CursorConfig } from '../types'
+import type {
+  ToolType,
+  ToolConfig,
+  PenToolConfig,
+  EraserToolConfig,
+  HandToolConfig,
+  CursorConfig,
+} from '../types'
 import { MIN_PEN_WIDTH, MAX_PEN_WIDTH, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../types'
 import { penBehavior, eraserBehavior, getToolBehavior } from '../domain'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
@@ -25,7 +32,7 @@ export type ToolState = {
  * @returns 初期ToolState
  */
 const createInitialState = (): ToolState => ({
-  currentType: 'pen',
+  currentType: 'hand',
   penConfig: penBehavior.defaultConfig(),
   eraserConfig: eraserBehavior.defaultConfig(),
 })
@@ -69,8 +76,14 @@ export const useTool = () => {
     setState((prev) => ({ ...prev, eraserConfig: { ...prev.eraserConfig, width } }))
   }, [])
 
+  const handConfig: HandToolConfig = { type: 'hand' }
+
   const currentConfig: ToolConfig =
-    state.currentType === 'pen' ? state.penConfig : state.eraserConfig
+    state.currentType === 'pen'
+      ? state.penConfig
+      : state.currentType === 'eraser'
+        ? state.eraserConfig
+        : handConfig
 
   /**
    * カーソル設定を取得
