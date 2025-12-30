@@ -16,7 +16,7 @@ export const ThemeToggle = memo(function ThemeToggle() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label={label}>
+        <Button variant="secondary" size="icon" onClick={toggleTheme} aria-label={label}>
           {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
         </Button>
       </TooltipTrigger>

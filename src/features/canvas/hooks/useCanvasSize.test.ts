@@ -6,6 +6,7 @@ import {
   DEFAULT_CANVAS_HEIGHT,
   MIN_CANVAS_SIZE,
   MAX_CANVAS_SIZE,
+  DEFAULT_RESIZE_ANCHOR,
 } from './useCanvasSize'
 
 describe('useCanvasSize', () => {
@@ -20,6 +21,13 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize())
 
       expect(result.current.height).toBe(DEFAULT_CANVAS_HEIGHT)
+    })
+
+    test('デフォルトのアンカーはcenter', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      expect(result.current.anchor).toBe(DEFAULT_RESIZE_ANCHOR)
+      expect(result.current.anchor).toBe('center')
     })
   })
 
@@ -319,6 +327,63 @@ describe('useCanvasSize', () => {
 
       expect(result.current.width).toBe(MAX_CANVAS_SIZE)
       expect(result.current.height).toBe(MAX_CANVAS_SIZE)
+    })
+  })
+
+  describe('アンカー', () => {
+    test('setAnchorでアンカーを変更できる', () => {
+      const { result } = renderHook(() => useCanvasSize())
+
+      act(() => {
+        result.current.setAnchor('top-left')
+      })
+
+      expect(result.current.anchor).toBe('top-left')
+    })
+
+    test('左上アンカーで幅拡大時にオフセット0でコールバックが呼ばれる', () => {
+      const onSizeChange = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange }))
+
+      act(() => {
+        result.current.setAnchor('top-left')
+      })
+
+      act(() => {
+        result.current.setWidth(900) // 800 -> 900 = +100
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(0, 0)
+    })
+
+    test('右下アンカーで幅拡大時に全体オフセットでコールバックが呼ばれる', () => {
+      const onSizeChange = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange }))
+
+      act(() => {
+        result.current.setAnchor('bottom-right')
+      })
+
+      act(() => {
+        result.current.setWidth(900) // 800 -> 900 = +100
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(100, 0)
+    })
+
+    test('左アンカーで高さ拡大時に半分のY方向オフセットでコールバックが呼ばれる', () => {
+      const onSizeChange = vi.fn()
+      const { result } = renderHook(() => useCanvasSize({ onSizeChange }))
+
+      act(() => {
+        result.current.setAnchor('left')
+      })
+
+      act(() => {
+        result.current.setHeight(700) // 600 -> 700 = +100
+      })
+
+      expect(onSizeChange).toHaveBeenCalledWith(0, 50)
     })
   })
 })
