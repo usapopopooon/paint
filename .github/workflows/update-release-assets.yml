@@ -3,16 +3,16 @@ name: Update Release Assets
 on:
   pull_request:
     branches:
-      - main
-    types: [opened]
+      - 'release/**'
+    types: [closed]
 
 permissions:
   contents: write
 
 jobs:
   update-assets:
-    # release/**ブランチからのPRのみ実行
-    if: startsWith(github.head_ref, 'release/')
+    # PRがマージされた時のみ実行
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -20,14 +20,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.PAT_TOKEN }}
+          ref: ${{ github.event.pull_request.base.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure git safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        env:
+          HOME: /root
 
       - name: Build app
         run: npm run build
@@ -40,20 +48,16 @@ jobs:
         env:
           HOME: /root
 
-      - name: Get version from branch name
+      - name: Get version from package.json
         id: version
         run: |
-          # release/v0.0.13 -> 0.0.13
-          VERSION="${GITHUB_HEAD_REF#release/v}"
+          VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Update package.json and README
+      - name: Update README version badge and screenshot timestamp
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TIMESTAMP=$(date +%s)
-
-          # Update package.json version
-          node -e "const pkg = require('./package.json'); pkg.version = '$VERSION'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')"
 
           # Update version badge
           sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" README.md
@@ -64,13 +68,9 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json README.md
-
-          # Check if there are changes to commit
-          if ! git diff --staged --quiet; then
-            git commit -m "Release v$VERSION: update version, badge, and changelog"
-            git push
-          fi
+          git add README.md
+          git diff --staged --quiet || git commit -m "Update version badge and screenshot timestamp [skip ci]"
+          git push
 
       - name: Upload screenshot artifact
         uses: actions/upload-artifact@v4
