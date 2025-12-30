@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { getPixelColor } from './getPixelColor'
+import { TRANSPARENT_THRESHOLD } from '../constants'
 
 describe('getPixelColor', () => {
   beforeEach(() => {
@@ -99,9 +100,9 @@ describe('getPixelColor', () => {
       expect(result).toBeNull()
     })
 
-    it('ほぼ透明なピクセル（alpha<10）の場合はnullを返す', () => {
+    it('ほぼ透明なピクセル（alpha<TRANSPARENT_THRESHOLD）の場合はnullを返す', () => {
       const mockImageData = {
-        data: new Uint8ClampedArray([100, 50, 25, 9]), // alpha=9
+        data: new Uint8ClampedArray([100, 50, 25, TRANSPARENT_THRESHOLD - 1]),
       }
       const mockCtx = {
         getImageData: vi.fn().mockReturnValue(mockImageData),
@@ -119,9 +120,9 @@ describe('getPixelColor', () => {
       expect(result).toBeNull()
     })
 
-    it('alpha=10のピクセルは色を返す（しきい値境界）', () => {
+    it('alpha=TRANSPARENT_THRESHOLDのピクセルは色を返す（しきい値境界）', () => {
       const mockImageData = {
-        data: new Uint8ClampedArray([100, 50, 25, 10]), // alpha=10
+        data: new Uint8ClampedArray([100, 50, 25, TRANSPARENT_THRESHOLD]),
       }
       const mockCtx = {
         getImageData: vi.fn().mockReturnValue(mockImageData),

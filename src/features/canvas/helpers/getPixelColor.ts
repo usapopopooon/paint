@@ -1,5 +1,4 @@
-/** 透明とみなすアルファ値のしきい値 */
-const TRANSPARENT_THRESHOLD = 10
+import { TRANSPARENT_THRESHOLD } from '../constants'
 
 /**
  * キャンバス上の指定位置からピクセルカラーを取得
