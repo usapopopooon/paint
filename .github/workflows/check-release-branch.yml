@@ -27,8 +27,8 @@ jobs:
             exit 0
           fi
 
-          if [[ ! "${{ github.head_ref }}" =~ ^(release|hotfix)/ ]]; then
-            echo "Error: Only release/* or hotfix/* branches can merge to main"
+          if [[ ! "${{ github.head_ref }}" =~ ^(release|hotfix|revert)/ ]]; then
+            echo "Error: Only release/*, hotfix/*, or revert/* branches can merge to main"
             echo "Current branch: ${{ github.head_ref }}"
             exit 1
           fi
