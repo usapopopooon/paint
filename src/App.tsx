@@ -66,7 +66,7 @@ function App() {
   return (
     <div className="h-screen flex flex-col">
       {/* Top toolbar */}
-      <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background">
+      <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">
         <Toolbar>
           <UndoButton disabled={!canvas.canUndo} onClick={canvas.undo} />
           <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} />
@@ -120,7 +120,7 @@ function App() {
         </ToolPanel>
 
         {/* Canvas area */}
-        <main className="flex-1 overflow-hidden bg-muted/30">
+        <main className="flex-1 overflow-hidden bg-[rgb(220,220,220)] dark:bg-muted/30">
           <CanvasViewport
             canvasWidth={canvasSize.width}
             canvasHeight={canvasSize.height}

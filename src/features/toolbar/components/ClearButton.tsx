@@ -13,7 +13,7 @@ export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonPro
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="outline" size="icon" onClick={onClick} aria-label={t('actions.clear')}>
+        <Button variant="secondary" size="icon" onClick={onClick} aria-label={t('actions.clear')}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
