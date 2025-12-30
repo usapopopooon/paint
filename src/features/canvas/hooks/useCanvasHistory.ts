@@ -53,9 +53,10 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
    * @param drawable - 追加されたDrawable
    */
   const addDrawable = useCallback(
-    (drawable: Drawable) => {
+    async (drawable: Drawable) => {
       const action = createDrawableAddedAction(drawable)
-      storageRef.current.push(action).then(updateStackInfo)
+      await storageRef.current.push(action)
+      await updateStackInfo()
     },
     [updateStackInfo]
   )
