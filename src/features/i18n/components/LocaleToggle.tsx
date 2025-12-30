@@ -21,8 +21,8 @@ export const LocaleToggle = memo(function LocaleToggle() {
           <span
             className={`w-12 text-center py-1 transition-colors ${
               locale === 'ja'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-transparent text-muted-foreground'
+                ? 'bg-control text-control-foreground dark:text-control-foreground'
+                : 'bg-transparent text-muted-foreground dark:text-white'
             }`}
           >
             日本語
@@ -30,8 +30,8 @@ export const LocaleToggle = memo(function LocaleToggle() {
           <span
             className={`w-12 text-center py-1 transition-colors ${
               locale === 'en'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-transparent text-muted-foreground'
+                ? 'bg-control text-control-foreground dark:text-control-foreground'
+                : 'bg-transparent text-muted-foreground dark:text-white'
             }`}
           >
             English

@@ -13,6 +13,7 @@ describe('useKeyboardShortcuts', () => {
       onSelectPen: vi.fn(),
       onSelectEraser: vi.fn(),
       onSelectHand: vi.fn(),
+      onSelectEyedropper: vi.fn(),
     }
   })
 
@@ -98,7 +99,7 @@ describe('useKeyboardShortcuts', () => {
     })
   })
 
-  describe('ツール選択 (P / E / H)', () => {
+  describe('ツール選択 (P / E / H / I)', () => {
     test('Pキーでペンツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
@@ -174,6 +175,27 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('h', { ctrlKey: true })
 
       expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Iキーでスポイトツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('i')
+
+      expect(mockHandlers.onSelectEyedropper).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectEraser).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Iでもスポイトツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('I')
+
+      expect(mockHandlers.onSelectEyedropper).toHaveBeenCalledTimes(1)
       unmount()
     })
   })

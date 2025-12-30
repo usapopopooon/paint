@@ -1,24 +1,28 @@
 import { memo } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Pipette } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
 
-type ClearButtonProps = {
+type EyedropperButtonProps = {
+  readonly isActive: boolean
   readonly onClick: () => void
 }
 
-export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonProps) {
+export const EyedropperButton = memo(function EyedropperButton({
+  isActive,
+  onClick,
+}: EyedropperButtonProps) {
   const { t } = useLocale()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="secondary" size="icon" onClick={onClick} aria-label={t('actions.clear')}>
-          <Trash2 className="h-4 w-4" />
+        <Button variant={isActive ? 'default' : 'secondary'} size="icon" onClick={onClick}>
+          <Pipette className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {t('actions.clear')} ({t('shortcuts.clear')})
+        {t('tools.eyedropper')} ({t('shortcuts.eyedropper')})
       </TooltipContent>
     </Tooltip>
   )

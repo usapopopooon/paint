@@ -54,6 +54,7 @@
     "/#[0-9a-fA-F]{3,8}/",
     "/[a-z]+-[a-z]+(-[a-z]+)*/",
     "/(bg|text|border|ring|shadow)-[a-z]+(-[0-9]+)?/",
-    "/className=\"[^\"]+\"/"
+    "/className=\"[^\"]+\"/",
+    "/%3C[a-zA-Z]+/"
   ]
 }

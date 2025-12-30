@@ -27,7 +27,7 @@ export const LayerPanel = memo(function LayerPanel({
           <div
             key={layer.id}
             className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
-              activeLayerId === layer.id ? 'bg-primary/20' : 'hover:bg-muted'
+              activeLayerId === layer.id ? 'bg-control text-control-foreground' : 'hover:bg-muted'
             }`}
             onClick={() => onLayerSelect(layer.id)}
           >
@@ -54,7 +54,7 @@ export const LayerPanel = memo(function LayerPanel({
                 {layer.isVisible ? t('layers.visible') : t('layers.hidden')}
               </TooltipContent>
             </Tooltip>
-            <span className="text-sm text-foreground">
+            <span className="text-sm">
               {t('layers.layer')} {layer.name.replace(/\D/g, '')}
             </span>
           </div>
