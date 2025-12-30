@@ -1,7 +1,9 @@
 name: Update Release Assets
 
 on:
-  push:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
     branches:
       - 'release/**'
 
@@ -10,8 +12,10 @@ permissions:
 
 jobs:
   update-assets:
-    # [skip ci]コミットでは実行しない
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    # CIが成功した場合のみ実行、[skip ci]コミットでは実行しない
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      !contains(github.event.workflow_run.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.57.0-noble
@@ -19,6 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.workflow_run.head_branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure git safe directory
@@ -62,7 +67,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Update version badge and screenshot timestamp [skip ci]"
 
           # Pull latest changes before push to avoid conflicts
-          git pull --rebase origin ${{ github.ref_name }} || true
+          git pull --rebase origin ${{ github.event.workflow_run.head_branch }} || true
           git push
 
       - name: Upload screenshot artifact
