@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { ClearButton } from './ClearButton'
-import { mockT } from '@/test/mocks'
 
 const meta = {
   title: 'Features/Toolbar/ClearButton',
@@ -10,9 +9,6 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  args: {
-    t: mockT,
-  },
 } satisfies Meta<typeof ClearButton>
 
 export default meta

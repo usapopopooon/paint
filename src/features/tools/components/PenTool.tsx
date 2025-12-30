@@ -3,7 +3,7 @@ import { Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 
 const MIN_PEN_WIDTH = 1
@@ -14,7 +14,6 @@ type PenToolProps = {
   readonly width: number
   readonly onSelect: () => void
   readonly onWidthChange: (width: number) => void
-  readonly t: (key: TranslationKey) => string
 }
 
 export const PenTool = memo(function PenTool({
@@ -22,8 +21,8 @@ export const PenTool = memo(function PenTool({
   width,
   onSelect,
   onWidthChange,
-  t,
 }: PenToolProps) {
+  const { t } = useLocale()
   const handleSliderChange = useCallback(
     (values: number[]) => {
       onSelect()

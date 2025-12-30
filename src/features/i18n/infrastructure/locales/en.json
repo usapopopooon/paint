@@ -17,5 +17,7 @@
   "layers.title": "Layers",
   "layers.visible": "Visible",
   "layers.hidden": "Hidden",
-  "layers.layer": "Layer"
+  "layers.layer": "Layer",
+  "canvas.width": "Width",
+  "canvas.height": "Height"
 }

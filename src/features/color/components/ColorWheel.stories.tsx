@@ -2,7 +2,6 @@ import React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { ColorWheel } from './ColorWheel'
-import { mockT } from '@/test/mocks'
 
 const meta = {
   title: 'Features/Color/ColorWheel',
@@ -13,7 +12,6 @@ const meta = {
   tags: ['autodocs'],
   args: {
     onChange: fn(),
-    t: mockT,
   },
   argTypes: {
     color: {
@@ -97,7 +95,6 @@ const InteractiveColorWheel = (args: React.ComponentProps<typeof ColorWheel>) =>
           setColor(newColor)
           args.onChange(newColor)
         }}
-        t={mockT}
       />
       <div
         className="w-32 h-32 rounded-lg border border-border"

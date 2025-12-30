@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { EraserTool } from './EraserTool'
-import { mockT } from '@/test/mocks'
 
 const meta = {
   title: 'Features/Tools/EraserTool',
@@ -11,7 +10,6 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    t: mockT,
     onSelect: fn(),
     onWidthChange: fn(),
   },

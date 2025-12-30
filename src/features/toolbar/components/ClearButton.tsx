@@ -1,14 +1,14 @@
 import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 
 type ClearButtonProps = {
   readonly onClick: () => void
-  readonly t: (key: TranslationKey) => string
 }
 
-export const ClearButton = memo(function ClearButton({ onClick, t }: ClearButtonProps) {
+export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonProps) {
+  const { t } = useLocale()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

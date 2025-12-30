@@ -3,8 +3,9 @@ import path from 'path'
 
 export default defineConfig({
   test: {
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
     reporters: ['verbose'],
     coverage: {
       reporter: ['text', 'json-summary'],

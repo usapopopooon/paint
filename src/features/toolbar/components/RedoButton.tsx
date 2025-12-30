@@ -1,15 +1,15 @@
 import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { TranslationKey } from '@/features/i18n'
+import { useLocale } from '@/features/i18n'
 
 type RedoButtonProps = {
   readonly disabled: boolean
   readonly onClick: () => void
-  readonly t: (key: TranslationKey) => string
 }
 
-export const RedoButton = memo(function RedoButton({ disabled, onClick, t }: RedoButtonProps) {
+export const RedoButton = memo(function RedoButton({ disabled, onClick }: RedoButtonProps) {
+  const { t } = useLocale()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

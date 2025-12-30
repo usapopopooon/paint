@@ -5,7 +5,6 @@ import { UndoButton } from './UndoButton'
 import { RedoButton } from './RedoButton'
 import { ClearButton } from './ClearButton'
 import { ToolbarDivider } from './ToolbarDivider'
-import { mockT } from '@/test/mocks'
 
 const meta = {
   title: 'Features/Toolbar/Toolbar',
@@ -25,10 +24,10 @@ export const Default: Story = {
   },
   render: () => (
     <Toolbar>
-      <UndoButton disabled={true} onClick={fn()} t={mockT} />
-      <RedoButton disabled={true} onClick={fn()} t={mockT} />
+      <UndoButton disabled={true} onClick={fn()} />
+      <RedoButton disabled={true} onClick={fn()} />
       <ToolbarDivider />
-      <ClearButton onClick={fn()} t={mockT} />
+      <ClearButton onClick={fn()} />
     </Toolbar>
   ),
   play: async ({ canvasElement }) => {
@@ -47,10 +46,10 @@ export const WithUndoEnabled: Story = {
   },
   render: () => (
     <Toolbar>
-      <UndoButton disabled={false} onClick={onUndoFn} t={mockT} />
-      <RedoButton disabled={true} onClick={fn()} t={mockT} />
+      <UndoButton disabled={false} onClick={onUndoFn} />
+      <RedoButton disabled={true} onClick={fn()} />
       <ToolbarDivider />
-      <ClearButton onClick={fn()} t={mockT} />
+      <ClearButton onClick={fn()} />
     </Toolbar>
   ),
   play: async ({ canvasElement }) => {
@@ -72,10 +71,10 @@ export const WithRedoEnabled: Story = {
   },
   render: () => (
     <Toolbar>
-      <UndoButton disabled={true} onClick={fn()} t={mockT} />
-      <RedoButton disabled={false} onClick={onRedoFn} t={mockT} />
+      <UndoButton disabled={true} onClick={fn()} />
+      <RedoButton disabled={false} onClick={onRedoFn} />
       <ToolbarDivider />
-      <ClearButton onClick={fn()} t={mockT} />
+      <ClearButton onClick={fn()} />
     </Toolbar>
   ),
   play: async ({ canvasElement }) => {
@@ -96,10 +95,10 @@ export const WithBothEnabled: Story = {
   },
   render: () => (
     <Toolbar>
-      <UndoButton disabled={false} onClick={fn()} t={mockT} />
-      <RedoButton disabled={false} onClick={fn()} t={mockT} />
+      <UndoButton disabled={false} onClick={fn()} />
+      <RedoButton disabled={false} onClick={fn()} />
       <ToolbarDivider />
-      <ClearButton onClick={fn()} t={mockT} />
+      <ClearButton onClick={fn()} />
     </Toolbar>
   ),
   play: async ({ canvasElement }) => {
@@ -117,10 +116,10 @@ export const ClearButtonStory: Story = {
   },
   render: () => (
     <Toolbar>
-      <UndoButton disabled={true} onClick={fn()} t={mockT} />
-      <RedoButton disabled={true} onClick={fn()} t={mockT} />
+      <UndoButton disabled={true} onClick={fn()} />
+      <RedoButton disabled={true} onClick={fn()} />
       <ToolbarDivider />
-      <ClearButton onClick={onClearFn} t={mockT} />
+      <ClearButton onClick={onClearFn} />
     </Toolbar>
   ),
   play: async ({ canvasElement }) => {
@@ -138,10 +137,10 @@ export const Interactive: Story = {
   },
   render: () => (
     <Toolbar>
-      <UndoButton disabled={false} onClick={fn()} t={mockT} />
-      <RedoButton disabled={false} onClick={fn()} t={mockT} />
+      <UndoButton disabled={false} onClick={fn()} />
+      <RedoButton disabled={false} onClick={fn()} />
       <ToolbarDivider />
-      <ClearButton onClick={fn()} t={mockT} />
+      <ClearButton onClick={fn()} />
     </Toolbar>
   ),
 }

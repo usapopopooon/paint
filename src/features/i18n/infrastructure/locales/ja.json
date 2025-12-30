@@ -17,5 +17,7 @@
   "layers.title": "レイヤー",
   "layers.visible": "表示",
   "layers.hidden": "非表示",
-  "layers.layer": "レイヤー"
+  "layers.layer": "レイヤー",
+  "canvas.width": "幅",
+  "canvas.height": "高さ"
 }

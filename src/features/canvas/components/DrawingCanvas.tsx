@@ -118,7 +118,7 @@ export const DrawingCanvas = ({
   // サイズ変更時のリサイズ
   useEffect(() => {
     const app = appRef.current
-    if (!app || !isInitialized) return
+    if (!app || !isInitialized || !app.renderer) return
 
     app.renderer.resize(size.width, size.height)
   }, [size.width, size.height, isInitialized])
