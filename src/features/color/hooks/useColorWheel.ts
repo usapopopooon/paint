@@ -6,8 +6,25 @@ import { colorWheelState } from './colorWheelState'
 export const WHEEL_SIZE = 200
 /** 色相リングの幅（ピクセル） */
 export const RING_WIDTH = 16
+/** 彩度・明度選択の正方形の余白（ピクセル） */
+const SQUARE_MARGIN = 4
 /** 彩度・明度選択の正方形サイズ（ピクセル） */
-export const SQUARE_SIZE = (WHEEL_SIZE / 2 - RING_WIDTH) * Math.sqrt(2) - 4
+export const SQUARE_SIZE = (WHEEL_SIZE / 2 - RING_WIDTH) * Math.sqrt(2) - SQUARE_MARGIN
+
+/** HSV値の最小値（パーセンテージ） */
+const HSV_MIN = 0
+/** HSV値の最大値（パーセンテージ） */
+const HSV_MAX = 100
+/** 角度変換: ラジアンから度への係数 */
+const RADIANS_TO_DEGREES = 180 / Math.PI
+/** 角度変換: 度からラジアンへの係数 */
+const DEGREES_TO_RADIANS = Math.PI / 180
+/** 円の全周（度） */
+const FULL_CIRCLE_DEGREES = 360
+/** 色相の開始オフセット角度（上方向を0度とするため） */
+const HUE_ANGLE_OFFSET = 90
+/** クリック判定の拡張パディング（ピクセル） */
+const CLICK_PADDING = 8
 
 /** ドラッグモードの型 */
 type DragMode = 'none' | 'hue' | 'sv'
@@ -60,8 +77,8 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   const updateSV = useCallback(
     (x: number, y: number) => {
       const squareHalf = SQUARE_SIZE / 2
-      const s = Math.max(0, Math.min(100, ((x + squareHalf) / SQUARE_SIZE) * 100))
-      const v = Math.max(0, Math.min(100, (1 - (y + squareHalf) / SQUARE_SIZE) * 100))
+      const s = Math.max(HSV_MIN, Math.min(HSV_MAX, ((x + squareHalf) / SQUARE_SIZE) * HSV_MAX))
+      const v = Math.max(HSV_MIN, Math.min(HSV_MAX, (1 - (y + squareHalf) / SQUARE_SIZE) * HSV_MAX))
       const newHsv = { h: hsv.h, s: Math.round(s), v: Math.round(v) }
       setHsv(newHsv)
       onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v))
@@ -76,8 +93,8 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
    */
   const updateHue = useCallback(
     (x: number, y: number) => {
-      const angle = Math.atan2(y, x) * (180 / Math.PI)
-      const hue = (angle + 90 + 360) % 360
+      const angle = Math.atan2(y, x) * RADIANS_TO_DEGREES
+      const hue = (angle + HUE_ANGLE_OFFSET + FULL_CIRCLE_DEGREES) % FULL_CIRCLE_DEGREES
       const newHsv = { h: Math.round(hue), s: hsv.s, v: hsv.v }
       setHsv(newHsv)
       onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v))
@@ -104,11 +121,13 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
       const squareHalf = SQUARE_SIZE / 2
       const innerRadius = WHEEL_SIZE / 2 - RING_WIDTH
 
-      const padding = 8
-      if (Math.abs(x) <= squareHalf + padding && Math.abs(y) <= squareHalf + padding) {
+      if (Math.abs(x) <= squareHalf + CLICK_PADDING && Math.abs(y) <= squareHalf + CLICK_PADDING) {
         setDragMode('sv')
         updateSV(x, y)
-      } else if (distance >= innerRadius - padding && distance <= WHEEL_SIZE / 2 + padding) {
+      } else if (
+        distance >= innerRadius - CLICK_PADDING &&
+        distance <= WHEEL_SIZE / 2 + CLICK_PADDING
+      ) {
         setDragMode('hue')
         updateHue(x, y)
       }
@@ -200,13 +219,13 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   }, [])
 
   // インジケーター位置を計算
-  const hueAngle = hsv.h - 90
+  const hueAngle = hsv.h - HUE_ANGLE_OFFSET
   const ringMiddle = WHEEL_SIZE / 2 - RING_WIDTH / 2
-  const hueIndicatorX = WHEEL_SIZE / 2 + Math.cos((hueAngle * Math.PI) / 180) * ringMiddle
-  const hueIndicatorY = WHEEL_SIZE / 2 + Math.sin((hueAngle * Math.PI) / 180) * ringMiddle
+  const hueIndicatorX = WHEEL_SIZE / 2 + Math.cos(hueAngle * DEGREES_TO_RADIANS) * ringMiddle
+  const hueIndicatorY = WHEEL_SIZE / 2 + Math.sin(hueAngle * DEGREES_TO_RADIANS) * ringMiddle
 
-  const svIndicatorX = (hsv.s / 100) * SQUARE_SIZE
-  const svIndicatorY = (1 - hsv.v / 100) * SQUARE_SIZE
+  const svIndicatorX = (hsv.s / HSV_MAX) * SQUARE_SIZE
+  const svIndicatorY = (1 - hsv.v / HSV_MAX) * SQUARE_SIZE
 
   return {
     containerRef,
