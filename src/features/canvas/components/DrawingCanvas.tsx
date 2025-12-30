@@ -67,6 +67,7 @@ export const DrawingCanvas = ({
         height: size.height,
         backgroundAlpha: 0,
         antialias: true,
+        preserveDrawingBuffer: true, // スポイトツールでピクセルを読み取るために必要
       })
       .then(() => {
         // クリーンアップが先に呼ばれた場合は何もしない
