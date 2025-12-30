@@ -8,6 +8,7 @@ import {
   createDrawablesClearedAction,
   createLayerVisibilityChangedAction,
   createLayerOpacityChangedAction,
+  createLayerRenamedAction,
   createCanvasResizedAction,
 } from '@/features/history'
 
@@ -180,6 +181,22 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   )
 
   /**
+   * レイヤー名変更を履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param previousName - 変更前のレイヤー名
+   * @param newName - 変更後のレイヤー名
+   */
+  const recordLayerNameChange = useCallback(
+    async (layerId: LayerId, previousName: string, newName: string) => {
+      const action = createLayerRenamedAction(layerId, previousName, newName)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
    * キャンバスリサイズを履歴に記録
    * @param previousWidth - 変更前の幅
    * @param previousHeight - 変更前の高さ
@@ -234,6 +251,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     recordClear,
     recordLayerVisibilityChange,
     recordLayerOpacityChange,
+    recordLayerNameChange,
     recordCanvasResize,
   } as const
 }

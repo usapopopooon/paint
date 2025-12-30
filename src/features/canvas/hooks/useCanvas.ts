@@ -109,6 +109,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       } else if (action.type === 'layer:opacity-changed' && targetLayerId) {
         // 不透明度を元に戻す
         layerManager.setLayerOpacity(targetLayerId, action.previousValue)
+      } else if (action.type === 'layer:renamed' && targetLayerId) {
+        // レイヤー名を元に戻す
+        layerManager.setLayerName(targetLayerId, action.previousName)
       } else if (action.type === 'canvas:resized') {
         // キャンバスリサイズを元に戻す
         const reverseOffsetX = -action.offsetX
@@ -149,6 +152,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       } else if (action.type === 'layer:opacity-changed' && targetLayerId) {
         // 不透明度を再適用
         layerManager.setLayerOpacity(targetLayerId, action.newValue)
+      } else if (action.type === 'layer:renamed' && targetLayerId) {
+        // レイヤー名を再適用
+        layerManager.setLayerName(targetLayerId, action.newName)
       } else if (action.type === 'canvas:resized') {
         // キャンバスリサイズを再適用
         layerManager.translateAllLayers(action.offsetX, action.offsetY)
@@ -200,6 +206,23 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     [layerManager, history]
   )
 
+  /**
+   * レイヤー名を変更 + 履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param name - 新しいレイヤー名
+   */
+  const setLayerName = useCallback(
+    (layerId: string, name: string) => {
+      const layer = layerManager.layers.find((l) => l.id === layerId)
+      if (!layer || layer.name === name) return
+
+      const previousName = layer.name
+      layerManager.setLayerName(layerId, name)
+      history.recordLayerNameChange(layerId, previousName, name)
+    },
+    [layerManager, history]
+  )
+
   return {
     drawables: allDrawables,
     layers: allLayers,
@@ -215,6 +238,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     setActiveLayer: layerManager.setActiveLayer,
     setLayerVisibility,
     setLayerOpacity,
+    setLayerName,
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
   } as const

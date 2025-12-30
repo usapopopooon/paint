@@ -67,6 +67,12 @@ export type LayerOpacityChangedAction = ActionMetadata & {
   readonly newValue: number
 }
 
+export type LayerRenamedAction = ActionMetadata & {
+  readonly type: 'layer:renamed'
+  readonly previousName: string
+  readonly newName: string
+}
+
 // === キャンバスアクション ===
 
 export type CanvasResizedAction = ActionMetadata & {
@@ -97,6 +103,7 @@ export type LayerAction =
   | LayerReorderedAction
   | LayerVisibilityChangedAction
   | LayerOpacityChangedAction
+  | LayerRenamedAction
 
 export type CanvasAction = CanvasResizedAction
 
