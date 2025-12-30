@@ -52,6 +52,7 @@ export const PenTool = memo(function PenTool({
         <Slider
           value={[valueToSlider(width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)]}
           onValueChange={handleSliderChange}
+          onPointerDown={onSelect}
           min={0}
           max={100}
           step={0.1}

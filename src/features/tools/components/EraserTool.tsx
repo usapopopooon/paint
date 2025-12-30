@@ -52,6 +52,7 @@ export const EraserTool = memo(function EraserTool({
         <Slider
           value={[valueToSlider(width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
           onValueChange={handleSliderChange}
+          onPointerDown={onSelect}
           min={0}
           max={100}
           step={0.1}
