@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.13] - 2025-12-30
+
+### Developer Experience
+
+- **PR作成時にリリースアセットを自動更新**
+  - release/\*\*ブランチからmainへのPR作成時にUpdate Release Assetsワークフローを実行
+  - ブランチ名からバージョンを取得してpackage.jsonとREADMEを自動更新
+  - PAT_TOKENを使用してpushし、CIをトリガー
+- **revert/\*ブランチのmainマージを許可**
+
 ## [0.0.12] - 2025-12-30
 
 ### Developer Experience
