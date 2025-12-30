@@ -51,6 +51,7 @@ export const DrawingCanvas = ({
     const container = containerRef.current
     if (!container) return
 
+    let isCancelled = false
     const app = new Application()
     appRef.current = app
 
@@ -62,6 +63,11 @@ export const DrawingCanvas = ({
         antialias: true,
       })
       .then(() => {
+        // クリーンアップが先に呼ばれた場合は何もしない
+        if (isCancelled) {
+          app.destroy(true, { children: true })
+          return
+        }
         if (className) {
           app.canvas.className = className
         }
@@ -70,7 +76,11 @@ export const DrawingCanvas = ({
       })
 
     return () => {
-      app.destroy(true, { children: true })
+      isCancelled = true
+      // 初期化完了後のみdestroyを呼ぶ
+      if (app.renderer) {
+        app.destroy(true, { children: true })
+      }
       appRef.current = null
       setIsInitialized(false)
     }
