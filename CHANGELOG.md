@@ -29,6 +29,11 @@
 - **ボタンのホバー効果を統一**
   - ThemeToggle、LayerPanel、ColorWheelのコピー/ペーストボタンにホバー効果を追加
 
+### Developer Experience
+
+- **リリースコミットメッセージを修正**
+  - "screenshot" → "screenshot's url" に変更
+
 ## [0.0.17] - 2025-12-31
 
 ### Fixes
