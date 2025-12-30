@@ -19,20 +19,13 @@ describe('handBehavior', () => {
 
   describe('createStroke', () => {
     test('ハンドツールはストロークを作成できずエラーをスローする', () => {
-      const point = { x: 10, y: 20 }
-      const config = { type: 'hand' as const }
-
-      expect(() => handBehavior.createStroke(point, config)).toThrow(
-        'Hand tool does not create strokes'
-      )
+      expect(() => handBehavior.createStroke()).toThrow('Hand tool does not create strokes')
     })
   })
 
   describe('getCursor', () => {
     test('透明なカーソルコンフィグを返す（CSSカーソルを使用するため）', () => {
-      const config = { type: 'hand' as const }
-
-      const cursor = handBehavior.getCursor(config)
+      const cursor = handBehavior.getCursor()
 
       expect(cursor).toEqual({
         size: 0,
