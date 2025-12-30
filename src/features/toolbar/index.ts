@@ -1,1 +1,1 @@
-export { Toolbar, UndoButton, RedoButton, ClearButton, ToolbarDivider } from './components'
+export { Toolbar, UndoButton, RedoButton, ClearButton, ToolbarDivider, HandButton } from './components'

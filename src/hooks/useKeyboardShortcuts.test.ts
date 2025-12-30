@@ -12,6 +12,7 @@ describe('useKeyboardShortcuts', () => {
       onClear: vi.fn(),
       onSelectPen: vi.fn(),
       onSelectEraser: vi.fn(),
+      onSelectHand: vi.fn(),
     }
   })
 
@@ -97,7 +98,7 @@ describe('useKeyboardShortcuts', () => {
     })
   })
 
-  describe('ツール選択 (P / E)', () => {
+  describe('ツール選択 (P / E / H)', () => {
     test('Pキーでペンツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
@@ -105,6 +106,7 @@ describe('useKeyboardShortcuts', () => {
 
       expect(mockHandlers.onSelectPen).toHaveBeenCalledTimes(1)
       expect(mockHandlers.onSelectEraser).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
       unmount()
     })
 
@@ -124,6 +126,7 @@ describe('useKeyboardShortcuts', () => {
 
       expect(mockHandlers.onSelectEraser).toHaveBeenCalledTimes(1)
       expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
       unmount()
     })
 
@@ -136,12 +139,41 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
+    test('Hキーでハンドツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h')
+
+      expect(mockHandlers.onSelectHand).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectEraser).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Hでもハンドツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('H')
+
+      expect(mockHandlers.onSelectHand).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
     test('Ctrl+Pはペンツール選択しない', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('p', { ctrlKey: true })
 
       expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Ctrl+Hはハンドツール選択しない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h', { ctrlKey: true })
+
+      expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
       unmount()
     })
   })

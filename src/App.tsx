@@ -1,10 +1,17 @@
 import { useCallback } from 'react'
 import { ThemeToggle } from './components/ui/ThemeToggle'
-import { Canvas, CanvasSizeInput, useCanvas, useCanvasSize } from './features/canvas'
+import { Canvas, CanvasSizeInput, useCanvas, useCanvasSize, useCanvasOffset } from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { LocaleToggle } from './features/i18n'
-import { Toolbar, UndoButton, RedoButton, ClearButton, ToolbarDivider } from './features/toolbar'
+import {
+  Toolbar,
+  UndoButton,
+  RedoButton,
+  ClearButton,
+  ToolbarDivider,
+  HandButton,
+} from './features/toolbar'
 import { useTool, ToolPanel, PenTool, EraserTool, LayerPanel } from './features/tools'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
@@ -14,6 +21,7 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 function App() {
   const canvas = useCanvas()
   const canvasSize = useCanvasSize(canvas.translateAllLayers)
+  const canvasOffset = useCanvasOffset()
   const tool = useTool()
 
   // キーボードショートカット
@@ -23,6 +31,7 @@ function App() {
     onClear: canvas.clear,
     onSelectPen: () => tool.setToolType('pen'),
     onSelectEraser: () => tool.setToolType('eraser'),
+    onSelectHand: () => tool.setToolType('hand'),
   })
 
   /**
@@ -53,6 +62,8 @@ function App() {
           <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} />
           <ToolbarDivider />
           <ClearButton onClick={canvas.clear} />
+          <ToolbarDivider />
+          <HandButton isActive={tool.currentType === 'hand'} onClick={() => tool.setToolType('hand')} />
         </Toolbar>
         <CanvasSizeInput
           width={canvasSize.width}
@@ -91,7 +102,7 @@ function App() {
         </ToolPanel>
 
         {/* Canvas area */}
-        <main className="flex-1 overflow-auto bg-muted/30 flex items-center justify-center p-4">
+        <main className="flex-1 overflow-hidden bg-muted/30 flex items-center justify-center p-4">
           <Canvas
             layers={canvas.layers}
             onStartStroke={handleStartStroke}
@@ -101,6 +112,9 @@ function App() {
             cursor={tool.cursor}
             width={canvasSize.width}
             height={canvasSize.height}
+            toolType={tool.currentType}
+            offset={canvasOffset.offset}
+            onPan={canvasOffset.pan}
           />
         </main>
       </div>

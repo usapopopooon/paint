@@ -5,7 +5,7 @@ export type { Point, Drawable, StrokeDrawable } from './types'
 export { renderDrawables, renderLayers } from './adapters'
 
 // フック
-export { useCanvas, useCanvasSize } from './hooks'
+export { useCanvas, useCanvasOffset, useCanvasSize, type CanvasOffset } from './hooks'
 
 // コンポーネント
 export { Canvas, CanvasSizeInput } from './components'

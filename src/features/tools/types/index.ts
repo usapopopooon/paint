@@ -1,7 +1,7 @@
 /**
  * ツールの種類
  */
-export type ToolType = 'pen' | 'eraser'
+export type ToolType = 'pen' | 'eraser' | 'hand'
 
 /** ペンの最小幅（ピクセル） */
 export const MIN_PEN_WIDTH = 1
@@ -42,6 +42,13 @@ export type EraserToolConfig = {
 }
 
 /**
+ * ハンドツールの設定
+ */
+export type HandToolConfig = {
+  readonly type: 'hand'
+}
+
+/**
  * ツール設定の判別ユニオン型
  */
-export type ToolConfig = PenToolConfig | EraserToolConfig
+export type ToolConfig = PenToolConfig | EraserToolConfig | HandToolConfig
