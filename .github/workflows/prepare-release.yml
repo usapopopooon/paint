@@ -1,59 +1,34 @@
-name: Update Release Assets
+name: Prepare Release
 
 on:
   pull_request:
     branches:
       - main
     types: [opened]
-  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  update-assets:
-    # PR時はrelease/**ブランチからのPRのみ実行、手動実行時はmainブランチのみ
-    if: |
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/'))
+  prepare-release:
+    # release/**ブランチからのPRのみ実行
+    if: startsWith(github.head_ref, 'release/')
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.57.0-noble
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.head_ref }}
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 0
 
       - name: Configure git safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build app
-        run: npm run build
-
-      - name: Take screenshot
-        run: |
-          npm run preview &
-          sleep 3
-          npx tsx scripts/screenshot.ts
-        env:
-          HOME: /root
-
       - name: Get version
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # 手動実行時は最新のリリースタグからバージョンを取得
-            VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
-          else
-            # PR時はブランチ名からバージョンを取得 (release/v0.0.13 -> 0.0.13)
-            VERSION="${GITHUB_HEAD_REF#release/v}"
-          fi
+          # ブランチ名からバージョンを取得 (release/v0.0.13 -> 0.0.13)
+          VERSION="${GITHUB_HEAD_REF#release/v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Update package.json and README
@@ -80,9 +55,3 @@ jobs:
             git commit -m "Release v$VERSION: update version, badge, and screenshot"
             git push
           fi
-
-      - name: Upload screenshot artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshot
-          path: deploy/screenshot_*.png

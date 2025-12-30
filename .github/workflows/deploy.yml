@@ -70,9 +70,11 @@ jobs:
 
       - name: Take screenshot
         run: |
+          # READMEからタイムスタンプを読み取る
+          TIMESTAMP=$(grep -oP 'screenshot_\K[0-9]+(?=\.png)' README.md | head -1)
           npm run preview &
           sleep 3
-          npx tsx scripts/screenshot.ts
+          SCREENSHOT_TIMESTAMP=$TIMESTAMP npx tsx scripts/screenshot.ts
         env:
           HOME: /root
 

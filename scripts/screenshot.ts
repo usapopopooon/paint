@@ -60,8 +60,8 @@ const takeScreenshot = async () => {
     }
   }
 
-  // タイムスタンプ付きファイル名でスクリーンショットを撮影
-  const timestamp = Math.floor(Date.now() / 1000)
+  // 環境変数からタイムスタンプを取得、なければ現在時刻を使用
+  const timestamp = process.env.SCREENSHOT_TIMESTAMP || Math.floor(Date.now() / 1000)
   const filename = `screenshot_${timestamp}.png`
   await page.screenshot({
     path: `deploy/${filename}`,
