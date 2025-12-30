@@ -126,7 +126,7 @@ export const DrawingCanvas = ({
   // 描画要素のレンダリング
   useEffect(() => {
     const app = appRef.current
-    if (!app || !isInitialized) return
+    if (!app || !isInitialized || !app.renderer) return
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {
