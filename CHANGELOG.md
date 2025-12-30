@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.0.18] - 2025-12-31
+
+### Features
+
+- **キャンバスリサイズ起点選択機能**
+  - キャンバスリサイズ時の起点（アンカー）を9方向から選択可能
+  - AnchorSelectorコンポーネント（3x3グリッド、Lucide square-arrowアイコン使用）
+  - CanvasResizeMenuコンポーネント（Radix UI Popover使用）
+
+- **履歴機能拡張**
+  - メタデータ変更（キャンバスサイズ、レイヤー表示/不透明度）のUndo/Redoに対応
+
+### Fixes
+
+- **スポイトツールの透明部分対応**
+  - 透明部分で黒を取得する問題を修正
+
+### Refactor
+
+- **ヘルパー関数の分離**
+  - 定数をconstants/ディレクトリに分離
+  - ヘルパー関数をhelpers/に分離しユニットテストを追加
+  - index.tsの整理
+
+### Style
+
+- **ボタンのホバー効果を統一**
+  - ThemeToggle、LayerPanel、ColorWheelのコピー/ペーストボタンにホバー効果を追加
+
 ## [0.0.17] - 2025-12-31
 
 ### Fixes
