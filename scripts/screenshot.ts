@@ -50,6 +50,9 @@ const takeScreenshot = async () => {
 
   // 古いスクリーンショットを削除
   const deployDir = 'deploy'
+  if (!fs.existsSync(deployDir)) {
+    fs.mkdirSync(deployDir, { recursive: true })
+  }
   const files = fs.readdirSync(deployDir)
   for (const file of files) {
     if (file.startsWith('screenshot_') && file.endsWith('.png')) {
