@@ -8,7 +8,7 @@ export { MIN_STROKE_POINTS, hasMinimumPoints } from './constants'
 export { generateDrawableId, createStrokeDrawable } from './domain'
 
 // ヘルパー（型ガード）
-export { isStrokeDrawable } from './helpers'
+export { isStrokeDrawable, isEraserStroke } from './helpers'
 
 // アダプター（Canvas2Dレンダリング）
 export { renderDrawable } from './adapters'

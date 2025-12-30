@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import type { Drawable, StrokeDrawable, Point } from '@/features/drawable'
 import { hasMinimumPoints } from '@/features/drawable'
 import type { ToolConfig } from '../../tools/types'
@@ -11,6 +11,7 @@ import { getToolBehavior } from '../../tools/domain'
  */
 export const useDrawing = (onDrawableComplete: (drawable: Drawable) => void) => {
   const [currentStroke, setCurrentStroke] = useState<StrokeDrawable | null>(null)
+  const currentStrokeRef = useRef<StrokeDrawable | null>(null)
 
   /**
    * ストロークを開始
@@ -19,7 +20,9 @@ export const useDrawing = (onDrawableComplete: (drawable: Drawable) => void) => 
    */
   const startStroke = useCallback((point: Point, config: ToolConfig) => {
     const behavior = getToolBehavior(config.type)
-    setCurrentStroke(behavior.createStroke(point, config))
+    const stroke = behavior.createStroke(point, config)
+    currentStrokeRef.current = stroke
+    setCurrentStroke(stroke)
   }, [])
 
   /**
@@ -29,18 +32,20 @@ export const useDrawing = (onDrawableComplete: (drawable: Drawable) => void) => 
   const addPoint = useCallback((point: Point) => {
     setCurrentStroke((prev) => {
       if (!prev) return prev
-      return { ...prev, points: [...prev.points, point] }
+      const updated = { ...prev, points: [...prev.points, point] }
+      currentStrokeRef.current = updated
+      return updated
     })
   }, [])
 
   /** ストロークを終了し、完成したDrawableをコールバックに渡す */
   const endStroke = useCallback(() => {
-    setCurrentStroke((prev) => {
-      if (prev && hasMinimumPoints(prev.points.length)) {
-        onDrawableComplete(prev)
-      }
-      return null
-    })
+    const stroke = currentStrokeRef.current
+    if (stroke && hasMinimumPoints(stroke.points.length)) {
+      onDrawableComplete(stroke)
+    }
+    currentStrokeRef.current = null
+    setCurrentStroke(null)
   }, [onDrawableComplete])
 
   return {

@@ -1,34 +1,59 @@
+import { Application, Container, Graphics, RenderTexture, Sprite } from 'pixi.js'
 import type { Drawable } from '@/features/drawable'
-import { renderDrawable } from '@/features/drawable'
+import { renderDrawable, isEraserStroke } from '@/features/drawable'
 
 /**
- * 描画要素をキャンバスにレンダリング
- * @param ctx - 描画先のキャンバスコンテキスト
+ * 背景をステージに追加
+ */
+const addBackground = (app: Application, backgroundColor: string): void => {
+  const background = new Graphics()
+  background.rect(0, 0, app.screen.width, app.screen.height)
+  background.fill(backgroundColor)
+  app.stage.addChild(background)
+}
+
+/**
+ * 描画要素をRenderTextureにレンダリングしてSpriteとして返す
+ */
+const renderToTexture = (app: Application, drawables: readonly Drawable[]): Sprite => {
+  const renderTexture = RenderTexture.create({
+    width: app.screen.width,
+    height: app.screen.height,
+  })
+
+  const tempContainer = new Container()
+  for (const drawable of drawables) {
+    const graphics = new Graphics()
+    if (isEraserStroke(drawable)) {
+      graphics.blendMode = 'erase'
+    }
+    renderDrawable(graphics, drawable)
+    tempContainer.addChild(graphics)
+  }
+
+  app.renderer.render({ container: tempContainer, target: renderTexture })
+  tempContainer.destroy({ children: true })
+
+  return new Sprite(renderTexture)
+}
+
+/**
+ * 描画要素をPixiJS Applicationにレンダリング
+ * RenderTextureを使用して消しゴムが正しく機能するようにする
+ * @param app - PixiJS Application
  * @param drawables - レンダリングするDrawable配列
- * @param width - キャンバスの幅
- * @param height - キャンバスの高さ
  * @param backgroundColor - 背景色
  */
 export const renderDrawables = (
-  ctx: CanvasRenderingContext2D,
+  app: Application,
   drawables: readonly Drawable[],
-  width: number,
-  height: number,
   backgroundColor: string
 ): void => {
-  // メインキャンバスをクリアして背景で塗りつぶす
-  ctx.fillStyle = backgroundColor
-  ctx.fillRect(0, 0, width, height)
+  app.stage.removeChildren()
+  addBackground(app, backgroundColor)
 
-  // 描画要素用のオフスクリーンキャンバスを作成（消しゴムが背景を消さないように）
-  const offscreen = new OffscreenCanvas(width, height)
-  const offCtx = offscreen.getContext('2d')
-  if (!offCtx) return
+  if (drawables.length === 0) return
 
-  // オフスクリーンキャンバスに全描画要素を描画（透明背景）
-  offCtx.clearRect(0, 0, width, height)
-  drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
-
-  // 描画要素をメインキャンバスに合成
-  ctx.drawImage(offscreen, 0, 0)
+  const layerSprite = renderToTexture(app, drawables)
+  app.stage.addChild(layerSprite)
 }

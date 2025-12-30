@@ -67,33 +67,29 @@ export const useCanvas = () => {
 
   /** Undo: アクション種別に応じてレイヤーを復元 + 履歴を戻す */
   const undo = useCallback(async () => {
-    if (history.canUndo) {
-      const action = await history.peekUndo()
-      if (action) {
-        if (action.type === 'drawable:added') {
-          layerManager.removeLastDrawable()
-        } else if (action.type === 'drawables:cleared') {
-          // クリア前の状態を復元
-          layerManager.setDrawables(action.previousDrawables)
-        }
-        await history.undo()
+    const action = await history.peekUndo()
+    if (action) {
+      if (action.type === 'drawable:added') {
+        layerManager.removeLastDrawable()
+      } else if (action.type === 'drawables:cleared') {
+        // クリア前の状態を復元
+        layerManager.setDrawables(action.previousDrawables)
       }
+      await history.undo()
     }
   }, [history, layerManager])
 
   /** Redo: アクション種別に応じてレイヤーを更新 + 履歴を進める */
   const redo = useCallback(async () => {
-    if (history.canRedo) {
-      const action = await history.peekRedo()
-      if (action) {
-        if (action.type === 'drawable:added') {
-          layerManager.addDrawable(action.drawable)
-        } else if (action.type === 'drawables:cleared') {
-          // クリア操作を再実行
-          layerManager.clearActiveLayer()
-        }
-        await history.redo()
+    const action = await history.peekRedo()
+    if (action) {
+      if (action.type === 'drawable:added') {
+        layerManager.addDrawable(action.drawable)
+      } else if (action.type === 'drawables:cleared') {
+        // クリア操作を再実行
+        layerManager.clearActiveLayer()
       }
+      await history.redo()
     }
   }, [history, layerManager])
 
