@@ -34,8 +34,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   // ストレージインスタンス（デフォルト: インメモリ）
   const storageRef = useRef<HistoryStorage | null>(null)
 
-  // ストレージの遅延初期化（StrictMode対応）
-  const getStorage = useCallback((): HistoryStorage => {
+  // ストレージを取得（遅延初期化）
+  const getStorage = (): HistoryStorage => {
     if (!storageRef.current) {
       storageRef.current =
         options?.storage ??
@@ -44,7 +44,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
         })
     }
     return storageRef.current
-  }, [options?.storage, options?.maxUndoLevels])
+  }
 
   /** ストレージからスタック情報を同期 */
   const updateStackInfo = useCallback(async () => {
@@ -53,7 +53,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       setCanUndo(result.data.undoCount > 0)
       setCanRedo(result.data.redoCount > 0)
     }
-  }, [getStorage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /**
    * Drawableの追加を履歴に記録
@@ -65,7 +66,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       await getStorage().push(action)
       await updateStackInfo()
     },
-    [getStorage, updateStackInfo]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
   )
 
   /** Undo操作を記録（実際のレイヤー操作は呼び出し側で行う） */
@@ -74,7 +76,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     if (result.success) {
       await updateStackInfo()
     }
-  }, [getStorage, updateStackInfo])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateStackInfo])
 
   /** Redo操作を記録（実際のレイヤー操作は呼び出し側で行う） */
   const redo = useCallback(async () => {
@@ -82,7 +85,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     if (result.success) {
       await updateStackInfo()
     }
-  }, [getStorage, updateStackInfo])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateStackInfo])
 
   /**
    * Redoで復元されるDrawableを取得
@@ -94,7 +98,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       return result.data.drawable
     }
     return null
-  }, [getStorage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /**
    * Undoで戻されるアクションを取得（peek）
@@ -106,7 +111,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       return result.data
     }
     return null
-  }, [getStorage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /**
    * Redoで復元されるアクションを取得（peek）
@@ -118,7 +124,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       return result.data
     }
     return null
-  }, [getStorage])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /**
    * クリア操作を履歴に記録
@@ -130,7 +137,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
       await getStorage().push(action)
       await updateStackInfo()
     },
-    [getStorage, updateStackInfo]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
   )
 
   // アンマウント時にクリーンアップ
