@@ -51,6 +51,11 @@
 - **言語切り替えトグルのラベル変更**
   - 「日本語 | English」→「日あ | Aa」に変更
 
+### Tests
+
+- **Storybookテスト追加・更新**
+  - BrushTool、CanvasResizeMenuツールチップ、LocaleToggleラベルのテスト
+
 ### Developer Experience
 
 - **リリースコミットメッセージを修正**
