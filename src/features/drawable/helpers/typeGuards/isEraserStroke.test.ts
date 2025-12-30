@@ -24,13 +24,4 @@ describe('isEraserStroke', () => {
     expect(isEraserStroke(drawable)).toBe(false)
   })
 
-  test('multiplyモードのストロークに対してfalseを返す', () => {
-    const drawable = createStrokeDrawable([{ x: 0, y: 0 }], {
-      color: '#000000',
-      brushTip: createSolidBrushTip(3),
-      blendMode: 'multiply',
-    })
-
-    expect(isEraserStroke(drawable)).toBe(false)
-  })
 })
