@@ -45,7 +45,7 @@ function App() {
   }, [tool])
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col">
       {/* Top toolbar */}
       <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-300 dark:border-border bg-zinc-200 dark:bg-background">
         <Toolbar>
@@ -67,7 +67,7 @@ function App() {
       </header>
 
       {/* Main content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0">
         <ToolPanel>
           <ColorWheel color={tool.penConfig.color} onChange={tool.setPenColor} />
           <PenTool
