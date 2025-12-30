@@ -189,7 +189,6 @@ export const Canvas = ({
           width={width}
           height={height}
           fillContainer={fillContainer}
-          className={fillContainer ? undefined : 'rounded-lg border border-border'}
         />
       </div>
     )
@@ -215,7 +214,6 @@ export const Canvas = ({
           width={width}
           height={height}
           fillContainer={fillContainer}
-          className={fillContainer ? undefined : 'rounded-lg border border-border'}
         />
       </div>
     )
@@ -243,7 +241,6 @@ export const Canvas = ({
           width={width}
           height={height}
           fillContainer={fillContainer}
-          className={fillContainer ? undefined : 'rounded-lg border border-border'}
         />
       </PointerInputLayer>
     </div>
