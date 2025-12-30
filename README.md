@@ -6,7 +6,7 @@
 
 ReactとPixiJSで構築したお絵かきアプリ。
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot.png?t=1767088990)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot.png?t=1767089282)
 
 ## 機能
 
