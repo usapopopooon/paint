@@ -157,4 +157,121 @@ describe('useCanvasHistory', () => {
       expect(result.current.canRedo).toBe(false)
     })
   })
+
+  describe('recordLayerVisibilityChange', () => {
+    test('レイヤー可視性変更を履歴に記録する', async () => {
+      const { result } = renderHook(() => useCanvasHistory())
+
+      await act(async () => {
+        await result.current.recordLayerVisibilityChange(TEST_LAYER_ID, true, false)
+      })
+
+      expect(result.current.canUndo).toBe(true)
+
+      const action = await result.current.peekUndo()
+      expect(action).not.toBeNull()
+      expect(action?.type).toBe('layer:visibility-changed')
+      if (action?.type === 'layer:visibility-changed') {
+        expect(action.layerId).toBe(TEST_LAYER_ID)
+        expect(action.previousValue).toBe(true)
+        expect(action.newValue).toBe(false)
+      }
+    })
+
+    test('レイヤー可視性変更のundo/redoで状態が変化する', async () => {
+      const { result } = renderHook(() => useCanvasHistory())
+
+      await act(async () => {
+        await result.current.recordLayerVisibilityChange(TEST_LAYER_ID, true, false)
+      })
+
+      await act(async () => {
+        await result.current.undo()
+      })
+
+      expect(result.current.canRedo).toBe(true)
+
+      const redoAction = await result.current.peekRedo()
+      expect(redoAction?.type).toBe('layer:visibility-changed')
+    })
+  })
+
+  describe('recordLayerOpacityChange', () => {
+    test('レイヤー不透明度変更を履歴に記録する', async () => {
+      const { result } = renderHook(() => useCanvasHistory())
+
+      await act(async () => {
+        await result.current.recordLayerOpacityChange(TEST_LAYER_ID, 1.0, 0.5)
+      })
+
+      expect(result.current.canUndo).toBe(true)
+
+      const action = await result.current.peekUndo()
+      expect(action).not.toBeNull()
+      expect(action?.type).toBe('layer:opacity-changed')
+      if (action?.type === 'layer:opacity-changed') {
+        expect(action.layerId).toBe(TEST_LAYER_ID)
+        expect(action.previousValue).toBe(1.0)
+        expect(action.newValue).toBe(0.5)
+      }
+    })
+
+    test('レイヤー不透明度変更のundo/redoで状態が変化する', async () => {
+      const { result } = renderHook(() => useCanvasHistory())
+
+      await act(async () => {
+        await result.current.recordLayerOpacityChange(TEST_LAYER_ID, 0.8, 0.3)
+      })
+
+      await act(async () => {
+        await result.current.undo()
+      })
+
+      expect(result.current.canRedo).toBe(true)
+
+      const redoAction = await result.current.peekRedo()
+      expect(redoAction?.type).toBe('layer:opacity-changed')
+    })
+  })
+
+  describe('recordCanvasResize', () => {
+    test('キャンバスリサイズを履歴に記録する', async () => {
+      const { result } = renderHook(() => useCanvasHistory())
+
+      await act(async () => {
+        await result.current.recordCanvasResize(800, 600, 1000, 800, 100, 100)
+      })
+
+      expect(result.current.canUndo).toBe(true)
+
+      const action = await result.current.peekUndo()
+      expect(action).not.toBeNull()
+      expect(action?.type).toBe('canvas:resized')
+      if (action?.type === 'canvas:resized') {
+        expect(action.previousWidth).toBe(800)
+        expect(action.previousHeight).toBe(600)
+        expect(action.newWidth).toBe(1000)
+        expect(action.newHeight).toBe(800)
+        expect(action.offsetX).toBe(100)
+        expect(action.offsetY).toBe(100)
+      }
+    })
+
+    test('キャンバスリサイズのundo/redoで状態が変化する', async () => {
+      const { result } = renderHook(() => useCanvasHistory())
+
+      await act(async () => {
+        await result.current.recordCanvasResize(800, 600, 1024, 768, 112, 84)
+      })
+
+      await act(async () => {
+        await result.current.undo()
+      })
+
+      expect(result.current.canRedo).toBe(true)
+
+      const redoAction = await result.current.peekRedo()
+      expect(redoAction?.type).toBe('canvas:resized')
+    })
+  })
 })

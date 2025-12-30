@@ -1,4 +1,4 @@
-export { ToolPanel } from './ToolPanel'
-export { PenTool } from './PenTool'
-export { EraserTool } from './EraserTool'
-export { LayerPanel } from './LayerPanel'
+export * from './ToolPanel'
+export * from './PenTool'
+export * from './EraserTool'
+export * from './LayerPanel'

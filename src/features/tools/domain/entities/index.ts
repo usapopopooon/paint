@@ -1,4 +1,4 @@
-export { penBehavior } from './penBehavior'
-export { eraserBehavior } from './eraserBehavior'
-export { handBehavior } from './handBehavior'
-export { eyedropperBehavior } from './eyedropperBehavior'
+export * from './penBehavior'
+export * from './eraserBehavior'
+export * from './handBehavior'
+export * from './eyedropperBehavior'

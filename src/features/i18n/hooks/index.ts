@@ -1,2 +1,2 @@
-export { LocaleProvider } from './LocaleProvider'
-export { useLocale } from './useLocale'
+export * from './LocaleProvider'
+export * from './useLocale'

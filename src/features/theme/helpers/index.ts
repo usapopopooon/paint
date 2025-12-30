@@ -1,1 +1,1 @@
-export { getInitialTheme } from './getInitialTheme'
+export * from './getInitialTheme'

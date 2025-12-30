@@ -1,2 +1,2 @@
-export { getPixelColor } from './getPixelColor'
-export { EYEDROPPER_CURSOR } from './eyedropperCursor'
+export * from './getPixelColor'
+export * from './eyedropperCursor'

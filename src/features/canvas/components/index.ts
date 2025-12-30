@@ -1,3 +1,3 @@
-export { Canvas } from './Canvas'
-export { CanvasSizeInput } from './CanvasSizeInput'
-export { CanvasViewport } from './CanvasViewport'
+export * from './Canvas'
+export * from './CanvasSizeInput'
+export * from './CanvasViewport'

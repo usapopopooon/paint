@@ -1,4 +1,4 @@
-export { Button, buttonVariants } from './button'
-export { Slider } from './slider'
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
-export { ThemeToggle } from './ThemeToggle'
+export * from './button'
+export * from './slider'
+export * from './tooltip'
+export * from './ThemeToggle'

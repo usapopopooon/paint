@@ -6,6 +6,9 @@ import {
   createInMemoryStorage,
   createDrawableAddedAction,
   createDrawablesClearedAction,
+  createLayerVisibilityChangedAction,
+  createLayerOpacityChangedAction,
+  createCanvasResizedAction,
 } from '@/features/history'
 
 /**
@@ -144,6 +147,71 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     [updateStackInfo]
   )
 
+  /**
+   * レイヤー可視性変更を履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param previousValue - 変更前の可視性
+   * @param newValue - 変更後の可視性
+   */
+  const recordLayerVisibilityChange = useCallback(
+    async (layerId: LayerId, previousValue: boolean, newValue: boolean) => {
+      const action = createLayerVisibilityChangedAction(layerId, previousValue, newValue)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
+   * レイヤー不透明度変更を履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param previousValue - 変更前の不透明度
+   * @param newValue - 変更後の不透明度
+   */
+  const recordLayerOpacityChange = useCallback(
+    async (layerId: LayerId, previousValue: number, newValue: number) => {
+      const action = createLayerOpacityChangedAction(layerId, previousValue, newValue)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
+   * キャンバスリサイズを履歴に記録
+   * @param previousWidth - 変更前の幅
+   * @param previousHeight - 変更前の高さ
+   * @param newWidth - 変更後の幅
+   * @param newHeight - 変更後の高さ
+   * @param offsetX - X軸オフセット
+   * @param offsetY - Y軸オフセット
+   */
+  const recordCanvasResize = useCallback(
+    async (
+      previousWidth: number,
+      previousHeight: number,
+      newWidth: number,
+      newHeight: number,
+      offsetX: number,
+      offsetY: number
+    ) => {
+      const action = createCanvasResizedAction(
+        previousWidth,
+        previousHeight,
+        newWidth,
+        newHeight,
+        offsetX,
+        offsetY
+      )
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
   // アンマウント時にクリーンアップ
   useEffect(() => {
     return () => {
@@ -164,5 +232,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     peekUndo,
     peekRedo,
     recordClear,
+    recordLayerVisibilityChange,
+    recordLayerOpacityChange,
+    recordCanvasResize,
   } as const
 }

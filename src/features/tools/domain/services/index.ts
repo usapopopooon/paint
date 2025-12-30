@@ -1,1 +1,1 @@
-export { getToolBehavior, type ToolBehavior } from './getToolBehavior'
+export * from './getToolBehavior'
