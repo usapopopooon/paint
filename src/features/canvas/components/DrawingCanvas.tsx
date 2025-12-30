@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
+import { Application } from 'pixi.js'
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import { renderDrawables, renderLayers } from '../adapters'
@@ -29,9 +30,10 @@ export const DrawingCanvas = ({
   fillContainer = false,
   className,
 }: DrawingCanvasProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const appRef = useRef<Application | null>(null)
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   /**
    * キャンバスサイズを計算
@@ -44,6 +46,37 @@ export const DrawingCanvas = ({
     return { width, height }
   }, [fillContainer, containerSize, width, height])
 
+  // PixiJS Applicationの初期化
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const app = new Application()
+    appRef.current = app
+
+    app
+      .init({
+        width,
+        height,
+        backgroundColor,
+        antialias: true,
+      })
+      .then(() => {
+        if (className) {
+          app.canvas.className = className
+        }
+        container.appendChild(app.canvas)
+        setIsInitialized(true)
+      })
+
+    return () => {
+      app.destroy(true, { children: true })
+      appRef.current = null
+      setIsInitialized(false)
+    }
+  }, [width, height, backgroundColor, className])
+
+  // コンテナサイズの監視（fillContainerモード）
   useEffect(() => {
     if (!fillContainer) {
       return
@@ -66,30 +99,30 @@ export const DrawingCanvas = ({
     return () => resizeObserver.disconnect()
   }, [fillContainer])
 
+  // サイズ変更時のリサイズ
   useEffect(() => {
-    const canvas = canvasRef.current
-    const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx) return
+    const app = appRef.current
+    if (!app || !isInitialized) return
+
+    app.renderer.resize(size.width, size.height)
+  }, [size.width, size.height, isInitialized])
+
+  // 描画要素のレンダリング
+  useEffect(() => {
+    const app = appRef.current
+    if (!app || !isInitialized) return
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {
-      renderLayers(ctx, layers, size.width, size.height, backgroundColor)
+      renderLayers(app, layers, backgroundColor)
     } else if (drawables) {
-      renderDrawables(ctx, drawables, size.width, size.height, backgroundColor)
+      renderDrawables(app, drawables, backgroundColor)
     } else {
-      // コンテンツなし、背景色で塗りつぶすのみ
-      ctx.fillStyle = backgroundColor
-      ctx.fillRect(0, 0, size.width, size.height)
+      // コンテンツなし、背景色のみ
+      app.stage.removeChildren()
+      app.renderer.background.color = backgroundColor
     }
-  }, [drawables, layers, size.width, size.height, backgroundColor])
+  }, [drawables, layers, backgroundColor, isInitialized])
 
-  if (fillContainer) {
-    return (
-      <div ref={containerRef} className="w-full h-full">
-        <canvas ref={canvasRef} width={size.width} height={size.height} className={className} />
-      </div>
-    )
-  }
-
-  return <canvas ref={canvasRef} width={size.width} height={size.height} className={className} />
+  return <div ref={containerRef} className={fillContainer ? 'w-full h-full' : undefined} />
 }

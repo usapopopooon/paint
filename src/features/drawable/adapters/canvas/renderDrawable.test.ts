@@ -1,29 +1,25 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
+import { Graphics } from 'pixi.js'
 import { renderDrawable } from './renderDrawable'
 import type { StrokeDrawable } from '../../types'
 import { createSolidBrushTip } from '@/features/brush'
 
-// モックキャンバスコンテキスト
-const createMockContext = () => ({
-  save: vi.fn(),
-  restore: vi.fn(),
-  beginPath: vi.fn(),
-  moveTo: vi.fn(),
-  lineTo: vi.fn(),
-  stroke: vi.fn(),
-  strokeStyle: '',
-  lineWidth: 0,
-  lineCap: 'butt' as CanvasLineCap,
-  lineJoin: 'miter' as CanvasLineJoin,
-  globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
-  globalAlpha: 1,
-})
+// モックPixiJS Graphics
+const createMockGraphics = () => {
+  const graphics = {
+    setStrokeStyle: vi.fn(),
+    moveTo: vi.fn().mockReturnThis(),
+    lineTo: vi.fn().mockReturnThis(),
+    stroke: vi.fn(),
+  }
+  return graphics as unknown as Graphics
+}
 
 describe('renderDrawable', () => {
-  let ctx: ReturnType<typeof createMockContext>
+  let graphics: Graphics
 
   beforeEach(() => {
-    ctx = createMockContext()
+    graphics = createMockGraphics()
   })
 
   describe('stroke rendering', () => {
@@ -43,18 +39,18 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.save).toHaveBeenCalled()
-      expect(ctx.beginPath).toHaveBeenCalled()
-      expect(ctx.moveTo).toHaveBeenCalledWith(0, 0)
-      expect(ctx.lineTo).toHaveBeenCalledWith(100, 100)
-      expect(ctx.stroke).toHaveBeenCalled()
-      expect(ctx.restore).toHaveBeenCalled()
-      expect(ctx.strokeStyle).toBe('#ff0000')
-      expect(ctx.lineWidth).toBe(5)
-      expect(ctx.lineCap).toBe('round')
-      expect(ctx.lineJoin).toBe('round')
+      expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
+        width: 5,
+        color: '#ff0000',
+        alpha: 1,
+        cap: 'round',
+        join: 'round',
+      })
+      expect(graphics.moveTo).toHaveBeenCalledWith(0, 0)
+      expect(graphics.lineTo).toHaveBeenCalledWith(100, 100)
+      expect(graphics.stroke).toHaveBeenCalled()
     })
 
     test('1点のみのストロークはレンダリングしない', () => {
@@ -70,10 +66,10 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.beginPath).not.toHaveBeenCalled()
-      expect(ctx.stroke).not.toHaveBeenCalled()
+      expect(graphics.setStrokeStyle).not.toHaveBeenCalled()
+      expect(graphics.stroke).not.toHaveBeenCalled()
     })
 
     test('空のポイント配列はレンダリングしない', () => {
@@ -89,9 +85,9 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.beginPath).not.toHaveBeenCalled()
+      expect(graphics.setStrokeStyle).not.toHaveBeenCalled()
     })
 
     test('複数ポイントのストロークを正しくレンダリングする', () => {
@@ -112,16 +108,16 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.moveTo).toHaveBeenCalledWith(0, 0)
-      expect(ctx.lineTo).toHaveBeenCalledTimes(3)
-      expect(ctx.lineTo).toHaveBeenNthCalledWith(1, 50, 50)
-      expect(ctx.lineTo).toHaveBeenNthCalledWith(2, 100, 0)
-      expect(ctx.lineTo).toHaveBeenNthCalledWith(3, 150, 50)
+      expect(graphics.moveTo).toHaveBeenCalledWith(0, 0)
+      expect(graphics.lineTo).toHaveBeenCalledTimes(3)
+      expect(graphics.lineTo).toHaveBeenNthCalledWith(1, 50, 50)
+      expect(graphics.lineTo).toHaveBeenNthCalledWith(2, 100, 0)
+      expect(graphics.lineTo).toHaveBeenNthCalledWith(3, 150, 50)
     })
 
-    test('eraseブレンドモードでdestination-outを設定する', () => {
+    test('eraseブレンドモードで黒色を使用する', () => {
       const stroke: StrokeDrawable = {
         id: 'test-5',
         type: 'stroke',
@@ -137,10 +133,15 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.globalCompositeOperation).toBe('destination-out')
-      expect(ctx.strokeStyle).toBe('rgba(0,0,0,1)')
+      expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
+        width: 20,
+        color: 0x000000,
+        alpha: 1,
+        cap: 'round',
+        join: 'round',
+      })
     })
 
     test('normalブレンドモードでは指定色を使用する', () => {
@@ -159,13 +160,18 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.strokeStyle).toBe('#0000ff')
-      // globalCompositeOperationはデフォルトのまま変更されない
+      expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
+        width: 8,
+        color: '#0000ff',
+        alpha: 1,
+        cap: 'round',
+        join: 'round',
+      })
     })
 
-    test('ブラシチップのopacityがglobalAlphaに設定される', () => {
+    test('ブラシチップのopacityがalphaに設定される', () => {
       const stroke: StrokeDrawable = {
         id: 'test-7',
         type: 'stroke',
@@ -186,9 +192,15 @@ describe('renderDrawable', () => {
         },
       }
 
-      renderDrawable(ctx as unknown as CanvasRenderingContext2D, stroke)
+      renderDrawable(graphics, stroke)
 
-      expect(ctx.globalAlpha).toBe(0.5)
+      expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
+        width: 5,
+        color: '#ff0000',
+        alpha: 0.5,
+        cap: 'round',
+        join: 'round',
+      })
     })
   })
 })

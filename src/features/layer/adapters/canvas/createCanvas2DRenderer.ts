@@ -1,18 +1,49 @@
+import { Application, Container, Graphics } from 'pixi.js'
+import type { BLEND_MODES } from 'pixi.js'
 import type { LayerRenderer } from '../../domain/interfaces'
-import type { Layer } from '../../types'
+import type { Layer, LayerBlendMode } from '../../types'
 import { renderDrawable } from '@/features/drawable'
-import { blendModeToCompositeOp } from './blendModeToCompositeOp'
 
 /**
- * Canvas 2Dレンダラーを作成
+ * LayerBlendModeをPixiJSのブレンドモードにマッピング
+ */
+const blendModeToPixi = (mode: LayerBlendMode): BLEND_MODES => {
+  const map: Record<LayerBlendMode, BLEND_MODES> = {
+    normal: 'normal',
+    multiply: 'multiply',
+    screen: 'screen',
+    overlay: 'overlay',
+    darken: 'darken',
+    lighten: 'lighten',
+  }
+  return map[mode]
+}
+
+/**
+ * PixiJSレンダラーを作成
  * @returns レイヤーレンダリング用のLayerRendererインスタンス
  */
 export const createCanvas2DRenderer = (): LayerRenderer => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+  let app: Application | null = null
+  let isInitialized = false
+  let pendingRender: (() => void) | null = null
 
-  if (!ctx) {
-    throw new Error('Failed to get 2D context')
+  // 非同期で初期化
+  const initApp = async (width: number, height: number, backgroundColor: string) => {
+    app = new Application()
+    await app.init({
+      width,
+      height,
+      backgroundColor,
+      antialias: true,
+    })
+    isInitialized = true
+
+    // 初期化待ちのレンダリングがあれば実行
+    if (pendingRender) {
+      pendingRender()
+      pendingRender = null
+    }
   }
 
   const render = (
@@ -21,45 +52,66 @@ export const createCanvas2DRenderer = (): LayerRenderer => {
     height: number,
     backgroundColor: string
   ): void => {
-    // 必要に応じてキャンバスサイズを更新
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width
-      canvas.height = height
+    if (!app || !isInitialized) {
+      // 初期化がまだの場合は開始して、レンダリングを保留
+      if (!app) {
+        pendingRender = () => render(layers, width, height, backgroundColor)
+        initApp(width, height, backgroundColor)
+      }
+      return
     }
 
-    // 背景を塗りつぶす
-    ctx.fillStyle = backgroundColor
-    ctx.fillRect(0, 0, width, height)
+    // 必要に応じてリサイズ
+    if (app.canvas.width !== width || app.canvas.height !== height) {
+      app.renderer.resize(width, height)
+    }
+
+    // ステージをクリア
+    app.stage.removeChildren()
+
+    // 背景色を設定
+    app.renderer.background.color = backgroundColor
 
     // 各レイヤーをレンダリング
     for (const layer of layers) {
       if (!layer.isVisible || layer.drawables.length === 0) continue
 
-      // レイヤー用のオフスクリーンキャンバスを作成
-      const offscreen = new OffscreenCanvas(width, height)
-      const offCtx = offscreen.getContext('2d')
-      if (!offCtx) continue
+      // レイヤー用のコンテナを作成
+      const layerContainer = new Container()
+      layerContainer.alpha = layer.opacity
+      layerContainer.blendMode = blendModeToPixi(layer.blendMode)
+      app.stage.addChild(layerContainer)
 
-      // オフスクリーンキャンバスに描画要素を描画
-      layer.drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
+      // レイヤー内の各描画要素をレンダリング
+      layer.drawables.forEach((drawable) => {
+        const graphics = new Graphics()
 
-      // ブレンドモードと不透明度を適用
-      ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
-      ctx.globalAlpha = layer.opacity
-      ctx.drawImage(offscreen, 0, 0)
+        // 消しゴムの場合はブレンドモードを設定
+        if (drawable.type === 'stroke' && drawable.style.blendMode === 'erase') {
+          graphics.blendMode = 'erase'
+        }
 
-      // 合成操作とアルファをリセット
-      ctx.globalCompositeOperation = 'source-over'
-      ctx.globalAlpha = 1
+        renderDrawable(graphics, drawable)
+        layerContainer.addChild(graphics)
+      })
     }
   }
 
   const dispose = (): void => {
-    // Canvas 2Dは明示的なクリーンアップ不要
-    // ただしPixiJS互換性のためインターフェースでこのメソッドが必要
+    if (app) {
+      app.destroy(true, { children: true })
+      app = null
+      isInitialized = false
+    }
   }
 
-  const getCanvas = (): HTMLCanvasElement => canvas
+  const getCanvas = (): HTMLCanvasElement => {
+    if (!app) {
+      // 初期化前はダミーキャンバスを返す
+      return document.createElement('canvas')
+    }
+    return app.canvas
+  }
 
   return {
     render,

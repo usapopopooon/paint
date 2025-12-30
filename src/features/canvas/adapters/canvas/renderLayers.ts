@@ -1,46 +1,62 @@
-import type { Layer } from '@/features/layer'
-import { blendModeToCompositeOp } from '@/features/layer'
+import { Application, Container, Graphics } from 'pixi.js'
+import type { BLEND_MODES } from 'pixi.js'
+import type { Layer, LayerBlendMode } from '@/features/layer'
 import { renderDrawable } from '@/features/drawable'
 
 /**
- * レイヤーをキャンバスにレンダリング
+ * LayerBlendModeをPixiJSのブレンドモードにマッピング
+ */
+const blendModeToPixi = (mode: LayerBlendMode): BLEND_MODES => {
+  const map: Record<LayerBlendMode, BLEND_MODES> = {
+    normal: 'normal',
+    multiply: 'multiply',
+    screen: 'screen',
+    overlay: 'overlay',
+    darken: 'darken',
+    lighten: 'lighten',
+  }
+  return map[mode]
+}
+
+/**
+ * レイヤーをPixiJS Applicationにレンダリング
  * 各レイヤーは独自のブレンドモードと不透明度でレンダリングされる
- * @param ctx - 描画先のキャンバスコンテキスト
+ * @param app - PixiJS Application
  * @param layers - レンダリングするレイヤー配列
- * @param width - キャンバスの幅
- * @param height - キャンバスの高さ
  * @param backgroundColor - 背景色
  */
 export const renderLayers = (
-  ctx: CanvasRenderingContext2D,
+  app: Application,
   layers: readonly Layer[],
-  width: number,
-  height: number,
   backgroundColor: string
 ): void => {
-  // 背景を塗りつぶす
-  ctx.fillStyle = backgroundColor
-  ctx.fillRect(0, 0, width, height)
+  // ステージをクリア
+  app.stage.removeChildren()
+
+  // 背景色を設定
+  app.renderer.background.color = backgroundColor
 
   // 各レイヤーをレンダリング
   for (const layer of layers) {
     if (!layer.isVisible || layer.drawables.length === 0) continue
 
-    // レイヤー用のオフスクリーンキャンバスを作成
-    const offscreen = new OffscreenCanvas(width, height)
-    const offCtx = offscreen.getContext('2d')
-    if (!offCtx) continue
+    // レイヤー用のコンテナを作成
+    const layerContainer = new Container()
+    layerContainer.alpha = layer.opacity
+    layerContainer.blendMode = blendModeToPixi(layer.blendMode)
+    app.stage.addChild(layerContainer)
 
-    // オフスクリーンキャンバスに描画要素を描画
-    layer.drawables.forEach((drawable) => renderDrawable(offCtx, drawable))
+    // レイヤー内の各描画要素をレンダリング
+    layer.drawables.forEach((drawable) => {
+      const graphics = new Graphics()
 
-    // ブレンドモードと不透明度を適用
-    ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
-    ctx.globalAlpha = layer.opacity
-    ctx.drawImage(offscreen, 0, 0)
+      // 消しゴムの場合はブレンドモードを設定
+      if (drawable.type === 'stroke' && drawable.style.blendMode === 'erase') {
+        graphics.blendMode = 'erase'
+      }
 
-    // 合成操作とアルファをリセット
-    ctx.globalCompositeOperation = 'source-over'
-    ctx.globalAlpha = 1
+      renderDrawable(graphics, drawable)
+      layerContainer.addChild(graphics)
+    })
   }
 }
