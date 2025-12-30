@@ -1,0 +1,75 @@
+name: Update Release Assets
+
+on:
+  push:
+    branches:
+      - 'release/**'
+
+permissions:
+  contents: write
+
+jobs:
+  update-assets:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+        env:
+          HOME: /root
+
+      - name: Build app
+        run: npm run build
+
+      - name: Take screenshot
+        run: |
+          npm run preview &
+          sleep 3
+          npx tsx scripts/screenshot.ts
+        env:
+          HOME: /root
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update README version badge and screenshot timestamp
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          TIMESTAMP=$(date +%s)
+
+          # Update version badge
+          sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" README.md
+          sed -i "s|releases/tag/v[0-9.]*|releases/tag/v${VERSION}|g" README.md
+
+          # Update screenshot timestamp
+          sed -i "s|screenshot\.png[^)]*|screenshot.png?t=${TIMESTAMP}|g" README.md
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --staged --quiet || git commit -m "Update version badge and screenshot timestamp [skip ci]"
+          git push
+
+      - name: Upload screenshot artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot
+          path: deploy/screenshot.png
