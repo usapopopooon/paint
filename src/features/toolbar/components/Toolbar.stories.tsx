@@ -5,6 +5,7 @@ import { UndoButton } from './UndoButton'
 import { RedoButton } from './RedoButton'
 import { ClearButton } from './ClearButton'
 import { ToolbarDivider } from './ToolbarDivider'
+import { useLocale } from '@/features/i18n'
 
 const meta = {
   title: 'Features/Toolbar/Toolbar',
@@ -32,10 +33,11 @@ export const Default: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const { t } = useLocale()
 
-    await expect(canvas.getByRole('button', { name: 'Undo' })).toBeDisabled()
-    await expect(canvas.getByRole('button', { name: 'Redo' })).toBeDisabled()
-    await expect(canvas.getByRole('button', { name: 'Clear' })).toBeInTheDocument()
+    await expect(canvas.getByRole('button', { name: t('actions.undo', 'en') })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: t('actions.redo', 'en') })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: t('actions.clearLayer', 'en') })).toBeInTheDocument()
   },
 }
 
@@ -54,10 +56,11 @@ export const WithUndoEnabled: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const undoButton = canvas.getByRole('button', { name: 'Undo' })
+    const { t } = useLocale()
+    const undoButton = canvas.getByRole('button', { name: t('actions.undo', 'en') })
 
     await expect(undoButton).toBeEnabled()
-    await expect(canvas.getByRole('button', { name: 'Redo' })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: t('actions.redo', 'en') })).toBeDisabled()
 
     await userEvent.click(undoButton)
     await expect(onUndoFn).toHaveBeenCalledTimes(1)
@@ -79,9 +82,10 @@ export const WithRedoEnabled: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const redoButton = canvas.getByRole('button', { name: 'Redo' })
+    const { t } = useLocale()
+    const redoButton = canvas.getByRole('button', { name: t('actions.redo', 'en') })
 
-    await expect(canvas.getByRole('button', { name: 'Undo' })).toBeDisabled()
+    await expect(canvas.getByRole('button', { name: t('actions.undo', 'en') })).toBeDisabled()
     await expect(redoButton).toBeEnabled()
 
     await userEvent.click(redoButton)
@@ -103,9 +107,10 @@ export const WithBothEnabled: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const { t } = useLocale()
 
-    await expect(canvas.getByRole('button', { name: 'Undo' })).toBeEnabled()
-    await expect(canvas.getByRole('button', { name: 'Redo' })).toBeEnabled()
+    await expect(canvas.getByRole('button', { name: t('actions.undo', 'en') })).toBeEnabled()
+    await expect(canvas.getByRole('button', { name: t('actions.redo', 'en') })).toBeEnabled()
   },
 }
 
@@ -124,7 +129,8 @@ export const ClearButtonStory: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const clearButton = canvas.getByRole('button', { name: 'Clear' })
+    const { t } = useLocale()
+    const clearButton = canvas.getByRole('button', { name: t('actions.clearLayer', 'en') })
 
     await userEvent.click(clearButton)
     await expect(onClearFn).toHaveBeenCalledTimes(1)

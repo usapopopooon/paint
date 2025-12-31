@@ -42,10 +42,11 @@ export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps)
   /**
    * 翻訳関数
    * @param key - 翻訳キー
-   * @returns 現在のロケールに対応する翻訳テキスト
+   * @param overrideLocale - ロケール（省略時は現在のロケール）
+   * @returns 指定ロケールに対応する翻訳テキスト
    */
   const t = useCallback<TranslateFunction>(
-    (key: TranslationKey) => getTranslation(locale, key),
+    (key: TranslationKey, overrideLocale?: Locale) => getTranslation(overrideLocale ?? locale, key),
     [locale]
   )
 

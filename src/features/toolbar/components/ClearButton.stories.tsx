@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { ClearButton } from './ClearButton'
+import { useLocale } from '@/features/i18n'
 
 const meta = {
   title: 'Features/Toolbar/ClearButton',
@@ -21,7 +22,8 @@ export const Default: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const button = canvas.getByRole('button', { name: 'Clear' })
+    const { t } = useLocale()
+    const button = canvas.getByRole('button', { name: t('actions.clearLayer', 'en') })
 
     await expect(button).toBeEnabled()
     await userEvent.click(button)

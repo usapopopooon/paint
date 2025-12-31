@@ -17,7 +17,7 @@ export type KeyboardShortcutsHandlers = {
  * キーボードショートカットを管理するhook
  * - Ctrl+Z / Cmd+Z: 元に戻す
  * - Ctrl+Shift+Z / Cmd+Shift+Z: やり直す
- * - Shift+Delete: クリア
+ * - Ctrl+Delete / Cmd+Backspace: レイヤーをクリア
  * - P: ペンツール選択
  * - E: 消しゴムツール選択
  * - H: ハンドツール選択
@@ -49,7 +49,7 @@ export const useKeyboardShortcuts = ({
         }
         return
       }
-      if (e.shiftKey && e.key === 'Delete') {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'Delete' || e.key === 'Backspace')) {
         e.preventDefault()
         onClear()
         return

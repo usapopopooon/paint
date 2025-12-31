@@ -79,11 +79,29 @@ describe('useKeyboardShortcuts', () => {
     })
   })
 
-  describe('Clear (Shift+Delete)', () => {
-    test('Shift+Deleteでclear', () => {
+  describe('Clear (Ctrl+Delete / Cmd+Backspace)', () => {
+    test('Ctrl+Deleteでclear', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
-      dispatchKeyDown('Delete', { shiftKey: true })
+      dispatchKeyDown('Delete', { ctrlKey: true })
+
+      expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+Backspaceでclear', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Backspace', { ctrlKey: true })
+
+      expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+Backspace (Mac)でclear', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Backspace', { metaKey: true })
 
       expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
       unmount()
@@ -93,6 +111,15 @@ describe('useKeyboardShortcuts', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('Delete')
+
+      expect(mockHandlers.onClear).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Backspaceのみは無視', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Backspace')
 
       expect(mockHandlers.onClear).not.toHaveBeenCalled()
       unmount()
