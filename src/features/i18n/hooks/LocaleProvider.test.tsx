@@ -175,14 +175,14 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('translation')).toHaveTextContent('Pen')
   })
 
-  it('should override locale with second parameter', () => {
+  it('should override locale with third parameter', () => {
     const OverrideTestComponent = () => {
       const { t } = useLocale()
       return (
         <div>
           <span data-testid="default">{t('tools.pen')}</span>
-          <span data-testid="force-en">{t('tools.pen', 'en')}</span>
-          <span data-testid="force-ja">{t('tools.pen', 'ja')}</span>
+          <span data-testid="force-en">{t('tools.pen', {}, 'en')}</span>
+          <span data-testid="force-ja">{t('tools.pen', {}, 'ja')}</span>
         </div>
       )
     }
@@ -204,8 +204,8 @@ describe('LocaleProvider', () => {
       return (
         <div>
           <span data-testid="default">{t('actions.clearLayer')}</span>
-          <span data-testid="force-en">{t('actions.clearLayer', 'en')}</span>
-          <span data-testid="force-ja">{t('actions.clearLayer', 'ja')}</span>
+          <span data-testid="force-en">{t('actions.clearLayer', {}, 'en')}</span>
+          <span data-testid="force-ja">{t('actions.clearLayer', {}, 'ja')}</span>
         </div>
       )
     }

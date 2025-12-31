@@ -6,15 +6,18 @@ import type { LayerSnapshot } from '../types/layer'
  * レイヤー削除アクションを作成
  * @param layerId - 削除されたレイヤーのID
  * @param layerSnapshot - 削除前のレイヤー状態スナップショット
+ * @param index - 削除前の位置
  * @returns LayerDeletedActionオブジェクト
  */
 export const createLayerDeletedAction = (
   layerId: LayerId,
-  layerSnapshot: LayerSnapshot
+  layerSnapshot: LayerSnapshot,
+  index: number
 ): LayerDeletedAction => ({
   id: generateId('action'),
   timestamp: Date.now(),
   type: 'layer:deleted',
   layerId,
   layerSnapshot,
+  index,
 })

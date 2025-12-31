@@ -338,8 +338,11 @@ function App() {
           <LayerPanel
             layers={canvas.layers}
             activeLayerId={canvas.activeLayerId}
+            drawingLayerCount={canvas.drawingLayerCount}
             onLayerSelect={canvas.setActiveLayer}
             onLayerVisibilityChange={canvas.setLayerVisibility}
+            onLayerAdd={canvas.addLayer}
+            onLayerDelete={canvas.deleteLayer}
           />
         </ToolPanel>
 

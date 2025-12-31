@@ -150,6 +150,23 @@ export const useCanvas = (options?: UseCanvasOptions) => {
         for (const snapshot of action.layerSnapshots) {
           layerManager.setDrawablesToLayer(snapshot.previousDrawables, snapshot.layerId)
         }
+      } else if (action.type === 'layer:created' && targetLayerId) {
+        // レイヤー作成を取り消す（レイヤーを削除）
+        layerManager.deleteLayer(targetLayerId)
+      } else if (action.type === 'layer:deleted') {
+        // レイヤー削除を取り消す（レイヤーを復元）
+        const snapshot = action.layerSnapshot
+        const layer = {
+          id: snapshot.id,
+          name: snapshot.name,
+          type: 'drawing' as const,
+          isVisible: snapshot.isVisible,
+          isLocked: snapshot.isLocked,
+          opacity: snapshot.opacity,
+          blendMode: snapshot.blendMode,
+          drawables: snapshot.drawables,
+        }
+        layerManager.restoreLayer(layer, action.index)
       }
       await history.undo()
     }
@@ -189,6 +206,22 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       } else if (action.type === 'canvas:flipped') {
         // 反転を再適用
         layerManager.flipAllLayersHorizontal(action.canvasWidth)
+      } else if (action.type === 'layer:created' && targetLayerId) {
+        // レイヤー作成を再実行
+        const layer = {
+          id: targetLayerId,
+          name: action.name,
+          type: 'drawing' as const,
+          isVisible: true,
+          isLocked: false,
+          opacity: 1,
+          blendMode: 'normal' as const,
+          drawables: [],
+        }
+        layerManager.restoreLayer(layer, action.index)
+      } else if (action.type === 'layer:deleted' && targetLayerId) {
+        // レイヤー削除を再実行
+        layerManager.deleteLayer(targetLayerId)
       }
       await history.redo()
     }
@@ -275,6 +308,45 @@ export const useCanvas = (options?: UseCanvasOptions) => {
   )
 
   /**
+   * レイヤーを追加 + 履歴に記録
+   * @returns 追加されたレイヤー情報
+   */
+  const addLayer = useCallback(() => {
+    const { layerId, name, index } = layerManager.addLayer()
+    history.recordLayerCreated(layerId, name, index)
+    return { layerId, name, index }
+  }, [layerManager, history])
+
+  /**
+   * レイヤーを削除 + 履歴に記録
+   * @param layerId - 削除するレイヤーID
+   * @returns 削除に成功した場合true
+   */
+  const deleteLayer = useCallback(
+    (layerId: string) => {
+      const layer = layerManager.getLayerById(layerId)
+      if (!layer) return false
+
+      const result = layerManager.deleteLayer(layerId)
+      if (!result) return false
+
+      // LayerSnapshotを作成
+      const layerSnapshot = {
+        id: result.layer.id,
+        name: result.layer.name,
+        isVisible: result.layer.isVisible,
+        isLocked: result.layer.isLocked,
+        opacity: result.layer.opacity,
+        blendMode: result.layer.blendMode,
+        drawables: result.layer.drawables,
+      }
+      history.recordLayerDeleted(layerId, layerSnapshot, result.index)
+      return true
+    },
+    [layerManager, history]
+  )
+
+  /**
    * 背景レイヤーを表示（エクスポート時に使用）
    */
   const showBackgroundLayer = useCallback(() => {
@@ -305,6 +377,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     drawables: allDrawables,
     layers: allLayers,
     activeLayerId: layerManager.activeLayerId,
+    drawingLayerCount: layerManager.drawingLayerCount,
     canUndo: history.canUndo,
     canRedo: history.canRedo,
     startStroke,
@@ -317,6 +390,8 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     setLayerVisibility,
     setLayerOpacity,
     setLayerName,
+    addLayer,
+    deleteLayer,
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
     flipHorizontal,

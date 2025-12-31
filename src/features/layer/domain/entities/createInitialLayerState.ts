@@ -2,23 +2,20 @@ import type { LayerState } from '../../types'
 import { createBackgroundLayer } from './createBackgroundLayer'
 import { createDrawingLayer } from './createDrawingLayer'
 
-const INITIAL_LAYER_COUNT = 3
-
 /**
  * 初期レイヤー状態を作成
- * @returns 初期レイヤー構成（背景レイヤー + 描画レイヤー3枚、最下層描画レイヤーがアクティブ）
+ * @param layerName - 初期レイヤーの名前
+ * @returns 初期レイヤー構成（背景レイヤー + レイヤー1、レイヤー1がアクティブ）
  */
-export const createInitialLayerState = (): LayerState => {
+export const createInitialLayerState = (layerName: string): LayerState => {
   // 背景レイヤー（最背面、非表示）
   const backgroundLayer = createBackgroundLayer()
 
-  // 描画レイヤー
-  const drawingLayers = Array.from({ length: INITIAL_LAYER_COUNT }, (_, i) =>
-    createDrawingLayer(`layer-${i + 1}`, `Layer ${i + 1}`)
-  )
+  // 描画レイヤー（初期は1枚のみ）
+  const layer1 = createDrawingLayer('layer-1', layerName)
 
   return {
-    layers: [backgroundLayer, ...drawingLayers],
-    activeLayerId: drawingLayers[0]?.id ?? '',
+    layers: [backgroundLayer, layer1],
+    activeLayerId: layer1.id,
   }
 }

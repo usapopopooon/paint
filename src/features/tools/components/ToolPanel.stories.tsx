@@ -87,8 +87,11 @@ export const Default: Story = {
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),
@@ -128,8 +131,11 @@ export const BrushSelected: Story = {
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),
@@ -169,8 +175,11 @@ export const EraserSelected: Story = {
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),
@@ -210,8 +219,11 @@ export const Layer2Active: Story = {
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-2"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),
@@ -251,8 +263,11 @@ export const LayerHidden: Story = {
       <LayerPanel
         layers={[{ ...sampleLayers[0]!, isVisible: false }, sampleLayers[1]!, sampleLayers[2]!]}
         activeLayerId="layer-1"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),
@@ -292,8 +307,11 @@ export const CustomPenSettings: Story = {
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),
@@ -333,8 +351,11 @@ export const LargeEraser: Story = {
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
+        drawingLayerCount={3}
         onLayerSelect={fn()}
         onLayerVisibilityChange={fn()}
+        onLayerAdd={fn()}
+        onLayerDelete={fn()}
       />
     </ToolPanel>
   ),

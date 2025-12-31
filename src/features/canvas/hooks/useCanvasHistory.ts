@@ -6,12 +6,15 @@ import {
   createInMemoryStorage,
   createDrawableAddedAction,
   createDrawablesClearedAction,
+  createLayerCreatedAction,
+  createLayerDeletedAction,
   createLayerVisibilityChangedAction,
   createLayerOpacityChangedAction,
   createLayerRenamedAction,
   createCanvasResizedAction,
   createCanvasFlippedAction,
 } from '@/features/history'
+import type { LayerSnapshot } from '@/features/history'
 
 /**
  * useCanvasHistoryフックのオプション
@@ -198,6 +201,38 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   )
 
   /**
+   * レイヤー作成を履歴に記録
+   * @param layerId - 作成されたレイヤーID
+   * @param name - レイヤー名
+   * @param index - 挿入位置
+   */
+  const recordLayerCreated = useCallback(
+    async (layerId: LayerId, name: string, index: number) => {
+      const action = createLayerCreatedAction(layerId, name, index)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
+   * レイヤー削除を履歴に記録
+   * @param layerId - 削除されたレイヤーID
+   * @param layerSnapshot - 削除前のレイヤー状態
+   * @param index - 削除前の位置
+   */
+  const recordLayerDeleted = useCallback(
+    async (layerId: LayerId, layerSnapshot: LayerSnapshot, index: number) => {
+      const action = createLayerDeletedAction(layerId, layerSnapshot, index)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
    * キャンバスリサイズを履歴に記録
    * @param previousWidth - 変更前の幅
    * @param previousHeight - 変更前の高さ
@@ -273,6 +308,8 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     recordLayerVisibilityChange,
     recordLayerOpacityChange,
     recordLayerNameChange,
+    recordLayerCreated,
+    recordLayerDeleted,
     recordCanvasResize,
     recordCanvasFlip,
   } as const

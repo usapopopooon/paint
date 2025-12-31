@@ -46,8 +46,11 @@ const meta = {
   tags: ['autodocs'],
   args: {
     layers: sampleLayers,
+    drawingLayerCount: 3,
     onLayerSelect: fn(),
     onLayerVisibilityChange: fn(),
+    onLayerAdd: fn(),
+    onLayerDelete: fn(),
   },
 } satisfies Meta<typeof LayerPanel>
 
@@ -110,7 +113,7 @@ export const ToggleVisibility: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const visibilityButtons = canvas.getAllByRole('button', { name: 'Visible' })
+    const visibilityButtons = canvas.getAllByRole('button', { name: 'Hide' })
 
     await userEvent.click(visibilityButtons[0]!)
     await expect(onVisibilityChangeFn).toHaveBeenCalledWith('layer-3', false)
@@ -120,6 +123,7 @@ export const ToggleVisibility: Story = {
 export const SingleLayer: Story = {
   args: {
     layers: [sampleLayers[0]!],
+    drawingLayerCount: 1,
     activeLayerId: 'layer-1',
   },
 }
@@ -156,5 +160,38 @@ export const WithBackgroundLayer: Story = {
 
     // 背景レイヤーはUI上に表示されない
     await expect(canvas.queryByText('Background')).not.toBeInTheDocument()
+  },
+}
+
+const onLayerAddFn = fn()
+export const AddLayer: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerAdd: onLayerAddFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const addButton = canvas.getByRole('button', { name: 'Add layer' })
+
+    await userEvent.click(addButton)
+    await expect(onLayerAddFn).toHaveBeenCalled()
+  },
+}
+
+/**
+ * 最後の1枚のレイヤーは削除できない
+ */
+export const CannotDeleteLastLayer: Story = {
+  args: {
+    layers: [sampleLayers[0]!],
+    drawingLayerCount: 1,
+    activeLayerId: 'layer-1',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const deleteButton = canvas.getByRole('button', { name: 'Delete layer' })
+
+    // 削除ボタンは無効化されている
+    await expect(deleteButton).toBeDisabled()
   },
 }

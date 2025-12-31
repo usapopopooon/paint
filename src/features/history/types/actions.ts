@@ -47,6 +47,7 @@ export type LayerCreatedAction = ActionMetadata & {
 export type LayerDeletedAction = ActionMetadata & {
   readonly type: 'layer:deleted'
   readonly layerSnapshot: LayerSnapshot
+  readonly index: number
 }
 
 export type LayerReorderedAction = ActionMetadata & {
