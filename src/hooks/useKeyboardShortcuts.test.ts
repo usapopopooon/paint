@@ -21,6 +21,8 @@ describe('useKeyboardShortcuts', () => {
       onFlipHorizontal: vi.fn(),
       onMoveLayerUp: vi.fn(),
       onMoveLayerDown: vi.fn(),
+      onIncreaseToolSize: vi.fn(),
+      onDecreaseToolSize: vi.fn(),
     }
   })
 
@@ -373,6 +375,66 @@ describe('useKeyboardShortcuts', () => {
 
       expect(mockHandlers.onFlipHorizontal).not.toHaveBeenCalled()
       expect(mockHandlers.onSelectHand).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+  })
+
+  describe('ツールサイズ変更 (] / [)', () => {
+    test(']キーでツールサイズを大きく', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown(']')
+
+      expect(mockHandlers.onIncreaseToolSize).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onDecreaseToolSize).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('[キーでツールサイズを小さく', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('[')
+
+      expect(mockHandlers.onDecreaseToolSize).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onIncreaseToolSize).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Alt+]はレイヤー移動（ツールサイズ変更しない）', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown(']', { altKey: true })
+
+      expect(mockHandlers.onIncreaseToolSize).not.toHaveBeenCalled()
+      expect(mockHandlers.onMoveLayerUp).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Alt+[はレイヤー移動（ツールサイズ変更しない）', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('[', { altKey: true })
+
+      expect(mockHandlers.onDecreaseToolSize).not.toHaveBeenCalled()
+      expect(mockHandlers.onMoveLayerDown).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+]はツールサイズ変更しない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown(']', { ctrlKey: true })
+
+      expect(mockHandlers.onIncreaseToolSize).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Ctrl+[はツールサイズ変更しない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('[', { ctrlKey: true })
+
+      expect(mockHandlers.onDecreaseToolSize).not.toHaveBeenCalled()
       unmount()
     })
   })

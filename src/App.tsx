@@ -31,6 +31,10 @@ import {
   LayerPanel,
   HardnessSlider,
 } from './features/tools'
+import { MIN_PEN_WIDTH, MAX_PEN_WIDTH } from './features/tools/constants/pen'
+import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from './features/tools/constants/brush'
+import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/eraser'
+import { sliderToValue, valueToSlider } from './lib/slider'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
@@ -93,6 +97,69 @@ function App() {
   // ページを離れる前に確認ダイアログを表示
   useBeforeUnload()
 
+  // toolの最新状態をrefで保持（useCallbackの依存配列問題を回避）
+  const toolRef = useRef(tool)
+  useEffect(() => {
+    toolRef.current = tool
+  }, [tool])
+
+  /**
+   * 対数スケールで次の値を計算（値が変わるまでスライダー位置を増減）
+   */
+  const getNextLogValue = (
+    currentWidth: number,
+    min: number,
+    max: number,
+    direction: 1 | -1
+  ): number => {
+    let sliderPos = valueToSlider(currentWidth, min, max)
+    let newWidth = currentWidth
+
+    // 値が変わるまでスライダー位置を増減（最大10回試行）
+    for (let i = 0; i < 10 && newWidth === currentWidth; i++) {
+      sliderPos = direction > 0 ? Math.min(100, sliderPos + 1) : Math.max(0, sliderPos - 1)
+      newWidth = sliderToValue(sliderPos, min, max)
+    }
+
+    return newWidth
+  }
+
+  /**
+   * ツールサイズを1段階大きくする（対数スケール）
+   */
+  const handleIncreaseToolSize = useCallback(() => {
+    const t = toolRef.current
+    const toolType = t.currentType
+    if (toolType === 'pen') {
+      const newWidth = getNextLogValue(t.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH, 1)
+      t.setPenWidth(newWidth)
+    } else if (toolType === 'brush') {
+      const newWidth = getNextLogValue(t.brushConfig.width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH, 1)
+      t.setBrushWidth(newWidth)
+    } else if (toolType === 'eraser') {
+      const newWidth = getNextLogValue(t.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH, 1)
+      t.setEraserWidth(newWidth)
+    }
+  }, [])
+
+  /**
+   * ツールサイズを1段階小さくする（対数スケール）
+   */
+  const handleDecreaseToolSize = useCallback(() => {
+    const t = toolRef.current
+    const toolType = t.currentType
+    if (toolType === 'pen') {
+      const newWidth = getNextLogValue(t.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH, -1)
+      t.setPenWidth(newWidth)
+    } else if (toolType === 'brush') {
+      const newWidth = getNextLogValue(t.brushConfig.width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH, -1)
+      t.setBrushWidth(newWidth)
+    } else if (toolType === 'eraser') {
+      const newWidth = getNextLogValue(t.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH, -1)
+      t.setEraserWidth(newWidth)
+    }
+  }, [])
+
   // キーボードショートカット
   useKeyboardShortcuts({
     onUndo: canvas.undo,
@@ -109,6 +176,8 @@ function App() {
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
     onMoveLayerUp: () => canvas.moveLayerUp(canvas.activeLayerId),
     onMoveLayerDown: () => canvas.moveLayerDown(canvas.activeLayerId),
+    onIncreaseToolSize: handleIncreaseToolSize,
+    onDecreaseToolSize: handleDecreaseToolSize,
   })
 
   /**
