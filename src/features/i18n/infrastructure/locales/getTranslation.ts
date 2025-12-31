@@ -17,19 +17,42 @@ export const translations = {
 export type TranslationKey = keyof typeof en
 
 /**
+ * 翻訳パラメータの型
+ */
+export type TranslationParams = Record<string, string | number>
+
+/**
  * 翻訳関数の型
  * @param key - 翻訳キー
+ * @param params - 置換パラメータ（オプション）
  * @param locale - ロケール（省略時は現在のロケール）
  */
-export type TranslateFunction = (key: TranslationKey, locale?: Locale) => string
+export type TranslateFunction = (
+  key: TranslationKey,
+  params?: TranslationParams,
+  locale?: Locale
+) => string
 
 /**
  * 指定ロケールの翻訳を取得
  * @param locale - ロケール
  * @param key - 翻訳キー
+ * @param params - 置換パラメータ（オプション）
  * @returns 翻訳されたテキスト
  */
-export const getTranslation = (locale: Locale, key: TranslationKey): string => {
-  const text = translations[locale][key]
-  return text.replace('{modifier}', getModifierKey())
+export const getTranslation = (
+  locale: Locale,
+  key: TranslationKey,
+  params?: TranslationParams
+): string => {
+  let text = translations[locale][key]
+  text = text.replace('{modifier}', getModifierKey())
+
+  if (params) {
+    for (const [paramKey, value] of Object.entries(params)) {
+      text = text.replace(`{${paramKey}}`, String(value))
+    }
+  }
+
+  return text
 }

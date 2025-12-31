@@ -27,10 +27,11 @@ describe('createLayerDeletedAction', () => {
       drawables: [testDrawable],
     }
 
-    const action = createLayerDeletedAction('layer-1', snapshot)
+    const action = createLayerDeletedAction('layer-1', snapshot, 2)
 
     expect(action.type).toBe('layer:deleted')
     expect(action.layerId).toBe('layer-1')
     expect(action.layerSnapshot).toBe(snapshot)
+    expect(action.index).toBe(2)
   })
 })

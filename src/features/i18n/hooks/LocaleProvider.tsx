@@ -2,7 +2,12 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { setStorageItem } from '@/lib/storage'
 import type { Locale } from '../types'
 import { LOCALE_STORAGE_KEY } from '../constants'
-import { getTranslation, type TranslationKey, type TranslateFunction } from '../infrastructure'
+import {
+  getTranslation,
+  type TranslationKey,
+  type TranslateFunction,
+  type TranslationParams,
+} from '../infrastructure'
 import { LocaleContext, type LocaleContextValue } from './LocaleContext'
 import { getInitialLocale } from '../helpers'
 
@@ -42,11 +47,13 @@ export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps)
   /**
    * 翻訳関数
    * @param key - 翻訳キー
+   * @param params - 置換パラメータ（オプション）
    * @param overrideLocale - ロケール（省略時は現在のロケール）
    * @returns 指定ロケールに対応する翻訳テキスト
    */
   const t = useCallback<TranslateFunction>(
-    (key: TranslationKey, overrideLocale?: Locale) => getTranslation(overrideLocale ?? locale, key),
+    (key: TranslationKey, params?: TranslationParams, overrideLocale?: Locale) =>
+      getTranslation(overrideLocale ?? locale, key, params),
     [locale]
   )
 
