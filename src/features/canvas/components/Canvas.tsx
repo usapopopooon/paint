@@ -176,7 +176,7 @@ export const Canvas = ({
     }
   }, [isHandTool, onPan])
 
-  // ツールに応じたカーソルスタイルを計算
+  // ツールに応じたカーソルスタイルを計算（描画ツール以外）
   const cursorStyle = useMemo(() => {
     if (isHandTool) {
       return isDragging ? 'grabbing' : 'grab'
@@ -206,7 +206,7 @@ export const Canvas = ({
   )
 
   // 常に同じ構造を返すことでDrawingCanvasの再マウントを防ぐ
-  // DrawingCanvasは常に同じ位置に配置し、PointerInputLayerはオーバーレイとして配置
+  // PointerInputLayerは常に存在し、描画ツール以外はdisabledにする
   return (
     <div
       ref={containerRef}
@@ -214,31 +214,28 @@ export const Canvas = ({
         transform: `translate(${offset.x}px, ${offset.y}px)`,
         touchAction: 'none',
         cursor: cursorStyle,
-        position: 'relative',
       }}
       className={fillContainer ? 'w-full h-full' : 'inline-block'}
       onClick={handleClick}
       onContextMenu={handleSecondaryClick}
     >
-      {/* DrawingCanvasは常に同じ位置に配置 */}
-      <DrawingCanvas
-        drawables={drawables}
-        layers={layers}
-        width={width}
-        height={height}
-        fillContainer={fillContainer}
-      />
-      {/* 描画ツール時のみPointerInputLayerをオーバーレイとして表示 */}
-      {isDrawingTool && (
-        <PointerInputLayer
-          onStart={onStartStroke}
-          onMove={onAddPoint}
-          onEnd={onEndStroke}
-          cursor={cursor}
-          className="absolute inset-0"
-          zoom={zoom}
+      <PointerInputLayer
+        onStart={onStartStroke}
+        onMove={onAddPoint}
+        onEnd={onEndStroke}
+        cursor={cursor}
+        className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        zoom={zoom}
+        disabled={!isDrawingTool}
+      >
+        <DrawingCanvas
+          drawables={drawables}
+          layers={layers}
+          width={width}
+          height={height}
+          fillContainer={fillContainer}
         />
-      )}
+      </PointerInputLayer>
     </div>
   )
 }
