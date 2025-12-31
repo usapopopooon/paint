@@ -1,6 +1,11 @@
 import { describe, test, expect } from 'vitest'
 import { penBehavior } from './penBehavior'
-import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR, DEFAULT_OPACITY } from '../../constants'
+import {
+  DEFAULT_PEN_WIDTH,
+  DEFAULT_PEN_COLOR,
+  DEFAULT_OPACITY,
+  DEFAULT_HARDNESS,
+} from '../../constants'
 
 describe('penBehavior', () => {
   describe('type', () => {
@@ -17,6 +22,7 @@ describe('penBehavior', () => {
         width: DEFAULT_PEN_WIDTH,
         color: DEFAULT_PEN_COLOR,
         opacity: DEFAULT_OPACITY,
+        hardness: DEFAULT_HARDNESS,
       })
     })
   })
@@ -24,7 +30,7 @@ describe('penBehavior', () => {
   describe('createStroke', () => {
     test('指定されたポイントとコンフィグでストロークDrawableを作成する', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1 }
+      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1, hardness: 0 }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -40,17 +46,26 @@ describe('penBehavior', () => {
 
     test('opacityがブラシチップに反映される', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 0.5 }
+      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 0.5, hardness: 0 }
 
       const stroke = penBehavior.createStroke(point, config)
 
       expect(stroke.style.brushTip.opacity).toBe(0.5)
     })
+
+    test('hardnessがブラシチップに反映される', () => {
+      const point = { x: 10, y: 20 }
+      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1, hardness: 0.5 }
+
+      const stroke = penBehavior.createStroke(point, config)
+
+      expect(stroke.style.brushTip.hardness).toBe(0.5)
+    })
   })
 
   describe('getCursor', () => {
     test('penコンフィグに対応したカーソルコンフィグを返す', () => {
-      const config = { type: 'pen' as const, width: 10, color: '#00ff00', opacity: 1 }
+      const config = { type: 'pen' as const, width: 10, color: '#00ff00', opacity: 1, hardness: 0 }
 
       const cursor = penBehavior.getCursor(config)
 

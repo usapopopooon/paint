@@ -2,7 +2,12 @@ import { createSolidBrushTip } from '@/features/brush'
 import type { Point, StrokeDrawable } from '@/features/drawable'
 import { createStrokeDrawable } from '@/features/drawable'
 import type { BrushToolConfig, CursorConfig } from '../../types'
-import { DEFAULT_BRUSH_WIDTH, DEFAULT_BRUSH_COLOR, DEFAULT_OPACITY } from '../../constants'
+import {
+  DEFAULT_BRUSH_WIDTH,
+  DEFAULT_BRUSH_COLOR,
+  DEFAULT_OPACITY,
+  DEFAULT_HARDNESS,
+} from '../../constants'
 
 /**
  * ブラシツールのビヘイビア定義
@@ -19,6 +24,7 @@ export const brushBehavior = {
     width: DEFAULT_BRUSH_WIDTH,
     color: DEFAULT_BRUSH_COLOR,
     opacity: DEFAULT_OPACITY,
+    hardness: DEFAULT_HARDNESS,
   }),
 
   /**
@@ -30,7 +36,7 @@ export const brushBehavior = {
   createStroke: (point: Point, config: BrushToolConfig): StrokeDrawable =>
     createStrokeDrawable([point], {
       color: config.color,
-      brushTip: createSolidBrushTip(config.width, config.opacity),
+      brushTip: createSolidBrushTip(config.width, config.opacity, config.hardness),
       blendMode: 'normal',
     }),
 

@@ -42,6 +42,10 @@ export const useTool = () => {
     () => createConfigSetter<number>(setState, 'penConfig', 'opacity'),
     []
   )
+  const setPenHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'penConfig', 'hardness'),
+    []
+  )
 
   const setBrushWidth = useMemo(
     () => createConfigSetter<number>(setState, 'brushConfig', 'width'),
@@ -55,6 +59,10 @@ export const useTool = () => {
     () => createConfigSetter<number>(setState, 'brushConfig', 'opacity'),
     []
   )
+  const setBrushHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'hardness'),
+    []
+  )
 
   const setEraserWidth = useMemo(
     () => createConfigSetter<number>(setState, 'eraserConfig', 'width'),
@@ -62,6 +70,10 @@ export const useTool = () => {
   )
   const setEraserOpacity = useMemo(
     () => createConfigSetter<number>(setState, 'eraserConfig', 'opacity'),
+    []
+  )
+  const setEraserHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'hardness'),
     []
   )
 
@@ -103,11 +115,14 @@ export const useTool = () => {
     setPenWidth,
     setPenColor,
     setPenOpacity,
+    setPenHardness,
     setBrushWidth,
     setBrushColor,
     setBrushOpacity,
+    setBrushHardness,
     setEraserWidth,
     setEraserOpacity,
+    setEraserHardness,
     getCursor,
   } as const
 }

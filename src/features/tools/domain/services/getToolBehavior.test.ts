@@ -25,14 +25,17 @@ describe('getToolBehavior', () => {
     const behavior = getToolBehavior('pen')
     const stroke = behavior.createStroke(
       { x: 0, y: 0 },
-      { type: 'pen', width: 5, color: '#000000', opacity: 1 }
+      { type: 'pen', width: 5, color: '#000000', opacity: 1, hardness: 0 }
     )
     expect(stroke.style.blendMode).toBe('normal')
   })
 
   test('レジストリ経由でeraserの正しいストロークを作成する', () => {
     const behavior = getToolBehavior('eraser')
-    const stroke = behavior.createStroke({ x: 0, y: 0 }, { type: 'eraser', width: 20, opacity: 1 })
+    const stroke = behavior.createStroke(
+      { x: 0, y: 0 },
+      { type: 'eraser', width: 20, opacity: 1, hardness: 0 }
+    )
     expect(stroke.style.blendMode).toBe('erase')
   })
 
