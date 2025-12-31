@@ -25,6 +25,8 @@ type CanvasProps = {
   readonly onPan?: (deltaX: number, deltaY: number) => void
   /** セカンダリクリック（右クリック等）で色を取得した時のコールバック */
   readonly onPickColor?: (color: string) => void
+  /** ズーム倍率（座標変換に使用、デフォルト: 1） */
+  readonly zoom?: number
 }
 
 /**
@@ -45,6 +47,7 @@ export const Canvas = ({
   offset = { x: 0, y: 0 },
   onPan,
   onPickColor,
+  zoom = 1,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
@@ -70,17 +73,17 @@ export const Canvas = ({
       const canvas = container.querySelector('canvas')
       if (!canvas) return
 
-      // クリック位置をキャンバス座標に変換
+      // クリック位置をキャンバス座標に変換（zoomを考慮）
       const rect = canvas.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+      const x = (e.clientX - rect.left) / zoom
+      const y = (e.clientY - rect.top) / zoom
 
       const color = getPixelColor(canvas, x, y)
       if (color) {
         onPickColor(color)
       }
     },
-    [onPickColor]
+    [onPickColor, zoom]
   )
 
   // ハンドツール時はネイティブポインターイベントでパン処理
@@ -191,6 +194,7 @@ export const Canvas = ({
         onEnd={onEndStroke}
         cursor={cursor}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        zoom={zoom}
       >
         <DrawingCanvas
           drawables={drawables}

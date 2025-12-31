@@ -71,6 +71,7 @@ flowchart TB
 ```
 src/
 ├── components/ui/       # 共有UIコンポーネント（Button, Slider, Tooltip等）
+├── constants/           # グローバル定数（DISPLAY_MULTIPLIER等）
 ├── features/            # 機能モジュール
 │   └── [feature]/       # 各機能（詳細は機能一覧を参照）
 │       ├── types/           # 型定義のみ
@@ -87,6 +88,7 @@ src/
 │       └── index.ts         # 公開API
 ├── hooks/               # グローバルフック（useKeyboardShortcuts）
 ├── lib/                 # 共有ユーティリティ（色変換、ストレージ等）
+├── utils/               # 汎用ユーティリティ関数（toDisplayValue等）
 └── test/                # テストユーティリティ・モック
 ```
 

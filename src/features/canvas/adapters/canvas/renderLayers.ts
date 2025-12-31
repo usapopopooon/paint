@@ -1,6 +1,6 @@
 import { Application, Container, Graphics, RenderTexture, Sprite, BlurFilter } from 'pixi.js'
 import type { Layer } from '@/features/layer'
-import { blendModeToPixi } from '@/features/layer'
+import { blendModeToPixi, BACKGROUND_COLOR, BACKGROUND_LAYER_ID } from '@/features/layer'
 import type { Drawable } from '@/features/drawable'
 import { renderDrawable, isEraserStroke, isStrokeDrawable } from '@/features/drawable'
 
@@ -75,22 +75,24 @@ const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
 /**
  * レイヤーをPixiJS Applicationにレンダリング
  * RenderTextureを使用して消しゴムが正しく機能するようにする
+ * 背景レイヤーが表示状態の場合、白背景を描画する
  * @param app - PixiJS Application
  * @param layers - レンダリングするレイヤー配列
- * @param backgroundColor - 背景色（nullの場合は背景を描画しない）
  */
-export const renderLayers = (
-  app: Application,
-  layers: readonly Layer[],
-  backgroundColor: string | null
-): void => {
+export const renderLayers = (app: Application, layers: readonly Layer[]): void => {
   app.stage.removeChildren()
-  if (backgroundColor) {
-    addBackground(app, backgroundColor)
-  }
 
   for (const layer of layers) {
-    if (!layer.isVisible || layer.drawables.length === 0) continue
+    if (!layer.isVisible) continue
+
+    // 背景レイヤーが表示状態の場合、白背景を描画
+    if (layer.id === BACKGROUND_LAYER_ID) {
+      addBackground(app, BACKGROUND_COLOR)
+      continue
+    }
+
+    // 描画レイヤーはdrawablesがある場合のみ描画
+    if (layer.drawables.length === 0) continue
     const layerSprite = renderLayerToTexture(app, layer)
     app.stage.addChild(layerSprite)
   }

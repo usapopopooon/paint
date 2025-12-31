@@ -1,13 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { type ResizeAnchor, calculateResizeOffset } from '../types'
-
-/** デフォルトのキャンバスサイズ */
-export const DEFAULT_CANVAS_WIDTH = 800
-export const DEFAULT_CANVAS_HEIGHT = 600
-
-/** キャンバスサイズの最小・最大値 */
-export const MIN_CANVAS_SIZE = 100
-export const MAX_CANVAS_SIZE = 4096
+import {
+  DEFAULT_CANVAS_WIDTH,
+  DEFAULT_CANVAS_HEIGHT,
+  MIN_CANVAS_SIZE,
+  MAX_CANVAS_SIZE,
+} from '../constants'
 
 /** デフォルトのリサイズ起点 */
 export const DEFAULT_RESIZE_ANCHOR: ResizeAnchor = 'center'
