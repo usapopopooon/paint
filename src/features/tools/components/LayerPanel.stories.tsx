@@ -52,6 +52,7 @@ const meta = {
     onLayerAdd: fn(),
     onLayerDelete: fn(),
     onLayerNameChange: fn(),
+    onLayerMove: fn(),
   },
 } satisfies Meta<typeof LayerPanel>
 
@@ -208,22 +209,23 @@ export const RenameLayer: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const body = within(document.body)
     const layer1Name = canvas.getByText('Layer 1')
 
     // ダブルクリックでダイアログを開く
     await userEvent.dblClick(layer1Name)
 
-    // ダイアログが開かれたことを確認
-    await expect(canvas.getByRole('dialog')).toBeInTheDocument()
-    await expect(canvas.getByText('Rename layer')).toBeInTheDocument()
+    // ダイアログが開かれたことを確認（ダイアログはportal経由でbodyに追加される）
+    await expect(body.getByRole('dialog')).toBeInTheDocument()
+    await expect(body.getByText('Rename layer')).toBeInTheDocument()
 
     // 入力フィールドに新しい名前を入力
-    const input = canvas.getByRole('textbox')
+    const input = body.getByRole('textbox')
     await userEvent.clear(input)
     await userEvent.type(input, 'New Layer Name')
 
     // OKボタンをクリック
-    const okButton = canvas.getByRole('button', { name: 'OK' })
+    const okButton = body.getByRole('button', { name: 'OK' })
     await userEvent.click(okButton)
 
     // コールバックが呼ばれたことを確認
@@ -242,18 +244,19 @@ export const RenameLayerCancel: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
+    const body = within(document.body)
     const layer1Name = canvas.getByText('Layer 1')
 
     // ダブルクリックでダイアログを開く
     await userEvent.dblClick(layer1Name)
 
-    // 入力フィールドに新しい名前を入力
-    const input = canvas.getByRole('textbox')
+    // 入力フィールドに新しい名前を入力（ダイアログはportal経由でbodyに追加される）
+    const input = body.getByRole('textbox')
     await userEvent.clear(input)
     await userEvent.type(input, 'New Layer Name')
 
     // キャンセルボタンをクリック
-    const cancelButton = canvas.getByRole('button', { name: 'Cancel' })
+    const cancelButton = body.getByRole('button', { name: 'Cancel' })
     await userEvent.click(cancelButton)
 
     // コールバックは呼ばれていないことを確認
@@ -290,5 +293,36 @@ export const LongLayerName: Story = {
 
     // truncateクラスが適用されていることを確認
     await expect(longName).toHaveClass('truncate')
+  },
+}
+
+/**
+ * ドラッグ可能なレイヤーパネル（ドラッグハンドルが表示される）
+ */
+export const Draggable: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerMove: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    // ドラッグハンドル（GripVerticalアイコン）が表示されていることを確認
+    // 3つのレイヤーがあるので、ドラッグ可能な要素が3つあるはず
+    const draggableItems = canvasElement.querySelectorAll('[draggable="true"]')
+    await expect(draggableItems.length).toBe(3)
+  },
+}
+
+/**
+ * ドラッグ無効（onLayerMoveが設定されていない場合）
+ */
+export const NotDraggable: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerMove: undefined,
+  },
+  play: async ({ canvasElement }) => {
+    // ドラッグ可能な要素がないことを確認
+    const draggableItems = canvasElement.querySelectorAll('[draggable="true"]')
+    await expect(draggableItems.length).toBe(0)
   },
 }

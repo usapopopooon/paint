@@ -1,5 +1,5 @@
-import { memo, useMemo, useState, useRef, useEffect } from 'react'
-import { Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
+import { memo, useMemo, useState, useRef, useEffect, useCallback } from 'react'
+import { Eye, EyeOff, Plus, Trash2, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -33,6 +33,7 @@ type LayerPanelProps = {
   readonly onLayerAdd: () => void
   readonly onLayerDelete: (id: LayerId) => void
   readonly onLayerNameChange: (id: LayerId, name: string) => void
+  readonly onLayerMove?: (id: LayerId, newIndex: number) => void
 }
 
 export const LayerPanel = memo(function LayerPanel({
@@ -44,11 +45,14 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerAdd,
   onLayerDelete,
   onLayerNameChange,
+  onLayerMove,
 }: LayerPanelProps) {
   const { t } = useLocale()
   const [deleteTargetId, setDeleteTargetId] = useState<LayerId | null>(null)
   const [editingLayerId, setEditingLayerId] = useState<LayerId | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [draggedLayerId, setDraggedLayerId] = useState<LayerId | null>(null)
+  const [dragOverLayerId, setDragOverLayerId] = useState<LayerId | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // 背景レイヤーをUI上から非表示にする
@@ -116,9 +120,57 @@ export const LayerPanel = memo(function LayerPanel({
     }
   }, [editingLayerId])
 
+  // ドラッグ&ドロップハンドラ
+  const handleDragStart = useCallback((e: React.DragEvent, layerId: LayerId) => {
+    setDraggedLayerId(layerId)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', layerId)
+  }, [])
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, layerId: LayerId) => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      if (draggedLayerId && draggedLayerId !== layerId) {
+        setDragOverLayerId(layerId)
+      }
+    },
+    [draggedLayerId]
+  )
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverLayerId(null)
+  }, [])
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetLayerId: LayerId) => {
+      e.preventDefault()
+      if (!draggedLayerId || !onLayerMove || draggedLayerId === targetLayerId) {
+        setDraggedLayerId(null)
+        setDragOverLayerId(null)
+        return
+      }
+
+      // ターゲットレイヤーのインデックスを取得（背景レイヤーを含む全体配列での位置）
+      const targetIndex = layers.findIndex((l) => l.id === targetLayerId)
+      if (targetIndex !== -1) {
+        onLayerMove(draggedLayerId, targetIndex)
+      }
+
+      setDraggedLayerId(null)
+      setDragOverLayerId(null)
+    },
+    [draggedLayerId, layers, onLayerMove]
+  )
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedLayerId(null)
+    setDragOverLayerId(null)
+  }, [])
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-2 flex-1 min-h-0">
+      <div className="flex items-center justify-between flex-shrink-0">
         <span className="text-sm font-medium text-foreground">{t('layers.title')}</span>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -135,17 +187,28 @@ export const LayerPanel = memo(function LayerPanel({
           <TooltipContent side="left">{t('layers.add')}</TooltipContent>
         </Tooltip>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto">
         {[...visibleLayers].reverse().map((layer) => (
           <div
             key={layer.id}
-            className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer ${
+            draggable={!!onLayerMove}
+            onDragStart={(e) => handleDragStart(e, layer.id)}
+            onDragOver={(e) => handleDragOver(e, layer.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, layer.id)}
+            onDragEnd={handleDragEnd}
+            className={`flex items-center gap-1 px-1 py-1 rounded cursor-pointer ${
               activeLayerId === layer.id
                 ? 'bg-control text-control-foreground'
                 : 'hover:bg-secondary/80 dark:hover:bg-white/10'
+            } ${draggedLayerId === layer.id ? 'opacity-50' : ''} ${
+              dragOverLayerId === layer.id ? 'ring-2 ring-primary' : ''
             }`}
             onClick={() => onLayerSelect(layer.id)}
           >
+            {onLayerMove && (
+              <GripVertical className="size-4 cursor-grab text-muted-foreground flex-shrink-0" />
+            )}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

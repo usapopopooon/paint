@@ -93,6 +93,7 @@ export const Default: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),
@@ -138,6 +139,7 @@ export const BrushSelected: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),
@@ -183,6 +185,7 @@ export const EraserSelected: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),
@@ -228,6 +231,7 @@ export const Layer2Active: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),
@@ -273,6 +277,7 @@ export const LayerHidden: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),
@@ -318,6 +323,7 @@ export const CustomPenSettings: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),
@@ -363,6 +369,7 @@ export const LargeEraser: Story = {
         onLayerAdd={fn()}
         onLayerDelete={fn()}
         onLayerNameChange={fn()}
+        onLayerMove={fn()}
       />
     </ToolPanel>
   ),

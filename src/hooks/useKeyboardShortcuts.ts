@@ -16,6 +16,8 @@ export type KeyboardShortcutsHandlers = {
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
   readonly onFlipHorizontal: () => void
+  readonly onMoveLayerUp: () => void
+  readonly onMoveLayerDown: () => void
 }
 
 /**
@@ -27,6 +29,8 @@ export type KeyboardShortcutsHandlers = {
  * - Ctrl+- / Cmd+-: ズームアウト
  * - Ctrl+0 / Cmd+0: ズームリセット
  * - Ctrl+H / Cmd+H: 左右反転
+ * - Alt+]: レイヤーを上に移動
+ * - Alt+[: レイヤーを下に移動
  * - P: ペンツール選択
  * - B: ブラシツール選択
  * - E: 消しゴムツール選択
@@ -47,6 +51,8 @@ export const useKeyboardShortcuts = ({
   onZoomOut,
   onZoomReset,
   onFlipHorizontal,
+  onMoveLayerUp,
+  onMoveLayerDown,
 }: KeyboardShortcutsHandlers) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -91,6 +97,18 @@ export const useKeyboardShortcuts = ({
       if ((e.ctrlKey || e.metaKey) && (e.key === 'h' || e.key === 'H')) {
         e.preventDefault()
         onFlipHorizontal()
+        return
+      }
+      // レイヤーを上に移動 (Alt + ])
+      if (e.altKey && e.key === ']') {
+        e.preventDefault()
+        onMoveLayerUp()
+        return
+      }
+      // レイヤーを下に移動 (Alt + [)
+      if (e.altKey && e.key === '[') {
+        e.preventDefault()
+        onMoveLayerDown()
         return
       }
       // 修飾キーなしの単一キー
@@ -138,5 +156,7 @@ export const useKeyboardShortcuts = ({
     onZoomOut,
     onZoomReset,
     onFlipHorizontal,
+    onMoveLayerUp,
+    onMoveLayerDown,
   ])
 }

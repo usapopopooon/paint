@@ -402,4 +402,126 @@ describe('useLayers', () => {
       expect(newLayer?.name).not.toBe('Changed Name')
     })
   })
+
+  describe('moveLayer', () => {
+    test('レイヤーを指定位置に移動できる', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      // 3つのレイヤーを作成（初期1枚 + 追加2枚）
+      act(() => {
+        result.current.addLayer()
+        result.current.addLayer()
+      })
+
+      // 背景レイヤーを除いて3枚
+      expect(result.current.drawingLayerCount).toBe(3)
+
+      // 最初のレイヤーのIDを取得
+      const firstLayerId = result.current.layers[1]!.id // [0]は背景
+
+      // 最上位に移動
+      act(() => {
+        result.current.moveLayer(firstLayerId, result.current.layers.length - 1)
+      })
+
+      // 最後のレイヤーが最初のレイヤーになっている
+      expect(result.current.layers[result.current.layers.length - 1]!.id).toBe(firstLayerId)
+    })
+
+    test('背景レイヤーは移動できない', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      const backgroundLayer = result.current.layers[0]!
+      const originalOrder = result.current.layers.map((l) => l.id)
+
+      act(() => {
+        result.current.moveLayer(backgroundLayer.id, 2)
+      })
+
+      // 順序が変わっていない
+      expect(result.current.layers.map((l) => l.id)).toEqual(originalOrder)
+    })
+  })
+
+  describe('moveLayerUp', () => {
+    test('レイヤーを1つ上に移動できる', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      // 2枚目のレイヤーを追加
+      act(() => {
+        result.current.addLayer()
+      })
+
+      const firstLayerId = result.current.layers[1]!.id // [0]は背景
+
+      // 最初のレイヤーを上に移動
+      let moved = false
+      act(() => {
+        moved = result.current.moveLayerUp(firstLayerId)
+      })
+
+      expect(moved).toBe(true)
+      // 最後のレイヤーになっている
+      expect(result.current.layers[result.current.layers.length - 1]!.id).toBe(firstLayerId)
+    })
+
+    test('最上位のレイヤーは上に移動できない', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      // 2枚目のレイヤーを追加
+      act(() => {
+        result.current.addLayer()
+      })
+
+      const topLayerId = result.current.layers[result.current.layers.length - 1]!.id
+
+      let moved = false
+      act(() => {
+        moved = result.current.moveLayerUp(topLayerId)
+      })
+
+      expect(moved).toBe(false)
+    })
+  })
+
+  describe('moveLayerDown', () => {
+    test('レイヤーを1つ下に移動できる', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      // 2枚目のレイヤーを追加
+      act(() => {
+        result.current.addLayer()
+      })
+
+      const topLayerId = result.current.layers[result.current.layers.length - 1]!.id
+
+      // 最上位のレイヤーを下に移動
+      let moved = false
+      act(() => {
+        moved = result.current.moveLayerDown(topLayerId)
+      })
+
+      expect(moved).toBe(true)
+      // 背景の次（インデックス1）になっている
+      expect(result.current.layers[1]!.id).toBe(topLayerId)
+    })
+
+    test('最下位の描画レイヤーは下に移動できない', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      // 2枚目のレイヤーを追加
+      act(() => {
+        result.current.addLayer()
+      })
+
+      const bottomLayerId = result.current.layers[1]!.id // 背景の次
+
+      let moved = false
+      act(() => {
+        moved = result.current.moveLayerDown(bottomLayerId)
+      })
+
+      expect(moved).toBe(false)
+    })
+  })
 })

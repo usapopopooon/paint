@@ -19,6 +19,8 @@ describe('useKeyboardShortcuts', () => {
       onZoomOut: vi.fn(),
       onZoomReset: vi.fn(),
       onFlipHorizontal: vi.fn(),
+      onMoveLayerUp: vi.fn(),
+      onMoveLayerDown: vi.fn(),
     }
   })
 

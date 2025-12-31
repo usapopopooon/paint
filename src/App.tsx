@@ -107,6 +107,8 @@ function App() {
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
+    onMoveLayerUp: () => canvas.moveLayerUp(canvas.activeLayerId),
+    onMoveLayerDown: () => canvas.moveLayerDown(canvas.activeLayerId),
   })
 
   /**
@@ -344,6 +346,7 @@ function App() {
             onLayerAdd={canvas.addLayer}
             onLayerDelete={canvas.deleteLayer}
             onLayerNameChange={canvas.setLayerName}
+            onLayerMove={canvas.moveLayer}
           />
         </ToolPanel>
 

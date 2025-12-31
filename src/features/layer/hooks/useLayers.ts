@@ -23,6 +23,9 @@ export type UseLayersReturn = {
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
   readonly setLayerName: (id: LayerId, name: string) => void
+  readonly moveLayer: (id: LayerId, newIndex: number) => void
+  readonly moveLayerUp: (id: LayerId) => boolean
+  readonly moveLayerDown: (id: LayerId) => boolean
   readonly translateAllLayers: (offsetX: number, offsetY: number) => void
   readonly flipAllLayersHorizontal: (canvasWidth: number) => void
   readonly addLayer: () => { layerId: LayerId; name: string; index: number }
@@ -212,6 +215,84 @@ export const useLayers = (): UseLayersReturn => {
   }, [])
 
   /**
+   * レイヤーを指定位置に移動
+   * @param id - 移動するレイヤーのID
+   * @param newIndex - 移動先のインデックス
+   */
+  const moveLayer = useCallback((id: LayerId, newIndex: number) => {
+    // 背景レイヤーは移動不可
+    if (id === BACKGROUND_LAYER_ID) return
+
+    setState((prev) => {
+      const currentIndex = prev.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return prev
+
+      // 背景レイヤーより前には移動できない
+      const backgroundIndex = prev.layers.findIndex((l) => l.id === BACKGROUND_LAYER_ID)
+      const minIndex = backgroundIndex >= 0 ? backgroundIndex + 1 : 0
+      const clampedNewIndex = Math.max(minIndex, Math.min(prev.layers.length - 1, newIndex))
+
+      if (currentIndex === clampedNewIndex) return prev
+
+      const newLayers = [...prev.layers]
+      const [movedLayer] = newLayers.splice(currentIndex, 1)
+      newLayers.splice(clampedNewIndex, 0, movedLayer)
+
+      return {
+        ...prev,
+        layers: newLayers,
+      }
+    })
+  }, [])
+
+  /**
+   * レイヤーを1つ上に移動（配列の後ろ方向）
+   * @param id - 移動するレイヤーのID
+   * @returns 移動できた場合はtrue
+   */
+  const moveLayerUp = useCallback(
+    (id: LayerId): boolean => {
+      // 背景レイヤーは移動不可
+      if (id === BACKGROUND_LAYER_ID) return false
+
+      const currentIndex = state.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return false
+
+      // 既に最上位の場合は移動不可
+      if (currentIndex >= state.layers.length - 1) return false
+
+      moveLayer(id, currentIndex + 1)
+      return true
+    },
+    [state.layers, moveLayer]
+  )
+
+  /**
+   * レイヤーを1つ下に移動（配列の前方向）
+   * @param id - 移動するレイヤーのID
+   * @returns 移動できた場合はtrue
+   */
+  const moveLayerDown = useCallback(
+    (id: LayerId): boolean => {
+      // 背景レイヤーは移動不可
+      if (id === BACKGROUND_LAYER_ID) return false
+
+      const currentIndex = state.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return false
+
+      // 背景レイヤーより前には移動できない
+      const backgroundIndex = state.layers.findIndex((l) => l.id === BACKGROUND_LAYER_ID)
+      const minIndex = backgroundIndex >= 0 ? backgroundIndex + 1 : 0
+
+      if (currentIndex <= minIndex) return false
+
+      moveLayer(id, currentIndex - 1)
+      return true
+    },
+    [state.layers, moveLayer]
+  )
+
+  /**
    * 全レイヤーの描画要素を座標移動
    * @param offsetX - X方向のオフセット
    * @param offsetY - Y方向のオフセット
@@ -367,6 +448,9 @@ export const useLayers = (): UseLayersReturn => {
     setLayerOpacity,
     setLayerVisibility,
     setLayerName,
+    moveLayer,
+    moveLayerUp,
+    moveLayerDown,
     translateAllLayers,
     flipAllLayersHorizontal,
     addLayer,
