@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.0.21] - 2025-12-31
+
+### Features
+
+- **画像インポート機能** (#98)
+  - ドラッグ＆ドロップで画像をキャンバスに追加
+  - ファイル選択ダイアログからの画像インポート
+  - PNG/JPEG/GIF/WebP形式に対応
+
+- **画像の左右反転機能**
+  - インポートした画像も含めて左右反転
+
+- **ズームツール機能**
+  - クリックでズームイン/アウト
+  - Photoshopスタイルのズーム動作（カーソル位置を基準に拡大縮小）
+
+- **JPEG保存時の50%縮小**
+  - 保存時に自動で50%縮小して出力
+  - 背景レイヤー対応
+
+### Refactor
+
+- スポイトツールをfeatures/eyedropperに分離
+- キャンバスサイズ変更をfeatures/canvas-resizeに分離
+- ImportButtonとSaveButtonを各featureに移動
+- 定数をconstantsフォルダに整理・グローバル化
+
+### Style
+
+- キャンバスリサイズアイコンをExpandに変更
+- ZoomResetButtonのアイコンをSquareDotに変更
+
 ## [0.0.20] - 2025-12-31
 
 ### Features
