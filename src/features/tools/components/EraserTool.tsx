@@ -6,22 +6,27 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useLocale } from '@/features/i18n'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../constants'
+import { OpacityPopover } from './OpacityPopover'
 
 type EraserToolProps = {
   readonly isActive: boolean
   readonly width: number
+  readonly opacity: number
   readonly onSelect: () => void
   readonly onWidthChange: (width: number) => void
+  readonly onOpacityChange: (opacity: number) => void
 }
 
 export const EraserTool = memo(function EraserTool({
   isActive,
   width,
+  opacity,
   onSelect,
   onWidthChange,
+  onOpacityChange,
 }: EraserToolProps) {
   const { t } = useLocale()
-  const handleSliderChange = useCallback(
+  const handleWidthSliderChange = useCallback(
     (values: number[]) => {
       onSelect()
       const sliderValue = values[0]
@@ -52,7 +57,7 @@ export const EraserTool = memo(function EraserTool({
       <div className="flex-1 flex items-center gap-1.5">
         <Slider
           value={[valueToSlider(width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)]}
-          onValueChange={handleSliderChange}
+          onValueChange={handleWidthSliderChange}
           onPointerDown={onSelect}
           min={0}
           max={100}
@@ -60,6 +65,7 @@ export const EraserTool = memo(function EraserTool({
         />
         <span className="text-sm font-mono text-foreground w-8 text-right">{width}</span>
       </div>
+      <OpacityPopover opacity={opacity} onOpacityChange={onOpacityChange} onOpen={onSelect} />
     </div>
   )
 })

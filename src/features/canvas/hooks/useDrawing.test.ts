@@ -8,6 +8,8 @@ describe('useDrawing', () => {
     type: 'pen',
     width: 5,
     color: '#000000',
+    opacity: 1,
+    hardness: 0,
   })
 
   describe('endStroke', () => {

@@ -7,6 +7,10 @@ import { useLocale } from '../hooks'
  */
 export const LocaleToggle = memo(function LocaleToggle() {
   const { locale, toggleLocale, t } = useLocale()
+
+  // 切り替え先の言語に応じたツールチップを表示
+  const tooltipText = locale === 'ja' ? t('locale.switchToEnglish') : t('locale.switchToJapanese')
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -16,7 +20,7 @@ export const LocaleToggle = memo(function LocaleToggle() {
           className="flex items-center text-sm rounded-full border border-border overflow-hidden cursor-pointer"
           role="switch"
           aria-checked={locale === 'ja'}
-          aria-label={t('locale.switch')}
+          aria-label={tooltipText}
         >
           <span
             className={`px-2 py-1 transition-colors ${
@@ -38,7 +42,7 @@ export const LocaleToggle = memo(function LocaleToggle() {
           </span>
         </button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">{t('locale.switch')}</TooltipContent>
+      <TooltipContent side="bottom">{tooltipText}</TooltipContent>
     </Tooltip>
   )
 })

@@ -1,23 +1,26 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
-import {
-  MIN_PEN_WIDTH,
-  MAX_PEN_WIDTH,
-  MIN_BRUSH_WIDTH,
-  MAX_BRUSH_WIDTH,
-  MIN_ERASER_WIDTH,
-  MAX_ERASER_WIDTH,
-} from '../constants'
 import { getToolBehavior } from '../domain'
-import { valueToSlider, sliderToValue } from '@/lib/slider'
-import { createInitialToolState, type ToolState } from '../helpers'
+import { createInitialToolState, isDrawingToolType, type ToolState } from '../helpers'
+import { DEFAULT_HARDNESS } from '../constants/hardness'
 
-/** ホイールでブラシサイズを調整する際のスライダー値のステップ */
-const BRUSH_SIZE_SLIDER_STEP = 5
-/** スライダーの最小値 */
-const SLIDER_MIN = 0
-/** スライダーの最大値 */
-const SLIDER_MAX = 100
+type ConfigKey = 'penConfig' | 'brushConfig' | 'eraserConfig'
+
+/**
+ * 指定されたツール設定のプロパティを更新するセッターを作成
+ */
+const createConfigSetter = <T>(
+  setState: React.Dispatch<React.SetStateAction<ToolState>>,
+  configKey: ConfigKey,
+  property: string
+) => {
+  return (value: T) => {
+    setState((prev) => ({
+      ...prev,
+      [configKey]: { ...prev[configKey], [property]: value },
+    }))
+  }
+}
 
 /**
  * ツール状態を管理するフック
@@ -31,48 +34,54 @@ export const useTool = () => {
    * @param type - 切り替え先のツールタイプ
    */
   const setToolType = useCallback((type: ToolType) => {
-    setState((prev) => ({ ...prev, currentType: type }))
+    setState((prev) => ({
+      ...prev,
+      currentType: type,
+      // 描画ツールを選択した場合は記録
+      lastDrawingToolType: isDrawingToolType(type) ? type : prev.lastDrawingToolType,
+    }))
   }, [])
 
-  /**
-   * ペンの幅を設定
-   * @param width - ペンの幅（ピクセル）
-   */
-  const setPenWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, penConfig: { ...prev.penConfig, width } }))
-  }, [])
+  const setPenWidth = useMemo(() => createConfigSetter<number>(setState, 'penConfig', 'width'), [])
+  const setPenColor = useMemo(() => createConfigSetter<string>(setState, 'penConfig', 'color'), [])
+  const setPenOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'penConfig', 'opacity'),
+    []
+  )
+  const setPenHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'penConfig', 'hardness'),
+    []
+  )
 
-  /**
-   * ペンの色を設定
-   * @param color - ペンの色（CSS色文字列）
-   */
-  const setPenColor = useCallback((color: string) => {
-    setState((prev) => ({ ...prev, penConfig: { ...prev.penConfig, color } }))
-  }, [])
+  const setBrushWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'width'),
+    []
+  )
+  const setBrushColor = useMemo(
+    () => createConfigSetter<string>(setState, 'brushConfig', 'color'),
+    []
+  )
+  const setBrushOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'opacity'),
+    []
+  )
+  const setBrushHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'hardness'),
+    []
+  )
 
-  /**
-   * ブラシの幅を設定
-   * @param width - ブラシの幅（ピクセル）
-   */
-  const setBrushWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, brushConfig: { ...prev.brushConfig, width } }))
-  }, [])
-
-  /**
-   * ブラシの色を設定
-   * @param color - ブラシの色（CSS色文字列）
-   */
-  const setBrushColor = useCallback((color: string) => {
-    setState((prev) => ({ ...prev, brushConfig: { ...prev.brushConfig, color } }))
-  }, [])
-
-  /**
-   * 消しゴムの幅を設定
-   * @param width - 消しゴムの幅（ピクセル）
-   */
-  const setEraserWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, eraserConfig: { ...prev.eraserConfig, width } }))
-  }, [])
+  const setEraserWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'width'),
+    []
+  )
+  const setEraserOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'opacity'),
+    []
+  )
+  const setEraserHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'hardness'),
+    []
+  )
 
   const handConfig: HandToolConfig = { type: 'hand' }
 
@@ -98,51 +107,25 @@ export const useTool = () => {
     [state.currentType, currentConfig]
   )
 
-  /**
-   * ホイールでブラシサイズを調整
-   * @param deltaY - ホイールのスクロール量（正で縮小、負で拡大）
-   */
-  const adjustBrushSize = useCallback(
-    (deltaY: number) => {
-      const step = deltaY > 0 ? -BRUSH_SIZE_SLIDER_STEP : BRUSH_SIZE_SLIDER_STEP
-      if (state.currentType === 'pen') {
-        const currentSlider = valueToSlider(state.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        setPenWidth(newWidth)
-      } else if (state.currentType === 'brush') {
-        const currentSlider = valueToSlider(
-          state.brushConfig.width,
-          MIN_BRUSH_WIDTH,
-          MAX_BRUSH_WIDTH
-        )
-        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH)
-        setBrushWidth(newWidth)
-      } else if (state.currentType === 'eraser') {
-        const currentSlider = valueToSlider(
-          state.eraserConfig.width,
-          MIN_ERASER_WIDTH,
-          MAX_ERASER_WIDTH
-        )
-        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-        setEraserWidth(newWidth)
-      }
-    },
-    [
-      state.currentType,
-      state.penConfig.width,
-      state.brushConfig.width,
-      state.eraserConfig.width,
-      setPenWidth,
-      setBrushWidth,
-      setEraserWidth,
-    ]
-  )
-
   /** 現在のツール設定に基づくカーソル設定（白背景想定） */
   const cursor = useMemo<CursorConfig>(() => getCursor('#ffffff'), [getCursor])
+
+  /**
+   * 最後に選択された描画ツールのhardness値を取得
+   * 非描画ツール選択時にスライダーに表示する値
+   */
+  const lastDrawingToolHardness = useMemo(() => {
+    const lastType = state.lastDrawingToolType
+    if (lastType === 'pen') return state.penConfig.hardness
+    if (lastType === 'brush') return state.brushConfig.hardness
+    if (lastType === 'eraser') return state.eraserConfig.hardness
+    return DEFAULT_HARDNESS
+  }, [
+    state.lastDrawingToolType,
+    state.penConfig.hardness,
+    state.brushConfig.hardness,
+    state.eraserConfig.hardness,
+  ])
 
   return {
     currentType: state.currentType,
@@ -151,13 +134,19 @@ export const useTool = () => {
     brushConfig: state.brushConfig,
     eraserConfig: state.eraserConfig,
     cursor,
+    lastDrawingToolHardness,
     setToolType,
     setPenWidth,
     setPenColor,
+    setPenOpacity,
+    setPenHardness,
     setBrushWidth,
     setBrushColor,
+    setBrushOpacity,
+    setBrushHardness,
     setEraserWidth,
+    setEraserOpacity,
+    setEraserHardness,
     getCursor,
-    adjustBrushSize,
   } as const
 }

@@ -10,8 +10,10 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
+    opacity: 1,
     onSelect: fn(),
     onWidthChange: fn(),
+    onOpacityChange: fn(),
   },
 } satisfies Meta<typeof BrushTool>
 

@@ -16,7 +16,6 @@ type CanvasProps = {
   readonly onStartStroke: (point: Point) => void
   readonly onAddPoint: (point: Point) => void
   readonly onEndStroke: () => void
-  readonly onWheel?: (deltaY: number) => void
   readonly width?: number
   readonly height?: number
   readonly fillContainer?: boolean
@@ -38,7 +37,6 @@ export const Canvas = ({
   onStartStroke,
   onAddPoint,
   onEndStroke,
-  onWheel,
   width = 800,
   height = 600,
   fillContainer = false,
@@ -191,7 +189,6 @@ export const Canvas = ({
         onStart={onStartStroke}
         onMove={onAddPoint}
         onEnd={onEndStroke}
-        onWheel={onWheel}
         cursor={cursor}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
       >

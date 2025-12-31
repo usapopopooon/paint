@@ -3,6 +3,7 @@ import type { ToolConfig } from '../../tools/types'
 import type { Layer } from '@/features/layer'
 import type { Drawable, Point } from '@/features/drawable'
 import { useLayers } from '@/features/layer'
+import { stabilizeStroke, stabilizationToParams } from '@/features/stabilization'
 import { useCanvasHistory } from './useCanvasHistory'
 import { useDrawing } from './useDrawing'
 
@@ -22,6 +23,8 @@ export type OnCanvasResizeCallback = (
 export type UseCanvasOptions = {
   /** キャンバスリサイズundo/redo時のコールバック */
   readonly onCanvasResize?: OnCanvasResizeCallback
+  /** 手ぶれ補正の強度（0-1） */
+  readonly stabilization?: number
 }
 
 /**
@@ -35,20 +38,28 @@ export type UseCanvasOptions = {
  * @returns キャンバス操作用のメソッドと現在の状態
  */
 export const useCanvas = (options?: UseCanvasOptions) => {
-  const { onCanvasResize } = options ?? {}
+  const { onCanvasResize, stabilization = 0 } = options ?? {}
   const layerManager = useLayers()
   const history = useCanvasHistory()
 
   /**
    * Drawable完成時のハンドラ: レイヤーに追加 + 履歴に記録
+   * stabilizationが有効な場合、ガウシアンフィルタを適用
    * @param drawable - 完成したDrawable
    */
   const handleDrawableComplete = useCallback(
     (drawable: Drawable) => {
-      layerManager.addDrawable(drawable)
-      history.addDrawable(drawable, layerManager.activeLayerId)
+      let finalDrawable = drawable
+      // 手ぶれ補正が有効な場合、ガウシアンフィルタを適用
+      if (stabilization > 0 && drawable.type === 'stroke') {
+        const { size, sigma } = stabilizationToParams(stabilization)
+        const smoothedPoints = stabilizeStroke(drawable.points, size, sigma)
+        finalDrawable = { ...drawable, points: smoothedPoints }
+      }
+      layerManager.addDrawable(finalDrawable)
+      history.addDrawable(finalDrawable, layerManager.activeLayerId)
     },
-    [layerManager, history]
+    [layerManager, history, stabilization]
   )
 
   const drawing = useDrawing(handleDrawableComplete)
@@ -62,16 +73,27 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     [layerManager, drawing]
   )
 
-  /** レンダリング用レイヤー（描画中のストローク含む） */
+  /**
+   * レンダリング用レイヤー（描画中のストローク含む）
+   * 描画中はリアルタイムでガウシアンフィルタを適用（終端は遅れて平滑化される）
+   */
   const allLayers = useMemo((): readonly Layer[] => {
     if (!drawing.currentStroke) return layerManager.layers
 
+    // 描画中のストロークに手ぶれ補正を適用
+    let displayStroke = drawing.currentStroke
+    if (stabilization > 0 && drawing.currentStroke.type === 'stroke') {
+      const { size, sigma } = stabilizationToParams(stabilization)
+      const smoothedPoints = stabilizeStroke(drawing.currentStroke.points, size, sigma)
+      displayStroke = { ...drawing.currentStroke, points: smoothedPoints }
+    }
+
     return layerManager.layers.map((layer) =>
       layer.id === layerManager.activeLayerId
-        ? { ...layer, drawables: [...layer.drawables, drawing.currentStroke!] }
+        ? { ...layer, drawables: [...layer.drawables, displayStroke] }
         : layer
     )
-  }, [layerManager, drawing])
+  }, [layerManager, drawing, stabilization])
 
   /**
    * ストロークを開始
@@ -123,6 +145,11 @@ export const useCanvas = (options?: UseCanvasOptions) => {
           reverseOffsetX,
           reverseOffsetY
         )
+      } else if (action.type === 'canvas:flipped') {
+        // 反転を元に戻す（各レイヤーのdrawablesを復元）
+        for (const snapshot of action.layerSnapshots) {
+          layerManager.setDrawablesToLayer(snapshot.previousDrawables, snapshot.layerId)
+        }
       }
       await history.undo()
     }
@@ -159,6 +186,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
         // キャンバスリサイズを再適用
         layerManager.translateAllLayers(action.offsetX, action.offsetY)
         onCanvasResize?.(action.newWidth, action.newHeight, action.offsetX, action.offsetY)
+      } else if (action.type === 'canvas:flipped') {
+        // 反転を再適用
+        layerManager.flipAllLayersHorizontal(action.canvasWidth)
       }
       await history.redo()
     }
@@ -223,6 +253,27 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     [layerManager, history]
   )
 
+  /**
+   * キャンバスを水平方向に反転 + 履歴に記録
+   * @param canvasWidth - キャンバスの幅
+   */
+  const flipHorizontal = useCallback(
+    (canvasWidth: number) => {
+      // 各レイヤーの反転前のdrawablesを保存
+      const layerSnapshots = layerManager.layers.map((layer) => ({
+        layerId: layer.id,
+        previousDrawables: layer.drawables,
+      }))
+
+      // 全レイヤーを反転
+      layerManager.flipAllLayersHorizontal(canvasWidth)
+
+      // 履歴に記録
+      history.recordCanvasFlip('horizontal', canvasWidth, layerSnapshots)
+    },
+    [layerManager, history]
+  )
+
   return {
     drawables: allDrawables,
     layers: allLayers,
@@ -241,5 +292,6 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     setLayerName,
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
+    flipHorizontal,
   } as const
 }

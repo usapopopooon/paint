@@ -89,7 +89,7 @@ describe('renderStroke', () => {
     expect(graphics.setStrokeStyle).not.toHaveBeenCalled()
   })
 
-  test('eraseブレンドモードでは描画した部分を透過にする', () => {
+  test('eraseブレンドモードでhardness=0の場合は単一ストロークで描画', () => {
     const stroke: StrokeDrawable = {
       id: 'test-4',
       type: 'stroke',
@@ -100,7 +100,12 @@ describe('renderStroke', () => {
       ],
       style: {
         color: '#ffffff',
-        brushTip: createSolidBrushTip(20),
+        brushTip: {
+          type: 'solid',
+          size: 20,
+          hardness: 0,
+          opacity: 1,
+        },
         blendMode: 'erase',
       },
     }
@@ -114,6 +119,36 @@ describe('renderStroke', () => {
       cap: 'round',
       join: 'round',
     })
+    expect(graphics.stroke).toHaveBeenCalledTimes(1)
+  })
+
+  test('eraseブレンドモードでhardness>0の場合は複数レイヤーでソフトエッジ描画', () => {
+    const stroke: StrokeDrawable = {
+      id: 'test-soft-eraser',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 },
+      ],
+      style: {
+        color: '#ffffff',
+        brushTip: {
+          type: 'solid',
+          size: 20,
+          hardness: 0.5,
+          opacity: 1,
+        },
+        blendMode: 'erase',
+      },
+    }
+
+    renderStroke(graphics, stroke)
+
+    // 8レイヤーで描画される
+    expect(graphics.stroke).toHaveBeenCalledTimes(8)
+    // setStrokeStyleも8回呼ばれる
+    expect(graphics.setStrokeStyle).toHaveBeenCalledTimes(8)
   })
 
   test('ブラシチップのopacityがalphaに反映される', () => {

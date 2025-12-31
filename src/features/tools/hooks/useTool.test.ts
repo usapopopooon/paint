@@ -2,13 +2,8 @@ import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTool } from './useTool'
 import { penBehavior, eraserBehavior } from '../domain'
-import {
-  DEFAULT_PEN_WIDTH,
-  DEFAULT_PEN_COLOR,
-  DEFAULT_ERASER_WIDTH,
-  MIN_PEN_WIDTH,
-  MAX_PEN_WIDTH,
-} from '../constants'
+import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR, DEFAULT_ERASER_WIDTH } from '../constants'
+import { DEFAULT_HARDNESS } from '../constants/hardness'
 
 describe('useTool', () => {
   describe('初期状態', () => {
@@ -180,87 +175,97 @@ describe('useTool', () => {
     })
   })
 
-  describe('adjustBrushSize', () => {
-    test('正のdeltaYでペンサイズが縮小する', () => {
+  describe('lastDrawingToolHardness', () => {
+    test('初期状態ではデフォルト値を返す', () => {
+      const { result } = renderHook(() => useTool())
+
+      expect(result.current.lastDrawingToolHardness).toBe(DEFAULT_HARDNESS)
+    })
+
+    test('ペン選択後にハンドツールに切り替えてもペンのhardnessを返す', () => {
       const { result } = renderHook(() => useTool())
 
       act(() => {
         result.current.setToolType('pen')
+        result.current.setPenHardness(0.3)
       })
-
-      const initialWidth = result.current.penConfig.width
 
       act(() => {
-        result.current.adjustBrushSize(100)
+        result.current.setToolType('hand')
       })
 
-      expect(result.current.penConfig.width).toBeLessThan(initialWidth)
+      expect(result.current.lastDrawingToolHardness).toBe(0.3)
     })
 
-    test('負のdeltaYでペンサイズが拡大する', () => {
+    test('ブラシ選択後にスポイトに切り替えてもブラシのhardnessを返す', () => {
       const { result } = renderHook(() => useTool())
 
       act(() => {
-        result.current.setToolType('pen')
+        result.current.setToolType('brush')
+        result.current.setBrushHardness(0.7)
       })
-
-      const initialWidth = result.current.penConfig.width
 
       act(() => {
-        result.current.adjustBrushSize(-100)
+        result.current.setToolType('eyedropper')
       })
 
-      expect(result.current.penConfig.width).toBeGreaterThan(initialWidth)
+      expect(result.current.lastDrawingToolHardness).toBe(0.7)
     })
 
-    test('消しゴム選択時は消しゴムサイズを調整する', () => {
+    test('消しゴム選択後にハンドツールに切り替えても消しゴムのhardnessを返す', () => {
       const { result } = renderHook(() => useTool())
 
       act(() => {
         result.current.setToolType('eraser')
+        result.current.setEraserHardness(0.9)
       })
-
-      const initialWidth = result.current.eraserConfig.width
 
       act(() => {
-        result.current.adjustBrushSize(-100)
+        result.current.setToolType('hand')
       })
 
-      expect(result.current.eraserConfig.width).toBeGreaterThan(initialWidth)
+      expect(result.current.lastDrawingToolHardness).toBe(0.9)
     })
 
-    test('最小値を下回らない', () => {
+    test('複数の描画ツールを切り替えた場合、最後に選択した描画ツールのhardnessを返す', () => {
+      const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setToolType('pen')
+        result.current.setPenHardness(0.2)
+      })
+
+      act(() => {
+        result.current.setToolType('brush')
+        result.current.setBrushHardness(0.8)
+      })
+
+      act(() => {
+        result.current.setToolType('hand')
+      })
+
+      // 最後に選択した描画ツールはbrushなので、brushのhardnessを返す
+      expect(result.current.lastDrawingToolHardness).toBe(0.8)
+    })
+
+    test('非描画ツール選択中に描画ツールのhardnessを変更しても反映される', () => {
       const { result } = renderHook(() => useTool())
 
       act(() => {
         result.current.setToolType('pen')
       })
 
-      // 複数回縮小操作を実行
       act(() => {
-        for (let i = 0; i < 50; i++) {
-          result.current.adjustBrushSize(100)
-        }
+        result.current.setToolType('hand')
       })
 
-      expect(result.current.penConfig.width).toBeGreaterThanOrEqual(MIN_PEN_WIDTH)
-    })
-
-    test('最大値を超えない', () => {
-      const { result } = renderHook(() => useTool())
-
+      // 非描画ツール選択中にペンのhardnessを変更
       act(() => {
-        result.current.setToolType('pen')
+        result.current.setPenHardness(0.1)
       })
 
-      // 複数回拡大操作を実行
-      act(() => {
-        for (let i = 0; i < 50; i++) {
-          result.current.adjustBrushSize(-100)
-        }
-      })
-
-      expect(result.current.penConfig.width).toBeLessThanOrEqual(MAX_PEN_WIDTH)
+      // lastDrawingToolTypeがpenなので、変更が反映される
+      expect(result.current.lastDrawingToolHardness).toBe(0.1)
     })
   })
 })

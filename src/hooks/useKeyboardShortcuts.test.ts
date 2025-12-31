@@ -11,9 +11,14 @@ describe('useKeyboardShortcuts', () => {
       onRedo: vi.fn(),
       onClear: vi.fn(),
       onSelectPen: vi.fn(),
+      onSelectBrush: vi.fn(),
       onSelectEraser: vi.fn(),
       onSelectHand: vi.fn(),
       onSelectEyedropper: vi.fn(),
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      onZoomReset: vi.fn(),
+      onFlipHorizontal: vi.fn(),
     }
   })
 
@@ -79,11 +84,29 @@ describe('useKeyboardShortcuts', () => {
     })
   })
 
-  describe('Clear (Shift+Delete)', () => {
-    test('Shift+Deleteでclear', () => {
+  describe('Clear (Ctrl+Delete / Cmd+Backspace)', () => {
+    test('Ctrl+Deleteでclear', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
-      dispatchKeyDown('Delete', { shiftKey: true })
+      dispatchKeyDown('Delete', { ctrlKey: true })
+
+      expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+Backspaceでclear', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Backspace', { ctrlKey: true })
+
+      expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+Backspace (Mac)でclear', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Backspace', { metaKey: true })
 
       expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
       unmount()
@@ -97,9 +120,18 @@ describe('useKeyboardShortcuts', () => {
       expect(mockHandlers.onClear).not.toHaveBeenCalled()
       unmount()
     })
+
+    test('Backspaceのみは無視', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Backspace')
+
+      expect(mockHandlers.onClear).not.toHaveBeenCalled()
+      unmount()
+    })
   })
 
-  describe('ツール選択 (P / E / H / I)', () => {
+  describe('ツール選択 (P / B / E / H / I)', () => {
     test('Pキーでペンツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
@@ -117,6 +149,26 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('P')
 
       expect(mockHandlers.onSelectPen).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Bキーでブラシツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('b')
+
+      expect(mockHandlers.onSelectBrush).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectEraser).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Bでもブラシツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('B')
+
+      expect(mockHandlers.onSelectBrush).toHaveBeenCalledTimes(1)
       unmount()
     })
 
@@ -169,12 +221,13 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    test('Ctrl+Hはハンドツール選択しない', () => {
+    test('Ctrl+Hはハンドツール選択しない（左右反転が発動）', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('h', { ctrlKey: true })
 
       expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
       unmount()
     })
 
@@ -196,6 +249,128 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('I')
 
       expect(mockHandlers.onSelectEyedropper).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+  })
+
+  describe('ズーム (Ctrl++/- / Cmd++/-)', () => {
+    test('Ctrl++でズームイン', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('+', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+=でズームイン', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('=', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd++ (Mac)でズームイン', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('+', { metaKey: true })
+
+      expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+-でズームアウト', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('-', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomOut).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+- (Mac)でズームアウト', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('-', { metaKey: true })
+
+      expect(mockHandlers.onZoomOut).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+0でズームリセット', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('0', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomReset).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+0 (Mac)でズームリセット', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('0', { metaKey: true })
+
+      expect(mockHandlers.onZoomReset).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('修飾キーなしの+は無視', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('+')
+
+      expect(mockHandlers.onZoomIn).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('修飾キーなしの-は無視', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('-')
+
+      expect(mockHandlers.onZoomOut).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('左右反転 (Ctrl+H / Cmd+H)', () => {
+    test('Ctrl+Hで左右反転', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h', { ctrlKey: true })
+
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+H (Mac)で左右反転', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h', { metaKey: true })
+
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Hでも左右反転', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('H', { ctrlKey: true })
+
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('修飾キーなしのHはハンドツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h')
+
+      expect(mockHandlers.onFlipHorizontal).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectHand).toHaveBeenCalledTimes(1)
       unmount()
     })
   })

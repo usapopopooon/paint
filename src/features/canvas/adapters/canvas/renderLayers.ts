@@ -1,7 +1,30 @@
-import { Application, Container, Graphics, RenderTexture, Sprite } from 'pixi.js'
+import { Application, Container, Graphics, RenderTexture, Sprite, BlurFilter } from 'pixi.js'
 import type { Layer } from '@/features/layer'
 import { blendModeToPixi } from '@/features/layer'
-import { renderDrawable, isEraserStroke } from '@/features/drawable'
+import type { Drawable } from '@/features/drawable'
+import { renderDrawable, isEraserStroke, isStrokeDrawable } from '@/features/drawable'
+
+/**
+ * Drawableからhardness値を取得（0=ぼかしなし、1=最大ぼかし）
+ */
+const getHardness = (drawable: Drawable): number => {
+  if (isStrokeDrawable(drawable)) {
+    return drawable.style.brushTip.hardness
+  }
+  return 0
+}
+
+/**
+ * hardness値からBlurFilterの強度を計算
+ * hardness=0 → blur=0（ぼかしなし）
+ * hardness=1 → blur=最大値（ブラシサイズに応じた最大ぼかし）
+ */
+const calculateBlurStrength = (hardness: number, brushSize: number): number => {
+  // hardnessが0の場合はブラーなし
+  if (hardness === 0) return 0
+  // ブラシサイズの約1/4をベースに、hardnessで調整
+  return hardness * Math.max(1, brushSize * 0.25)
+}
 
 /**
  * 背景をステージに追加
@@ -29,6 +52,14 @@ const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
       graphics.blendMode = 'erase'
     }
     renderDrawable(graphics, drawable)
+
+    // hardnessに基づいてブラーフィルターを適用（消しゴムには適用しない - BlurFilterとeraseブレンドモードは両立不可）
+    const hardness = getHardness(drawable)
+    if (hardness > 0 && isStrokeDrawable(drawable) && !isEraserStroke(drawable)) {
+      const blurStrength = calculateBlurStrength(hardness, drawable.style.brushTip.size)
+      graphics.filters = [new BlurFilter({ strength: blurStrength })]
+    }
+
     tempContainer.addChild(graphics)
   }
 

@@ -1,0 +1,1 @@
+export { stabilizeStroke } from './stabilizeStroke'

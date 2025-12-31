@@ -7,6 +7,7 @@ import {
   useCanvas,
   useCanvasSize,
   useCanvasOffset,
+  useCanvasZoom,
 } from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
@@ -20,9 +21,23 @@ import {
   HandButton,
   EyedropperButton,
   CenterCanvasButton,
+  ZoomInButton,
+  ZoomOutButton,
+  ZoomResetButton,
+  ZoomDisplay,
+  FlipHorizontalButton,
 } from './features/toolbar'
-import { useTool, ToolPanel, PenTool, BrushTool, EraserTool, LayerPanel } from './features/tools'
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import {
+  useTool,
+  ToolPanel,
+  PenTool,
+  BrushTool,
+  EraserTool,
+  LayerPanel,
+  HardnessSlider,
+} from './features/tools'
+import { StabilizationSlider, useStabilization } from './features/stabilization'
+import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
 /**
  * ペイントアプリケーションのメインコンポーネント
@@ -36,9 +51,14 @@ function App() {
     setSizeDirectlyRef.current(width, height)
   }, [])
 
+  const stabilization = useStabilization()
+
   const canvasOptions = useMemo(
-    () => ({ onCanvasResize: handleCanvasResize }),
-    [handleCanvasResize]
+    () => ({
+      onCanvasResize: handleCanvasResize,
+      stabilization: stabilization.stabilization,
+    }),
+    [handleCanvasResize, stabilization.stabilization]
   )
   const canvas = useCanvas(canvasOptions)
 
@@ -58,7 +78,11 @@ function App() {
   }, [canvasSize.setSizeDirectly])
 
   const canvasOffset = useCanvasOffset()
+  const canvasZoom = useCanvasZoom()
   const tool = useTool()
+
+  // ページを離れる前に確認ダイアログを表示
+  useBeforeUnload()
 
   // キーボードショートカット
   useKeyboardShortcuts({
@@ -66,9 +90,14 @@ function App() {
     onRedo: canvas.redo,
     onClear: canvas.clear,
     onSelectPen: () => tool.setToolType('pen'),
+    onSelectBrush: () => tool.setToolType('brush'),
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
+    onZoomIn: canvasZoom.zoomIn,
+    onZoomOut: canvasZoom.zoomOut,
+    onZoomReset: canvasZoom.resetZoom,
+    onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
   })
 
   /**
@@ -110,6 +139,40 @@ function App() {
    */
   const currentColor = tool.currentType === 'brush' ? tool.brushConfig.color : tool.penConfig.color
 
+  /**
+   * 現在選択中のツールのhardnessを取得
+   * 描画ツール以外の場合は最後に選択されていた描画ツールのhardness値を返す
+   */
+  const currentHardness =
+    tool.currentType === 'pen'
+      ? tool.penConfig.hardness
+      : tool.currentType === 'brush'
+        ? tool.brushConfig.hardness
+        : tool.currentType === 'eraser'
+          ? tool.eraserConfig.hardness
+          : tool.lastDrawingToolHardness
+
+  /**
+   * 現在選択中のツールのhardnessを変更
+   */
+  const handleHardnessChange = useCallback(
+    (hardness: number) => {
+      if (tool.currentType === 'pen') {
+        tool.setPenHardness(hardness)
+      } else if (tool.currentType === 'brush') {
+        tool.setBrushHardness(hardness)
+      } else if (tool.currentType === 'eraser') {
+        tool.setEraserHardness(hardness)
+      }
+    },
+    [tool]
+  )
+
+  /**
+   * hardnessスライダーが無効かどうか（ペン、ブラシ、消しゴム以外）
+   */
+  const isHardnessDisabled = !['pen', 'brush', 'eraser'].includes(tool.currentType)
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top toolbar */}
@@ -118,13 +181,26 @@ function App() {
           <UndoButton disabled={!canvas.canUndo} onClick={canvas.undo} />
           <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} />
           <ToolbarDivider />
-          <ClearButton onClick={canvas.clear} />
-          <ToolbarDivider />
           <HandButton
             isActive={tool.currentType === 'hand'}
             onClick={() => tool.setToolType('hand')}
           />
           <CenterCanvasButton onClick={canvasOffset.reset} />
+          <ToolbarDivider />
+          <ZoomInButton onClick={canvasZoom.zoomIn} />
+          <ZoomOutButton onClick={canvasZoom.zoomOut} />
+          <ZoomResetButton onClick={canvasZoom.resetZoom} />
+          <ZoomDisplay
+            zoomPercent={canvasZoom.zoomPercent}
+            onZoomChange={canvasZoom.setZoomLevel}
+          />
+          <ToolbarDivider />
+          <StabilizationSlider
+            stabilization={stabilization.stabilization}
+            onStabilizationChange={stabilization.setStabilization}
+          />
+          <ToolbarDivider />
+          <ClearButton onClick={canvas.clear} />
           <EyedropperButton
             isActive={tool.currentType === 'eyedropper'}
             onClick={() => tool.setToolType('eyedropper')}
@@ -137,6 +213,7 @@ function App() {
             onHeightChange={canvasSize.setHeight}
             onAnchorChange={canvasSize.setAnchor}
           />
+          <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
         </Toolbar>
         <div className="flex items-center gap-1">
           <LocaleToggle />
@@ -148,23 +225,34 @@ function App() {
       <div className="flex flex-1 min-h-0">
         <ToolPanel>
           <ColorWheel color={currentColor} onChange={handleColorChange} />
+          <HardnessSlider
+            hardness={currentHardness}
+            onHardnessChange={handleHardnessChange}
+            disabled={isHardnessDisabled}
+          />
           <PenTool
             isActive={tool.currentType === 'pen'}
             width={tool.penConfig.width}
+            opacity={tool.penConfig.opacity}
             onSelect={handleSelectPen}
             onWidthChange={tool.setPenWidth}
+            onOpacityChange={tool.setPenOpacity}
           />
           <BrushTool
             isActive={tool.currentType === 'brush'}
             width={tool.brushConfig.width}
+            opacity={tool.brushConfig.opacity}
             onSelect={handleSelectBrush}
             onWidthChange={tool.setBrushWidth}
+            onOpacityChange={tool.setBrushOpacity}
           />
           <EraserTool
             isActive={tool.currentType === 'eraser'}
             width={tool.eraserConfig.width}
+            opacity={tool.eraserConfig.opacity}
             onSelect={handleSelectEraser}
             onWidthChange={tool.setEraserWidth}
+            onOpacityChange={tool.setEraserOpacity}
           />
           <LayerPanel
             layers={canvas.layers}
@@ -181,13 +269,14 @@ function App() {
             canvasHeight={canvasSize.height}
             offset={canvasOffset.offset}
             onOffsetChange={canvasOffset.setPosition}
+            zoom={canvasZoom.zoom}
+            onWheel={canvasZoom.handleWheel}
           >
             <Canvas
               layers={canvas.layers}
               onStartStroke={handleStartStroke}
               onAddPoint={canvas.addPoint}
               onEndStroke={canvas.endStroke}
-              onWheel={tool.adjustBrushSize}
               cursor={tool.cursor}
               width={canvasSize.width}
               height={canvasSize.height}

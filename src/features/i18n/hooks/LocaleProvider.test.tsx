@@ -110,7 +110,7 @@ describe('LocaleProvider', () => {
           <span data-testid="eraser">{t('tools.eraser')}</span>
           <span data-testid="undo">{t('actions.undo')}</span>
           <span data-testid="redo">{t('actions.redo')}</span>
-          <span data-testid="clear">{t('actions.clear')}</span>
+          <span data-testid="clear">{t('actions.clearLayer')}</span>
         </div>
       )
     }
@@ -125,7 +125,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('eraser')).toHaveTextContent('Eraser')
     expect(screen.getByTestId('undo')).toHaveTextContent('Undo')
     expect(screen.getByTestId('redo')).toHaveTextContent('Redo')
-    expect(screen.getByTestId('clear')).toHaveTextContent('Clear')
+    expect(screen.getByTestId('clear')).toHaveTextContent('Clear layer')
   })
 
   it('should translate different keys correctly in Japanese', () => {
@@ -137,7 +137,7 @@ describe('LocaleProvider', () => {
           <span data-testid="eraser">{t('tools.eraser')}</span>
           <span data-testid="undo">{t('actions.undo')}</span>
           <span data-testid="redo">{t('actions.redo')}</span>
-          <span data-testid="clear">{t('actions.clear')}</span>
+          <span data-testid="clear">{t('actions.clearLayer')}</span>
         </div>
       )
     }
@@ -152,7 +152,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('eraser')).toHaveTextContent('消しゴム')
     expect(screen.getByTestId('undo')).toHaveTextContent('元に戻す')
     expect(screen.getByTestId('redo')).toHaveTextContent('やり直す')
-    expect(screen.getByTestId('clear')).toHaveTextContent('クリア')
+    expect(screen.getByTestId('clear')).toHaveTextContent('レイヤーをクリア')
   })
 
   it('should update translations when locale changes', async () => {
@@ -173,5 +173,51 @@ describe('LocaleProvider', () => {
     await user.click(screen.getByText('Toggle'))
 
     expect(screen.getByTestId('translation')).toHaveTextContent('Pen')
+  })
+
+  it('should override locale with second parameter', () => {
+    const OverrideTestComponent = () => {
+      const { t } = useLocale()
+      return (
+        <div>
+          <span data-testid="default">{t('tools.pen')}</span>
+          <span data-testid="force-en">{t('tools.pen', 'en')}</span>
+          <span data-testid="force-ja">{t('tools.pen', 'ja')}</span>
+        </div>
+      )
+    }
+
+    render(
+      <LocaleProvider defaultLocale="ja">
+        <OverrideTestComponent />
+      </LocaleProvider>
+    )
+
+    expect(screen.getByTestId('default')).toHaveTextContent('ペン')
+    expect(screen.getByTestId('force-en')).toHaveTextContent('Pen')
+    expect(screen.getByTestId('force-ja')).toHaveTextContent('ペン')
+  })
+
+  it('should override locale regardless of current locale', () => {
+    const OverrideTestComponent = () => {
+      const { t } = useLocale()
+      return (
+        <div>
+          <span data-testid="default">{t('actions.clearLayer')}</span>
+          <span data-testid="force-en">{t('actions.clearLayer', 'en')}</span>
+          <span data-testid="force-ja">{t('actions.clearLayer', 'ja')}</span>
+        </div>
+      )
+    }
+
+    render(
+      <LocaleProvider defaultLocale="en">
+        <OverrideTestComponent />
+      </LocaleProvider>
+    )
+
+    expect(screen.getByTestId('default')).toHaveTextContent('Clear layer')
+    expect(screen.getByTestId('force-en')).toHaveTextContent('Clear layer')
+    expect(screen.getByTestId('force-ja')).toHaveTextContent('レイヤーをクリア')
   })
 })
