@@ -43,7 +43,7 @@ const useWheelHandler = (
 }
 
 /**
- * リサイズアイコン（Scale/Resize風）
+ * リサイズアイコン（Expand）
  */
 const ResizeIcon = () => (
   <svg
@@ -57,10 +57,10 @@ const ResizeIcon = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <polyline points="15 3 21 3 21 9" />
-    <polyline points="9 21 3 21 3 15" />
-    <line x1="21" y1="3" x2="14" y2="10" />
-    <line x1="3" y1="21" x2="10" y2="14" />
+    <path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8" />
+    <path d="M3 16.2V21m0 0h4.8M3 21l6-6" />
+    <path d="M21 7.8V3m0 0h-4.8M21 3l-6 6" />
+    <path d="M3 7.8V3m0 0h4.8M3 3l6 6" />
   </svg>
 )
 
