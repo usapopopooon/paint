@@ -14,6 +14,10 @@ type CanvasViewportProps = {
   readonly offset: CanvasOffset
   /** オフセット変更時のコールバック */
   readonly onOffsetChange: (x: number, y: number) => void
+  /** ズーム倍率（デフォルト: 1） */
+  readonly zoom?: number
+  /** ホイールイベントのコールバック */
+  readonly onWheel?: (deltaY: number) => void
   /** 子要素（Canvas） */
   readonly children: React.ReactNode
 }
@@ -27,6 +31,8 @@ export const CanvasViewport = ({
   canvasHeight,
   offset,
   onOffsetChange,
+  zoom = 1,
+  onWheel,
   children,
 }: CanvasViewportProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -51,6 +57,22 @@ export const CanvasViewport = ({
     return () => resizeObserver.disconnect()
   }, [])
 
+  // ホイールイベントリスナー（passive: falseでpreventDefaultを有効化）
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || !onWheel) return
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      onWheel(event.deltaY)
+    }
+
+    container.addEventListener('wheel', handleWheel, { passive: false })
+    return () => {
+      container.removeEventListener('wheel', handleWheel)
+    }
+  }, [onWheel])
+
   // 水平スクロール処理
   const handleHorizontalScroll = useCallback(
     (position: number) => {
@@ -67,21 +89,33 @@ export const CanvasViewport = ({
     [offset.x, onOffsetChange]
   )
 
+  // ズーム適用後のキャンバスサイズ
+  const scaledWidth = canvasWidth * zoom
+  const scaledHeight = canvasHeight * zoom
+
   // スクロールバーが必要かどうか
-  const needsHorizontalScroll = canvasWidth > viewportSize.width
-  const needsVerticalScroll = canvasHeight > viewportSize.height
+  const needsHorizontalScroll = scaledWidth > viewportSize.width
+  const needsVerticalScroll = scaledHeight > viewportSize.height
 
   return (
     <div ref={containerRef} className="relative w-full h-full overflow-hidden">
       {/* キャンバス表示領域 */}
-      <div className="w-full h-full flex items-center justify-center">{children}</div>
+      <div
+        className="w-full h-full flex items-center justify-center"
+        style={{
+          transform: `scale(${zoom})`,
+          transformOrigin: 'center center',
+        }}
+      >
+        {children}
+      </div>
 
       {/* 水平スクロールバー */}
       {needsHorizontalScroll && (
         <CanvasScrollbar
           orientation="horizontal"
           viewportSize={viewportSize.width}
-          contentSize={canvasWidth}
+          contentSize={scaledWidth}
           scrollPosition={offset.x}
           onScroll={handleHorizontalScroll}
         />
@@ -92,7 +126,7 @@ export const CanvasViewport = ({
         <CanvasScrollbar
           orientation="vertical"
           viewportSize={viewportSize.height}
-          contentSize={canvasHeight}
+          contentSize={scaledHeight}
           scrollPosition={offset.y}
           onScroll={handleVerticalScroll}
         />

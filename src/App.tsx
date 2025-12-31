@@ -7,6 +7,7 @@ import {
   useCanvas,
   useCanvasSize,
   useCanvasOffset,
+  useCanvasZoom,
 } from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
@@ -20,9 +21,13 @@ import {
   HandButton,
   EyedropperButton,
   CenterCanvasButton,
+  ZoomInButton,
+  ZoomOutButton,
+  ZoomResetButton,
+  ZoomDisplay,
 } from './features/toolbar'
 import { useTool, ToolPanel, PenTool, BrushTool, EraserTool, LayerPanel } from './features/tools'
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
 /**
  * ペイントアプリケーションのメインコンポーネント
@@ -58,7 +63,11 @@ function App() {
   }, [canvasSize.setSizeDirectly])
 
   const canvasOffset = useCanvasOffset()
+  const canvasZoom = useCanvasZoom()
   const tool = useTool()
+
+  // ページを離れる前に確認ダイアログを表示
+  useBeforeUnload()
 
   // キーボードショートカット
   useKeyboardShortcuts({
@@ -66,9 +75,13 @@ function App() {
     onRedo: canvas.redo,
     onClear: canvas.clear,
     onSelectPen: () => tool.setToolType('pen'),
+    onSelectBrush: () => tool.setToolType('brush'),
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
+    onZoomIn: canvasZoom.zoomIn,
+    onZoomOut: canvasZoom.zoomOut,
+    onZoomReset: canvasZoom.resetZoom,
   })
 
   /**
@@ -123,6 +136,15 @@ function App() {
             onClick={() => tool.setToolType('hand')}
           />
           <CenterCanvasButton onClick={canvasOffset.reset} />
+          <ToolbarDivider />
+          <ZoomInButton onClick={canvasZoom.zoomIn} />
+          <ZoomOutButton onClick={canvasZoom.zoomOut} />
+          <ZoomResetButton onClick={canvasZoom.resetZoom} />
+          <ZoomDisplay
+            zoomPercent={canvasZoom.zoomPercent}
+            onZoomChange={canvasZoom.setZoomLevel}
+          />
+          <ToolbarDivider />
           <ClearButton onClick={canvas.clear} />
           <EyedropperButton
             isActive={tool.currentType === 'eyedropper'}
@@ -180,13 +202,14 @@ function App() {
             canvasHeight={canvasSize.height}
             offset={canvasOffset.offset}
             onOffsetChange={canvasOffset.setPosition}
+            zoom={canvasZoom.zoom}
+            onWheel={canvasZoom.handleWheel}
           >
             <Canvas
               layers={canvas.layers}
               onStartStroke={handleStartStroke}
               onAddPoint={canvas.addPoint}
               onEndStroke={canvas.endStroke}
-              onWheel={tool.adjustBrushSize}
               cursor={tool.cursor}
               width={canvasSize.width}
               height={canvasSize.height}

@@ -1,23 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
-import {
-  MIN_PEN_WIDTH,
-  MAX_PEN_WIDTH,
-  MIN_BRUSH_WIDTH,
-  MAX_BRUSH_WIDTH,
-  MIN_ERASER_WIDTH,
-  MAX_ERASER_WIDTH,
-} from '../constants'
 import { getToolBehavior } from '../domain'
-import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { createInitialToolState, type ToolState } from '../helpers'
-
-/** ホイールでブラシサイズを調整する際のスライダー値のステップ */
-const BRUSH_SIZE_SLIDER_STEP = 5
-/** スライダーの最小値 */
-const SLIDER_MIN = 0
-/** スライダーの最大値 */
-const SLIDER_MAX = 100
 
 /**
  * ツール状態を管理するフック
@@ -98,49 +82,6 @@ export const useTool = () => {
     [state.currentType, currentConfig]
   )
 
-  /**
-   * ホイールでブラシサイズを調整
-   * @param deltaY - ホイールのスクロール量（正で縮小、負で拡大）
-   */
-  const adjustBrushSize = useCallback(
-    (deltaY: number) => {
-      const step = deltaY > 0 ? -BRUSH_SIZE_SLIDER_STEP : BRUSH_SIZE_SLIDER_STEP
-      if (state.currentType === 'pen') {
-        const currentSlider = valueToSlider(state.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_PEN_WIDTH, MAX_PEN_WIDTH)
-        setPenWidth(newWidth)
-      } else if (state.currentType === 'brush') {
-        const currentSlider = valueToSlider(
-          state.brushConfig.width,
-          MIN_BRUSH_WIDTH,
-          MAX_BRUSH_WIDTH
-        )
-        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH)
-        setBrushWidth(newWidth)
-      } else if (state.currentType === 'eraser') {
-        const currentSlider = valueToSlider(
-          state.eraserConfig.width,
-          MIN_ERASER_WIDTH,
-          MAX_ERASER_WIDTH
-        )
-        const newSlider = Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, currentSlider + step))
-        const newWidth = sliderToValue(newSlider, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH)
-        setEraserWidth(newWidth)
-      }
-    },
-    [
-      state.currentType,
-      state.penConfig.width,
-      state.brushConfig.width,
-      state.eraserConfig.width,
-      setPenWidth,
-      setBrushWidth,
-      setEraserWidth,
-    ]
-  )
-
   /** 現在のツール設定に基づくカーソル設定（白背景想定） */
   const cursor = useMemo<CursorConfig>(() => getCursor('#ffffff'), [getCursor])
 
@@ -158,6 +99,5 @@ export const useTool = () => {
     setBrushColor,
     setEraserWidth,
     getCursor,
-    adjustBrushSize,
   } as const
 }

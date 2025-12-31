@@ -2,13 +2,7 @@ import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTool } from './useTool'
 import { penBehavior, eraserBehavior } from '../domain'
-import {
-  DEFAULT_PEN_WIDTH,
-  DEFAULT_PEN_COLOR,
-  DEFAULT_ERASER_WIDTH,
-  MIN_PEN_WIDTH,
-  MAX_PEN_WIDTH,
-} from '../constants'
+import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR, DEFAULT_ERASER_WIDTH } from '../constants'
 
 describe('useTool', () => {
   describe('初期状態', () => {
@@ -177,90 +171,6 @@ describe('useTool', () => {
         size: DEFAULT_PEN_WIDTH,
         color: DEFAULT_PEN_COLOR,
       })
-    })
-  })
-
-  describe('adjustBrushSize', () => {
-    test('正のdeltaYでペンサイズが縮小する', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('pen')
-      })
-
-      const initialWidth = result.current.penConfig.width
-
-      act(() => {
-        result.current.adjustBrushSize(100)
-      })
-
-      expect(result.current.penConfig.width).toBeLessThan(initialWidth)
-    })
-
-    test('負のdeltaYでペンサイズが拡大する', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('pen')
-      })
-
-      const initialWidth = result.current.penConfig.width
-
-      act(() => {
-        result.current.adjustBrushSize(-100)
-      })
-
-      expect(result.current.penConfig.width).toBeGreaterThan(initialWidth)
-    })
-
-    test('消しゴム選択時は消しゴムサイズを調整する', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('eraser')
-      })
-
-      const initialWidth = result.current.eraserConfig.width
-
-      act(() => {
-        result.current.adjustBrushSize(-100)
-      })
-
-      expect(result.current.eraserConfig.width).toBeGreaterThan(initialWidth)
-    })
-
-    test('最小値を下回らない', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('pen')
-      })
-
-      // 複数回縮小操作を実行
-      act(() => {
-        for (let i = 0; i < 50; i++) {
-          result.current.adjustBrushSize(100)
-        }
-      })
-
-      expect(result.current.penConfig.width).toBeGreaterThanOrEqual(MIN_PEN_WIDTH)
-    })
-
-    test('最大値を超えない', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('pen')
-      })
-
-      // 複数回拡大操作を実行
-      act(() => {
-        for (let i = 0; i < 50; i++) {
-          result.current.adjustBrushSize(-100)
-        }
-      })
-
-      expect(result.current.penConfig.width).toBeLessThanOrEqual(MAX_PEN_WIDTH)
     })
   })
 })
