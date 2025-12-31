@@ -75,7 +75,7 @@ describe('eraserBehavior', () => {
       expect(stroke.style.brushTip.hardness).toBe(0.5)
     })
 
-    test('isBlurEnabled=falseの場合、hardnessは1.0になる', () => {
+    test('isBlurEnabled=falseの場合、hardnessは0になる', () => {
       const point = { x: 15, y: 25 }
       const config = {
         type: 'eraser' as const,
@@ -87,7 +87,7 @@ describe('eraserBehavior', () => {
 
       const stroke = eraserBehavior.createStroke(point, config)
 
-      expect(stroke.style.brushTip.hardness).toBe(1.0)
+      expect(stroke.style.brushTip.hardness).toBe(0)
     })
 
     test('isBlurEnabled=trueの場合、設定されたhardnessが使用される', () => {

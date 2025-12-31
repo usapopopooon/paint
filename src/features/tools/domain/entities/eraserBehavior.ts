@@ -29,8 +29,8 @@ export const eraserBehavior = {
    * @returns 新しいStrokeDrawable（eraseブレンドモード）
    */
   createStroke: (point: Point, config: EraserToolConfig): StrokeDrawable => {
-    // isBlurEnabledがfalseの場合はhardness 1.0（ぼかしなし）を使用
-    const effectiveHardness = config.isBlurEnabled ? config.hardness : 1.0
+    // isBlurEnabledがfalseの場合はhardness 0（ぼかしなし）を使用
+    const effectiveHardness = config.isBlurEnabled ? config.hardness : 0
     return createStrokeDrawable([point], {
       color: 'transparent',
       brushTip: createSolidBrushTip(config.width, config.opacity, effectiveHardness),

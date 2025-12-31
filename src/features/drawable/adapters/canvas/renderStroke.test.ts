@@ -165,7 +165,7 @@ describe('renderStroke', () => {
         brushTip: {
           type: 'solid',
           size: 10,
-          hardness: 1,
+          hardness: 0,
           opacity: 0.7,
         },
         blendMode: 'normal',

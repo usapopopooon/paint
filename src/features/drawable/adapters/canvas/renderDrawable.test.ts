@@ -218,7 +218,7 @@ describe('renderDrawable', () => {
           brushTip: {
             type: 'solid',
             size: 5,
-            hardness: 1,
+            hardness: 0,
             opacity: 0.5,
           },
           blendMode: 'normal',
