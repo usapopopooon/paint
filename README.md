@@ -32,38 +32,29 @@ ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみ�
 ### Feature 構造（概念図）
 
 ```mermaid
-flowchart TB
-    subgraph feature/foo
-        types["types/<br/>型定義"]
-        constants["constants/<br/>定数"]
-
-        subgraph domain["domain/"]
-            entities["entities/<br/>エンティティ・ファクトリ"]
-            services["services/<br/>ドメインサービス"]
-        end
-
-        useCases["useCases/<br/>アプリケーション操作"]
-        adapters["adapters/<br/>外部システム接続"]
-        infrastructure["infrastructure/<br/>具体的実装"]
-        helpers["helpers/<br/>純粋関数"]
-        hooks["hooks/<br/>状態管理"]
-        components["components/<br/>UI"]
-
-        types --> domain
-        constants --> domain
-        domain --> useCases
-        domain --> adapters
-        domain --> infrastructure
-        useCases --> hooks
-        adapters --> hooks
-        infrastructure --> hooks
-        helpers -.-> hooks
-        hooks --> components
-    end
-
-    entrypoint["index.ts<br/>公開API"]
-
-    feature/foo --> entrypoint
+mindmap
+  root((src))
+    components/ui
+      Button, Slider, Tooltip
+    constants
+    features
+      feature
+        types
+        constants
+        domain
+          entities
+          services
+        useCases
+        adapters
+        infrastructure
+        helpers
+        hooks
+        components
+        index.ts
+    hooks
+    lib
+    utils
+    test
 ```
 
 ### ディレクトリ構造
