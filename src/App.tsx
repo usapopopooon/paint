@@ -34,7 +34,7 @@ import {
 import { MIN_PEN_WIDTH, MAX_PEN_WIDTH } from './features/tools/constants/pen'
 import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from './features/tools/constants/brush'
 import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/eraser'
-import { sliderToValue, valueToSlider } from './lib/slider'
+import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
@@ -102,27 +102,6 @@ function App() {
   useEffect(() => {
     toolRef.current = tool
   }, [tool])
-
-  /**
-   * 対数スケールで次の値を計算（値が変わるまでスライダー位置を増減）
-   */
-  const getNextLogValue = (
-    currentWidth: number,
-    min: number,
-    max: number,
-    direction: 1 | -1
-  ): number => {
-    let sliderPos = valueToSlider(currentWidth, min, max)
-    let newWidth = currentWidth
-
-    // 値が変わるまでスライダー位置を増減（最大10回試行）
-    for (let i = 0; i < 10 && newWidth === currentWidth; i++) {
-      sliderPos = direction > 0 ? Math.min(100, sliderPos + 1) : Math.max(0, sliderPos - 1)
-      newWidth = sliderToValue(sliderPos, min, max)
-    }
-
-    return newWidth
-  }
 
   /**
    * ツールサイズを1段階大きくする（対数スケール）
