@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
+import { toDisplayValue } from '@/utils'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from '../constants'
 import { OpacityPopover } from './OpacityPopover'
@@ -63,7 +64,9 @@ export const BrushTool = memo(function BrushTool({
           max={100}
           step={0.1}
         />
-        <span className="text-sm font-mono text-foreground w-8 text-right">{width}</span>
+        <span className="text-sm font-mono text-foreground w-8 text-right">
+          {toDisplayValue(width)}
+        </span>
       </div>
       <OpacityPopover opacity={opacity} onOpacityChange={onOpacityChange} onOpen={onSelect} />
     </div>

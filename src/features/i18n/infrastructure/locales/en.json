@@ -38,5 +38,8 @@
   "zoom.in": "Zoom in",
   "zoom.out": "Zoom out",
   "zoom.reset": "Reset to 100%",
-  "stabilization.title": "Stabilization"
+  "stabilization.title": "Stabilization",
+  "toolbar.save": "Save as JPG",
+  "toolbar.import": "Import image",
+  "import.invalidFileType": "Unsupported image format. Please select PNG, JPG, GIF, or WebP."
 }

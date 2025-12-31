@@ -5,7 +5,7 @@ import type { CursorConfig, ToolType } from '@/features/tools/types'
 import type { CanvasOffset } from '../hooks/useCanvasOffset'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
-import { getPixelColor, EYEDROPPER_CURSOR } from '../helpers'
+import { getPixelColor, EYEDROPPER_CURSOR } from '@/features/eyedropper'
 
 /**
  * Canvasコンポーネントのプロパティ
@@ -25,6 +25,18 @@ type CanvasProps = {
   readonly onPan?: (deltaX: number, deltaY: number) => void
   /** セカンダリクリック（右クリック等）で色を取得した時のコールバック */
   readonly onPickColor?: (color: string) => void
+  /** ズーム倍率（座標変換に使用、デフォルト: 1） */
+  readonly zoom?: number
+  /** ビューポートサイズ（ズーム計算に使用） */
+  readonly viewportSize?: { width: number; height: number }
+  /** ズームツールクリック時のコールバック（ビューポートサイズ付き） */
+  readonly onZoomAtPoint?: (
+    mouseX: number,
+    mouseY: number,
+    viewportWidth: number,
+    viewportHeight: number,
+    direction: 'in' | 'out'
+  ) => void
 }
 
 /**
@@ -45,9 +57,14 @@ export const Canvas = ({
   offset = { x: 0, y: 0 },
   onPan,
   onPickColor,
+  zoom = 1,
+  viewportSize = { width: 0, height: 0 },
+  onZoomAtPoint,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
+  const isZoomInTool = toolType === 'zoom-in'
+  const isZoomOutTool = toolType === 'zoom-out'
   const containerRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const lastClientPosRef = useRef<{ x: number; y: number } | null>(null)
@@ -70,17 +87,17 @@ export const Canvas = ({
       const canvas = container.querySelector('canvas')
       if (!canvas) return
 
-      // クリック位置をキャンバス座標に変換
+      // クリック位置をキャンバス座標に変換（zoomを考慮）
       const rect = canvas.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+      const x = (e.clientX - rect.left) / zoom
+      const y = (e.clientY - rect.top) / zoom
 
       const color = getPixelColor(canvas, x, y)
       if (color) {
         onPickColor(color)
       }
     },
-    [onPickColor]
+    [onPickColor, zoom]
   )
 
   // ハンドツール時はネイティブポインターイベントでパン処理
@@ -177,6 +194,64 @@ export const Canvas = ({
     )
   }
 
+  // ズームツール時はクリックでズーム
+  if (isZoomInTool || isZoomOutTool) {
+    const handleZoomClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!onZoomAtPoint) return
+
+      // ビューポート基準の座標を計算（ホイールと同じ座標系）
+      // containerRef はズームやオフセットが適用されたCanvas要素なので、
+      // 親のビューポート（viewportSize）を基準にした座標を使う
+      // clientX/clientYからビューポート左上を引く
+      const container = containerRef.current
+      if (!container) return
+
+      // ビューポートの左上座標を取得するため、親要素を辿る
+      // viewportSizeがあるので、画面中央からの相対位置を計算
+      const rect = container.getBoundingClientRect()
+      // Canvasの中心はビューポートの中心に配置されている
+      // クリック位置をビューポート座標系に変換
+      const canvasCenterInViewportX = viewportSize.width / 2
+      const canvasCenterInViewportY = viewportSize.height / 2
+      const canvasCenterInScreenX = rect.left + rect.width / 2
+      const canvasCenterInScreenY = rect.top + rect.height / 2
+
+      // クリック位置のビューポート座標
+      const mouseX = canvasCenterInViewportX + (e.clientX - canvasCenterInScreenX)
+      const mouseY = canvasCenterInViewportY + (e.clientY - canvasCenterInScreenY)
+
+      onZoomAtPoint(
+        mouseX,
+        mouseY,
+        viewportSize.width,
+        viewportSize.height,
+        isZoomInTool ? 'in' : 'out'
+      )
+    }
+
+    return (
+      <div
+        ref={containerRef}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          touchAction: 'none',
+          cursor: isZoomInTool ? 'zoom-in' : 'zoom-out',
+        }}
+        className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        onClick={handleZoomClick}
+        onContextMenu={handleSecondaryClick}
+      >
+        <DrawingCanvas
+          drawables={drawables}
+          layers={layers}
+          width={width}
+          height={height}
+          fillContainer={fillContainer}
+        />
+      </div>
+    )
+  }
+
   return (
     <div
       ref={containerRef}
@@ -191,6 +266,7 @@ export const Canvas = ({
         onEnd={onEndStroke}
         cursor={cursor}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        zoom={zoom}
       >
         <DrawingCanvas
           drawables={drawables}

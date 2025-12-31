@@ -70,4 +70,51 @@ describe('extractPointerPoint', () => {
     expect(result.x).toBe(-50) // 50 - 100
     expect(result.y).toBe(-50) // 50 - 100
   })
+
+  describe('zoom parameter', () => {
+    it('should scale coordinates when zoom is 0.5', () => {
+      const rect = { left: 0, top: 0 } as DOMRect
+      const element = createMockElement(rect)
+      const event = createMockEvent(100, 100, 0.5, 'pen')
+
+      const result = extractPointerPoint(event, element, 0.5)
+
+      expect(result.x).toBe(200) // 100 / 0.5
+      expect(result.y).toBe(200) // 100 / 0.5
+    })
+
+    it('should scale coordinates when zoom is 2', () => {
+      const rect = { left: 0, top: 0 } as DOMRect
+      const element = createMockElement(rect)
+      const event = createMockEvent(100, 100, 0.5, 'pen')
+
+      const result = extractPointerPoint(event, element, 2)
+
+      expect(result.x).toBe(50) // 100 / 2
+      expect(result.y).toBe(50) // 100 / 2
+    })
+
+    it('should use default zoom of 1 when not specified', () => {
+      const rect = { left: 0, top: 0 } as DOMRect
+      const element = createMockElement(rect)
+      const event = createMockEvent(100, 100, 0.5, 'pen')
+
+      const result = extractPointerPoint(event, element)
+
+      expect(result.x).toBe(100)
+      expect(result.y).toBe(100)
+    })
+
+    it('should apply zoom after offset calculation', () => {
+      const rect = { left: 100, top: 50 } as DOMRect
+      const element = createMockElement(rect)
+      const event = createMockEvent(200, 150, 0.5, 'pen')
+
+      const result = extractPointerPoint(event, element, 0.5)
+
+      // (200 - 100) / 0.5 = 200, (150 - 50) / 0.5 = 200
+      expect(result.x).toBe(200)
+      expect(result.y).toBe(200)
+    })
+  })
 })

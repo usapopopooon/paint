@@ -2,11 +2,11 @@
 
 > 🚧 **WIP** - このプロジェクトは開発中です。
 
-[![version](https://img.shields.io/badge/version-0.0.20-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.20) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
+[![version](https://img.shields.io/badge/version-0.0.21-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.21) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
 ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみる](https://usapopopooon.github.io/paint/)
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767163232.png)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767180965.png)
 
 ## 技術スタック
 
@@ -71,6 +71,7 @@ flowchart TB
 ```
 src/
 ├── components/ui/       # 共有UIコンポーネント（Button, Slider, Tooltip等）
+├── constants/           # グローバル定数（DISPLAY_MULTIPLIER等）
 ├── features/            # 機能モジュール
 │   └── [feature]/       # 各機能（詳細は機能一覧を参照）
 │       ├── types/           # 型定義のみ
@@ -87,6 +88,7 @@ src/
 │       └── index.ts         # 公開API
 ├── hooks/               # グローバルフック（useKeyboardShortcuts）
 ├── lib/                 # 共有ユーティリティ（色変換、ストレージ等）
+├── utils/               # 汎用ユーティリティ関数（toDisplayValue等）
 └── test/                # テストユーティリティ・モック
 ```
 

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { LayerPanel } from './LayerPanel'
 import type { Layer } from '@/features/layer'
+import { BACKGROUND_LAYER_ID } from '@/features/layer'
 
 const sampleLayers: readonly Layer[] = [
   {
@@ -120,5 +121,40 @@ export const SingleLayer: Story = {
   args: {
     layers: [sampleLayers[0]!],
     activeLayerId: 'layer-1',
+  },
+}
+
+/**
+ * 背景レイヤーはUI上から非表示になることを確認
+ */
+const layersWithBackground: readonly Layer[] = [
+  {
+    id: BACKGROUND_LAYER_ID,
+    name: 'Background',
+    type: 'background',
+    isVisible: false,
+    isLocked: true,
+    opacity: 1,
+    blendMode: 'normal',
+    drawables: [],
+  },
+  ...sampleLayers,
+]
+
+export const WithBackgroundLayer: Story = {
+  args: {
+    layers: layersWithBackground,
+    activeLayerId: 'layer-1',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // 描画レイヤーは表示される
+    await expect(canvas.getByText('Layer 1')).toBeInTheDocument()
+    await expect(canvas.getByText('Layer 2')).toBeInTheDocument()
+    await expect(canvas.getByText('Layer 3')).toBeInTheDocument()
+
+    // 背景レイヤーはUI上に表示されない
+    await expect(canvas.queryByText('Background')).not.toBeInTheDocument()
   },
 }

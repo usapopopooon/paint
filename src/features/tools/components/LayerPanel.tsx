@@ -1,9 +1,10 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
 import type { Layer, LayerId } from '@/features/layer'
+import { BACKGROUND_LAYER_ID } from '@/features/layer'
 
 type LayerPanelProps = {
   readonly layers: readonly Layer[]
@@ -19,11 +20,18 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerVisibilityChange,
 }: LayerPanelProps) {
   const { t } = useLocale()
+
+  // 背景レイヤーをUI上から非表示にする
+  const visibleLayers = useMemo(
+    () => layers.filter((layer) => layer.id !== BACKGROUND_LAYER_ID),
+    [layers]
+  )
+
   return (
     <div className="flex flex-col gap-2">
       <span className="text-sm font-medium text-foreground">{t('layers.title')}</span>
       <div className="flex flex-col gap-1">
-        {[...layers].reverse().map((layer) => (
+        {[...visibleLayers].reverse().map((layer) => (
           <div
             key={layer.id}
             className={`flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors ${

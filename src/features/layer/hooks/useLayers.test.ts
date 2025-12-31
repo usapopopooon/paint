@@ -2,6 +2,7 @@ import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useLayers } from './useLayers'
 import { createStrokeDrawable } from '@/features/drawable'
+import type { StrokeDrawable } from '@/features/drawable'
 import { createSolidBrushTip } from '@/features/brush'
 
 const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -31,7 +32,7 @@ describe('useLayers', () => {
         result.current.translateAllLayers(50, 25)
       })
 
-      const drawables = result.current.activeLayer.drawables
+      const drawables = result.current.activeLayer.drawables as StrokeDrawable[]
       expect(drawables[0]?.points).toEqual([
         { x: 150, y: 125 },
         { x: 250, y: 225 },
@@ -54,7 +55,7 @@ describe('useLayers', () => {
         result.current.translateAllLayers(-30, -20)
       })
 
-      const drawables = result.current.activeLayer.drawables
+      const drawables = result.current.activeLayer.drawables as StrokeDrawable[]
       expect(drawables[0]?.points).toEqual([
         { x: 70, y: 80 },
         { x: 170, y: 180 },
@@ -95,7 +96,7 @@ describe('useLayers', () => {
         result.current.translateAllLayers(10, 20)
       })
 
-      const drawables = result.current.activeLayer.drawables
+      const drawables = result.current.activeLayer.drawables as StrokeDrawable[]
       expect(drawables[0]?.points).toEqual([{ x: 110, y: 120 }])
       expect(drawables[1]?.points).toEqual([{ x: 210, y: 220 }])
     })

@@ -2,7 +2,8 @@ import { ClipboardPaste, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
-import { useColorWheel, WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../hooks/useColorWheel'
+import { useColorWheel } from '../hooks/useColorWheel'
+import { WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../constants'
 import { isValidHex, normalizeHex } from '../helpers'
 
 /**
