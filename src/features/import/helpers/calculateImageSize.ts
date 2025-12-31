@@ -9,8 +9,8 @@ export type ImageDimensions = {
 
 /**
  * 画像サイズを計算（キャンバスに収まるように縮小、中央配置）
- * @param imageWidth - 元画像の幅
- * @param imageHeight - 元画像の高さ
+ * @param imageWidth - 元画像の幅（ピクセル = 内部座標系）
+ * @param imageHeight - 元画像の高さ（ピクセル = 内部座標系）
  * @param canvasWidth - キャンバスの幅（UI座標系）
  * @param canvasHeight - キャンバスの高さ（UI座標系）
  * @returns 内部座標系でのサイズと位置
@@ -21,19 +21,17 @@ export const calculateImageSize = (
   canvasWidth: number,
   canvasHeight: number
 ): ImageDimensions => {
-  // 内部座標系に変換
+  // キャンバスを内部座標系に変換（画像は既にピクセル = 内部座標系）
   const internalCanvasWidth = canvasWidth * DISPLAY_MULTIPLIER
   const internalCanvasHeight = canvasHeight * DISPLAY_MULTIPLIER
-  const internalImageWidth = imageWidth * DISPLAY_MULTIPLIER
-  const internalImageHeight = imageHeight * DISPLAY_MULTIPLIER
 
   // キャンバスより大きい場合のみ縮小
-  const scaleX = internalCanvasWidth / internalImageWidth
-  const scaleY = internalCanvasHeight / internalImageHeight
+  const scaleX = internalCanvasWidth / imageWidth
+  const scaleY = internalCanvasHeight / imageHeight
   const scale = Math.min(1, scaleX, scaleY) // 1を超えない（拡大しない）
 
-  const finalWidth = internalImageWidth * scale
-  const finalHeight = internalImageHeight * scale
+  const finalWidth = imageWidth * scale
+  const finalHeight = imageHeight * scale
 
   // 中央配置
   const x = (internalCanvasWidth - finalWidth) / 2

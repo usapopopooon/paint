@@ -28,6 +28,7 @@ export const flipDrawableHorizontal = (drawable: Drawable, canvasWidth: number):
       return {
         ...drawable,
         x: canvasWidth - drawable.x - drawable.width,
+        scaleX: drawable.scaleX * -1,
       }
   }
 }

@@ -21,6 +21,7 @@ describe('createImageDrawable', () => {
     expect(drawable.y).toBe(testParams.y)
     expect(drawable.width).toBe(testParams.width)
     expect(drawable.height).toBe(testParams.height)
+    expect(drawable.scaleX).toBe(1)
   })
 
   test('カスタムIDで画像Drawableを作成する', () => {
@@ -57,5 +58,11 @@ describe('createImageDrawable', () => {
 
     expect(drawable.createdAt).toBeGreaterThanOrEqual(before)
     expect(drawable.createdAt).toBeLessThanOrEqual(after)
+  })
+
+  test('scaleXを指定できる', () => {
+    const drawable = createImageDrawable({ ...testParams, scaleX: -1 })
+
+    expect(drawable.scaleX).toBe(-1)
   })
 })

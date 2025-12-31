@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { flipDrawableHorizontal, flipDrawablesHorizontal } from './flipDrawable'
-import { createStrokeDrawable } from '../entities'
+import { createStrokeDrawable, createImageDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
-import type { StrokeDrawable } from '../../types'
+import type { StrokeDrawable, ImageDrawable } from '../../types'
 
 describe('flipDrawable', () => {
   const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -76,6 +76,58 @@ describe('flipDrawable', () => {
         { x: 800, y: 100 },
         { x: 0, y: 200 },
       ])
+    })
+
+    it('ImageDrawableを水平方向に反転する', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const flipped = flipDrawableHorizontal(image, 800) as ImageDrawable
+
+      // x = canvasWidth - x - width = 800 - 100 - 200 = 500
+      expect(flipped.x).toBe(500)
+      expect(flipped.y).toBe(100)
+      expect(flipped.width).toBe(200)
+      expect(flipped.height).toBe(150)
+      // scaleXが反転される
+      expect(flipped.scaleX).toBe(-1)
+    })
+
+    it('ImageDrawableを2回反転すると元に戻る', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const flippedOnce = flipDrawableHorizontal(image, 800) as ImageDrawable
+      const flippedTwice = flipDrawableHorizontal(flippedOnce, 800) as ImageDrawable
+
+      expect(flippedTwice.x).toBe(100)
+      expect(flippedTwice.scaleX).toBe(1)
+    })
+
+    it('ImageDrawableのY座標とサイズは変更されない', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 0,
+        y: 50,
+        width: 300,
+        height: 200,
+      })
+
+      const flipped = flipDrawableHorizontal(image, 800) as ImageDrawable
+
+      expect(flipped.y).toBe(50)
+      expect(flipped.width).toBe(300)
+      expect(flipped.height).toBe(200)
     })
   })
 

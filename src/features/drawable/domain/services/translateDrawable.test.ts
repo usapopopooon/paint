@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { translateDrawable, translateDrawables } from './translateDrawable'
-import { createStrokeDrawable } from '../entities'
+import { createStrokeDrawable, createImageDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
-import type { StrokeDrawable } from '../../types'
+import type { StrokeDrawable, ImageDrawable } from '../../types'
 
 describe('translateDrawable', () => {
   const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -67,6 +67,38 @@ describe('translateDrawable', () => {
         { x: 100, y: 100 },
         { x: 200, y: 200 },
       ])
+    })
+
+    it('ImageDrawableの座標をオフセット分移動する', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const translated = translateDrawable(image, 50, 25) as ImageDrawable
+
+      expect(translated.x).toBe(150)
+      expect(translated.y).toBe(125)
+      expect(translated.width).toBe(200)
+      expect(translated.height).toBe(150)
+    })
+
+    it('ImageDrawableの負のオフセット移動', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const translated = translateDrawable(image, -30, -20) as ImageDrawable
+
+      expect(translated.x).toBe(70)
+      expect(translated.y).toBe(80)
     })
   })
 

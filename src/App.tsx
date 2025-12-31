@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { ThemeToggle } from './components/ui/ThemeToggle'
+import { DISPLAY_SCALE } from './constants/display'
 import {
   Canvas,
   CanvasResizeMenu,
@@ -91,10 +92,10 @@ function App() {
   const exportImage = useExportImage(canvasContainerRef)
   const { t } = useLocale()
 
-  // 画像インポート
+  // 画像インポート（canvasSizeは内部座標系なのでUI座標系に変換）
   const importImage = useImportImage({
-    canvasWidth: canvasSize.width,
-    canvasHeight: canvasSize.height,
+    canvasWidth: canvasSize.width * DISPLAY_SCALE,
+    canvasHeight: canvasSize.height * DISPLAY_SCALE,
     onImport: canvas.addDrawable,
     onError: () => {
       toast.error(t('import.invalidFileType'))

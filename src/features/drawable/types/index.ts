@@ -36,6 +36,7 @@ export type ImageDrawable = DrawableMetadata & {
   readonly y: number // 配置Y座標
   readonly width: number // 表示幅
   readonly height: number // 表示高さ
+  readonly scaleX: number // 水平スケール（-1で左右反転）
 }
 
 // 将来の描画要素タイプ（ドキュメント用にコメント）

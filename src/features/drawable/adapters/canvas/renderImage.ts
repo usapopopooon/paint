@@ -19,10 +19,17 @@ export const renderImage = async (drawable: ImageDrawable): Promise<Sprite> => {
   }
 
   const sprite = new Sprite(texture)
-  sprite.x = drawable.x
-  sprite.y = drawable.y
   sprite.width = drawable.width
   sprite.height = drawable.height
+  sprite.x = drawable.x
+  sprite.y = drawable.y
+
+  // scaleXが負の場合（反転時）、画像の幅分左に寄せて反転
+  if (drawable.scaleX < 0) {
+    sprite.anchor.x = 1
+    sprite.scale.x = -1
+    sprite.x = drawable.x
+  }
 
   return sprite
 }
