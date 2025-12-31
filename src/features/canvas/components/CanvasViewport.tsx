@@ -16,14 +16,18 @@ type CanvasViewportProps = {
   readonly onOffsetChange: (x: number, y: number) => void
   /** ズーム倍率（デフォルト: 1） */
   readonly zoom?: number
-  /** ホイールイベントのコールバック（マウス位置付き） */
+  /** ホイールイベントのコールバック（マウス位置とビューポートサイズ付き） */
   readonly onWheelAtPoint?: (
     deltaY: number,
     mouseX: number,
-    mouseY: number
+    mouseY: number,
+    viewportWidth: number,
+    viewportHeight: number
   ) => { direction: 'in' | 'out' }
-  /** 子要素（Canvas） */
-  readonly children: React.ReactNode
+  /** 子要素（Canvas）- render propでviewportSizeを渡す */
+  readonly children:
+    | React.ReactNode
+    | ((viewportSize: { width: number; height: number }) => React.ReactNode)
 }
 
 /**
@@ -75,7 +79,13 @@ export const CanvasViewport = ({
       const mouseX = event.clientX - rect.left
       const mouseY = event.clientY - rect.top
 
-      const result = onWheelAtPoint(event.deltaY, mouseX, mouseY)
+      const result = onWheelAtPoint(
+        event.deltaY,
+        mouseX,
+        mouseY,
+        viewportSize.width,
+        viewportSize.height
+      )
 
       // カーソルをズームアイコンに変更
       setZoomCursor(result.direction === 'in' ? 'zoom-in' : 'zoom-out')
@@ -138,7 +148,7 @@ export const CanvasViewport = ({
           transformOrigin: 'center center',
         }}
       >
-        {children}
+        {typeof children === 'function' ? children(viewportSize) : children}
       </div>
 
       {/* 水平スクロールバー */}

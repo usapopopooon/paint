@@ -4,6 +4,10 @@ import { useZoom } from './useZoom'
 import { MIN_ZOOM, MAX_ZOOM, DEFAULT_ZOOM, ZOOM_STEP } from '../constants'
 
 describe('useZoom', () => {
+  // テスト用のビューポートサイズ
+  const viewportWidth = 800
+  const viewportHeight = 600
+
   describe('初期状態', () => {
     test('ズームはDEFAULT_ZOOMで初期化される', () => {
       const { result } = renderHook(() => useZoom())
@@ -142,13 +146,20 @@ describe('useZoom', () => {
   })
 
   describe('zoomAtPoint', () => {
-    test('指定位置を中心にズームイン時のオフセットを計算する', () => {
+    test('指定位置を基準にズームイン時のオフセットを計算する', () => {
       const { result } = renderHook(() => useZoom())
       const currentOffset = { x: 0, y: 0 }
 
       let newOffset: { x: number; y: number } | undefined
       act(() => {
-        newOffset = result.current.zoomAtPoint(100, 100, 'in', currentOffset)
+        newOffset = result.current.zoomAtPoint(
+          400, // centerX
+          300, // centerY
+          viewportWidth,
+          viewportHeight,
+          'in',
+          currentOffset
+        )
       })
 
       // ズームが変わった
@@ -157,13 +168,20 @@ describe('useZoom', () => {
       expect(newOffset).toBeDefined()
     })
 
-    test('指定位置を中心にズームアウト時のオフセットを計算する', () => {
+    test('指定位置を基準にズームアウト時のオフセットを計算する', () => {
       const { result } = renderHook(() => useZoom())
       const currentOffset = { x: 0, y: 0 }
 
       let newOffset: { x: number; y: number } | undefined
       act(() => {
-        newOffset = result.current.zoomAtPoint(100, 100, 'out', currentOffset)
+        newOffset = result.current.zoomAtPoint(
+          400,
+          300,
+          viewportWidth,
+          viewportHeight,
+          'out',
+          currentOffset
+        )
       })
 
       expect(result.current.zoom).toBe(DEFAULT_ZOOM - ZOOM_STEP)
@@ -181,7 +199,14 @@ describe('useZoom', () => {
 
       let newOffset: { x: number; y: number } | undefined
       act(() => {
-        newOffset = result.current.zoomAtPoint(100, 100, 'in', currentOffset)
+        newOffset = result.current.zoomAtPoint(
+          400,
+          300,
+          viewportWidth,
+          viewportHeight,
+          'in',
+          currentOffset
+        )
       })
 
       // オフセットは変わらない
@@ -196,7 +221,14 @@ describe('useZoom', () => {
 
       let returnValue: { offset: { x: number; y: number }; direction: 'in' | 'out' } | undefined
       act(() => {
-        returnValue = result.current.handleWheelAtPoint(100, 50, 50, currentOffset)
+        returnValue = result.current.handleWheelAtPoint(
+          100,
+          400,
+          300,
+          viewportWidth,
+          viewportHeight,
+          currentOffset
+        )
       })
 
       expect(returnValue?.direction).toBe('out')
@@ -209,7 +241,14 @@ describe('useZoom', () => {
 
       let returnValue: { offset: { x: number; y: number }; direction: 'in' | 'out' } | undefined
       act(() => {
-        returnValue = result.current.handleWheelAtPoint(-100, 50, 50, currentOffset)
+        returnValue = result.current.handleWheelAtPoint(
+          -100,
+          400,
+          300,
+          viewportWidth,
+          viewportHeight,
+          currentOffset
+        )
       })
 
       expect(returnValue?.direction).toBe('in')

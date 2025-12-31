@@ -2,99 +2,214 @@ import { describe, test, expect } from 'vitest'
 import { calculateZoomOffset } from './calculateZoomOffset'
 
 describe('calculateZoomOffset', () => {
-  describe('ズームイン', () => {
-    test('画面中央でズームインした場合、オフセットは変わらない', () => {
+  // ビューポートサイズ（テスト用）
+  const viewportWidth = 800
+  const viewportHeight = 600
+  const centerX = viewportWidth / 2 // 400
+  const centerY = viewportHeight / 2 // 300
+
+  describe('ビューポート中央でズーム', () => {
+    test('中央でズームインした場合、オフセットは変わらない', () => {
       const result = calculateZoomOffset(
-        0, // mouseX（中央）
-        0, // mouseY（中央）
+        centerX, // mouseX = 400（中央）
+        centerY, // mouseY = 300（中央）
+        viewportWidth,
+        viewportHeight,
         1.0, // oldZoom
-        1.5, // newZoom
+        2.0, // newZoom
         { x: 0, y: 0 } // currentOffset
       )
 
+      // 中央でズームするとオフセットは変わらない
       expect(result.x).toBe(0)
       expect(result.y).toBe(0)
     })
 
-    test('右下でズームインした場合、オフセットは左上に移動', () => {
+    test('オフセットがある状態で中央でズームインしても、オフセットは変わらない', () => {
       const result = calculateZoomOffset(
-        100, // mouseX
-        100, // mouseY
-        1.0, // oldZoom
-        2.0, // newZoom（2倍に拡大）
-        { x: 0, y: 0 } // currentOffset
+        centerX,
+        centerY,
+        viewportWidth,
+        viewportHeight,
+        1.0,
+        2.0,
+        { x: 50, y: -30 }
       )
 
-      // zoomRatio = 2.0
-      // x = 100 - (100 - 0) * 2 = 100 - 200 = -100
-      // y = 100 - (100 - 0) * 2 = 100 - 200 = -100
-      expect(result.x).toBe(-100)
-      expect(result.y).toBe(-100)
-    })
-
-    test('既存のオフセットがある場合も正しく計算される', () => {
-      const result = calculateZoomOffset(
-        50, // mouseX
-        50, // mouseY
-        1.0, // oldZoom
-        2.0, // newZoom
-        { x: 20, y: 30 } // currentOffset
-      )
-
-      // zoomRatio = 2.0
-      // x = 50 - (50 - 20) * 2 = 50 - 60 = -10
-      // y = 50 - (50 - 30) * 2 = 50 - 40 = 10
-      expect(result.x).toBe(-10)
-      expect(result.y).toBe(10)
+      expect(result.x).toBe(50)
+      expect(result.y).toBe(-30)
     })
   })
 
-  describe('ズームアウト', () => {
-    test('右下でズームアウトした場合、オフセットは右下に移動', () => {
+  describe('ビューポート右下でズーム', () => {
+    test('右下でズームインすると、キャンバスが左上に移動', () => {
+      // マウスが中央より右100px、下100pxの位置
+      const mouseX = centerX + 100 // 500
+      const mouseY = centerY + 100 // 400
+
       const result = calculateZoomOffset(
-        100, // mouseX
-        100, // mouseY
-        2.0, // oldZoom
-        1.0, // newZoom（半分に縮小）
-        { x: 0, y: 0 } // currentOffset
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        1.0,
+        2.0,
+        { x: 0, y: 0 }
       )
 
-      // zoomRatio = 0.5
-      // x = 100 - (100 - 0) * 0.5 = 100 - 50 = 50
-      // y = 100 - (100 - 0) * 0.5 = 100 - 50 = 50
+      // 計算：
+      // mouseOffsetFromCenter = (100, 100)
+      // canvasPoint at oldZoom=1: (100/1 - 0, 100/1 - 0) = (100, 100)
+      // newOffset: (100/2 - 100, 100/2 - 100) = (50 - 100, 50 - 100) = (-50, -50)
+      expect(result.x).toBe(-50)
+      expect(result.y).toBe(-50)
+    })
+
+    test('右下でズームアウトすると、キャンバスが右下に移動', () => {
+      const mouseX = centerX + 100
+      const mouseY = centerY + 100
+
+      const result = calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        2.0,
+        1.0,
+        { x: 0, y: 0 }
+      )
+
+      // mouseOffsetFromCenter = (100, 100)
+      // canvasPoint at oldZoom=2: (100/2 - 0, 100/2 - 0) = (50, 50)
+      // newOffset: (100/1 - 50, 100/1 - 50) = (100 - 50, 100 - 50) = (50, 50)
       expect(result.x).toBe(50)
       expect(result.y).toBe(50)
+    })
+  })
+
+  describe('ビューポート左上でズーム', () => {
+    test('左上でズームインすると、キャンバスが右下に移動', () => {
+      // マウスが中央より左100px、上100pxの位置
+      const mouseX = centerX - 100 // 300
+      const mouseY = centerY - 100 // 200
+
+      const result = calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        1.0,
+        2.0,
+        { x: 0, y: 0 }
+      )
+
+      // mouseOffsetFromCenter = (-100, -100)
+      // canvasPoint at oldZoom=1: (-100/1 - 0, -100/1 - 0) = (-100, -100)
+      // newOffset: (-100/2 - (-100), -100/2 - (-100)) = (-50 + 100, -50 + 100) = (50, 50)
+      expect(result.x).toBe(50)
+      expect(result.y).toBe(50)
+    })
+  })
+
+  describe('既存のオフセットがある場合', () => {
+    test('オフセット状態から右下でズームイン', () => {
+      const mouseX = centerX + 100
+      const mouseY = centerY + 100
+
+      const result = calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        1.0,
+        2.0,
+        { x: 20, y: -10 }
+      )
+
+      // mouseOffsetFromCenter = (100, 100)
+      // canvasPoint at oldZoom=1: (100/1 - 20, 100/1 - (-10)) = (80, 110)
+      // newOffset: (100/2 - 80, 100/2 - 110) = (50 - 80, 50 - 110) = (-30, -60)
+      expect(result.x).toBe(-30)
+      expect(result.y).toBe(-60)
     })
   })
 
   describe('ズーム倍率が同じ場合', () => {
     test('オフセットは変わらない', () => {
       const currentOffset = { x: 25, y: 35 }
-      const result = calculateZoomOffset(100, 100, 1.5, 1.5, currentOffset)
+      const result = calculateZoomOffset(
+        500,
+        400,
+        viewportWidth,
+        viewportHeight,
+        1.5,
+        1.5,
+        currentOffset
+      )
 
-      // zoomRatio = 1.0
-      // x = 100 - (100 - 25) * 1 = 100 - 75 = 25
-      // y = 100 - (100 - 35) * 1 = 100 - 65 = 35
       expect(result.x).toBe(currentOffset.x)
       expect(result.y).toBe(currentOffset.y)
     })
   })
 
-  describe('マウス位置が負の場合', () => {
-    test('負の座標でも正しく計算される', () => {
-      const result = calculateZoomOffset(
-        -50, // mouseX
-        -50, // mouseY
-        1.0, // oldZoom
-        2.0, // newZoom
-        { x: 0, y: 0 } // currentOffset
+  describe('連続ズーム', () => {
+    test('同じ位置で連続ズームインしてもカーソル位置は固定される', () => {
+      const mouseX = centerX + 100
+      const mouseY = centerY + 50
+
+      // 1回目のズーム
+      const offset1 = calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        1.0,
+        1.5,
+        { x: 0, y: 0 }
       )
 
-      // zoomRatio = 2.0
-      // x = -50 - (-50 - 0) * 2 = -50 - (-100) = 50
-      // y = -50 - (-50 - 0) * 2 = -50 - (-100) = 50
-      expect(result.x).toBe(50)
-      expect(result.y).toBe(50)
+      // 2回目のズーム（1回目の結果を使用）
+      const offset2 = calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        1.5,
+        2.0,
+        offset1
+      )
+
+      // 両方のズーム後、同じキャンバス位置を指している
+      // mouseOffsetFromCenter = (100, 50)
+      // 最初のキャンバス位置: (100, 50)
+      // 最終的なズーム2.0で同じ点を指すオフセット: (100/2 - 100, 50/2 - 50) = (-50, -25)
+      expect(offset2.x).toBe(-50)
+      expect(offset2.y).toBe(-25)
+    })
+  })
+
+  describe('小数点のズーム倍率', () => {
+    test('小数点のズーム倍率でも正確に計算される', () => {
+      const mouseX = centerX + 200
+      const mouseY = centerY - 100
+
+      const result = calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        0.5, // 50%
+        0.75, // 75%
+        { x: 10, y: -5 }
+      )
+
+      // mouseOffsetFromCenter = (200, -100)
+      // canvasPoint at 0.5: (200/0.5 - 10, -100/0.5 - (-5)) = (390, -195)
+      // newOffset at 0.75: (200/0.75 - 390, -100/0.75 - (-195))
+      //                  = (266.666... - 390, -133.333... + 195)
+      //                  = (-123.333..., 61.666...)
+      expect(result.x).toBeCloseTo(-123.333, 2)
+      expect(result.y).toBeCloseTo(61.666, 2)
     })
   })
 })

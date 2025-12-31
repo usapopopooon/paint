@@ -51,9 +51,12 @@ export const useZoom = () => {
   }, [])
 
   /**
-   * 指定位置を中心にズーム
+   * 指定位置を基準にズーム（Photoshopスタイル）
+   * カーソルが指しているキャンバス上の点がズーム後も同じ画面位置に留まる
    * @param mouseX - ビューポート内のマウスX座標
    * @param mouseY - ビューポート内のマウスY座標
+   * @param viewportWidth - ビューポートの幅
+   * @param viewportHeight - ビューポートの高さ
    * @param direction - ズーム方向（'in' = 拡大, 'out' = 縮小）
    * @param currentOffset - 現在のオフセット
    * @returns 新しいオフセット
@@ -62,6 +65,8 @@ export const useZoom = () => {
     (
       mouseX: number,
       mouseY: number,
+      viewportWidth: number,
+      viewportHeight: number,
       direction: 'in' | 'out',
       currentOffset: CanvasOffset
     ): CanvasOffset => {
@@ -75,16 +80,26 @@ export const useZoom = () => {
         return currentOffset
       }
 
-      return calculateZoomOffset(mouseX, mouseY, oldZoom, newZoom, currentOffset)
+      return calculateZoomOffset(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        oldZoom,
+        newZoom,
+        currentOffset
+      )
     },
     [zoom]
   )
 
   /**
-   * ホイールイベントで指定位置を中心にズーム
+   * ホイールイベントで指定位置を基準にズーム（Photoshopスタイル）
    * @param deltaY - ホイールのスクロール量（正で縮小、負で拡大）
    * @param mouseX - ビューポート内のマウスX座標
    * @param mouseY - ビューポート内のマウスY座標
+   * @param viewportWidth - ビューポートの幅
+   * @param viewportHeight - ビューポートの高さ
    * @param currentOffset - 現在のオフセット
    * @returns 新しいオフセットとズーム方向
    */
@@ -93,10 +108,19 @@ export const useZoom = () => {
       deltaY: number,
       mouseX: number,
       mouseY: number,
+      viewportWidth: number,
+      viewportHeight: number,
       currentOffset: CanvasOffset
     ): { offset: CanvasOffset; direction: 'in' | 'out' } => {
       const direction = deltaY > 0 ? 'out' : 'in'
-      const offset = zoomAtPoint(mouseX, mouseY, direction, currentOffset)
+      const offset = zoomAtPoint(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        direction,
+        currentOffset
+      )
       return { offset, direction }
     },
     [zoomAtPoint]

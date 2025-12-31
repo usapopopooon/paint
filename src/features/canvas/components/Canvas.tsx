@@ -27,8 +27,16 @@ type CanvasProps = {
   readonly onPickColor?: (color: string) => void
   /** ズーム倍率（座標変換に使用、デフォルト: 1） */
   readonly zoom?: number
-  /** ズームツールクリック時のコールバック */
-  readonly onZoomAtPoint?: (mouseX: number, mouseY: number, direction: 'in' | 'out') => void
+  /** ビューポートサイズ（ズーム計算に使用） */
+  readonly viewportSize?: { width: number; height: number }
+  /** ズームツールクリック時のコールバック（ビューポートサイズ付き） */
+  readonly onZoomAtPoint?: (
+    mouseX: number,
+    mouseY: number,
+    viewportWidth: number,
+    viewportHeight: number,
+    direction: 'in' | 'out'
+  ) => void
 }
 
 /**
@@ -50,6 +58,7 @@ export const Canvas = ({
   onPan,
   onPickColor,
   zoom = 1,
+  viewportSize = { width: 0, height: 0 },
   onZoomAtPoint,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
@@ -190,14 +199,34 @@ export const Canvas = ({
     const handleZoomClick = (e: React.MouseEvent<HTMLDivElement>) => {
       if (!onZoomAtPoint) return
 
+      // ビューポート基準の座標を計算（ホイールと同じ座標系）
+      // containerRef はズームやオフセットが適用されたCanvas要素なので、
+      // 親のビューポート（viewportSize）を基準にした座標を使う
+      // clientX/clientYからビューポート左上を引く
       const container = containerRef.current
       if (!container) return
 
+      // ビューポートの左上座標を取得するため、親要素を辿る
+      // viewportSizeがあるので、画面中央からの相対位置を計算
       const rect = container.getBoundingClientRect()
-      const mouseX = e.clientX - rect.left
-      const mouseY = e.clientY - rect.top
+      // Canvasの中心はビューポートの中心に配置されている
+      // クリック位置をビューポート座標系に変換
+      const canvasCenterInViewportX = viewportSize.width / 2
+      const canvasCenterInViewportY = viewportSize.height / 2
+      const canvasCenterInScreenX = rect.left + rect.width / 2
+      const canvasCenterInScreenY = rect.top + rect.height / 2
 
-      onZoomAtPoint(mouseX, mouseY, isZoomInTool ? 'in' : 'out')
+      // クリック位置のビューポート座標
+      const mouseX = canvasCenterInViewportX + (e.clientX - canvasCenterInScreenX)
+      const mouseY = canvasCenterInViewportY + (e.clientY - canvasCenterInScreenY)
+
+      onZoomAtPoint(
+        mouseX,
+        mouseY,
+        viewportSize.width,
+        viewportSize.height,
+        isZoomInTool ? 'in' : 'out'
+      )
     }
 
     return (

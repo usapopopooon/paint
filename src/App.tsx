@@ -189,11 +189,24 @@ function App() {
   const isHardnessDisabled = !['pen', 'brush', 'eraser'].includes(tool.currentType)
 
   /**
-   * ホイールでのズーム処理（カーソル位置を中心）
+   * ホイールでのズーム処理（カーソル位置を基準にPhotoshopスタイル）
    */
   const handleWheelAtPoint = useCallback(
-    (deltaY: number, mouseX: number, mouseY: number) => {
-      const result = zoom.handleWheelAtPoint(deltaY, mouseX, mouseY, canvasOffset.offset)
+    (
+      deltaY: number,
+      mouseX: number,
+      mouseY: number,
+      viewportWidth: number,
+      viewportHeight: number
+    ) => {
+      const result = zoom.handleWheelAtPoint(
+        deltaY,
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        canvasOffset.offset
+      )
       canvasOffset.setPosition(result.offset.x, result.offset.y)
 
       // ホイール方向に応じてツール選択状態を更新
@@ -209,11 +222,25 @@ function App() {
   )
 
   /**
-   * ズームツールクリック時の処理（クリック位置を中心）
+   * ズームツールクリック時の処理（クリック位置を基準にPhotoshopスタイル）
+   * NOTE: Canvas側でviewportSizeを取得してこのハンドラに渡す必要がある
    */
   const handleZoomAtPoint = useCallback(
-    (mouseX: number, mouseY: number, direction: 'in' | 'out') => {
-      const newOffset = zoom.zoomAtPoint(mouseX, mouseY, direction, canvasOffset.offset)
+    (
+      mouseX: number,
+      mouseY: number,
+      viewportWidth: number,
+      viewportHeight: number,
+      direction: 'in' | 'out'
+    ) => {
+      const newOffset = zoom.zoomAtPoint(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        direction,
+        canvasOffset.offset
+      )
       canvasOffset.setPosition(newOffset.x, newOffset.y)
     },
     [zoom, canvasOffset]
@@ -332,23 +359,26 @@ function App() {
             zoom={zoom.zoom}
             onWheelAtPoint={handleWheelAtPoint}
           >
-            <div ref={canvasContainerRef}>
-              <Canvas
-                layers={canvas.layers}
-                onStartStroke={handleStartStroke}
-                onAddPoint={canvas.addPoint}
-                onEndStroke={canvas.endStroke}
-                cursor={tool.cursor}
-                width={canvasSize.width}
-                height={canvasSize.height}
-                toolType={tool.currentType}
-                offset={canvasOffset.offset}
-                onPan={canvasOffset.pan}
-                onPickColor={handleColorChange}
-                zoom={zoom.zoom}
-                onZoomAtPoint={handleZoomAtPoint}
-              />
-            </div>
+            {(viewportSize) => (
+              <div ref={canvasContainerRef}>
+                <Canvas
+                  layers={canvas.layers}
+                  onStartStroke={handleStartStroke}
+                  onAddPoint={canvas.addPoint}
+                  onEndStroke={canvas.endStroke}
+                  cursor={tool.cursor}
+                  width={canvasSize.width}
+                  height={canvasSize.height}
+                  toolType={tool.currentType}
+                  offset={canvasOffset.offset}
+                  onPan={canvasOffset.pan}
+                  onPickColor={handleColorChange}
+                  zoom={zoom.zoom}
+                  viewportSize={viewportSize}
+                  onZoomAtPoint={handleZoomAtPoint}
+                />
+              </div>
+            )}
           </CanvasViewport>
         </main>
       </div>
