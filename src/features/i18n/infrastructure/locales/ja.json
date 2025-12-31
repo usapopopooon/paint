@@ -16,6 +16,7 @@
   "shortcuts.clearLayer": "{modifier}+Delete",
   "shortcuts.hand": "H",
   "shortcuts.eyedropper": "I",
+  "shortcuts.flipHorizontal": "{modifier}+H",
   "messages.noUndoHistory": "履歴がありません",
   "messages.noRedoHistory": "履歴がありません",
   "color.copy": "コピー",
@@ -29,6 +30,7 @@
   "canvas.center": "キャンバスを中央に",
   "canvas.resize": "キャンバスサイズ変更",
   "canvas.anchor": "基準点:",
+  "canvas.flipHorizontal": "左右反転",
   "zoom.in": "拡大",
   "zoom.out": "縮小",
   "zoom.reset": "100%にリセット"

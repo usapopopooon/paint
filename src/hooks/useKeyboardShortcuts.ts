@@ -15,6 +15,7 @@ export type KeyboardShortcutsHandlers = {
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
+  readonly onFlipHorizontal: () => void
 }
 
 /**
@@ -25,6 +26,7 @@ export type KeyboardShortcutsHandlers = {
  * - Ctrl++ / Cmd++: ズームイン
  * - Ctrl+- / Cmd+-: ズームアウト
  * - Ctrl+0 / Cmd+0: ズームリセット
+ * - Ctrl+H / Cmd+H: 左右反転
  * - P: ペンツール選択
  * - B: ブラシツール選択
  * - E: 消しゴムツール選択
@@ -44,6 +46,7 @@ export const useKeyboardShortcuts = ({
   onZoomIn,
   onZoomOut,
   onZoomReset,
+  onFlipHorizontal,
 }: KeyboardShortcutsHandlers) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -82,6 +85,12 @@ export const useKeyboardShortcuts = ({
       if ((e.ctrlKey || e.metaKey) && e.key === '0') {
         e.preventDefault()
         onZoomReset()
+        return
+      }
+      // 左右反転 (Ctrl/Cmd + H)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'h' || e.key === 'H')) {
+        e.preventDefault()
+        onFlipHorizontal()
         return
       }
       // 修飾キーなしの単一キー
@@ -128,5 +137,6 @@ export const useKeyboardShortcuts = ({
     onZoomIn,
     onZoomOut,
     onZoomReset,
+    onFlipHorizontal,
   ])
 }

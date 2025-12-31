@@ -25,6 +25,7 @@ import {
   ZoomOutButton,
   ZoomResetButton,
   ZoomDisplay,
+  FlipHorizontalButton,
 } from './features/toolbar'
 import { useTool, ToolPanel, PenTool, BrushTool, EraserTool, LayerPanel } from './features/tools'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
@@ -82,6 +83,7 @@ function App() {
     onZoomIn: canvasZoom.zoomIn,
     onZoomOut: canvasZoom.zoomOut,
     onZoomReset: canvasZoom.resetZoom,
+    onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
   })
 
   /**
@@ -158,6 +160,7 @@ function App() {
             onHeightChange={canvasSize.setHeight}
             onAnchorChange={canvasSize.setAnchor}
           />
+          <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
         </Toolbar>
         <div className="flex items-center gap-1">
           <LocaleToggle />
