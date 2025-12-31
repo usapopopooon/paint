@@ -35,8 +35,8 @@ export const penBehavior = {
    * @returns 新しいStrokeDrawable
    */
   createStroke: (point: Point, config: PenToolConfig): StrokeDrawable => {
-    // isBlurEnabledがfalseの場合はhardness 1.0（ぼかしなし）を使用
-    const effectiveHardness = config.isBlurEnabled ? config.hardness : 1.0
+    // isBlurEnabledがfalseの場合はhardness 0（ぼかしなし）を使用
+    const effectiveHardness = config.isBlurEnabled ? config.hardness : 0
     return createStrokeDrawable([point], {
       color: config.color,
       brushTip: createSolidBrushTip(config.width, config.opacity, effectiveHardness),

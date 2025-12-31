@@ -84,7 +84,7 @@ describe('brushBehavior', () => {
       expect(stroke.style.brushTip.hardness).toBe(0.5)
     })
 
-    test('isBlurEnabled=falseの場合、hardnessは1.0になる', () => {
+    test('isBlurEnabled=falseの場合、hardnessは0になる', () => {
       const point = { x: 10, y: 20 }
       const config = {
         type: 'brush' as const,
@@ -97,7 +97,7 @@ describe('brushBehavior', () => {
 
       const stroke = brushBehavior.createStroke(point, config)
 
-      expect(stroke.style.brushTip.hardness).toBe(1.0)
+      expect(stroke.style.brushTip.hardness).toBe(0)
     })
 
     test('isBlurEnabled=trueの場合、設定されたhardnessが使用される', () => {
