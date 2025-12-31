@@ -13,7 +13,12 @@ export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonPro
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="secondary" size="icon" onClick={onClick} aria-label={t('actions.clearLayer')}>
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={onClick}
+          aria-label={t('actions.clearLayer')}
+        >
           <ImageOff className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
