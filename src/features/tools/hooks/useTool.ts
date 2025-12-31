@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
 import { getToolBehavior } from '../domain'
-import { createInitialToolState, type ToolState } from '../helpers'
+import { createInitialToolState, isDrawingToolType, type ToolState } from '../helpers'
+import { DEFAULT_HARDNESS } from '../constants/hardness'
 
 type ConfigKey = 'penConfig' | 'brushConfig' | 'eraserConfig'
 
@@ -33,7 +34,12 @@ export const useTool = () => {
    * @param type - 切り替え先のツールタイプ
    */
   const setToolType = useCallback((type: ToolType) => {
-    setState((prev) => ({ ...prev, currentType: type }))
+    setState((prev) => ({
+      ...prev,
+      currentType: type,
+      // 描画ツールを選択した場合は記録
+      lastDrawingToolType: isDrawingToolType(type) ? type : prev.lastDrawingToolType,
+    }))
   }, [])
 
   const setPenWidth = useMemo(() => createConfigSetter<number>(setState, 'penConfig', 'width'), [])
@@ -104,6 +110,23 @@ export const useTool = () => {
   /** 現在のツール設定に基づくカーソル設定（白背景想定） */
   const cursor = useMemo<CursorConfig>(() => getCursor('#ffffff'), [getCursor])
 
+  /**
+   * 最後に選択された描画ツールのhardness値を取得
+   * 非描画ツール選択時にスライダーに表示する値
+   */
+  const lastDrawingToolHardness = useMemo(() => {
+    const lastType = state.lastDrawingToolType
+    if (lastType === 'pen') return state.penConfig.hardness
+    if (lastType === 'brush') return state.brushConfig.hardness
+    if (lastType === 'eraser') return state.eraserConfig.hardness
+    return DEFAULT_HARDNESS
+  }, [
+    state.lastDrawingToolType,
+    state.penConfig.hardness,
+    state.brushConfig.hardness,
+    state.eraserConfig.hardness,
+  ])
+
   return {
     currentType: state.currentType,
     currentConfig,
@@ -111,6 +134,7 @@ export const useTool = () => {
     brushConfig: state.brushConfig,
     eraserConfig: state.eraserConfig,
     cursor,
+    lastDrawingToolHardness,
     setToolType,
     setPenWidth,
     setPenColor,

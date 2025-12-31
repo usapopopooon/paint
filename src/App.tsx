@@ -141,6 +141,7 @@ function App() {
 
   /**
    * 現在選択中のツールのhardnessを取得
+   * 描画ツール以外の場合は最後に選択されていた描画ツールのhardness値を返す
    */
   const currentHardness =
     tool.currentType === 'pen'
@@ -149,7 +150,7 @@ function App() {
         ? tool.brushConfig.hardness
         : tool.currentType === 'eraser'
           ? tool.eraserConfig.hardness
-          : 1
+          : tool.lastDrawingToolHardness
 
   /**
    * 現在選択中のツールのhardnessを変更
