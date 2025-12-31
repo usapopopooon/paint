@@ -4,7 +4,7 @@ import { SaveButton } from './SaveButton'
 import { getTranslation } from '@/features/i18n/infrastructure/locales/getTranslation'
 
 const meta = {
-  title: 'Features/Toolbar/SaveButton',
+  title: 'Features/Export/SaveButton',
   component: SaveButton,
   parameters: {
     layout: 'centered',

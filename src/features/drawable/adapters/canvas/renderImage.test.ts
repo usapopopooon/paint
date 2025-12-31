@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { Sprite, Texture, Assets } from 'pixi.js'
+import { Sprite, Assets } from 'pixi.js'
 import { renderImage, clearImageCache } from './renderImage'
 import type { ImageDrawable } from '../../types'
 

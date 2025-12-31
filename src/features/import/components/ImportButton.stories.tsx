@@ -5,7 +5,7 @@ import { ImportButton } from './ImportButton'
 import { getTranslation } from '@/features/i18n/infrastructure/locales/getTranslation'
 
 const meta = {
-  title: 'Features/Toolbar/ImportButton',
+  title: 'Features/Import/ImportButton',
   component: ImportButton,
   parameters: {
     layout: 'centered',

@@ -14,9 +14,9 @@ import {
 } from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
-import { useExportImage } from './features/export'
+import { SaveButton, useExportImage } from './features/export'
 import { useLocale, LocaleToggle } from './features/i18n'
-import { useImportImage } from './features/import'
+import { ImportButton, useImportImage } from './features/import'
 import {
   Toolbar,
   UndoButton,
@@ -31,8 +31,6 @@ import {
   ZoomResetButton,
   ZoomDisplay,
   FlipHorizontalButton,
-  SaveButton,
-  ImportButton,
 } from './features/toolbar'
 import {
   useTool,
