@@ -31,31 +31,7 @@ ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみ�
 
 ### Feature 構造（概念図）
 
-```mermaid
-mindmap
-  root((src))
-    components/ui
-      Button, Slider, Tooltip
-    constants
-    features
-      feature
-        types
-        constants
-        domain
-          entities
-          services
-        useCases
-        adapters
-        infrastructure
-        helpers
-        hooks
-        components
-        index.ts
-    hooks
-    lib
-    utils
-    test
-```
+![Feature Structure](docs/img/feature-mermaid-chart.svg)
 
 ### ディレクトリ構造
 
