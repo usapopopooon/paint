@@ -8,7 +8,7 @@ import type { CursorConfig } from '@/features/tools/types'
  * PointerInputLayerコンポーネントのプロパティ
  */
 type PointerInputLayerProps = {
-  readonly children: ReactNode
+  readonly children?: ReactNode
   readonly onStart: (point: PointerPoint) => void
   readonly onMove: (point: PointerPoint) => void
   readonly onEnd: () => void

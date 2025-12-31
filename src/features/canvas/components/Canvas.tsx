@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import type { Drawable, Point } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import type { CursorConfig, ToolType } from '@/features/tools/types'
@@ -65,6 +65,7 @@ export const Canvas = ({
   const isEyedropperTool = toolType === 'eyedropper'
   const isZoomInTool = toolType === 'zoom-in'
   const isZoomOutTool = toolType === 'zoom-out'
+  const isDrawingTool = !isHandTool && !isEyedropperTool && !isZoomInTool && !isZoomOutTool
   const containerRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const lastClientPosRef = useRef<{ x: number; y: number } | null>(null)
@@ -98,6 +99,36 @@ export const Canvas = ({
       }
     },
     [onPickColor, zoom]
+  )
+
+  /**
+   * ズームツールクリック時のハンドラ
+   */
+  const handleZoomClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!onZoomAtPoint || (!isZoomInTool && !isZoomOutTool)) return
+
+      const container = containerRef.current
+      if (!container) return
+
+      const rect = container.getBoundingClientRect()
+      const canvasCenterInViewportX = viewportSize.width / 2
+      const canvasCenterInViewportY = viewportSize.height / 2
+      const canvasCenterInScreenX = rect.left + rect.width / 2
+      const canvasCenterInScreenY = rect.top + rect.height / 2
+
+      const mouseX = canvasCenterInViewportX + (e.clientX - canvasCenterInScreenX)
+      const mouseY = canvasCenterInViewportY + (e.clientY - canvasCenterInScreenY)
+
+      onZoomAtPoint(
+        mouseX,
+        mouseY,
+        viewportSize.width,
+        viewportSize.height,
+        isZoomInTool ? 'in' : 'out'
+      )
+    },
+    [onZoomAtPoint, isZoomInTool, isZoomOutTool, viewportSize]
   )
 
   // ハンドツール時はネイティブポインターイベントでパン処理
@@ -145,137 +176,69 @@ export const Canvas = ({
     }
   }, [isHandTool, onPan])
 
-  // ハンドツール時はPointerInputLayerをバイパスして直接レンダリング
-  if (isHandTool) {
-    return (
-      <div
-        ref={containerRef}
-        style={{
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
-          touchAction: 'none',
-          cursor: isDragging ? 'grabbing' : 'grab',
-        }}
-        className={fillContainer ? 'w-full h-full' : 'inline-block'}
-        onContextMenu={handleSecondaryClick}
-      >
-        <DrawingCanvas
-          drawables={drawables}
-          layers={layers}
-          width={width}
-          height={height}
-          fillContainer={fillContainer}
-        />
-      </div>
-    )
-  }
-
-  // スポイトツール時は専用UIを表示
-  if (isEyedropperTool) {
-    return (
-      <div
-        ref={containerRef}
-        style={{
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
-          touchAction: 'none',
-          cursor: EYEDROPPER_CURSOR,
-        }}
-        className={fillContainer ? 'w-full h-full' : 'inline-block'}
-        onClick={handleSecondaryClick}
-        onContextMenu={handleSecondaryClick}
-      >
-        <DrawingCanvas
-          drawables={drawables}
-          layers={layers}
-          width={width}
-          height={height}
-          fillContainer={fillContainer}
-        />
-      </div>
-    )
-  }
-
-  // ズームツール時はクリックでズーム
-  if (isZoomInTool || isZoomOutTool) {
-    const handleZoomClick = (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!onZoomAtPoint) return
-
-      // ビューポート基準の座標を計算（ホイールと同じ座標系）
-      // containerRef はズームやオフセットが適用されたCanvas要素なので、
-      // 親のビューポート（viewportSize）を基準にした座標を使う
-      // clientX/clientYからビューポート左上を引く
-      const container = containerRef.current
-      if (!container) return
-
-      // ビューポートの左上座標を取得するため、親要素を辿る
-      // viewportSizeがあるので、画面中央からの相対位置を計算
-      const rect = container.getBoundingClientRect()
-      // Canvasの中心はビューポートの中心に配置されている
-      // クリック位置をビューポート座標系に変換
-      const canvasCenterInViewportX = viewportSize.width / 2
-      const canvasCenterInViewportY = viewportSize.height / 2
-      const canvasCenterInScreenX = rect.left + rect.width / 2
-      const canvasCenterInScreenY = rect.top + rect.height / 2
-
-      // クリック位置のビューポート座標
-      const mouseX = canvasCenterInViewportX + (e.clientX - canvasCenterInScreenX)
-      const mouseY = canvasCenterInViewportY + (e.clientY - canvasCenterInScreenY)
-
-      onZoomAtPoint(
-        mouseX,
-        mouseY,
-        viewportSize.width,
-        viewportSize.height,
-        isZoomInTool ? 'in' : 'out'
-      )
+  // ツールに応じたカーソルスタイルを計算
+  const cursorStyle = useMemo(() => {
+    if (isHandTool) {
+      return isDragging ? 'grabbing' : 'grab'
     }
+    if (isEyedropperTool) {
+      return EYEDROPPER_CURSOR
+    }
+    if (isZoomInTool) {
+      return 'zoom-in'
+    }
+    if (isZoomOutTool) {
+      return 'zoom-out'
+    }
+    return undefined // 描画ツールはPointerInputLayerがカーソルを制御
+  }, [isHandTool, isEyedropperTool, isZoomInTool, isZoomOutTool, isDragging])
 
-    return (
-      <div
-        ref={containerRef}
-        style={{
-          transform: `translate(${offset.x}px, ${offset.y}px)`,
-          touchAction: 'none',
-          cursor: isZoomInTool ? 'zoom-in' : 'zoom-out',
-        }}
-        className={fillContainer ? 'w-full h-full' : 'inline-block'}
-        onClick={handleZoomClick}
-        onContextMenu={handleSecondaryClick}
-      >
-        <DrawingCanvas
-          drawables={drawables}
-          layers={layers}
-          width={width}
-          height={height}
-          fillContainer={fillContainer}
-        />
-      </div>
-    )
-  }
+  // クリックハンドラを統合
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (isEyedropperTool) {
+        handleSecondaryClick(e)
+      } else if (isZoomInTool || isZoomOutTool) {
+        handleZoomClick(e)
+      }
+    },
+    [isEyedropperTool, isZoomInTool, isZoomOutTool, handleSecondaryClick, handleZoomClick]
+  )
 
+  // 常に同じ構造を返すことでDrawingCanvasの再マウントを防ぐ
+  // DrawingCanvasは常に同じ位置に配置し、PointerInputLayerはオーバーレイとして配置
   return (
     <div
       ref={containerRef}
       style={{
         transform: `translate(${offset.x}px, ${offset.y}px)`,
+        touchAction: 'none',
+        cursor: cursorStyle,
+        position: 'relative',
       }}
+      className={fillContainer ? 'w-full h-full' : 'inline-block'}
+      onClick={handleClick}
       onContextMenu={handleSecondaryClick}
     >
-      <PointerInputLayer
-        onStart={onStartStroke}
-        onMove={onAddPoint}
-        onEnd={onEndStroke}
-        cursor={cursor}
-        className={fillContainer ? 'w-full h-full' : 'inline-block'}
-        zoom={zoom}
-      >
-        <DrawingCanvas
-          drawables={drawables}
-          layers={layers}
-          width={width}
-          height={height}
-          fillContainer={fillContainer}
+      {/* DrawingCanvasは常に同じ位置に配置 */}
+      <DrawingCanvas
+        drawables={drawables}
+        layers={layers}
+        width={width}
+        height={height}
+        fillContainer={fillContainer}
+      />
+      {/* 描画ツール時のみPointerInputLayerをオーバーレイとして表示 */}
+      {isDrawingTool && (
+        <PointerInputLayer
+          onStart={onStartStroke}
+          onMove={onAddPoint}
+          onEnd={onEndStroke}
+          cursor={cursor}
+          className="absolute inset-0"
+          zoom={zoom}
         />
-      </PointerInputLayer>
+      )}
     </div>
   )
 }
