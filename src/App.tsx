@@ -27,7 +27,15 @@ import {
   ZoomDisplay,
   FlipHorizontalButton,
 } from './features/toolbar'
-import { useTool, ToolPanel, PenTool, BrushTool, EraserTool, LayerPanel } from './features/tools'
+import {
+  useTool,
+  ToolPanel,
+  PenTool,
+  BrushTool,
+  EraserTool,
+  LayerPanel,
+  HardnessSlider,
+} from './features/tools'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
 /**
@@ -125,6 +133,39 @@ function App() {
    */
   const currentColor = tool.currentType === 'brush' ? tool.brushConfig.color : tool.penConfig.color
 
+  /**
+   * 現在選択中のツールのhardnessを取得
+   */
+  const currentHardness =
+    tool.currentType === 'pen'
+      ? tool.penConfig.hardness
+      : tool.currentType === 'brush'
+        ? tool.brushConfig.hardness
+        : tool.currentType === 'eraser'
+          ? tool.eraserConfig.hardness
+          : 1
+
+  /**
+   * 現在選択中のツールのhardnessを変更
+   */
+  const handleHardnessChange = useCallback(
+    (hardness: number) => {
+      if (tool.currentType === 'pen') {
+        tool.setPenHardness(hardness)
+      } else if (tool.currentType === 'brush') {
+        tool.setBrushHardness(hardness)
+      } else if (tool.currentType === 'eraser') {
+        tool.setEraserHardness(hardness)
+      }
+    },
+    [tool]
+  )
+
+  /**
+   * hardnessスライダーが無効かどうか（ペン、ブラシ、消しゴム以外）
+   */
+  const isHardnessDisabled = !['pen', 'brush', 'eraser'].includes(tool.currentType)
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top toolbar */}
@@ -172,6 +213,11 @@ function App() {
       <div className="flex flex-1 min-h-0">
         <ToolPanel>
           <ColorWheel color={currentColor} onChange={handleColorChange} />
+          <HardnessSlider
+            hardness={currentHardness}
+            onHardnessChange={handleHardnessChange}
+            disabled={isHardnessDisabled}
+          />
           <PenTool
             isActive={tool.currentType === 'pen'}
             width={tool.penConfig.width}

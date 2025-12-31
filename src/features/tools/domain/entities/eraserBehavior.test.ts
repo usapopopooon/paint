@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { eraserBehavior } from './eraserBehavior'
-import { DEFAULT_ERASER_WIDTH, DEFAULT_OPACITY } from '../../constants'
+import { DEFAULT_ERASER_WIDTH, DEFAULT_OPACITY, DEFAULT_HARDNESS } from '../../constants'
 
 describe('eraserBehavior', () => {
   describe('type', () => {
@@ -16,6 +16,7 @@ describe('eraserBehavior', () => {
         type: 'eraser',
         width: DEFAULT_ERASER_WIDTH,
         opacity: DEFAULT_OPACITY,
+        hardness: DEFAULT_HARDNESS,
       })
     })
   })
@@ -23,7 +24,7 @@ describe('eraserBehavior', () => {
   describe('createStroke', () => {
     test('指定されたポイントとコンフィグで消しゴムストロークDrawableを作成する', () => {
       const point = { x: 15, y: 25 }
-      const config = { type: 'eraser' as const, width: 30, opacity: 1 }
+      const config = { type: 'eraser' as const, width: 30, opacity: 1, hardness: 0 }
 
       const stroke = eraserBehavior.createStroke(point, config)
 
@@ -39,17 +40,26 @@ describe('eraserBehavior', () => {
 
     test('opacityがブラシチップに反映される', () => {
       const point = { x: 15, y: 25 }
-      const config = { type: 'eraser' as const, width: 30, opacity: 0.7 }
+      const config = { type: 'eraser' as const, width: 30, opacity: 0.7, hardness: 0 }
 
       const stroke = eraserBehavior.createStroke(point, config)
 
       expect(stroke.style.brushTip.opacity).toBe(0.7)
     })
+
+    test('hardnessがブラシチップに反映される', () => {
+      const point = { x: 15, y: 25 }
+      const config = { type: 'eraser' as const, width: 30, opacity: 1, hardness: 0.5 }
+
+      const stroke = eraserBehavior.createStroke(point, config)
+
+      expect(stroke.style.brushTip.hardness).toBe(0.5)
+    })
   })
 
   describe('getCursor', () => {
     test('eraserの幅と視認可能な色を持つカーソルコンフィグを返す', () => {
-      const config = { type: 'eraser' as const, width: 40, opacity: 1 }
+      const config = { type: 'eraser' as const, width: 40, opacity: 1, hardness: 0 }
 
       const cursor = eraserBehavior.getCursor(config)
 
