@@ -114,3 +114,20 @@ export const ShowTooltipOnHover: Story = {
     await userEvent.hover(toggleButton)
   },
 }
+
+/** 最大ぼかしからトグルオフ→オンで100%が復元される */
+const onToggleMaxFn = fn()
+export const ToggleMaxBlur: Story = {
+  args: {
+    hardness: 1,
+    onHardnessChange: onToggleMaxFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const toggleButton = canvas.getByRole('button')
+
+    // トグルオフ
+    await userEvent.click(toggleButton)
+    await expect(onToggleMaxFn).toHaveBeenCalledWith(0)
+  },
+}
