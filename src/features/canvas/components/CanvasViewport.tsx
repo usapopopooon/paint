@@ -16,8 +16,12 @@ type CanvasViewportProps = {
   readonly onOffsetChange: (x: number, y: number) => void
   /** ズーム倍率（デフォルト: 1） */
   readonly zoom?: number
-  /** ホイールイベントのコールバック */
-  readonly onWheel?: (deltaY: number) => void
+  /** ホイールイベントのコールバック（マウス位置付き） */
+  readonly onWheelAtPoint?: (
+    deltaY: number,
+    mouseX: number,
+    mouseY: number
+  ) => { direction: 'in' | 'out' }
   /** 子要素（Canvas） */
   readonly children: React.ReactNode
 }
@@ -32,11 +36,13 @@ export const CanvasViewport = ({
   offset,
   onOffsetChange,
   zoom = 1,
-  onWheel,
+  onWheelAtPoint,
   children,
 }: CanvasViewportProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 })
+  const [zoomCursor, setZoomCursor] = useState<'zoom-in' | 'zoom-out' | null>(null)
+  const zoomCursorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ビューポートサイズの監視
   useEffect(() => {
@@ -60,18 +66,39 @@ export const CanvasViewport = ({
   // ホイールイベントリスナー（passive: falseでpreventDefaultを有効化）
   useEffect(() => {
     const container = containerRef.current
-    if (!container || !onWheel) return
+    if (!container || !onWheelAtPoint) return
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault()
-      onWheel(event.deltaY)
+
+      const rect = container.getBoundingClientRect()
+      const mouseX = event.clientX - rect.left
+      const mouseY = event.clientY - rect.top
+
+      const result = onWheelAtPoint(event.deltaY, mouseX, mouseY)
+
+      // カーソルをズームアイコンに変更
+      setZoomCursor(result.direction === 'in' ? 'zoom-in' : 'zoom-out')
+
+      // 既存のタイムアウトをクリア
+      if (zoomCursorTimeoutRef.current) {
+        clearTimeout(zoomCursorTimeoutRef.current)
+      }
+
+      // 一定時間後にカーソルをリセット
+      zoomCursorTimeoutRef.current = setTimeout(() => {
+        setZoomCursor(null)
+      }, 150)
     }
 
     container.addEventListener('wheel', handleWheel, { passive: false })
     return () => {
       container.removeEventListener('wheel', handleWheel)
+      if (zoomCursorTimeoutRef.current) {
+        clearTimeout(zoomCursorTimeoutRef.current)
+      }
     }
-  }, [onWheel])
+  }, [onWheelAtPoint])
 
   // 水平スクロール処理
   const handleHorizontalScroll = useCallback(
@@ -98,7 +125,11 @@ export const CanvasViewport = ({
   const needsVerticalScroll = scaledHeight > viewportSize.height
 
   return (
-    <div ref={containerRef} className="relative w-full h-full overflow-hidden">
+    <div
+      ref={containerRef}
+      className="relative w-full h-full overflow-hidden"
+      style={zoomCursor ? { cursor: zoomCursor } : undefined}
+    >
       {/* キャンバス表示領域 */}
       <div
         className="w-full h-full flex items-center justify-center"

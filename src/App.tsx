@@ -10,7 +10,6 @@ import {
   useCanvas,
   useCanvasSize,
   useCanvasOffset,
-  useCanvasZoom,
 } from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
@@ -26,12 +25,9 @@ import {
   HandButton,
   EyedropperButton,
   CenterCanvasButton,
-  ZoomInButton,
-  ZoomOutButton,
-  ZoomResetButton,
-  ZoomDisplay,
   FlipHorizontalButton,
 } from './features/toolbar'
+import { ZoomInButton, ZoomOutButton, ZoomResetButton, ZoomDisplay, useZoom } from './features/zoom'
 import {
   useTool,
   ToolPanel,
@@ -85,7 +81,7 @@ function App() {
   }, [canvasSize.setSizeDirectly])
 
   const canvasOffset = useCanvasOffset()
-  const canvasZoom = useCanvasZoom()
+  const zoom = useZoom()
   const tool = useTool()
   const exportImage = useExportImage(canvasContainerRef)
   const { t } = useLocale()
@@ -113,9 +109,9 @@ function App() {
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
-    onZoomIn: canvasZoom.zoomIn,
-    onZoomOut: canvasZoom.zoomOut,
-    onZoomReset: canvasZoom.resetZoom,
+    onZoomIn: zoom.zoomIn,
+    onZoomOut: zoom.zoomOut,
+    onZoomReset: zoom.resetZoom,
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
   })
 
@@ -192,6 +188,37 @@ function App() {
    */
   const isHardnessDisabled = !['pen', 'brush', 'eraser'].includes(tool.currentType)
 
+  /**
+   * ホイールでのズーム処理（カーソル位置を中心）
+   */
+  const handleWheelAtPoint = useCallback(
+    (deltaY: number, mouseX: number, mouseY: number) => {
+      const result = zoom.handleWheelAtPoint(deltaY, mouseX, mouseY, canvasOffset.offset)
+      canvasOffset.setPosition(result.offset.x, result.offset.y)
+
+      // ホイール方向に応じてツール選択状態を更新
+      if (result.direction === 'in') {
+        tool.setToolType('zoom-in')
+      } else {
+        tool.setToolType('zoom-out')
+      }
+
+      return result
+    },
+    [zoom, canvasOffset, tool]
+  )
+
+  /**
+   * ズームツールクリック時の処理（クリック位置を中心）
+   */
+  const handleZoomAtPoint = useCallback(
+    (mouseX: number, mouseY: number, direction: 'in' | 'out') => {
+      const newOffset = zoom.zoomAtPoint(mouseX, mouseY, direction, canvasOffset.offset)
+      canvasOffset.setPosition(newOffset.x, newOffset.y)
+    },
+    [zoom, canvasOffset]
+  )
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top toolbar */}
@@ -206,13 +233,16 @@ function App() {
           />
           <CenterCanvasButton onClick={canvasOffset.reset} />
           <ToolbarDivider />
-          <ZoomInButton onClick={canvasZoom.zoomIn} />
-          <ZoomOutButton onClick={canvasZoom.zoomOut} />
-          <ZoomResetButton onClick={canvasZoom.resetZoom} />
-          <ZoomDisplay
-            zoomPercent={canvasZoom.zoomPercent}
-            onZoomChange={canvasZoom.setZoomLevel}
+          <ZoomInButton
+            isActive={tool.currentType === 'zoom-in'}
+            onClick={() => tool.setToolType('zoom-in')}
           />
+          <ZoomOutButton
+            isActive={tool.currentType === 'zoom-out'}
+            onClick={() => tool.setToolType('zoom-out')}
+          />
+          <ZoomResetButton onClick={zoom.resetZoom} />
+          <ZoomDisplay zoomPercent={zoom.zoomPercent} onZoomChange={zoom.setZoomLevel} />
           <ToolbarDivider />
           <StabilizationSlider
             stabilization={stabilization.stabilization}
@@ -299,8 +329,8 @@ function App() {
             canvasHeight={canvasSize.height}
             offset={canvasOffset.offset}
             onOffsetChange={canvasOffset.setPosition}
-            zoom={canvasZoom.zoom}
-            onWheel={canvasZoom.handleWheel}
+            zoom={zoom.zoom}
+            onWheelAtPoint={handleWheelAtPoint}
           >
             <div ref={canvasContainerRef}>
               <Canvas
@@ -315,7 +345,8 @@ function App() {
                 offset={canvasOffset.offset}
                 onPan={canvasOffset.pan}
                 onPickColor={handleColorChange}
-                zoom={canvasZoom.zoom}
+                zoom={zoom.zoom}
+                onZoomAtPoint={handleZoomAtPoint}
               />
             </div>
           </CanvasViewport>

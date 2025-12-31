@@ -6,6 +6,8 @@ import {
   eraserBehavior,
   handBehavior,
   eyedropperBehavior,
+  zoomInBehavior,
+  zoomOutBehavior,
 } from '../entities'
 
 /**
@@ -24,6 +26,8 @@ const behaviors: Record<ToolType, ToolBehavior> = {
   eraser: eraserBehavior as ToolBehavior,
   hand: handBehavior as ToolBehavior,
   eyedropper: eyedropperBehavior as ToolBehavior,
+  'zoom-in': zoomInBehavior as ToolBehavior,
+  'zoom-out': zoomOutBehavior as ToolBehavior,
 }
 
 /**

@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
-import { ZoomOutButton } from './ZoomOutButton'
+import { ZoomResetButton } from './ZoomResetButton'
 
 const meta = {
-  title: 'Features/Toolbar/ZoomOutButton',
-  component: ZoomOutButton,
+  title: 'Features/Zoom/ZoomResetButton',
+  component: ZoomResetButton,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof ZoomOutButton>
+} satisfies Meta<typeof ZoomResetButton>
 
 export default meta
-type Story = StoryObj<typeof ZoomOutButton>
+type Story = StoryObj<typeof ZoomResetButton>
 
 const onClickFn = fn()
 export const Default: Story = {

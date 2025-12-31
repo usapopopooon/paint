@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { ZoomInButton } from './ZoomInButton'
 
 const meta = {
-  title: 'Features/Toolbar/ZoomInButton',
+  title: 'Features/Zoom/ZoomInButton',
   component: ZoomInButton,
   parameters: {
     layout: 'centered',
@@ -14,9 +14,23 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof ZoomInButton>
 
-const onClickFn = fn()
-export const Default: Story = {
+export const Inactive: Story = {
   args: {
+    isActive: false,
+    onClick: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const button = canvas.getByRole('button')
+
+    await expect(button).toBeEnabled()
+  },
+}
+
+const onClickFn = fn()
+export const Active: Story = {
+  args: {
+    isActive: true,
     onClick: onClickFn,
   },
   play: async ({ canvasElement }) => {

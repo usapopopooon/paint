@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { ZoomDisplay } from './ZoomDisplay'
 
 const meta = {
-  title: 'Features/Toolbar/ZoomDisplay',
+  title: 'Features/Zoom/ZoomDisplay',
   component: ZoomDisplay,
   parameters: {
     layout: 'centered',

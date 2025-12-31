@@ -27,6 +27,8 @@ type CanvasProps = {
   readonly onPickColor?: (color: string) => void
   /** ズーム倍率（座標変換に使用、デフォルト: 1） */
   readonly zoom?: number
+  /** ズームツールクリック時のコールバック */
+  readonly onZoomAtPoint?: (mouseX: number, mouseY: number, direction: 'in' | 'out') => void
 }
 
 /**
@@ -48,9 +50,12 @@ export const Canvas = ({
   onPan,
   onPickColor,
   zoom = 1,
+  onZoomAtPoint,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
+  const isZoomInTool = toolType === 'zoom-in'
+  const isZoomOutTool = toolType === 'zoom-out'
   const containerRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const lastClientPosRef = useRef<{ x: number; y: number } | null>(null)
@@ -167,6 +172,44 @@ export const Canvas = ({
         }}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
         onClick={handleSecondaryClick}
+        onContextMenu={handleSecondaryClick}
+      >
+        <DrawingCanvas
+          drawables={drawables}
+          layers={layers}
+          width={width}
+          height={height}
+          fillContainer={fillContainer}
+        />
+      </div>
+    )
+  }
+
+  // ズームツール時はクリックでズーム
+  if (isZoomInTool || isZoomOutTool) {
+    const handleZoomClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!onZoomAtPoint) return
+
+      const container = containerRef.current
+      if (!container) return
+
+      const rect = container.getBoundingClientRect()
+      const mouseX = e.clientX - rect.left
+      const mouseY = e.clientY - rect.top
+
+      onZoomAtPoint(mouseX, mouseY, isZoomInTool ? 'in' : 'out')
+    }
+
+    return (
+      <div
+        ref={containerRef}
+        style={{
+          transform: `translate(${offset.x}px, ${offset.y}px)`,
+          touchAction: 'none',
+          cursor: isZoomInTool ? 'zoom-in' : 'zoom-out',
+        }}
+        className={fillContainer ? 'w-full h-full' : 'inline-block'}
+        onClick={handleZoomClick}
         onContextMenu={handleSecondaryClick}
       >
         <DrawingCanvas
