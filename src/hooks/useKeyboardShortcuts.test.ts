@@ -11,9 +11,13 @@ describe('useKeyboardShortcuts', () => {
       onRedo: vi.fn(),
       onClear: vi.fn(),
       onSelectPen: vi.fn(),
+      onSelectBrush: vi.fn(),
       onSelectEraser: vi.fn(),
       onSelectHand: vi.fn(),
       onSelectEyedropper: vi.fn(),
+      onZoomIn: vi.fn(),
+      onZoomOut: vi.fn(),
+      onZoomReset: vi.fn(),
     }
   })
 
@@ -126,7 +130,7 @@ describe('useKeyboardShortcuts', () => {
     })
   })
 
-  describe('ツール選択 (P / E / H / I)', () => {
+  describe('ツール選択 (P / B / E / H / I)', () => {
     test('Pキーでペンツール選択', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
@@ -144,6 +148,26 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('P')
 
       expect(mockHandlers.onSelectPen).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Bキーでブラシツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('b')
+
+      expect(mockHandlers.onSelectBrush).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectEraser).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Bでもブラシツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('B')
+
+      expect(mockHandlers.onSelectBrush).toHaveBeenCalledTimes(1)
       unmount()
     })
 
@@ -223,6 +247,89 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('I')
 
       expect(mockHandlers.onSelectEyedropper).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+  })
+
+  describe('ズーム (Ctrl++/- / Cmd++/-)', () => {
+    test('Ctrl++でズームイン', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('+', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+=でズームイン', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('=', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd++ (Mac)でズームイン', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('+', { metaKey: true })
+
+      expect(mockHandlers.onZoomIn).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+-でズームアウト', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('-', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomOut).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+- (Mac)でズームアウト', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('-', { metaKey: true })
+
+      expect(mockHandlers.onZoomOut).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+0でズームリセット', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('0', { ctrlKey: true })
+
+      expect(mockHandlers.onZoomReset).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+0 (Mac)でズームリセット', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('0', { metaKey: true })
+
+      expect(mockHandlers.onZoomReset).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('修飾キーなしの+は無視', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('+')
+
+      expect(mockHandlers.onZoomIn).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('修飾キーなしの-は無視', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('-')
+
+      expect(mockHandlers.onZoomOut).not.toHaveBeenCalled()
       unmount()
     })
   })

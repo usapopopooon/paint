@@ -124,27 +124,33 @@ export const CanvasResizeMenu = ({
         <div className="flex flex-col gap-2 text-sm">
           <label className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">{t('canvas.width')}</span>
-            <input
-              ref={widthInputRef}
-              type="number"
-              value={width}
-              onChange={handleWidthChange}
-              min={MIN_CANVAS_SIZE}
-              max={MAX_CANVAS_SIZE}
-              className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
-            />
+            <div className="flex items-center">
+              <input
+                ref={widthInputRef}
+                type="number"
+                value={width}
+                onChange={handleWidthChange}
+                min={MIN_CANVAS_SIZE}
+                max={MAX_CANVAS_SIZE}
+                className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              <span className="text-xs text-muted-foreground ml-1">px</span>
+            </div>
           </label>
           <label className="flex items-center justify-between gap-2">
             <span className="text-muted-foreground">{t('canvas.height')}</span>
-            <input
-              ref={heightInputRef}
-              type="number"
-              value={height}
-              onChange={handleHeightChange}
-              min={MIN_CANVAS_SIZE}
-              max={MAX_CANVAS_SIZE}
-              className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
-            />
+            <div className="flex items-center">
+              <input
+                ref={heightInputRef}
+                type="number"
+                value={height}
+                onChange={handleHeightChange}
+                min={MIN_CANVAS_SIZE}
+                max={MAX_CANVAS_SIZE}
+                className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              <span className="text-xs text-muted-foreground ml-1">px</span>
+            </div>
           </label>
         </div>
       </PopoverContent>
