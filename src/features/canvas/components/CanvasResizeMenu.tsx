@@ -4,7 +4,7 @@ import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { AnchorSelector } from './AnchorSelector'
 import type { ResizeAnchor } from '../types'
-import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../hooks/useCanvasSize'
+import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../constants'
 import { toDisplayValue, toInternalValue } from '@/utils'
 
 /** ホイールスクロール1回あたりの変化量（UI表示値） */

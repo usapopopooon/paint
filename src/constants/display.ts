@@ -10,3 +10,9 @@
  * - 内部ペンサイズ 10px → UI表示 5px
  */
 export const DISPLAY_MULTIPLIER = 2
+
+/**
+ * 内部値からUI表示値への変換率（エクスポート時の縮小率）
+ * DISPLAY_MULTIPLIER の逆数
+ */
+export const DISPLAY_SCALE = 1 / DISPLAY_MULTIPLIER

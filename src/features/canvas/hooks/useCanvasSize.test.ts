@@ -1,13 +1,12 @@
 import { describe, test, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
+import { useCanvasSize, DEFAULT_RESIZE_ANCHOR } from './useCanvasSize'
 import {
-  useCanvasSize,
   DEFAULT_CANVAS_WIDTH,
   DEFAULT_CANVAS_HEIGHT,
   MIN_CANVAS_SIZE,
   MAX_CANVAS_SIZE,
-  DEFAULT_RESIZE_ANCHOR,
-} from './useCanvasSize'
+} from '../constants'
 
 describe('useCanvasSize', () => {
   describe('初期状態', () => {

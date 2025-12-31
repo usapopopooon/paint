@@ -1,10 +1,7 @@
 import { useState, useCallback } from 'react'
 import { DISPLAY_MULTIPLIER } from '@/constants'
+import { MIN_ZOOM, MAX_ZOOM } from '../constants'
 
-/** ズームの最小倍率 */
-export const MIN_ZOOM = 0.1
-/** ズームの最大倍率 */
-export const MAX_ZOOM = 10
 /** ズームのステップ（ホイール1回分） */
 const ZOOM_STEP = 0.1
 /** デフォルトのズーム倍率（内部値、UI表示は2倍にマッピング） */

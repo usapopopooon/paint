@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useCanvasZoom, MIN_ZOOM, MAX_ZOOM } from './useCanvasZoom'
+import { useCanvasZoom } from './useCanvasZoom'
+import { MIN_ZOOM, MAX_ZOOM } from '../constants'
 
 // デフォルトズームは0.5（内部値）、UI表示は100%（0.5 * 100 * DISPLAY_MULTIPLIER = 100）
 const DEFAULT_ZOOM = 0.5

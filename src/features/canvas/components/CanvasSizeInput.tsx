@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocale } from '@/features/i18n'
 import { toDisplayValue, toInternalValue } from '@/utils'
-import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../hooks/useCanvasSize'
+import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../constants'
 
 /** ホイールスクロール1回あたりの変化量（UI表示値） */
 const WHEEL_STEP = 10
