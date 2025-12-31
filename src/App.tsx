@@ -36,6 +36,7 @@ import {
   LayerPanel,
   HardnessSlider,
 } from './features/tools'
+import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
 /**
@@ -50,9 +51,14 @@ function App() {
     setSizeDirectlyRef.current(width, height)
   }, [])
 
+  const stabilization = useStabilization()
+
   const canvasOptions = useMemo(
-    () => ({ onCanvasResize: handleCanvasResize }),
-    [handleCanvasResize]
+    () => ({
+      onCanvasResize: handleCanvasResize,
+      stabilization: stabilization.stabilization,
+    }),
+    [handleCanvasResize, stabilization.stabilization]
   )
   const canvas = useCanvas(canvasOptions)
 
@@ -186,6 +192,11 @@ function App() {
           <ZoomDisplay
             zoomPercent={canvasZoom.zoomPercent}
             onZoomChange={canvasZoom.setZoomLevel}
+          />
+          <ToolbarDivider />
+          <StabilizationSlider
+            stabilization={stabilization.stabilization}
+            onStabilizationChange={stabilization.setStabilization}
           />
           <ToolbarDivider />
           <ClearButton onClick={canvas.clear} />
