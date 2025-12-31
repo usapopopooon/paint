@@ -83,6 +83,19 @@ export const useTool = () => {
     []
   )
 
+  const setPenBlurEnabled = useMemo(
+    () => createConfigSetter<boolean>(setState, 'penConfig', 'isBlurEnabled'),
+    []
+  )
+  const setBrushBlurEnabled = useMemo(
+    () => createConfigSetter<boolean>(setState, 'brushConfig', 'isBlurEnabled'),
+    []
+  )
+  const setEraserBlurEnabled = useMemo(
+    () => createConfigSetter<boolean>(setState, 'eraserConfig', 'isBlurEnabled'),
+    []
+  )
+
   const handConfig: HandToolConfig = { type: 'hand' }
 
   const currentConfig: ToolConfig =
@@ -127,6 +140,23 @@ export const useTool = () => {
     state.eraserConfig.hardness,
   ])
 
+  /**
+   * 最後に選択された描画ツールのisBlurEnabled値を取得
+   * 非描画ツール選択時にスイッチに表示する値
+   */
+  const lastDrawingToolBlurEnabled = useMemo(() => {
+    const lastType = state.lastDrawingToolType
+    if (lastType === 'pen') return state.penConfig.isBlurEnabled
+    if (lastType === 'brush') return state.brushConfig.isBlurEnabled
+    if (lastType === 'eraser') return state.eraserConfig.isBlurEnabled
+    return true
+  }, [
+    state.lastDrawingToolType,
+    state.penConfig.isBlurEnabled,
+    state.brushConfig.isBlurEnabled,
+    state.eraserConfig.isBlurEnabled,
+  ])
+
   return {
     currentType: state.currentType,
     currentConfig,
@@ -135,18 +165,22 @@ export const useTool = () => {
     eraserConfig: state.eraserConfig,
     cursor,
     lastDrawingToolHardness,
+    lastDrawingToolBlurEnabled,
     setToolType,
     setPenWidth,
     setPenColor,
     setPenOpacity,
     setPenHardness,
+    setPenBlurEnabled,
     setBrushWidth,
     setBrushColor,
     setBrushOpacity,
     setBrushHardness,
+    setBrushBlurEnabled,
     setEraserWidth,
     setEraserOpacity,
     setEraserHardness,
+    setEraserBlurEnabled,
     getCursor,
   } as const
 }

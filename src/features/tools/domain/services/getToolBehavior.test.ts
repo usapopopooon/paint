@@ -25,7 +25,7 @@ describe('getToolBehavior', () => {
     const behavior = getToolBehavior('pen')
     const stroke = behavior.createStroke(
       { x: 0, y: 0 },
-      { type: 'pen', width: 5, color: '#000000', opacity: 1, hardness: 0 }
+      { type: 'pen', width: 5, color: '#000000', opacity: 1, hardness: 0, isBlurEnabled: true }
     )
     expect(stroke.style.blendMode).toBe('normal')
   })
@@ -34,7 +34,7 @@ describe('getToolBehavior', () => {
     const behavior = getToolBehavior('eraser')
     const stroke = behavior.createStroke(
       { x: 0, y: 0 },
-      { type: 'eraser', width: 20, opacity: 1, hardness: 0 }
+      { type: 'eraser', width: 20, opacity: 1, hardness: 0, isBlurEnabled: true }
     )
     expect(stroke.style.blendMode).toBe('erase')
   })

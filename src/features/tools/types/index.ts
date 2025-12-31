@@ -24,6 +24,7 @@ export type PenToolConfig = {
   readonly color: string
   readonly opacity: number
   readonly hardness: number
+  readonly isBlurEnabled: boolean
 }
 
 /**
@@ -35,6 +36,7 @@ export type BrushToolConfig = {
   readonly color: string
   readonly opacity: number
   readonly hardness: number
+  readonly isBlurEnabled: boolean
 }
 
 /**
@@ -45,6 +47,7 @@ export type EraserToolConfig = {
   readonly width: number
   readonly opacity: number
   readonly hardness: number
+  readonly isBlurEnabled: boolean
 }
 
 /**

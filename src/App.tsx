@@ -212,6 +212,19 @@ function App() {
           : tool.lastDrawingToolHardness
 
   /**
+   * 現在選択中のツールのisBlurEnabledを取得
+   * 描画ツール以外の場合は最後に選択されていた描画ツールのisBlurEnabled値を返す
+   */
+  const currentBlurEnabled =
+    tool.currentType === 'pen'
+      ? tool.penConfig.isBlurEnabled
+      : tool.currentType === 'brush'
+        ? tool.brushConfig.isBlurEnabled
+        : tool.currentType === 'eraser'
+          ? tool.eraserConfig.isBlurEnabled
+          : tool.lastDrawingToolBlurEnabled
+
+  /**
    * 現在選択中のツールのhardnessを変更
    */
   const handleHardnessChange = useCallback(
@@ -222,6 +235,22 @@ function App() {
         tool.setBrushHardness(hardness)
       } else if (tool.currentType === 'eraser') {
         tool.setEraserHardness(hardness)
+      }
+    },
+    [tool]
+  )
+
+  /**
+   * 現在選択中のツールのisBlurEnabledを変更
+   */
+  const handleBlurEnabledChange = useCallback(
+    (enabled: boolean) => {
+      if (tool.currentType === 'pen') {
+        tool.setPenBlurEnabled(enabled)
+      } else if (tool.currentType === 'brush') {
+        tool.setBrushBlurEnabled(enabled)
+      } else if (tool.currentType === 'eraser') {
+        tool.setEraserBlurEnabled(enabled)
       }
     },
     [tool]
@@ -359,6 +388,8 @@ function App() {
           <HardnessSlider
             hardness={currentHardness}
             onHardnessChange={handleHardnessChange}
+            isBlurEnabled={currentBlurEnabled}
+            onBlurEnabledChange={handleBlurEnabledChange}
             disabled={isHardnessDisabled}
           />
           <PenTool

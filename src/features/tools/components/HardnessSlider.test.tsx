@@ -22,158 +22,117 @@ const renderWithProviders = (ui: React.ReactElement) => {
   )
 }
 
+const defaultProps = {
+  hardness: 0.5,
+  onHardnessChange: vi.fn(),
+  isBlurEnabled: true,
+  onBlurEnabledChange: vi.fn(),
+}
+
 describe('HardnessSlider', () => {
   test('スライダーを表示する', () => {
-    renderWithProviders(<HardnessSlider hardness={0.5} onHardnessChange={vi.fn()} />)
+    renderWithProviders(<HardnessSlider {...defaultProps} />)
 
     expect(screen.getByRole('slider')).toBeInTheDocument()
   })
 
   test('トグルボタンを表示する', () => {
-    renderWithProviders(<HardnessSlider hardness={0.5} onHardnessChange={vi.fn()} />)
+    renderWithProviders(<HardnessSlider {...defaultProps} />)
 
     const buttons = screen.getAllByRole('button')
     expect(buttons).toHaveLength(1)
   })
 
   test('hardness=1の場合、スライダー値は100になる', () => {
-    renderWithProviders(<HardnessSlider hardness={1} onHardnessChange={vi.fn()} />)
+    renderWithProviders(<HardnessSlider {...defaultProps} hardness={1} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '100')
   })
 
-  test('hardness=0の場合、スライダーは無効になる（ぼかし無効状態）', () => {
-    renderWithProviders(<HardnessSlider hardness={0} onHardnessChange={vi.fn()} />)
+  test('hardness=0の場合、スライダー値は0になる', () => {
+    renderWithProviders(<HardnessSlider {...defaultProps} hardness={0} />)
 
     const slider = screen.getByRole('slider')
-    expect(slider).toHaveAttribute('data-disabled')
+    expect(slider).toHaveAttribute('aria-valuenow', '0')
   })
 
   test('hardness=0.5の場合、スライダー値は50になる', () => {
-    renderWithProviders(<HardnessSlider hardness={0.5} onHardnessChange={vi.fn()} />)
+    renderWithProviders(<HardnessSlider {...defaultProps} hardness={0.5} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '50')
   })
 
-  test('ぼかし有効時にトグルボタンクリックで0になる', async () => {
-    const onHardnessChange = vi.fn()
+  test('ぼかし有効時にトグルボタンクリックでonBlurEnabledChangeが呼ばれる', async () => {
+    const onBlurEnabledChange = vi.fn()
     const user = userEvent.setup()
 
-    renderWithProviders(<HardnessSlider hardness={0.5} onHardnessChange={onHardnessChange} />)
+    renderWithProviders(
+      <HardnessSlider {...defaultProps} isBlurEnabled={true} onBlurEnabledChange={onBlurEnabledChange} />
+    )
 
     const toggleButton = screen.getByRole('button')
     await user.click(toggleButton)
 
-    expect(onHardnessChange).toHaveBeenCalledWith(0)
+    expect(onBlurEnabledChange).toHaveBeenCalledWith(false)
   })
 
-  test('ぼかし無効時にトグルボタンクリックで保存された値が復元される', async () => {
-    const onHardnessChange = vi.fn()
+  test('ぼかし無効時にトグルボタンクリックでonBlurEnabledChangeが呼ばれる', async () => {
+    const onBlurEnabledChange = vi.fn()
     const user = userEvent.setup()
 
-    // 初期状態: ぼかし無効（hardness=0）
-    renderWithProviders(<HardnessSlider hardness={0} onHardnessChange={onHardnessChange} />)
+    renderWithProviders(
+      <HardnessSlider {...defaultProps} isBlurEnabled={false} onBlurEnabledChange={onBlurEnabledChange} />
+    )
 
     const toggleButton = screen.getByRole('button')
     await user.click(toggleButton)
 
-    // デフォルトのぼかし値（0.5）が復元される
-    expect(onHardnessChange).toHaveBeenCalledWith(0.5)
+    expect(onBlurEnabledChange).toHaveBeenCalledWith(true)
   })
 
   test('disabled=trueの場合、スライダーは無効', () => {
-    renderWithProviders(
-      <HardnessSlider hardness={0.5} onHardnessChange={vi.fn()} disabled={true} />
-    )
+    renderWithProviders(<HardnessSlider {...defaultProps} disabled={true} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('data-disabled')
   })
 
   test('disabled=trueの場合、トグルボタンは無効', () => {
-    renderWithProviders(
-      <HardnessSlider hardness={0.5} onHardnessChange={vi.fn()} disabled={true} />
-    )
+    renderWithProviders(<HardnessSlider {...defaultProps} disabled={true} />)
 
     const toggleButton = screen.getByRole('button')
     expect(toggleButton).toBeDisabled()
   })
 
   test('ぼかし有効時は、スライダーが有効', () => {
-    renderWithProviders(<HardnessSlider hardness={0.5} onHardnessChange={vi.fn()} />)
+    renderWithProviders(<HardnessSlider {...defaultProps} isBlurEnabled={true} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).not.toHaveAttribute('data-disabled')
   })
 
-  test('ぼかし無効時（hardness=0）でもトグルボタンは有効', () => {
-    renderWithProviders(<HardnessSlider hardness={0} onHardnessChange={vi.fn()} />)
+  test('ぼかし無効時でもトグルボタンは有効', () => {
+    renderWithProviders(<HardnessSlider {...defaultProps} isBlurEnabled={false} />)
 
     const toggleButton = screen.getByRole('button')
     expect(toggleButton).not.toBeDisabled()
   })
 
-  test('ぼかし無効時でも保存された値がスライダーに表示される', () => {
-    // hardness=0でも、デフォルトの保存値（50%）がスライダーに表示される
-    renderWithProviders(<HardnessSlider hardness={0} onHardnessChange={vi.fn()} />)
+  test('isBlurEnabledがfalseの場合、トグルアイコンがprimary色になる', () => {
+    renderWithProviders(<HardnessSlider {...defaultProps} isBlurEnabled={false} />)
 
-    const slider = screen.getByRole('slider')
-    expect(slider).toHaveAttribute('aria-valuenow', '50')
+    const toggleButton = screen.getByRole('button')
+    const icon = toggleButton.querySelector('svg')
+    expect(icon).toHaveClass('text-primary')
   })
 
-  test('初期hardness値が0より大きい場合、その値が保存される', async () => {
-    const onHardnessChange = vi.fn()
-    const user = userEvent.setup()
+  test('isBlurEnabledがtrueの場合、トグルアイコンがmuted色になる', () => {
+    renderWithProviders(<HardnessSlider {...defaultProps} isBlurEnabled={true} />)
 
-    // 初期状態: hardness=0.8
-    const { rerender } = renderWithProviders(
-      <HardnessSlider hardness={0.8} onHardnessChange={onHardnessChange} />
-    )
-
-    // トグルオフ
-    await user.click(screen.getByRole('button'))
-    expect(onHardnessChange).toHaveBeenCalledWith(0)
-
-    // hardness=0で再レンダリング
-    rerender(
-      <LocaleProvider>
-        <TooltipProvider>
-          <HardnessSlider hardness={0} onHardnessChange={onHardnessChange} />
-        </TooltipProvider>
-      </LocaleProvider>
-    )
-
-    // トグルオン → 保存された0.8が復元される
-    await user.click(screen.getByRole('button'))
-    expect(onHardnessChange).toHaveBeenCalledWith(0.8)
-  })
-
-  test('hardness=1の場合、トグルオフ→オンで1が復元される', async () => {
-    const onHardnessChange = vi.fn()
-    const user = userEvent.setup()
-
-    // 初期状態: hardness=1（最大値）
-    const { rerender } = renderWithProviders(
-      <HardnessSlider hardness={1} onHardnessChange={onHardnessChange} />
-    )
-
-    // トグルオフ
-    await user.click(screen.getByRole('button'))
-    expect(onHardnessChange).toHaveBeenCalledWith(0)
-
-    // hardness=0で再レンダリング
-    rerender(
-      <LocaleProvider>
-        <TooltipProvider>
-          <HardnessSlider hardness={0} onHardnessChange={onHardnessChange} />
-        </TooltipProvider>
-      </LocaleProvider>
-    )
-
-    // トグルオン → 保存された1が復元される
-    await user.click(screen.getByRole('button'))
-    expect(onHardnessChange).toHaveBeenCalledWith(1)
+    const toggleButton = screen.getByRole('button')
+    const icon = toggleButton.querySelector('svg')
+    expect(icon).toHaveClass('text-muted-foreground')
   })
 })

@@ -25,6 +25,7 @@ export const penBehavior = {
     color: DEFAULT_PEN_COLOR,
     opacity: DEFAULT_OPACITY,
     hardness: DEFAULT_HARDNESS,
+    isBlurEnabled: true,
   }),
 
   /**
@@ -33,12 +34,15 @@ export const penBehavior = {
    * @param config - ペンツール設定
    * @returns 新しいStrokeDrawable
    */
-  createStroke: (point: Point, config: PenToolConfig): StrokeDrawable =>
-    createStrokeDrawable([point], {
+  createStroke: (point: Point, config: PenToolConfig): StrokeDrawable => {
+    // isBlurEnabledがfalseの場合はhardness 1.0（ぼかしなし）を使用
+    const effectiveHardness = config.isBlurEnabled ? config.hardness : 1.0
+    return createStrokeDrawable([point], {
       color: config.color,
-      brushTip: createSolidBrushTip(config.width, config.opacity, config.hardness),
+      brushTip: createSolidBrushTip(config.width, config.opacity, effectiveHardness),
       blendMode: 'normal',
-    }),
+    })
+  },
 
   /**
    * ペンツールのカーソル設定を取得
