@@ -2,11 +2,11 @@
 
 > 🚧 **WIP** - このプロジェクトは開発中です。
 
-[![version](https://img.shields.io/badge/version-0.0.22-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.22) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
+[![version](https://img.shields.io/badge/version-0.0.23-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.23) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
 ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみる](https://usapopopooon.github.io/paint/)
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767205810.png)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767208225.png)
 
 ## 技術スタック
 
@@ -31,40 +31,7 @@ ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみ�
 
 ### Feature 構造（概念図）
 
-```mermaid
-flowchart TB
-    subgraph feature/foo
-        types["types/<br/>型定義"]
-        constants["constants/<br/>定数"]
-
-        subgraph domain["domain/"]
-            entities["entities/<br/>エンティティ・ファクトリ"]
-            services["services/<br/>ドメインサービス"]
-        end
-
-        useCases["useCases/<br/>アプリケーション操作"]
-        adapters["adapters/<br/>外部システム接続"]
-        infrastructure["infrastructure/<br/>具体的実装"]
-        helpers["helpers/<br/>純粋関数"]
-        hooks["hooks/<br/>状態管理"]
-        components["components/<br/>UI"]
-
-        types --> domain
-        constants --> domain
-        domain --> useCases
-        domain --> adapters
-        domain --> infrastructure
-        useCases --> hooks
-        adapters --> hooks
-        infrastructure --> hooks
-        helpers -.-> hooks
-        hooks --> components
-    end
-
-    entrypoint["index.ts<br/>公開API"]
-
-    feature/foo --> entrypoint
-```
+![Feature Structure](docs/img/feature-mermaid-chart.svg)
 
 ### ディレクトリ構造
 
