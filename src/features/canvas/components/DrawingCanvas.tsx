@@ -140,9 +140,9 @@ export const DrawingCanvas = ({
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {
-      renderLayers(app, layers)
+      void renderLayers(app, layers)
     } else if (drawables) {
-      renderDrawables(app, drawables)
+      void renderDrawables(app, drawables)
     } else {
       // コンテンツなし
       app.stage.removeChildren()

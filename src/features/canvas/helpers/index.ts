@@ -1,2 +1,1 @@
-export * from './getPixelColor'
-export * from './eyedropperCursor'
+// eyedropper関連は features/eyedropper に移動

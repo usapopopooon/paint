@@ -1,7 +1,7 @@
 /**
  * ツールの種類
  */
-export type ToolType = 'pen' | 'brush' | 'eraser' | 'hand' | 'eyedropper'
+export type ToolType = 'pen' | 'brush' | 'eraser' | 'hand' | 'eyedropper' | 'zoom-in' | 'zoom-out'
 
 /**
  * カーソル設定
@@ -62,6 +62,20 @@ export type EyedropperToolConfig = {
 }
 
 /**
+ * ズームインツールの設定
+ */
+export type ZoomInToolConfig = {
+  readonly type: 'zoom-in'
+}
+
+/**
+ * ズームアウトツールの設定
+ */
+export type ZoomOutToolConfig = {
+  readonly type: 'zoom-out'
+}
+
+/**
  * ツール設定の判別ユニオン型
  */
 export type ToolConfig =
@@ -70,3 +84,5 @@ export type ToolConfig =
   | EraserToolConfig
   | HandToolConfig
   | EyedropperToolConfig
+  | ZoomInToolConfig
+  | ZoomOutToolConfig

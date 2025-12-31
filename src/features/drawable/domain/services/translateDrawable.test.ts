@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { translateDrawable, translateDrawables } from './translateDrawable'
-import { createStrokeDrawable } from '../entities'
+import { createStrokeDrawable, createImageDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
+import type { StrokeDrawable, ImageDrawable } from '../../types'
 
 describe('translateDrawable', () => {
   const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -18,7 +19,7 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const translated = translateDrawable(stroke, 50, 25)
+      const translated = translateDrawable(stroke, 50, 25) as StrokeDrawable
 
       expect(translated.points).toEqual([
         { x: 150, y: 125 },
@@ -32,7 +33,7 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const translated = translateDrawable(stroke, -30, -20)
+      const translated = translateDrawable(stroke, -30, -20) as StrokeDrawable
 
       expect(translated.points).toEqual([
         { x: 70, y: 80 },
@@ -46,7 +47,7 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const translated = translateDrawable(stroke, 0, 0)
+      const translated = translateDrawable(stroke, 0, 0) as StrokeDrawable
 
       expect(translated.points).toEqual([
         { x: 100, y: 100 },
@@ -67,6 +68,38 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
     })
+
+    it('ImageDrawableの座標をオフセット分移動する', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const translated = translateDrawable(image, 50, 25) as ImageDrawable
+
+      expect(translated.x).toBe(150)
+      expect(translated.y).toBe(125)
+      expect(translated.width).toBe(200)
+      expect(translated.height).toBe(150)
+    })
+
+    it('ImageDrawableの負のオフセット移動', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const translated = translateDrawable(image, -30, -20) as ImageDrawable
+
+      expect(translated.x).toBe(70)
+      expect(translated.y).toBe(80)
+    })
   })
 
   describe('translateDrawables', () => {
@@ -74,7 +107,7 @@ describe('translateDrawable', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
 
-      const translated = translateDrawables([stroke1, stroke2], 10, 20)
+      const translated = translateDrawables([stroke1, stroke2], 10, 20) as StrokeDrawable[]
 
       expect(translated[0]?.points).toEqual([{ x: 110, y: 120 }])
       expect(translated[1]?.points).toEqual([{ x: 210, y: 220 }])

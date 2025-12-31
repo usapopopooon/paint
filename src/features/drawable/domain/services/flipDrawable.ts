@@ -18,13 +18,19 @@ const flipPointHorizontal = (point: Point, canvasWidth: number): Point => ({
  * @returns 反転後の描画要素
  */
 export const flipDrawableHorizontal = (drawable: Drawable, canvasWidth: number): Drawable => {
-  if (drawable.type === 'stroke') {
-    return {
-      ...drawable,
-      points: drawable.points.map((point) => flipPointHorizontal(point, canvasWidth)),
-    }
+  switch (drawable.type) {
+    case 'stroke':
+      return {
+        ...drawable,
+        points: drawable.points.map((point) => flipPointHorizontal(point, canvasWidth)),
+      }
+    case 'image':
+      return {
+        ...drawable,
+        x: canvasWidth - drawable.x - drawable.width,
+        scaleX: drawable.scaleX * -1,
+      }
   }
-  return drawable
 }
 
 /**

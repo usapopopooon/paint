@@ -39,5 +39,7 @@
   "zoom.out": "縮小",
   "zoom.reset": "100%にリセット",
   "stabilization.title": "手ぶれ補正",
-  "toolbar.save": "画像を保存 (JPG)"
+  "toolbar.save": "画像を保存 (JPG)",
+  "toolbar.import": "画像を読み込む",
+  "import.invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。"
 }

@@ -3,9 +3,7 @@
 // - StrokeStyle, BrushTip -> @/features/brush
 // - Layer, LayerState -> @/features/layer
 // - HistoryAction, HistoryStorage -> @/features/history
+// - ResizeAnchor -> @/features/canvas-resize
 
 // 便宜上よく使う型を再エクスポート
 export type { Point, Drawable, StrokeDrawable } from '@/features/drawable'
-
-// リサイズアンカー
-export * from './resizeAnchor'

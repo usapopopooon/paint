@@ -1,18 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { toast } from 'sonner'
+import { Toaster } from './components/ui/sonner'
 import { ThemeToggle } from './components/ui/ThemeToggle'
-import {
-  Canvas,
-  CanvasResizeMenu,
-  CanvasViewport,
-  useCanvas,
-  useCanvasSize,
-  useCanvasOffset,
-  useCanvasZoom,
-} from './features/canvas'
+import { DISPLAY_SCALE } from './constants/display'
+import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
+import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
-import { useExportImage } from './features/export'
-import { LocaleToggle } from './features/i18n'
+import { SaveButton, useExportImage } from './features/export'
+import { useLocale, LocaleToggle } from './features/i18n'
+import { ImportButton, useImportImage } from './features/import'
 import {
   Toolbar,
   UndoButton,
@@ -22,13 +19,9 @@ import {
   HandButton,
   EyedropperButton,
   CenterCanvasButton,
-  ZoomInButton,
-  ZoomOutButton,
-  ZoomResetButton,
-  ZoomDisplay,
   FlipHorizontalButton,
-  SaveButton,
 } from './features/toolbar'
+import { ZoomInButton, ZoomOutButton, ZoomResetButton, ZoomDisplay, useZoom } from './features/zoom'
 import {
   useTool,
   ToolPanel,
@@ -82,9 +75,20 @@ function App() {
   }, [canvasSize.setSizeDirectly])
 
   const canvasOffset = useCanvasOffset()
-  const canvasZoom = useCanvasZoom()
+  const zoom = useZoom()
   const tool = useTool()
   const exportImage = useExportImage(canvasContainerRef)
+  const { t } = useLocale()
+
+  // 画像インポート（canvasSizeは内部座標系なのでUI座標系に変換）
+  const importImage = useImportImage({
+    canvasWidth: canvasSize.width * DISPLAY_SCALE,
+    canvasHeight: canvasSize.height * DISPLAY_SCALE,
+    onImport: canvas.addDrawable,
+    onError: () => {
+      toast.error(t('import.invalidFileType'))
+    },
+  })
 
   // ページを離れる前に確認ダイアログを表示
   useBeforeUnload()
@@ -99,9 +103,9 @@ function App() {
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
-    onZoomIn: canvasZoom.zoomIn,
-    onZoomOut: canvasZoom.zoomOut,
-    onZoomReset: canvasZoom.resetZoom,
+    onZoomIn: zoom.zoomIn,
+    onZoomOut: zoom.zoomOut,
+    onZoomReset: zoom.resetZoom,
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
   })
 
@@ -178,6 +182,64 @@ function App() {
    */
   const isHardnessDisabled = !['pen', 'brush', 'eraser'].includes(tool.currentType)
 
+  /**
+   * ホイールでのズーム処理（カーソル位置を基準にPhotoshopスタイル）
+   */
+  const handleWheelAtPoint = useCallback(
+    (
+      deltaY: number,
+      mouseX: number,
+      mouseY: number,
+      viewportWidth: number,
+      viewportHeight: number
+    ) => {
+      const result = zoom.handleWheelAtPoint(
+        deltaY,
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        canvasOffset.offset
+      )
+      canvasOffset.setPosition(result.offset.x, result.offset.y)
+
+      // ホイール方向に応じてツール選択状態を更新
+      if (result.direction === 'in') {
+        tool.setToolType('zoom-in')
+      } else {
+        tool.setToolType('zoom-out')
+      }
+
+      return result
+    },
+    [zoom, canvasOffset, tool]
+  )
+
+  /**
+   * ズームツールクリック時の処理（クリック位置を基準にPhotoshopスタイル）
+   * NOTE: Canvas側でviewportSizeを取得してこのハンドラに渡す必要がある
+   */
+  const handleZoomAtPoint = useCallback(
+    (
+      mouseX: number,
+      mouseY: number,
+      viewportWidth: number,
+      viewportHeight: number,
+      direction: 'in' | 'out'
+    ) => {
+      const newOffset = zoom.zoomAtPoint(
+        mouseX,
+        mouseY,
+        viewportWidth,
+        viewportHeight,
+        direction,
+        canvasOffset.offset
+      )
+      canvasOffset.setPosition(newOffset.x, newOffset.y)
+    },
+    [zoom, canvasOffset]
+  )
+
   return (
     <div className="h-screen flex flex-col">
       {/* Top toolbar */}
@@ -192,13 +254,16 @@ function App() {
           />
           <CenterCanvasButton onClick={canvasOffset.reset} />
           <ToolbarDivider />
-          <ZoomInButton onClick={canvasZoom.zoomIn} />
-          <ZoomOutButton onClick={canvasZoom.zoomOut} />
-          <ZoomResetButton onClick={canvasZoom.resetZoom} />
-          <ZoomDisplay
-            zoomPercent={canvasZoom.zoomPercent}
-            onZoomChange={canvasZoom.setZoomLevel}
+          <ZoomInButton
+            isActive={tool.currentType === 'zoom-in'}
+            onClick={() => tool.setToolType('zoom-in')}
           />
+          <ZoomOutButton
+            isActive={tool.currentType === 'zoom-out'}
+            onClick={() => tool.setToolType('zoom-out')}
+          />
+          <ZoomResetButton onClick={zoom.resetZoom} />
+          <ZoomDisplay zoomPercent={zoom.zoomPercent} onZoomChange={zoom.setZoomLevel} />
           <ToolbarDivider />
           <StabilizationSlider
             stabilization={stabilization.stabilization}
@@ -220,6 +285,11 @@ function App() {
           />
           <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
           <ToolbarDivider />
+          <ImportButton
+            inputRef={importImage.inputRef}
+            onOpenFilePicker={importImage.openFilePicker}
+            onFileChange={importImage.handleFileChange}
+          />
           <SaveButton
             onSave={() =>
               exportImage.downloadAsJpg(canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
@@ -280,28 +350,33 @@ function App() {
             canvasHeight={canvasSize.height}
             offset={canvasOffset.offset}
             onOffsetChange={canvasOffset.setPosition}
-            zoom={canvasZoom.zoom}
-            onWheel={canvasZoom.handleWheel}
+            zoom={zoom.zoom}
+            onWheelAtPoint={handleWheelAtPoint}
           >
-            <div ref={canvasContainerRef}>
-              <Canvas
-                layers={canvas.layers}
-                onStartStroke={handleStartStroke}
-                onAddPoint={canvas.addPoint}
-                onEndStroke={canvas.endStroke}
-                cursor={tool.cursor}
-                width={canvasSize.width}
-                height={canvasSize.height}
-                toolType={tool.currentType}
-                offset={canvasOffset.offset}
-                onPan={canvasOffset.pan}
-                onPickColor={handleColorChange}
-                zoom={canvasZoom.zoom}
-              />
-            </div>
+            {(viewportSize) => (
+              <div ref={canvasContainerRef}>
+                <Canvas
+                  layers={canvas.layers}
+                  onStartStroke={handleStartStroke}
+                  onAddPoint={canvas.addPoint}
+                  onEndStroke={canvas.endStroke}
+                  cursor={tool.cursor}
+                  width={canvasSize.width}
+                  height={canvasSize.height}
+                  toolType={tool.currentType}
+                  offset={canvasOffset.offset}
+                  onPan={canvasOffset.pan}
+                  onPickColor={handleColorChange}
+                  zoom={zoom.zoom}
+                  viewportSize={viewportSize}
+                  onZoomAtPoint={handleZoomAtPoint}
+                />
+              </div>
+            )}
           </CanvasViewport>
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }

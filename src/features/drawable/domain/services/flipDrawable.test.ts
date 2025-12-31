@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { flipDrawableHorizontal, flipDrawablesHorizontal } from './flipDrawable'
-import { createStrokeDrawable } from '../entities'
+import { createStrokeDrawable, createImageDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
+import type { StrokeDrawable, ImageDrawable } from '../../types'
 
 describe('flipDrawable', () => {
   const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -18,7 +19,7 @@ describe('flipDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const flipped = flipDrawableHorizontal(stroke, 800)
+      const flipped = flipDrawableHorizontal(stroke, 800) as StrokeDrawable
 
       expect(flipped.points).toEqual([
         { x: 700, y: 100 },
@@ -33,7 +34,7 @@ describe('flipDrawable', () => {
         { x: 300, y: 250 },
       ])
 
-      const flipped = flipDrawableHorizontal(stroke, 400)
+      const flipped = flipDrawableHorizontal(stroke, 400) as StrokeDrawable
 
       expect(flipped.points[0]?.y).toBe(50)
       expect(flipped.points[1]?.y).toBe(150)
@@ -44,7 +45,7 @@ describe('flipDrawable', () => {
       const canvasWidth = 800
       const stroke = createTestStroke([{ x: 400, y: 100 }])
 
-      const flipped = flipDrawableHorizontal(stroke, canvasWidth)
+      const flipped = flipDrawableHorizontal(stroke, canvasWidth) as StrokeDrawable
 
       expect(flipped.points[0]?.x).toBe(400)
     })
@@ -69,12 +70,64 @@ describe('flipDrawable', () => {
         { x: 800, y: 200 },
       ])
 
-      const flipped = flipDrawableHorizontal(stroke, 800)
+      const flipped = flipDrawableHorizontal(stroke, 800) as StrokeDrawable
 
       expect(flipped.points).toEqual([
         { x: 800, y: 100 },
         { x: 0, y: 200 },
       ])
+    })
+
+    it('ImageDrawableを水平方向に反転する', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const flipped = flipDrawableHorizontal(image, 800) as ImageDrawable
+
+      // x = canvasWidth - x - width = 800 - 100 - 200 = 500
+      expect(flipped.x).toBe(500)
+      expect(flipped.y).toBe(100)
+      expect(flipped.width).toBe(200)
+      expect(flipped.height).toBe(150)
+      // scaleXが反転される
+      expect(flipped.scaleX).toBe(-1)
+    })
+
+    it('ImageDrawableを2回反転すると元に戻る', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 150,
+      })
+
+      const flippedOnce = flipDrawableHorizontal(image, 800) as ImageDrawable
+      const flippedTwice = flipDrawableHorizontal(flippedOnce, 800) as ImageDrawable
+
+      expect(flippedTwice.x).toBe(100)
+      expect(flippedTwice.scaleX).toBe(1)
+    })
+
+    it('ImageDrawableのY座標とサイズは変更されない', () => {
+      const image = createImageDrawable({
+        src: 'data:image/png;base64,test',
+        x: 0,
+        y: 50,
+        width: 300,
+        height: 200,
+      })
+
+      const flipped = flipDrawableHorizontal(image, 800) as ImageDrawable
+
+      expect(flipped.y).toBe(50)
+      expect(flipped.width).toBe(300)
+      expect(flipped.height).toBe(200)
     })
   })
 
@@ -83,7 +136,7 @@ describe('flipDrawable', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
 
-      const flipped = flipDrawablesHorizontal([stroke1, stroke2], 800)
+      const flipped = flipDrawablesHorizontal([stroke1, stroke2], 800) as StrokeDrawable[]
 
       expect(flipped[0]?.points).toEqual([{ x: 700, y: 100 }])
       expect(flipped[1]?.points).toEqual([{ x: 600, y: 200 }])

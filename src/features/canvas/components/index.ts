@@ -1,5 +1,4 @@
-export * from './AnchorSelector'
 export * from './Canvas'
-export * from './CanvasResizeMenu'
 export * from './CanvasSizeInput'
 export * from './CanvasViewport'
+// AnchorSelectorとCanvasResizeMenuは features/canvas-resize に移動

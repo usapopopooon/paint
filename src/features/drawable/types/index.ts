@@ -26,6 +26,19 @@ export type StrokeDrawable = DrawableMetadata & {
   readonly style: StrokeStyle
 }
 
+/**
+ * 画像描画要素 - インポートされた画像
+ */
+export type ImageDrawable = DrawableMetadata & {
+  readonly type: 'image'
+  readonly src: string // base64データURL
+  readonly x: number // 配置X座標
+  readonly y: number // 配置Y座標
+  readonly width: number // 表示幅
+  readonly height: number // 表示高さ
+  readonly scaleX: number // 水平スケール（-1で左右反転）
+}
+
 // 将来の描画要素タイプ（ドキュメント用にコメント）
 // export type FillDrawable = DrawableMetadata & {
 //   readonly type: 'fill'
@@ -45,16 +58,9 @@ export type StrokeDrawable = DrawableMetadata & {
 //   readonly bounds: { x: number; y: number; width: number; height: number }
 //   readonly style: ShapeStyle
 // }
-//
-// export type ImageDrawable = DrawableMetadata & {
-//   readonly type: 'image'
-//   readonly src: string
-//   readonly bounds: { x: number; y: number; width: number; height: number }
-// }
 
 /**
  * 全描画要素のユニオン型
- * 現在はStrokeDrawableのみだが、将来の拡張を考慮した設計
  */
-export type Drawable = StrokeDrawable
-// 将来: | FillDrawable | BezierDrawable | ShapeDrawable | ImageDrawable
+export type Drawable = StrokeDrawable | ImageDrawable
+// 将来: | FillDrawable | BezierDrawable | ShapeDrawable

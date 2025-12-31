@@ -2,7 +2,13 @@ import { Application, Container, Graphics, RenderTexture, Sprite, BlurFilter } f
 import type { Layer } from '@/features/layer'
 import { blendModeToPixi, BACKGROUND_COLOR, BACKGROUND_LAYER_ID } from '@/features/layer'
 import type { Drawable } from '@/features/drawable'
-import { renderDrawable, isEraserStroke, isStrokeDrawable } from '@/features/drawable'
+import {
+  renderDrawable,
+  renderImage,
+  isEraserStroke,
+  isStrokeDrawable,
+  isImageDrawable,
+} from '@/features/drawable'
 
 /**
  * Drawableからhardness値を取得（0=ぼかしなし、1=最大ぼかし）
@@ -39,7 +45,7 @@ const addBackground = (app: Application, backgroundColor: string): void => {
 /**
  * レイヤーをRenderTextureにレンダリングしてSpriteとして返す
  */
-const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
+const renderLayerToTexture = async (app: Application, layer: Layer): Promise<Sprite> => {
   const renderTexture = RenderTexture.create({
     width: app.screen.width,
     height: app.screen.height,
@@ -47,6 +53,13 @@ const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
 
   const tempContainer = new Container()
   for (const drawable of layer.drawables) {
+    // 画像の場合はSpriteとして追加
+    if (isImageDrawable(drawable)) {
+      const imageSprite = await renderImage(drawable)
+      tempContainer.addChild(imageSprite)
+      continue
+    }
+
     const graphics = new Graphics()
     if (isEraserStroke(drawable)) {
       graphics.blendMode = 'erase'
@@ -79,7 +92,7 @@ const renderLayerToTexture = (app: Application, layer: Layer): Sprite => {
  * @param app - PixiJS Application
  * @param layers - レンダリングするレイヤー配列
  */
-export const renderLayers = (app: Application, layers: readonly Layer[]): void => {
+export const renderLayers = async (app: Application, layers: readonly Layer[]): Promise<void> => {
   app.stage.removeChildren()
 
   for (const layer of layers) {
@@ -93,7 +106,7 @@ export const renderLayers = (app: Application, layers: readonly Layer[]): void =
 
     // 描画レイヤーはdrawablesがある場合のみ描画
     if (layer.drawables.length === 0) continue
-    const layerSprite = renderLayerToTexture(app, layer)
+    const layerSprite = await renderLayerToTexture(app, layer)
     app.stage.addChild(layerSprite)
   }
 }

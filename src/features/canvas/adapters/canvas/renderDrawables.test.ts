@@ -41,7 +41,7 @@ describe('renderDrawables', () => {
   test('ステージをクリアする', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
-    renderDrawables(app, [])
+    await renderDrawables(app, [])
 
     expect(app.stage.removeChildren).toHaveBeenCalled()
   })
@@ -49,7 +49,7 @@ describe('renderDrawables', () => {
   test('空の描画要素配列でもエラーにならない', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
-    expect(() => renderDrawables(app, [])).not.toThrow()
+    await expect(renderDrawables(app, [])).resolves.not.toThrow()
   })
 
   test('描画要素がある場合にRenderTextureにレンダリングしてSpriteをステージに追加する', async () => {
@@ -72,7 +72,7 @@ describe('renderDrawables', () => {
       },
     ]
 
-    renderDrawables(app, drawables)
+    await renderDrawables(app, drawables)
 
     // RenderTextureにレンダリングされることを確認
     expect(app.renderer.render).toHaveBeenCalled()
@@ -83,7 +83,7 @@ describe('renderDrawables', () => {
   test('空の描画要素配列の場合はRenderTextureにレンダリングしない', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
-    renderDrawables(app, [])
+    await renderDrawables(app, [])
 
     // 描画要素がない場合はRenderTextureにレンダリングしない
     expect(app.renderer.render).not.toHaveBeenCalled()
@@ -110,7 +110,7 @@ describe('renderDrawables', () => {
     }
 
     // エラーなく実行されることを確認
-    expect(() => renderDrawables(app, [eraserStroke])).not.toThrow()
+    await expect(renderDrawables(app, [eraserStroke])).resolves.not.toThrow()
     // RenderTextureにレンダリングされることを確認（消しゴムが透過として機能するため）
     expect(app.renderer.render).toHaveBeenCalled()
   })

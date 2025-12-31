@@ -1,6 +1,12 @@
 import { Application, Container, Graphics, RenderTexture, Sprite, BlurFilter } from 'pixi.js'
 import type { Drawable } from '@/features/drawable'
-import { renderDrawable, isEraserStroke, isStrokeDrawable } from '@/features/drawable'
+import {
+  renderDrawable,
+  renderImage,
+  isEraserStroke,
+  isStrokeDrawable,
+  isImageDrawable,
+} from '@/features/drawable'
 
 /**
  * Drawableからhardness値を取得（0=ぼかしなし、1=最大ぼかし）
@@ -27,7 +33,10 @@ const calculateBlurStrength = (hardness: number, brushSize: number): number => {
 /**
  * 描画要素をRenderTextureにレンダリングしてSpriteとして返す
  */
-const renderToTexture = (app: Application, drawables: readonly Drawable[]): Sprite => {
+const renderToTexture = async (
+  app: Application,
+  drawables: readonly Drawable[]
+): Promise<Sprite> => {
   const renderTexture = RenderTexture.create({
     width: app.screen.width,
     height: app.screen.height,
@@ -35,6 +44,13 @@ const renderToTexture = (app: Application, drawables: readonly Drawable[]): Spri
 
   const tempContainer = new Container()
   for (const drawable of drawables) {
+    // 画像の場合はSpriteとして追加
+    if (isImageDrawable(drawable)) {
+      const sprite = await renderImage(drawable)
+      tempContainer.addChild(sprite)
+      continue
+    }
+
     const graphics = new Graphics()
     if (isEraserStroke(drawable)) {
       graphics.blendMode = 'erase'
@@ -63,11 +79,14 @@ const renderToTexture = (app: Application, drawables: readonly Drawable[]): Spri
  * @param app - PixiJS Application
  * @param drawables - レンダリングするDrawable配列
  */
-export const renderDrawables = (app: Application, drawables: readonly Drawable[]): void => {
+export const renderDrawables = async (
+  app: Application,
+  drawables: readonly Drawable[]
+): Promise<void> => {
   app.stage.removeChildren()
 
   if (drawables.length === 0) return
 
-  const layerSprite = renderToTexture(app, drawables)
+  const layerSprite = await renderToTexture(app, drawables)
   app.stage.addChild(layerSprite)
 }
