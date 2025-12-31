@@ -5,7 +5,7 @@ import type { CursorConfig, ToolType } from '@/features/tools/types'
 import type { CanvasOffset } from '../hooks/useCanvasOffset'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
-import { getPixelColor, EYEDROPPER_CURSOR } from '../helpers'
+import { getPixelColor, EYEDROPPER_CURSOR } from '@/features/eyedropper'
 
 /**
  * Canvasコンポーネントのプロパティ

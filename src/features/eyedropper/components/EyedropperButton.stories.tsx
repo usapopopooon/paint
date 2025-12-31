@@ -3,7 +3,7 @@ import { expect, fn, userEvent, within } from 'storybook/test'
 import { EyedropperButton } from './EyedropperButton'
 
 const meta = {
-  title: 'Features/Toolbar/EyedropperButton',
+  title: 'Features/Eyedropper/EyedropperButton',
   component: EyedropperButton,
   parameters: {
     layout: 'centered',
