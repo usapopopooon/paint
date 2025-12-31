@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react'
 import type { Layer, LayerState, LayerId } from '../types'
 import { createInitialLayerState } from '../domain'
 import type { Drawable } from '@/features/drawable'
-import { translateDrawables } from '@/features/drawable'
+import { translateDrawables, flipDrawablesHorizontal } from '@/features/drawable'
 
 export type UseLayersReturn = {
   readonly layers: readonly Layer[]
@@ -21,6 +21,7 @@ export type UseLayersReturn = {
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
   readonly setLayerName: (id: LayerId, name: string) => void
   readonly translateAllLayers: (offsetX: number, offsetY: number) => void
+  readonly flipAllLayersHorizontal: (canvasWidth: number) => void
 }
 
 /**
@@ -203,6 +204,20 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
+  /**
+   * 全レイヤーの描画要素を水平方向に反転
+   * @param canvasWidth - キャンバスの幅
+   */
+  const flipAllLayersHorizontal = useCallback((canvasWidth: number) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) => ({
+        ...layer,
+        drawables: flipDrawablesHorizontal(layer.drawables, canvasWidth),
+      })),
+    }))
+  }, [])
+
   return {
     layers: state.layers,
     activeLayer,
@@ -220,5 +235,6 @@ export const useLayers = (): UseLayersReturn => {
     setLayerVisibility,
     setLayerName,
     translateAllLayers,
+    flipAllLayersHorizontal,
   }
 }

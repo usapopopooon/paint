@@ -123,6 +123,11 @@ export const useCanvas = (options?: UseCanvasOptions) => {
           reverseOffsetX,
           reverseOffsetY
         )
+      } else if (action.type === 'canvas:flipped') {
+        // 反転を元に戻す（各レイヤーのdrawablesを復元）
+        for (const snapshot of action.layerSnapshots) {
+          layerManager.setDrawablesToLayer(snapshot.previousDrawables, snapshot.layerId)
+        }
       }
       await history.undo()
     }
@@ -159,6 +164,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
         // キャンバスリサイズを再適用
         layerManager.translateAllLayers(action.offsetX, action.offsetY)
         onCanvasResize?.(action.newWidth, action.newHeight, action.offsetX, action.offsetY)
+      } else if (action.type === 'canvas:flipped') {
+        // 反転を再適用
+        layerManager.flipAllLayersHorizontal(action.canvasWidth)
       }
       await history.redo()
     }
@@ -223,6 +231,27 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     [layerManager, history]
   )
 
+  /**
+   * キャンバスを水平方向に反転 + 履歴に記録
+   * @param canvasWidth - キャンバスの幅
+   */
+  const flipHorizontal = useCallback(
+    (canvasWidth: number) => {
+      // 各レイヤーの反転前のdrawablesを保存
+      const layerSnapshots = layerManager.layers.map((layer) => ({
+        layerId: layer.id,
+        previousDrawables: layer.drawables,
+      }))
+
+      // 全レイヤーを反転
+      layerManager.flipAllLayersHorizontal(canvasWidth)
+
+      // 履歴に記録
+      history.recordCanvasFlip('horizontal', canvasWidth, layerSnapshots)
+    },
+    [layerManager, history]
+  )
+
   return {
     drawables: allDrawables,
     layers: allLayers,
@@ -241,5 +270,6 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     setLayerName,
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
+    flipHorizontal,
   } as const
 }

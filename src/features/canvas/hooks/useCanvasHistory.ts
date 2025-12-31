@@ -10,6 +10,7 @@ import {
   createLayerOpacityChangedAction,
   createLayerRenamedAction,
   createCanvasResizedAction,
+  createCanvasFlippedAction,
 } from '@/features/history'
 
 /**
@@ -229,6 +230,26 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     [updateStackInfo]
   )
 
+  /**
+   * キャンバス反転を履歴に記録
+   * @param direction - 反転方向
+   * @param canvasWidth - キャンバスの幅
+   * @param layerSnapshots - 各レイヤーの反転前のドローアブル
+   */
+  const recordCanvasFlip = useCallback(
+    async (
+      direction: 'horizontal',
+      canvasWidth: number,
+      layerSnapshots: readonly { layerId: LayerId; previousDrawables: readonly Drawable[] }[]
+    ) => {
+      const action = createCanvasFlippedAction(direction, canvasWidth, layerSnapshots)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
   // アンマウント時にクリーンアップ
   useEffect(() => {
     return () => {
@@ -253,5 +274,6 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     recordLayerOpacityChange,
     recordLayerNameChange,
     recordCanvasResize,
+    recordCanvasFlip,
   } as const
 }

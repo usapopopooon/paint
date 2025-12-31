@@ -16,6 +16,7 @@
   "shortcuts.clearLayer": "{modifier}+Delete",
   "shortcuts.hand": "H",
   "shortcuts.eyedropper": "I",
+  "shortcuts.flipHorizontal": "{modifier}+H",
   "messages.noUndoHistory": "No undo history",
   "messages.noRedoHistory": "No redo history",
   "color.copy": "Copy",
@@ -29,6 +30,7 @@
   "canvas.center": "Center canvas",
   "canvas.resize": "Resize canvas",
   "canvas.anchor": "Anchor:",
+  "canvas.flipHorizontal": "Flip horizontal",
   "zoom.in": "Zoom in",
   "zoom.out": "Zoom out",
   "zoom.reset": "Reset to 100%"

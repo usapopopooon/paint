@@ -18,6 +18,7 @@ describe('useKeyboardShortcuts', () => {
       onZoomIn: vi.fn(),
       onZoomOut: vi.fn(),
       onZoomReset: vi.fn(),
+      onFlipHorizontal: vi.fn(),
     }
   })
 
@@ -220,12 +221,13 @@ describe('useKeyboardShortcuts', () => {
       unmount()
     })
 
-    test('Ctrl+Hはハンドツール選択しない', () => {
+    test('Ctrl+Hはハンドツール選択しない（左右反転が発動）', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('h', { ctrlKey: true })
 
       expect(mockHandlers.onSelectHand).not.toHaveBeenCalled()
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
       unmount()
     })
 
@@ -330,6 +332,45 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('-')
 
       expect(mockHandlers.onZoomOut).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('左右反転 (Ctrl+H / Cmd+H)', () => {
+    test('Ctrl+Hで左右反転', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h', { ctrlKey: true })
+
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+H (Mac)で左右反転', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h', { metaKey: true })
+
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Hでも左右反転', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('H', { ctrlKey: true })
+
+      expect(mockHandlers.onFlipHorizontal).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('修飾キーなしのHはハンドツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('h')
+
+      expect(mockHandlers.onFlipHorizontal).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectHand).toHaveBeenCalledTimes(1)
       unmount()
     })
   })

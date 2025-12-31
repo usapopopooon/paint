@@ -85,6 +85,16 @@ export type CanvasResizedAction = ActionMetadata & {
   readonly offsetY: number
 }
 
+export type CanvasFlippedAction = ActionMetadata & {
+  readonly type: 'canvas:flipped'
+  readonly direction: 'horizontal'
+  readonly canvasWidth: number
+  readonly layerSnapshots: readonly {
+    readonly layerId: LayerId
+    readonly previousDrawables: readonly Drawable[]
+  }[]
+}
+
 // === バッチアクション（複合操作用） ===
 
 export type BatchAction = ActionMetadata & {
@@ -105,6 +115,6 @@ export type LayerAction =
   | LayerOpacityChangedAction
   | LayerRenamedAction
 
-export type CanvasAction = CanvasResizedAction
+export type CanvasAction = CanvasResizedAction | CanvasFlippedAction
 
 export type HistoryAction = DrawableAction | LayerAction | CanvasAction | BatchAction
