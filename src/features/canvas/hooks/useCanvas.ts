@@ -288,6 +288,19 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     layerManager.setLayerVisibility(BACKGROUND_LAYER_ID, false)
   }, [layerManager])
 
+  /**
+   * Drawableを直接追加（画像インポート用）
+   * stabilizationは適用しない
+   * @param drawable - 追加するDrawable
+   */
+  const addDrawable = useCallback(
+    (drawable: Drawable) => {
+      layerManager.addDrawable(drawable)
+      history.addDrawable(drawable, layerManager.activeLayerId)
+    },
+    [layerManager, history]
+  )
+
   return {
     drawables: allDrawables,
     layers: allLayers,
@@ -309,5 +322,6 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     flipHorizontal,
     showBackgroundLayer,
     hideBackgroundLayer,
+    addDrawable,
   } as const
 }

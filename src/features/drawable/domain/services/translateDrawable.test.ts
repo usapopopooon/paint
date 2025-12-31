@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { translateDrawable, translateDrawables } from './translateDrawable'
 import { createStrokeDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
+import type { StrokeDrawable } from '../../types'
 
 describe('translateDrawable', () => {
   const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -18,7 +19,7 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const translated = translateDrawable(stroke, 50, 25)
+      const translated = translateDrawable(stroke, 50, 25) as StrokeDrawable
 
       expect(translated.points).toEqual([
         { x: 150, y: 125 },
@@ -32,7 +33,7 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const translated = translateDrawable(stroke, -30, -20)
+      const translated = translateDrawable(stroke, -30, -20) as StrokeDrawable
 
       expect(translated.points).toEqual([
         { x: 70, y: 80 },
@@ -46,7 +47,7 @@ describe('translateDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const translated = translateDrawable(stroke, 0, 0)
+      const translated = translateDrawable(stroke, 0, 0) as StrokeDrawable
 
       expect(translated.points).toEqual([
         { x: 100, y: 100 },
@@ -74,7 +75,7 @@ describe('translateDrawable', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
 
-      const translated = translateDrawables([stroke1, stroke2], 10, 20)
+      const translated = translateDrawables([stroke1, stroke2], 10, 20) as StrokeDrawable[]
 
       expect(translated[0]?.points).toEqual([{ x: 110, y: 120 }])
       expect(translated[1]?.points).toEqual([{ x: 210, y: 220 }])

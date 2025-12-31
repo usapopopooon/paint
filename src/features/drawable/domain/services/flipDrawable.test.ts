@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { flipDrawableHorizontal, flipDrawablesHorizontal } from './flipDrawable'
 import { createStrokeDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
+import type { StrokeDrawable } from '../../types'
 
 describe('flipDrawable', () => {
   const createTestStroke = (points: { x: number; y: number }[]) =>
@@ -18,7 +19,7 @@ describe('flipDrawable', () => {
         { x: 200, y: 200 },
       ])
 
-      const flipped = flipDrawableHorizontal(stroke, 800)
+      const flipped = flipDrawableHorizontal(stroke, 800) as StrokeDrawable
 
       expect(flipped.points).toEqual([
         { x: 700, y: 100 },
@@ -33,7 +34,7 @@ describe('flipDrawable', () => {
         { x: 300, y: 250 },
       ])
 
-      const flipped = flipDrawableHorizontal(stroke, 400)
+      const flipped = flipDrawableHorizontal(stroke, 400) as StrokeDrawable
 
       expect(flipped.points[0]?.y).toBe(50)
       expect(flipped.points[1]?.y).toBe(150)
@@ -44,7 +45,7 @@ describe('flipDrawable', () => {
       const canvasWidth = 800
       const stroke = createTestStroke([{ x: 400, y: 100 }])
 
-      const flipped = flipDrawableHorizontal(stroke, canvasWidth)
+      const flipped = flipDrawableHorizontal(stroke, canvasWidth) as StrokeDrawable
 
       expect(flipped.points[0]?.x).toBe(400)
     })
@@ -69,7 +70,7 @@ describe('flipDrawable', () => {
         { x: 800, y: 200 },
       ])
 
-      const flipped = flipDrawableHorizontal(stroke, 800)
+      const flipped = flipDrawableHorizontal(stroke, 800) as StrokeDrawable
 
       expect(flipped.points).toEqual([
         { x: 800, y: 100 },
@@ -83,7 +84,7 @@ describe('flipDrawable', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
 
-      const flipped = flipDrawablesHorizontal([stroke1, stroke2], 800)
+      const flipped = flipDrawablesHorizontal([stroke1, stroke2], 800) as StrokeDrawable[]
 
       expect(flipped[0]?.points).toEqual([{ x: 700, y: 100 }])
       expect(flipped[1]?.points).toEqual([{ x: 600, y: 200 }])

@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { toast } from 'sonner'
+import { Toaster } from './components/ui/sonner'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import {
   Canvas,
@@ -12,7 +14,8 @@ import {
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { useExportImage } from './features/export'
-import { LocaleToggle } from './features/i18n'
+import { useLocale, LocaleToggle } from './features/i18n'
+import { useImportImage } from './features/import'
 import {
   Toolbar,
   UndoButton,
@@ -28,6 +31,7 @@ import {
   ZoomDisplay,
   FlipHorizontalButton,
   SaveButton,
+  ImportButton,
 } from './features/toolbar'
 import {
   useTool,
@@ -85,6 +89,17 @@ function App() {
   const canvasZoom = useCanvasZoom()
   const tool = useTool()
   const exportImage = useExportImage(canvasContainerRef)
+  const { t } = useLocale()
+
+  // 画像インポート
+  const importImage = useImportImage({
+    canvasWidth: canvasSize.width,
+    canvasHeight: canvasSize.height,
+    onImport: canvas.addDrawable,
+    onError: () => {
+      toast.error(t('import.invalidFileType'))
+    },
+  })
 
   // ページを離れる前に確認ダイアログを表示
   useBeforeUnload()
@@ -220,6 +235,11 @@ function App() {
           />
           <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
           <ToolbarDivider />
+          <ImportButton
+            inputRef={importImage.inputRef}
+            onOpenFilePicker={importImage.openFilePicker}
+            onFileChange={importImage.handleFileChange}
+          />
           <SaveButton
             onSave={() =>
               exportImage.downloadAsJpg(canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
@@ -302,6 +322,7 @@ function App() {
           </CanvasViewport>
         </main>
       </div>
+      <Toaster />
     </div>
   )
 }

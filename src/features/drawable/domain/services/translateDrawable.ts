@@ -24,14 +24,19 @@ export const translateDrawable = (
   offsetX: number,
   offsetY: number
 ): Drawable => {
-  if (drawable.type === 'stroke') {
-    return {
-      ...drawable,
-      points: drawable.points.map((point) => translatePoint(point, offsetX, offsetY)),
-    }
+  switch (drawable.type) {
+    case 'stroke':
+      return {
+        ...drawable,
+        points: drawable.points.map((point) => translatePoint(point, offsetX, offsetY)),
+      }
+    case 'image':
+      return {
+        ...drawable,
+        x: drawable.x + offsetX,
+        y: drawable.y + offsetY,
+      }
   }
-  // 将来の描画要素タイプに対応
-  return drawable
 }
 
 /**
