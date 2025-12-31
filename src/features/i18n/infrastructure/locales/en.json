@@ -37,5 +37,6 @@
   "canvas.flipHorizontal": "Flip horizontal",
   "zoom.in": "Zoom in",
   "zoom.out": "Zoom out",
-  "zoom.reset": "Reset to 100%"
+  "zoom.reset": "Reset to 100%",
+  "stabilization.title": "Stabilization"
 }

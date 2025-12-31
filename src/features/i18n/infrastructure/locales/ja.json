@@ -37,5 +37,6 @@
   "canvas.flipHorizontal": "左右反転",
   "zoom.in": "拡大",
   "zoom.out": "縮小",
-  "zoom.reset": "100%にリセット"
+  "zoom.reset": "100%にリセット",
+  "stabilization.title": "手ぶれ補正"
 }

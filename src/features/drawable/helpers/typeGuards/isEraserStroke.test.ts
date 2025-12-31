@@ -23,4 +23,16 @@ describe('isEraserStroke', () => {
 
     expect(isEraserStroke(drawable)).toBe(false)
   })
+
+  test('hardnessが設定された消しゴムストロークに対してtrueを返す', () => {
+    const drawable = createStrokeDrawable([{ x: 0, y: 0 }], {
+      color: 'transparent',
+      brushTip: createSolidBrushTip(10, 1, 0.5),
+      blendMode: 'erase',
+    })
+
+    expect(isEraserStroke(drawable)).toBe(true)
+    // hardnessの値が正しく設定されていることも確認
+    expect(drawable.style.brushTip.hardness).toBe(0.5)
+  })
 })
