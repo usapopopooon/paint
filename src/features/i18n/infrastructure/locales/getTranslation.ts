@@ -1,6 +1,7 @@
 import en from './en.json'
 import ja from './ja.json'
 import type { Locale } from '../../types'
+import { getModifierKey } from '@/lib/platform'
 
 /**
  * 全翻訳データ
@@ -17,8 +18,10 @@ export type TranslationKey = keyof typeof en
 
 /**
  * 翻訳関数の型
+ * @param key - 翻訳キー
+ * @param locale - ロケール（省略時は現在のロケール）
  */
-export type TranslateFunction = (key: TranslationKey) => string
+export type TranslateFunction = (key: TranslationKey, locale?: Locale) => string
 
 /**
  * 指定ロケールの翻訳を取得
@@ -27,5 +30,6 @@ export type TranslateFunction = (key: TranslationKey) => string
  * @returns 翻訳されたテキスト
  */
 export const getTranslation = (locale: Locale, key: TranslationKey): string => {
-  return translations[locale][key]
+  const text = translations[locale][key]
+  return text.replace('{modifier}', getModifierKey())
 }

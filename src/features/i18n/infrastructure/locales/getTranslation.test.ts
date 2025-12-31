@@ -1,7 +1,12 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import { translations, getTranslation, type TranslationKey } from './getTranslation'
 import en from './en.json'
 import ja from './ja.json'
+
+// platformモジュールをモック
+vi.mock('@/lib/platform', () => ({
+  getModifierKey: vi.fn(() => '⌘'),
+}))
 
 describe('i18n/locales', () => {
   describe('translations', () => {
@@ -63,6 +68,34 @@ describe('i18n/locales', () => {
       expect(categories).toContain('shortcuts')
       expect(categories).toContain('messages')
       expect(categories).toContain('color')
+    })
+  })
+
+  describe('modifier placeholder replacement', () => {
+    test('ショートカットの{modifier}がOS別の修飾キーに置換される', async () => {
+      // モックは⌘を返すように設定済み
+      const { getModifierKey } = await import('@/lib/platform')
+      vi.mocked(getModifierKey).mockReturnValue('⌘')
+
+      expect(getTranslation('en', 'shortcuts.undo')).toBe('⌘+Z')
+      expect(getTranslation('en', 'shortcuts.redo')).toBe('⌘+Shift+Z')
+      expect(getTranslation('en', 'shortcuts.clearLayer')).toBe('⌘+Delete')
+    })
+
+    test('Windows環境ではCtrlに置換される', async () => {
+      const { getModifierKey } = await import('@/lib/platform')
+      vi.mocked(getModifierKey).mockReturnValue('Ctrl')
+
+      expect(getTranslation('en', 'shortcuts.undo')).toBe('Ctrl+Z')
+      expect(getTranslation('ja', 'shortcuts.undo')).toBe('Ctrl+Z')
+    })
+
+    test('プレースホルダーを含まないキーは影響を受けない', async () => {
+      const { getModifierKey } = await import('@/lib/platform')
+      vi.mocked(getModifierKey).mockReturnValue('⌘')
+
+      expect(getTranslation('en', 'tools.pen')).toBe('Pen')
+      expect(getTranslation('ja', 'tools.pen')).toBe('ペン')
     })
   })
 })

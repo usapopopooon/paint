@@ -118,13 +118,12 @@ function App() {
           <UndoButton disabled={!canvas.canUndo} onClick={canvas.undo} />
           <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} />
           <ToolbarDivider />
-          <ClearButton onClick={canvas.clear} />
-          <ToolbarDivider />
           <HandButton
             isActive={tool.currentType === 'hand'}
             onClick={() => tool.setToolType('hand')}
           />
           <CenterCanvasButton onClick={canvasOffset.reset} />
+          <ClearButton onClick={canvas.clear} />
           <EyedropperButton
             isActive={tool.currentType === 'eyedropper'}
             onClick={() => tool.setToolType('eyedropper')}
