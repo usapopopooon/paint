@@ -19,6 +19,7 @@ export const eraserBehavior = {
     width: DEFAULT_ERASER_WIDTH,
     opacity: DEFAULT_OPACITY,
     hardness: DEFAULT_HARDNESS,
+    isBlurEnabled: true,
   }),
 
   /**
@@ -27,12 +28,15 @@ export const eraserBehavior = {
    * @param config - 消しゴムツール設定
    * @returns 新しいStrokeDrawable（eraseブレンドモード）
    */
-  createStroke: (point: Point, config: EraserToolConfig): StrokeDrawable =>
-    createStrokeDrawable([point], {
+  createStroke: (point: Point, config: EraserToolConfig): StrokeDrawable => {
+    // isBlurEnabledがfalseの場合はhardness 1.0（ぼかしなし）を使用
+    const effectiveHardness = config.isBlurEnabled ? config.hardness : 1.0
+    return createStrokeDrawable([point], {
       color: 'transparent',
-      brushTip: createSolidBrushTip(config.width, config.opacity, config.hardness),
+      brushTip: createSolidBrushTip(config.width, config.opacity, effectiveHardness),
       blendMode: 'erase',
-    }),
+    })
+  },
 
   /**
    * 消しゴムツールのカーソル設定を取得

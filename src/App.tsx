@@ -31,6 +31,10 @@ import {
   LayerPanel,
   HardnessSlider,
 } from './features/tools'
+import { MIN_PEN_WIDTH, MAX_PEN_WIDTH } from './features/tools/constants/pen'
+import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from './features/tools/constants/brush'
+import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/eraser'
+import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 
@@ -93,6 +97,48 @@ function App() {
   // ページを離れる前に確認ダイアログを表示
   useBeforeUnload()
 
+  // toolの最新状態をrefで保持（useCallbackの依存配列問題を回避）
+  const toolRef = useRef(tool)
+  useEffect(() => {
+    toolRef.current = tool
+  }, [tool])
+
+  /**
+   * ツールサイズを1段階大きくする（対数スケール）
+   */
+  const handleIncreaseToolSize = useCallback(() => {
+    const t = toolRef.current
+    const toolType = t.currentType
+    if (toolType === 'pen') {
+      const newWidth = getNextLogValue(t.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH, 1)
+      t.setPenWidth(newWidth)
+    } else if (toolType === 'brush') {
+      const newWidth = getNextLogValue(t.brushConfig.width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH, 1)
+      t.setBrushWidth(newWidth)
+    } else if (toolType === 'eraser') {
+      const newWidth = getNextLogValue(t.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH, 1)
+      t.setEraserWidth(newWidth)
+    }
+  }, [])
+
+  /**
+   * ツールサイズを1段階小さくする（対数スケール）
+   */
+  const handleDecreaseToolSize = useCallback(() => {
+    const t = toolRef.current
+    const toolType = t.currentType
+    if (toolType === 'pen') {
+      const newWidth = getNextLogValue(t.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH, -1)
+      t.setPenWidth(newWidth)
+    } else if (toolType === 'brush') {
+      const newWidth = getNextLogValue(t.brushConfig.width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH, -1)
+      t.setBrushWidth(newWidth)
+    } else if (toolType === 'eraser') {
+      const newWidth = getNextLogValue(t.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH, -1)
+      t.setEraserWidth(newWidth)
+    }
+  }, [])
+
   // キーボードショートカット
   useKeyboardShortcuts({
     onUndo: canvas.undo,
@@ -107,6 +153,10 @@ function App() {
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
+    onMoveLayerUp: () => canvas.moveLayerUp(canvas.activeLayerId),
+    onMoveLayerDown: () => canvas.moveLayerDown(canvas.activeLayerId),
+    onIncreaseToolSize: handleIncreaseToolSize,
+    onDecreaseToolSize: handleDecreaseToolSize,
   })
 
   /**
@@ -162,6 +212,19 @@ function App() {
           : tool.lastDrawingToolHardness
 
   /**
+   * 現在選択中のツールのisBlurEnabledを取得
+   * 描画ツール以外の場合は最後に選択されていた描画ツールのisBlurEnabled値を返す
+   */
+  const currentBlurEnabled =
+    tool.currentType === 'pen'
+      ? tool.penConfig.isBlurEnabled
+      : tool.currentType === 'brush'
+        ? tool.brushConfig.isBlurEnabled
+        : tool.currentType === 'eraser'
+          ? tool.eraserConfig.isBlurEnabled
+          : tool.lastDrawingToolBlurEnabled
+
+  /**
    * 現在選択中のツールのhardnessを変更
    */
   const handleHardnessChange = useCallback(
@@ -172,6 +235,22 @@ function App() {
         tool.setBrushHardness(hardness)
       } else if (tool.currentType === 'eraser') {
         tool.setEraserHardness(hardness)
+      }
+    },
+    [tool]
+  )
+
+  /**
+   * 現在選択中のツールのisBlurEnabledを変更
+   */
+  const handleBlurEnabledChange = useCallback(
+    (enabled: boolean) => {
+      if (tool.currentType === 'pen') {
+        tool.setPenBlurEnabled(enabled)
+      } else if (tool.currentType === 'brush') {
+        tool.setBrushBlurEnabled(enabled)
+      } else if (tool.currentType === 'eraser') {
+        tool.setEraserBlurEnabled(enabled)
       }
     },
     [tool]
@@ -309,6 +388,8 @@ function App() {
           <HardnessSlider
             hardness={currentHardness}
             onHardnessChange={handleHardnessChange}
+            isBlurEnabled={currentBlurEnabled}
+            onBlurEnabledChange={handleBlurEnabledChange}
             disabled={isHardnessDisabled}
           />
           <PenTool
@@ -338,8 +419,13 @@ function App() {
           <LayerPanel
             layers={canvas.layers}
             activeLayerId={canvas.activeLayerId}
+            drawingLayerCount={canvas.drawingLayerCount}
             onLayerSelect={canvas.setActiveLayer}
             onLayerVisibilityChange={canvas.setLayerVisibility}
+            onLayerAdd={canvas.addLayer}
+            onLayerDelete={canvas.deleteLayer}
+            onLayerNameChange={canvas.setLayerName}
+            onLayerMove={canvas.moveLayer}
           />
         </ToolPanel>
 

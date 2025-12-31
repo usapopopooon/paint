@@ -1,9 +1,36 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { BrushCursor } from './BrushCursor'
+import { useEffect, useRef } from 'react'
+import { BrushCursor, type BrushCursorHandle } from './BrushCursor'
+
+/**
+ * BrushCursorをラップして命令的ハンドルで位置を設定するコンポーネント
+ */
+const BrushCursorWithPosition = ({
+  x,
+  y,
+  size,
+  color,
+  outline,
+}: {
+  x: number
+  y: number
+  size: number
+  color: string
+  outline?: string
+}) => {
+  const ref = useRef<BrushCursorHandle>(null)
+
+  useEffect(() => {
+    ref.current?.updatePosition(x, y)
+    ref.current?.show()
+  }, [x, y])
+
+  return <BrushCursor ref={ref} size={size} color={color} outline={outline} />
+}
 
 const meta = {
   title: 'Features/Pointer/BrushCursor',
-  component: BrushCursor,
+  component: BrushCursorWithPosition,
   parameters: {
     layout: 'centered',
   },
@@ -14,7 +41,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof BrushCursor>
+} satisfies Meta<typeof BrushCursorWithPosition>
 
 export default meta
 type Story = StoryObj<typeof meta>

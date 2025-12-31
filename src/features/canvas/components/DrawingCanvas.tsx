@@ -69,6 +69,8 @@ export const DrawingCanvas = ({
         backgroundAlpha: 0,
         antialias: true,
         preserveDrawingBuffer: true, // スポイトツールでピクセルを読み取るために必要
+        resolution: window.devicePixelRatio || 1, // 高DPIディスプレイ対応
+        autoDensity: true, // CSSサイズを維持しつつ内部解像度を上げる
       })
       .then(() => {
         // クリーンアップが先に呼ばれた場合は何もしない

@@ -1,8 +1,11 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import type { Layer, LayerState, LayerId } from '../types'
-import { createInitialLayerState } from '../domain'
+import { createInitialLayerState, createDrawingLayer } from '../domain'
 import type { Drawable } from '@/features/drawable'
 import { translateDrawables, flipDrawablesHorizontal } from '@/features/drawable'
+import { BACKGROUND_LAYER_ID } from '../constants'
+import { generateId } from '@/lib/id'
+import { useLocale } from '@/features/i18n'
 
 export type UseLayersReturn = {
   readonly layers: readonly Layer[]
@@ -20,8 +23,17 @@ export type UseLayersReturn = {
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
   readonly setLayerName: (id: LayerId, name: string) => void
+  readonly moveLayer: (id: LayerId, newIndex: number) => void
+  readonly moveLayerUp: (id: LayerId) => boolean
+  readonly moveLayerDown: (id: LayerId) => boolean
   readonly translateAllLayers: (offsetX: number, offsetY: number) => void
   readonly flipAllLayersHorizontal: (canvasWidth: number) => void
+  readonly addLayer: () => { layerId: LayerId; name: string; index: number }
+  readonly deleteLayer: (id: LayerId) => { layer: Layer; index: number } | null
+  readonly restoreLayer: (layer: Layer, index: number) => void
+  readonly getLayerById: (id: LayerId) => Layer | undefined
+  readonly getLayerIndex: (id: LayerId) => number
+  readonly drawingLayerCount: number
 }
 
 /**
@@ -29,7 +41,13 @@ export type UseLayersReturn = {
  * @returns レイヤー操作用のメソッドと現在の状態
  */
 export const useLayers = (): UseLayersReturn => {
-  const [state, setState] = useState<LayerState>(createInitialLayerState)
+  const { t } = useLocale()
+  const [state, setState] = useState<LayerState>(() =>
+    createInitialLayerState(t('layers.defaultName', { number: 1 }))
+  )
+
+  // レイヤー番号のカウンター（削除されても番号は増え続ける）
+  const layerCounterRef = useRef(1)
 
   /**
    * アクティブレイヤーを取得
@@ -38,6 +56,14 @@ export const useLayers = (): UseLayersReturn => {
   const activeLayer = useMemo(
     () => state.layers.find((l) => l.id === state.activeLayerId)!,
     [state.layers, state.activeLayerId]
+  )
+
+  /**
+   * 描画レイヤーの数（背景レイヤーを除く）
+   */
+  const drawingLayerCount = useMemo(
+    () => state.layers.filter((l) => l.id !== BACKGROUND_LAYER_ID).length,
+    [state.layers]
   )
 
   /**
@@ -189,6 +215,84 @@ export const useLayers = (): UseLayersReturn => {
   }, [])
 
   /**
+   * レイヤーを指定位置に移動
+   * @param id - 移動するレイヤーのID
+   * @param newIndex - 移動先のインデックス
+   */
+  const moveLayer = useCallback((id: LayerId, newIndex: number) => {
+    // 背景レイヤーは移動不可
+    if (id === BACKGROUND_LAYER_ID) return
+
+    setState((prev) => {
+      const currentIndex = prev.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return prev
+
+      // 背景レイヤーより前には移動できない
+      const backgroundIndex = prev.layers.findIndex((l) => l.id === BACKGROUND_LAYER_ID)
+      const minIndex = backgroundIndex >= 0 ? backgroundIndex + 1 : 0
+      const clampedNewIndex = Math.max(minIndex, Math.min(prev.layers.length - 1, newIndex))
+
+      if (currentIndex === clampedNewIndex) return prev
+
+      const newLayers = [...prev.layers]
+      const [movedLayer] = newLayers.splice(currentIndex, 1)
+      newLayers.splice(clampedNewIndex, 0, movedLayer)
+
+      return {
+        ...prev,
+        layers: newLayers,
+      }
+    })
+  }, [])
+
+  /**
+   * レイヤーを1つ上に移動（配列の後ろ方向）
+   * @param id - 移動するレイヤーのID
+   * @returns 移動できた場合はtrue
+   */
+  const moveLayerUp = useCallback(
+    (id: LayerId): boolean => {
+      // 背景レイヤーは移動不可
+      if (id === BACKGROUND_LAYER_ID) return false
+
+      const currentIndex = state.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return false
+
+      // 既に最上位の場合は移動不可
+      if (currentIndex >= state.layers.length - 1) return false
+
+      moveLayer(id, currentIndex + 1)
+      return true
+    },
+    [state.layers, moveLayer]
+  )
+
+  /**
+   * レイヤーを1つ下に移動（配列の前方向）
+   * @param id - 移動するレイヤーのID
+   * @returns 移動できた場合はtrue
+   */
+  const moveLayerDown = useCallback(
+    (id: LayerId): boolean => {
+      // 背景レイヤーは移動不可
+      if (id === BACKGROUND_LAYER_ID) return false
+
+      const currentIndex = state.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return false
+
+      // 背景レイヤーより前には移動できない
+      const backgroundIndex = state.layers.findIndex((l) => l.id === BACKGROUND_LAYER_ID)
+      const minIndex = backgroundIndex >= 0 ? backgroundIndex + 1 : 0
+
+      if (currentIndex <= minIndex) return false
+
+      moveLayer(id, currentIndex - 1)
+      return true
+    },
+    [state.layers, moveLayer]
+  )
+
+  /**
    * 全レイヤーの描画要素を座標移動
    * @param offsetX - X方向のオフセット
    * @param offsetY - Y方向のオフセット
@@ -218,6 +322,116 @@ export const useLayers = (): UseLayersReturn => {
     }))
   }, [])
 
+  /**
+   * 新しいレイヤーを追加
+   * @returns 追加されたレイヤーの情報
+   */
+  const addLayer = useCallback(() => {
+    layerCounterRef.current += 1
+    const nextNumber = layerCounterRef.current
+    const layerId = generateId('layer')
+    const name = t('layers.defaultName', { number: nextNumber })
+
+    let index = 0
+    setState((prev) => {
+      const newLayer = createDrawingLayer(layerId, name)
+      // 新しいレイヤーは最上位に追加
+      const newLayers = [...prev.layers, newLayer]
+      index = newLayers.length - 1
+
+      return {
+        ...prev,
+        layers: newLayers,
+        activeLayerId: layerId, // 新しいレイヤーをアクティブに
+      }
+    })
+
+    return { layerId, name, index }
+  }, [t])
+
+  /**
+   * レイヤーを削除
+   * @param id - 削除するレイヤーのID
+   * @returns 削除されたレイヤーと位置、削除できない場合はnull
+   */
+  const deleteLayer = useCallback(
+    (id: LayerId): { layer: Layer; index: number } | null => {
+      // 背景レイヤーは削除不可
+      if (id === BACKGROUND_LAYER_ID) return null
+
+      // 描画レイヤーが1枚のみの場合は削除不可
+      const drawingLayers = state.layers.filter((l) => l.id !== BACKGROUND_LAYER_ID)
+      if (drawingLayers.length <= 1) return null
+
+      const index = state.layers.findIndex((l) => l.id === id)
+      if (index === -1) return null
+
+      const layer = state.layers[index]
+      const result = { layer, index }
+
+      const newLayers = state.layers.filter((l) => l.id !== id)
+
+      // 削除されたレイヤーがアクティブだった場合、別のレイヤーをアクティブに
+      let newActiveLayerId = state.activeLayerId
+      if (state.activeLayerId === id) {
+        // 残っている描画レイヤーの最上位をアクティブに
+        const remainingDrawingLayers = newLayers.filter((l) => l.id !== BACKGROUND_LAYER_ID)
+        newActiveLayerId = remainingDrawingLayers[remainingDrawingLayers.length - 1]?.id ?? ''
+      }
+
+      setState({
+        ...state,
+        layers: newLayers,
+        activeLayerId: newActiveLayerId,
+      })
+
+      return result
+    },
+    [state]
+  )
+
+  /**
+   * 削除されたレイヤーを復元（Undo用）
+   * @param layer - 復元するレイヤー
+   * @param index - 挿入位置
+   */
+  const restoreLayer = useCallback((layer: Layer, index: number) => {
+    setState((prev) => {
+      const newLayers = [...prev.layers]
+      newLayers.splice(index, 0, layer)
+
+      return {
+        ...prev,
+        layers: newLayers,
+        activeLayerId: layer.id,
+      }
+    })
+  }, [])
+
+  /**
+   * IDでレイヤーを取得
+   * @param id - レイヤーID
+   * @returns レイヤー、見つからない場合はundefined
+   */
+  const getLayerById = useCallback(
+    (id: LayerId): Layer | undefined => {
+      return state.layers.find((l) => l.id === id)
+    },
+    [state.layers]
+  )
+
+  /**
+   * レイヤーのインデックスを取得
+   * @param id - レイヤーID
+   * @returns インデックス、見つからない場合は-1
+   */
+  const getLayerIndex = useCallback(
+    (id: LayerId): number => {
+      return state.layers.findIndex((l) => l.id === id)
+    },
+    [state.layers]
+  )
+
   return {
     layers: state.layers,
     activeLayer,
@@ -234,7 +448,16 @@ export const useLayers = (): UseLayersReturn => {
     setLayerOpacity,
     setLayerVisibility,
     setLayerName,
+    moveLayer,
+    moveLayerUp,
+    moveLayerDown,
     translateAllLayers,
     flipAllLayersHorizontal,
+    addLayer,
+    deleteLayer,
+    restoreLayer,
+    getLayerById,
+    getLayerIndex,
+    drawingLayerCount,
   }
 }

@@ -16,6 +16,10 @@ export type KeyboardShortcutsHandlers = {
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
   readonly onFlipHorizontal: () => void
+  readonly onMoveLayerUp: () => void
+  readonly onMoveLayerDown: () => void
+  readonly onIncreaseToolSize: () => void
+  readonly onDecreaseToolSize: () => void
 }
 
 /**
@@ -27,6 +31,10 @@ export type KeyboardShortcutsHandlers = {
  * - Ctrl+- / Cmd+-: ズームアウト
  * - Ctrl+0 / Cmd+0: ズームリセット
  * - Ctrl+H / Cmd+H: 左右反転
+ * - Alt+]: レイヤーを上に移動
+ * - Alt+[: レイヤーを下に移動
+ * - ]: ツールサイズを大きく
+ * - [: ツールサイズを小さく
  * - P: ペンツール選択
  * - B: ブラシツール選択
  * - E: 消しゴムツール選択
@@ -47,6 +55,10 @@ export const useKeyboardShortcuts = ({
   onZoomOut,
   onZoomReset,
   onFlipHorizontal,
+  onMoveLayerUp,
+  onMoveLayerDown,
+  onIncreaseToolSize,
+  onDecreaseToolSize,
 }: KeyboardShortcutsHandlers) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -93,6 +105,18 @@ export const useKeyboardShortcuts = ({
         onFlipHorizontal()
         return
       }
+      // レイヤーを上に移動 (Alt + ])
+      if (e.altKey && e.key === ']') {
+        e.preventDefault()
+        onMoveLayerUp()
+        return
+      }
+      // レイヤーを下に移動 (Alt + [)
+      if (e.altKey && e.key === '[') {
+        e.preventDefault()
+        onMoveLayerDown()
+        return
+      }
       // 修飾キーなしの単一キー
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         if (e.key === 'p' || e.key === 'P') {
@@ -120,6 +144,17 @@ export const useKeyboardShortcuts = ({
           onSelectEyedropper()
           return
         }
+        // ツールサイズ変更 (] で大きく、[ で小さく)
+        if (e.key === ']') {
+          e.preventDefault()
+          onIncreaseToolSize()
+          return
+        }
+        if (e.key === '[') {
+          e.preventDefault()
+          onDecreaseToolSize()
+          return
+        }
       }
     }
 
@@ -138,5 +173,9 @@ export const useKeyboardShortcuts = ({
     onZoomOut,
     onZoomReset,
     onFlipHorizontal,
+    onMoveLayerUp,
+    onMoveLayerDown,
+    onIncreaseToolSize,
+    onDecreaseToolSize,
   ])
 }

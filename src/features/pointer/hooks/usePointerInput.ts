@@ -26,6 +26,10 @@ type UsePointerInputOptions = {
   onWheel?: (deltaY: number) => void
   /** ズーム倍率（座標変換に使用、デフォルト: 1） */
   zoom?: number
+  /** ポインター位置が更新された時のコールバック（パフォーマンスのためrefで直接呼び出し） */
+  onPointerPositionChange?: (x: number, y: number) => void
+  /** ポインターがキャンバスを離れた時のコールバック */
+  onPointerLeaveCanvas?: () => void
 }
 
 /**
@@ -46,7 +50,6 @@ type PointerInputProps = {
  */
 type UsePointerInputReturn = {
   pointerProps: PointerInputProps
-  pointerPosition: { x: number; y: number } | null
   isDrawing: boolean
   activePointerType: PointerType | null
   /** キャンバス要素のref（ウィンドウレベルのポインター追跡に必要） */
@@ -65,16 +68,24 @@ export const usePointerInput = ({
   onEnd,
   onWheel,
   zoom = 1,
+  onPointerPositionChange,
+  onPointerLeaveCanvas,
 }: UsePointerInputOptions): UsePointerInputReturn => {
   // マルチポインターの競合を防ぐためアクティブなポインターIDを追跡
   const activePointerIdRef = useRef<number | null>(null)
   const [activePointerType, setActivePointerType] = useState<PointerType | null>(null)
-  const [pointerPosition, setPointerPosition] = useState<{ x: number; y: number } | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   // キャンバス外でボタンが押された時の位置を保存
   const pendingStrokeStartRef = useRef<PendingStrokeStart | null>(null)
   // キャンバス要素の参照を保持
   const canvasElementRef = useRef<HTMLElement | null>(null)
+  // コールバックをrefで保持（パフォーマンスのため）
+  const onPointerPositionChangeRef = useRef(onPointerPositionChange)
+  const onPointerLeaveCanvasRef = useRef(onPointerLeaveCanvas)
+  useEffect(() => {
+    onPointerPositionChangeRef.current = onPointerPositionChange
+    onPointerLeaveCanvasRef.current = onPointerLeaveCanvas
+  })
 
   /** ストロークを終了してポインター状態をリセット */
   const endStroke = useCallback(() => {
@@ -116,7 +127,7 @@ export const usePointerInput = ({
       setIsDrawing(true)
 
       const point = extractPointerPoint(event, element, zoom)
-      setPointerPosition({ x: point.x, y: point.y })
+      onPointerPositionChangeRef.current?.(point.x, point.y)
       onStart(point)
     },
     [onStart, zoom]
@@ -130,7 +141,7 @@ export const usePointerInput = ({
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
       const point = extractPointerPoint(event, element, zoom)
-      setPointerPosition({ x: point.x, y: point.y })
+      onPointerPositionChangeRef.current?.(point.x, point.y)
 
       // アクティブなポインターのムーブイベントのみ処理
       if (activePointerIdRef.current !== event.pointerId) {
@@ -192,7 +203,7 @@ export const usePointerInput = ({
       // ポインターキャプチャがある場合はイベントを受信し続けるのでストロークを終了しない
       // キャプチャされていないポインターの位置のみクリア
       if (activePointerIdRef.current !== event.pointerId) {
-        setPointerPosition(null)
+        onPointerLeaveCanvasRef.current?.()
         return
       }
 
@@ -200,11 +211,11 @@ export const usePointerInput = ({
       // ない場合（通常は起こらないはず）、ストロークを終了
       try {
         if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
-          setPointerPosition(null)
+          onPointerLeaveCanvasRef.current?.()
           endStroke()
         }
       } catch {
-        setPointerPosition(null)
+        onPointerLeaveCanvasRef.current?.()
         endStroke()
       }
     },
@@ -221,7 +232,7 @@ export const usePointerInput = ({
       const element = event.currentTarget
       canvasElementRef.current = element
       const point = extractPointerPoint(event, element, zoom)
-      setPointerPosition({ x: point.x, y: point.y })
+      onPointerPositionChangeRef.current?.(point.x, point.y)
 
       // 別のポインターで描画中の場合は無視
       if (activePointerIdRef.current !== null) {
@@ -343,7 +354,6 @@ export const usePointerInput = ({
       onPointerEnter: handlePointerEnter,
       onContextMenu: handleContextMenu,
     },
-    pointerPosition,
     isDrawing,
     activePointerType,
     canvasRef,

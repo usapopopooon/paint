@@ -7,36 +7,26 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useLocale } from '@/features/i18n'
 import { MIN_HARDNESS, MAX_HARDNESS } from '../constants'
 
-/** ぼかし無効時に保存しておくデフォルトのぼかし値 */
-const DEFAULT_BLUR_VALUE = 0.5
-
 type HardnessSliderProps = {
   readonly hardness: number
   readonly onHardnessChange: (hardness: number) => void
+  readonly isBlurEnabled: boolean
+  readonly onBlurEnabledChange: (enabled: boolean) => void
   readonly disabled?: boolean
 }
 
 export const HardnessSlider = memo(function HardnessSlider({
   hardness,
   onHardnessChange,
+  isBlurEnabled,
+  onBlurEnabledChange,
   disabled = false,
 }: HardnessSliderProps) {
   const { t } = useLocale()
   const [isDragging, setIsDragging] = useState(false)
 
-  // ぼかしが有効かどうか（hardness > 0）
-  const isBlurEnabled = hardness > 0
-
-  // ぼかし無効時に保存しておく値（トグルで復元するため）
-  // useState初期化のみで、スライダー操作時にsetSavedHardnessを呼ぶ
-  const [savedHardness, setSavedHardness] = useState<number>(
-    hardness > 0 ? hardness : DEFAULT_BLUR_VALUE
-  )
-
-  // 表示用のパーセント（ぼかし有効時は実際の値、無効時は保存した値）
-  const displayPercent = isBlurEnabled
-    ? Math.round(hardness * 100)
-    : Math.round(savedHardness * 100)
+  // 表示用のパーセント
+  const displayPercent = Math.round(hardness * 100)
 
   const handleSliderChange = useCallback(
     (values: number[]) => {
@@ -45,10 +35,6 @@ export const HardnessSlider = memo(function HardnessSlider({
         const newHardness = sliderValue / 100
         const clampedHardness = Math.max(MIN_HARDNESS, Math.min(MAX_HARDNESS, newHardness))
         onHardnessChange(clampedHardness)
-        // スライダーで値を変更したら保存
-        if (clampedHardness > 0) {
-          setSavedHardness(clampedHardness)
-        }
       }
     },
     [onHardnessChange]
@@ -63,14 +49,8 @@ export const HardnessSlider = memo(function HardnessSlider({
   }, [])
 
   const handleToggleBlur = useCallback(() => {
-    if (isBlurEnabled) {
-      // ぼかし有効 → 無効（0にする）
-      onHardnessChange(0)
-    } else {
-      // ぼかし無効 → 有効（保存した値を復元）
-      onHardnessChange(savedHardness)
-    }
-  }, [isBlurEnabled, onHardnessChange, savedHardness])
+    onBlurEnabledChange(!isBlurEnabled)
+  }, [isBlurEnabled, onBlurEnabledChange])
 
   return (
     <Popover open={isDragging}>
@@ -94,7 +74,7 @@ export const HardnessSlider = memo(function HardnessSlider({
               min={0}
               max={100}
               step={1}
-              disabled={disabled || !isBlurEnabled}
+              disabled={disabled}
             />
           </div>
         </PopoverAnchor>

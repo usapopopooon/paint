@@ -12,6 +12,8 @@ const meta = {
   args: {
     hardness: 0.5,
     onHardnessChange: fn(),
+    isBlurEnabled: true,
+    onBlurEnabledChange: fn(),
   },
   decorators: [
     (Story) => (
@@ -29,13 +31,15 @@ type Story = StoryObj<typeof HardnessSlider>
 export const Default: Story = {
   args: {
     hardness: 0.5,
+    isBlurEnabled: true,
   },
 }
 
-/** ぼかし無効状態（hardness=0） */
+/** ぼかし無効状態 */
 export const BlurDisabled: Story = {
   args: {
-    hardness: 0,
+    hardness: 0.5,
+    isBlurEnabled: false,
   },
 }
 
@@ -43,6 +47,7 @@ export const BlurDisabled: Story = {
 export const LowBlur: Story = {
   args: {
     hardness: 0.2,
+    isBlurEnabled: true,
   },
 }
 
@@ -50,6 +55,7 @@ export const LowBlur: Story = {
 export const FullBlur: Story = {
   args: {
     hardness: 1,
+    isBlurEnabled: true,
   },
 }
 
@@ -57,6 +63,7 @@ export const FullBlur: Story = {
 export const Disabled: Story = {
   args: {
     hardness: 0.5,
+    isBlurEnabled: true,
     disabled: true,
   },
 }
@@ -64,7 +71,8 @@ export const Disabled: Story = {
 /** ぼかし無効状態でコンポーネント全体も無効 */
 export const DisabledWithBlurOff: Story = {
   args: {
-    hardness: 0,
+    hardness: 0.5,
+    isBlurEnabled: false,
     disabled: true,
   },
 }
@@ -74,14 +82,15 @@ const onToggleOffFn = fn()
 export const ToggleBlurOff: Story = {
   args: {
     hardness: 0.5,
-    onHardnessChange: onToggleOffFn,
+    isBlurEnabled: true,
+    onBlurEnabledChange: onToggleOffFn,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const toggleButton = canvas.getByRole('button')
 
     await userEvent.click(toggleButton)
-    await expect(onToggleOffFn).toHaveBeenCalledWith(0)
+    await expect(onToggleOffFn).toHaveBeenCalledWith(false)
   },
 }
 
@@ -89,16 +98,16 @@ export const ToggleBlurOff: Story = {
 const onToggleOnFn = fn()
 export const ToggleBlurOn: Story = {
   args: {
-    hardness: 0,
-    onHardnessChange: onToggleOnFn,
+    hardness: 0.5,
+    isBlurEnabled: false,
+    onBlurEnabledChange: onToggleOnFn,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const toggleButton = canvas.getByRole('button')
 
     await userEvent.click(toggleButton)
-    // デフォルトのぼかし値（0.5）が復元される
-    await expect(onToggleOnFn).toHaveBeenCalledWith(0.5)
+    await expect(onToggleOnFn).toHaveBeenCalledWith(true)
   },
 }
 
@@ -106,6 +115,7 @@ export const ToggleBlurOn: Story = {
 export const ShowTooltipOnHover: Story = {
   args: {
     hardness: 0.5,
+    isBlurEnabled: true,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -115,19 +125,26 @@ export const ShowTooltipOnHover: Story = {
   },
 }
 
-/** 最大ぼかしからトグルオフ→オンで100%が復元される */
-const onToggleMaxFn = fn()
-export const ToggleMaxBlur: Story = {
+/** ぼかし無効でもスライダー値は保持される（スイッチとスライダーは独立） */
+export const IndependentSliderAndSwitch: Story = {
+  args: {
+    hardness: 0.8,
+    isBlurEnabled: false,
+  },
+}
+
+/** 最小hardnessでもぼかし有効状態を維持できる */
+export const MinHardnessWithBlurEnabled: Story = {
+  args: {
+    hardness: 0,
+    isBlurEnabled: true,
+  },
+}
+
+/** 最大hardnessでぼかし無効状態 */
+export const MaxHardnessWithBlurDisabled: Story = {
   args: {
     hardness: 1,
-    onHardnessChange: onToggleMaxFn,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-    const toggleButton = canvas.getByRole('button')
-
-    // トグルオフ
-    await userEvent.click(toggleButton)
-    await expect(onToggleMaxFn).toHaveBeenCalledWith(0)
+    isBlurEnabled: false,
   },
 }

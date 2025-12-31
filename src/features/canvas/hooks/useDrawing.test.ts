@@ -10,6 +10,7 @@ describe('useDrawing', () => {
     color: '#000000',
     opacity: 1,
     hardness: 0,
+    isBlurEnabled: true,
   })
 
   describe('endStroke', () => {
