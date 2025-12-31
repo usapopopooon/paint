@@ -3,14 +3,8 @@ import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { ThemeToggle } from './components/ui/ThemeToggle'
 import { DISPLAY_SCALE } from './constants/display'
-import {
-  Canvas,
-  CanvasResizeMenu,
-  CanvasViewport,
-  useCanvas,
-  useCanvasSize,
-  useCanvasOffset,
-} from './features/canvas'
+import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
+import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { SaveButton, useExportImage } from './features/export'

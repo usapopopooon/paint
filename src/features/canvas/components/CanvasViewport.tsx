@@ -108,7 +108,7 @@ export const CanvasViewport = ({
         clearTimeout(zoomCursorTimeoutRef.current)
       }
     }
-  }, [onWheelAtPoint])
+  }, [onWheelAtPoint, viewportSize.width, viewportSize.height])
 
   // 水平スクロール処理
   const handleHorizontalScroll = useCallback(

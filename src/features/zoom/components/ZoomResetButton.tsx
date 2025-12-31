@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { RotateCcw } from 'lucide-react'
+import { SquareDot } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
@@ -15,7 +15,7 @@ export const ZoomResetButton = memo(function ZoomResetButton({ onClick }: ZoomRe
     <Tooltip>
       <TooltipTrigger asChild>
         <Button variant="secondary" size="icon" onClick={onClick}>
-          <RotateCcw className="h-4 w-4" />
+          <SquareDot className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
       <TooltipContent>

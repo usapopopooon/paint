@@ -10,7 +10,7 @@ import { CanvasResizeMenu } from './CanvasResizeMenu'
  * 例: width=1600 → UI表示は800
  */
 const meta = {
-  title: 'Features/Canvas/CanvasResizeMenu',
+  title: 'Features/CanvasResize/CanvasResizeMenu',
   component: CanvasResizeMenu,
   parameters: {
     layout: 'centered',

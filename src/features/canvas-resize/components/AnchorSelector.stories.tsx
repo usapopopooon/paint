@@ -3,7 +3,7 @@ import { fn, expect, userEvent, within } from 'storybook/test'
 import { AnchorSelector } from './AnchorSelector'
 
 const meta = {
-  title: 'Features/Canvas/AnchorSelector',
+  title: 'Features/CanvasResize/AnchorSelector',
   component: AnchorSelector,
   parameters: {
     layout: 'centered',

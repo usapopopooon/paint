@@ -47,15 +47,10 @@ describe('calculateZoomOffset', () => {
       const mouseX = centerX + 100 // 500
       const mouseY = centerY + 100 // 400
 
-      const result = calculateZoomOffset(
-        mouseX,
-        mouseY,
-        viewportWidth,
-        viewportHeight,
-        1.0,
-        2.0,
-        { x: 0, y: 0 }
-      )
+      const result = calculateZoomOffset(mouseX, mouseY, viewportWidth, viewportHeight, 1.0, 2.0, {
+        x: 0,
+        y: 0,
+      })
 
       // 計算：
       // mouseOffsetFromCenter = (100, 100)
@@ -69,15 +64,10 @@ describe('calculateZoomOffset', () => {
       const mouseX = centerX + 100
       const mouseY = centerY + 100
 
-      const result = calculateZoomOffset(
-        mouseX,
-        mouseY,
-        viewportWidth,
-        viewportHeight,
-        2.0,
-        1.0,
-        { x: 0, y: 0 }
-      )
+      const result = calculateZoomOffset(mouseX, mouseY, viewportWidth, viewportHeight, 2.0, 1.0, {
+        x: 0,
+        y: 0,
+      })
 
       // mouseOffsetFromCenter = (100, 100)
       // canvasPoint at oldZoom=2: (100/2 - 0, 100/2 - 0) = (50, 50)
@@ -93,15 +83,10 @@ describe('calculateZoomOffset', () => {
       const mouseX = centerX - 100 // 300
       const mouseY = centerY - 100 // 200
 
-      const result = calculateZoomOffset(
-        mouseX,
-        mouseY,
-        viewportWidth,
-        viewportHeight,
-        1.0,
-        2.0,
-        { x: 0, y: 0 }
-      )
+      const result = calculateZoomOffset(mouseX, mouseY, viewportWidth, viewportHeight, 1.0, 2.0, {
+        x: 0,
+        y: 0,
+      })
 
       // mouseOffsetFromCenter = (-100, -100)
       // canvasPoint at oldZoom=1: (-100/1 - 0, -100/1 - 0) = (-100, -100)
@@ -116,15 +101,10 @@ describe('calculateZoomOffset', () => {
       const mouseX = centerX + 100
       const mouseY = centerY + 100
 
-      const result = calculateZoomOffset(
-        mouseX,
-        mouseY,
-        viewportWidth,
-        viewportHeight,
-        1.0,
-        2.0,
-        { x: 20, y: -10 }
-      )
+      const result = calculateZoomOffset(mouseX, mouseY, viewportWidth, viewportHeight, 1.0, 2.0, {
+        x: 20,
+        y: -10,
+      })
 
       // mouseOffsetFromCenter = (100, 100)
       // canvasPoint at oldZoom=1: (100/1 - 20, 100/1 - (-10)) = (80, 110)
@@ -158,15 +138,10 @@ describe('calculateZoomOffset', () => {
       const mouseY = centerY + 50
 
       // 1回目のズーム
-      const offset1 = calculateZoomOffset(
-        mouseX,
-        mouseY,
-        viewportWidth,
-        viewportHeight,
-        1.0,
-        1.5,
-        { x: 0, y: 0 }
-      )
+      const offset1 = calculateZoomOffset(mouseX, mouseY, viewportWidth, viewportHeight, 1.0, 1.5, {
+        x: 0,
+        y: 0,
+      })
 
       // 2回目のズーム（1回目の結果を使用）
       const offset2 = calculateZoomOffset(
