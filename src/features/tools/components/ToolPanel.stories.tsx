@@ -60,9 +60,9 @@ export const Default: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#000000" onChange={fn()} />
-      <PenTool isActive={true} width={3} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={false} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={true} width={3} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={false} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={false} width={20} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
@@ -80,9 +80,9 @@ export const BrushSelected: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#000000" onChange={fn()} />
-      <PenTool isActive={false} width={3} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={true} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={false} width={3} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={true} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={false} width={20} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
@@ -100,9 +100,9 @@ export const EraserSelected: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#000000" onChange={fn()} />
-      <PenTool isActive={false} width={3} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={false} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={true} width={20} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={false} width={3} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={false} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={true} width={20} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
@@ -120,9 +120,9 @@ export const Layer2Active: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#000000" onChange={fn()} />
-      <PenTool isActive={true} width={3} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={false} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={true} width={3} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={false} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={false} width={20} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-2"
@@ -140,9 +140,9 @@ export const LayerHidden: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#000000" onChange={fn()} />
-      <PenTool isActive={true} width={3} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={false} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={true} width={3} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={false} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={false} width={20} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={[{ ...sampleLayers[0]!, isVisible: false }, sampleLayers[1]!, sampleLayers[2]!]}
         activeLayerId="layer-1"
@@ -160,9 +160,9 @@ export const CustomPenSettings: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#ff0000" onChange={fn()} />
-      <PenTool isActive={true} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={false} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={false} width={20} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={true} width={10} opacity={0.5} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={false} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={false} width={20} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"
@@ -180,9 +180,9 @@ export const LargeEraser: Story = {
   render: () => (
     <ToolPanel>
       <ColorWheel color="#000000" onChange={fn()} />
-      <PenTool isActive={false} width={3} onSelect={fn()} onWidthChange={fn()} />
-      <BrushTool isActive={false} width={10} onSelect={fn()} onWidthChange={fn()} />
-      <EraserTool isActive={true} width={100} onSelect={fn()} onWidthChange={fn()} />
+      <PenTool isActive={false} width={3} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <BrushTool isActive={false} width={10} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
+      <EraserTool isActive={true} width={100} opacity={1} onSelect={fn()} onWidthChange={fn()} onOpacityChange={fn()} />
       <LayerPanel
         layers={sampleLayers}
         activeLayerId="layer-1"

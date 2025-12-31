@@ -175,20 +175,26 @@ function App() {
           <PenTool
             isActive={tool.currentType === 'pen'}
             width={tool.penConfig.width}
+            opacity={tool.penConfig.opacity}
             onSelect={handleSelectPen}
             onWidthChange={tool.setPenWidth}
+            onOpacityChange={tool.setPenOpacity}
           />
           <BrushTool
             isActive={tool.currentType === 'brush'}
             width={tool.brushConfig.width}
+            opacity={tool.brushConfig.opacity}
             onSelect={handleSelectBrush}
             onWidthChange={tool.setBrushWidth}
+            onOpacityChange={tool.setBrushOpacity}
           />
           <EraserTool
             isActive={tool.currentType === 'eraser'}
             width={tool.eraserConfig.width}
+            opacity={tool.eraserConfig.opacity}
             onSelect={handleSelectEraser}
             onWidthChange={tool.setEraserWidth}
+            onOpacityChange={tool.setEraserOpacity}
           />
           <LayerPanel
             layers={canvas.layers}

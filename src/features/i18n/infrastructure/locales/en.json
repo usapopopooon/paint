@@ -4,6 +4,7 @@
   "tools.eraser": "Eraser",
   "tools.hand": "Hand",
   "tools.eyedropper": "Eyedropper",
+  "tools.opacity": "Opacity",
   "actions.undo": "Undo",
   "actions.redo": "Redo",
   "actions.clearLayer": "Clear layer",
