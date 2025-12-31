@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.23] - 2026-01-01
+
+### Docs
+
+- READMEのアーキテクチャ図をmindmapに変更
+  - flowchartからmindmapに変更し、src/全体の構造を俯瞰しやすくした
+
 ## [0.0.22] - 2026-01-01
 
 ### Features
