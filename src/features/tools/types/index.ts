@@ -22,16 +22,17 @@ export type PenToolConfig = {
   readonly type: 'pen'
   readonly width: number
   readonly color: string
+  readonly opacity: number
 }
 
 /**
  * ブラシツールの設定
- * 将来的にはペンと異なるブラシ特性（テクスチャ、不透明度、フロー等）を持つ予定
  */
 export type BrushToolConfig = {
   readonly type: 'brush'
   readonly width: number
   readonly color: string
+  readonly opacity: number
 }
 
 /**
@@ -40,6 +41,7 @@ export type BrushToolConfig = {
 export type EraserToolConfig = {
   readonly type: 'eraser'
   readonly width: number
+  readonly opacity: number
 }
 
 /**

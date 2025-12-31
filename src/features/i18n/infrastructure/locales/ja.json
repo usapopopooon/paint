@@ -4,6 +4,7 @@
   "tools.eraser": "消しゴム",
   "tools.hand": "ハンドツール",
   "tools.eyedropper": "スポイト",
+  "tools.opacity": "透明度",
   "actions.undo": "元に戻す",
   "actions.redo": "やり直す",
   "actions.clearLayer": "レイヤーをクリア",

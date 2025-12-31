@@ -3,6 +3,24 @@ import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../type
 import { getToolBehavior } from '../domain'
 import { createInitialToolState, type ToolState } from '../helpers'
 
+type ConfigKey = 'penConfig' | 'brushConfig' | 'eraserConfig'
+
+/**
+ * 指定されたツール設定のプロパティを更新するセッターを作成
+ */
+const createConfigSetter = <T>(
+  setState: React.Dispatch<React.SetStateAction<ToolState>>,
+  configKey: ConfigKey,
+  property: string
+) => {
+  return (value: T) => {
+    setState((prev) => ({
+      ...prev,
+      [configKey]: { ...prev[configKey], [property]: value },
+    }))
+  }
+}
+
 /**
  * ツール状態を管理するフック
  * @returns ツール操作用のメソッドと現在の状態
@@ -18,45 +36,34 @@ export const useTool = () => {
     setState((prev) => ({ ...prev, currentType: type }))
   }, [])
 
-  /**
-   * ペンの幅を設定
-   * @param width - ペンの幅（ピクセル）
-   */
-  const setPenWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, penConfig: { ...prev.penConfig, width } }))
-  }, [])
+  const setPenWidth = useMemo(() => createConfigSetter<number>(setState, 'penConfig', 'width'), [])
+  const setPenColor = useMemo(() => createConfigSetter<string>(setState, 'penConfig', 'color'), [])
+  const setPenOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'penConfig', 'opacity'),
+    []
+  )
 
-  /**
-   * ペンの色を設定
-   * @param color - ペンの色（CSS色文字列）
-   */
-  const setPenColor = useCallback((color: string) => {
-    setState((prev) => ({ ...prev, penConfig: { ...prev.penConfig, color } }))
-  }, [])
+  const setBrushWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'width'),
+    []
+  )
+  const setBrushColor = useMemo(
+    () => createConfigSetter<string>(setState, 'brushConfig', 'color'),
+    []
+  )
+  const setBrushOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'opacity'),
+    []
+  )
 
-  /**
-   * ブラシの幅を設定
-   * @param width - ブラシの幅（ピクセル）
-   */
-  const setBrushWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, brushConfig: { ...prev.brushConfig, width } }))
-  }, [])
-
-  /**
-   * ブラシの色を設定
-   * @param color - ブラシの色（CSS色文字列）
-   */
-  const setBrushColor = useCallback((color: string) => {
-    setState((prev) => ({ ...prev, brushConfig: { ...prev.brushConfig, color } }))
-  }, [])
-
-  /**
-   * 消しゴムの幅を設定
-   * @param width - 消しゴムの幅（ピクセル）
-   */
-  const setEraserWidth = useCallback((width: number) => {
-    setState((prev) => ({ ...prev, eraserConfig: { ...prev.eraserConfig, width } }))
-  }, [])
+  const setEraserWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'width'),
+    []
+  )
+  const setEraserOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'opacity'),
+    []
+  )
 
   const handConfig: HandToolConfig = { type: 'hand' }
 
@@ -95,9 +102,12 @@ export const useTool = () => {
     setToolType,
     setPenWidth,
     setPenColor,
+    setPenOpacity,
     setBrushWidth,
     setBrushColor,
+    setBrushOpacity,
     setEraserWidth,
+    setEraserOpacity,
     getCursor,
   } as const
 }

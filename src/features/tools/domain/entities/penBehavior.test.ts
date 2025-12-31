@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { penBehavior } from './penBehavior'
-import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR } from '../../constants'
+import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR, DEFAULT_OPACITY } from '../../constants'
 
 describe('penBehavior', () => {
   describe('type', () => {
@@ -16,6 +16,7 @@ describe('penBehavior', () => {
         type: 'pen',
         width: DEFAULT_PEN_WIDTH,
         color: DEFAULT_PEN_COLOR,
+        opacity: DEFAULT_OPACITY,
       })
     })
   })
@@ -23,7 +24,7 @@ describe('penBehavior', () => {
   describe('createStroke', () => {
     test('指定されたポイントとコンフィグでストロークDrawableを作成する', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000' }
+      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1 }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -36,11 +37,20 @@ describe('penBehavior', () => {
       expect(stroke.style.brushTip.type).toBe('solid')
       expect(stroke.style.blendMode).toBe('normal')
     })
+
+    test('opacityがブラシチップに反映される', () => {
+      const point = { x: 10, y: 20 }
+      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 0.5 }
+
+      const stroke = penBehavior.createStroke(point, config)
+
+      expect(stroke.style.brushTip.opacity).toBe(0.5)
+    })
   })
 
   describe('getCursor', () => {
     test('penコンフィグに対応したカーソルコンフィグを返す', () => {
-      const config = { type: 'pen' as const, width: 10, color: '#00ff00' }
+      const config = { type: 'pen' as const, width: 10, color: '#00ff00', opacity: 1 }
 
       const cursor = penBehavior.getCursor(config)
 
