@@ -17,7 +17,13 @@ export const SaveButton = memo(function SaveButton({ onSave }: SaveButtonProps) 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" onClick={onSave} className="h-8 w-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onSave}
+          className="h-8 w-8"
+          aria-label={t('toolbar.save')}
+        >
           <Download className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
