@@ -38,14 +38,32 @@ export const useTool = () => {
 
   const setPenWidth = useMemo(() => createConfigSetter<number>(setState, 'penConfig', 'width'), [])
   const setPenColor = useMemo(() => createConfigSetter<string>(setState, 'penConfig', 'color'), [])
-  const setPenOpacity = useMemo(() => createConfigSetter<number>(setState, 'penConfig', 'opacity'), [])
+  const setPenOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'penConfig', 'opacity'),
+    []
+  )
 
-  const setBrushWidth = useMemo(() => createConfigSetter<number>(setState, 'brushConfig', 'width'), [])
-  const setBrushColor = useMemo(() => createConfigSetter<string>(setState, 'brushConfig', 'color'), [])
-  const setBrushOpacity = useMemo(() => createConfigSetter<number>(setState, 'brushConfig', 'opacity'), [])
+  const setBrushWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'width'),
+    []
+  )
+  const setBrushColor = useMemo(
+    () => createConfigSetter<string>(setState, 'brushConfig', 'color'),
+    []
+  )
+  const setBrushOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'brushConfig', 'opacity'),
+    []
+  )
 
-  const setEraserWidth = useMemo(() => createConfigSetter<number>(setState, 'eraserConfig', 'width'), [])
-  const setEraserOpacity = useMemo(() => createConfigSetter<number>(setState, 'eraserConfig', 'opacity'), [])
+  const setEraserWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'width'),
+    []
+  )
+  const setEraserOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'eraserConfig', 'opacity'),
+    []
+  )
 
   const handConfig: HandToolConfig = { type: 'hand' }
 

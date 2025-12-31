@@ -37,12 +37,7 @@ export const OpacityPopover = memo(function OpacityPopover({
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-6"
-              onClick={onOpen}
-            >
+            <Button variant="ghost" size="icon" className="size-6" onClick={onOpen}>
               <Ghost className="size-3.5 text-muted-foreground" />
             </Button>
           </PopoverTrigger>

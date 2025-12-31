@@ -24,9 +24,7 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe('OpacityPopover', () => {
   test('ゴーストアイコンのボタンを表示する', () => {
-    renderWithProviders(
-      <OpacityPopover opacity={1} onOpacityChange={vi.fn()} />
-    )
+    renderWithProviders(<OpacityPopover opacity={1} onOpacityChange={vi.fn()} />)
 
     expect(screen.getByRole('button')).toBeInTheDocument()
   })
@@ -35,9 +33,7 @@ describe('OpacityPopover', () => {
     const onOpen = vi.fn()
     const user = userEvent.setup()
 
-    renderWithProviders(
-      <OpacityPopover opacity={1} onOpacityChange={vi.fn()} onOpen={onOpen} />
-    )
+    renderWithProviders(<OpacityPopover opacity={1} onOpacityChange={vi.fn()} onOpen={onOpen} />)
 
     await user.click(screen.getByRole('button'))
 
@@ -47,9 +43,7 @@ describe('OpacityPopover', () => {
   test('ボタンクリックでポップオーバーが開く', async () => {
     const user = userEvent.setup()
 
-    renderWithProviders(
-      <OpacityPopover opacity={0.5} onOpacityChange={vi.fn()} />
-    )
+    renderWithProviders(<OpacityPopover opacity={0.5} onOpacityChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
 
@@ -60,9 +54,7 @@ describe('OpacityPopover', () => {
   test('opacity=1の場合100%と表示される', async () => {
     const user = userEvent.setup()
 
-    renderWithProviders(
-      <OpacityPopover opacity={1} onOpacityChange={vi.fn()} />
-    )
+    renderWithProviders(<OpacityPopover opacity={1} onOpacityChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
 
@@ -72,9 +64,7 @@ describe('OpacityPopover', () => {
   test('opacity=0の場合0%と表示される', async () => {
     const user = userEvent.setup()
 
-    renderWithProviders(
-      <OpacityPopover opacity={0} onOpacityChange={vi.fn()} />
-    )
+    renderWithProviders(<OpacityPopover opacity={0} onOpacityChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
 
@@ -84,9 +74,7 @@ describe('OpacityPopover', () => {
   test('opacity=0.25の場合25%と表示される', async () => {
     const user = userEvent.setup()
 
-    renderWithProviders(
-      <OpacityPopover opacity={0.25} onOpacityChange={vi.fn()} />
-    )
+    renderWithProviders(<OpacityPopover opacity={0.25} onOpacityChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
 
