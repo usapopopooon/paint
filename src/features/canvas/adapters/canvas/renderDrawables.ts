@@ -51,9 +51,9 @@ const renderToTexture = (app: Application, drawables: readonly Drawable[]): Spri
     }
     renderDrawable(graphics, drawable)
 
-    // hardnessに基づいてブラーフィルターを適用
+    // hardnessに基づいてブラーフィルターを適用（消しゴムには適用しない - BlurFilterとeraseブレンドモードは両立不可）
     const hardness = getHardness(drawable)
-    if (hardness > 0 && isStrokeDrawable(drawable)) {
+    if (hardness > 0 && isStrokeDrawable(drawable) && !isEraserStroke(drawable)) {
       const blurStrength = calculateBlurStrength(hardness, drawable.style.brushTip.size)
       graphics.filters = [new BlurFilter({ strength: blurStrength })]
     }

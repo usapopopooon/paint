@@ -117,7 +117,7 @@ describe('renderDrawable', () => {
       expect(graphics.lineTo).toHaveBeenNthCalledWith(3, 150, 50)
     })
 
-    test('eraseブレンドモードでは描画した部分を透過にする', () => {
+    test('eraseブレンドモードでhardness=0の場合は単一ストロークで描画', () => {
       const stroke: StrokeDrawable = {
         id: 'test-5',
         type: 'stroke',
@@ -128,7 +128,12 @@ describe('renderDrawable', () => {
         ],
         style: {
           color: 'transparent',
-          brushTip: createSolidBrushTip(20),
+          brushTip: {
+            type: 'solid',
+            size: 20,
+            hardness: 0,
+            opacity: 1,
+          },
           blendMode: 'erase',
         },
       }
@@ -142,6 +147,34 @@ describe('renderDrawable', () => {
         cap: 'round',
         join: 'round',
       })
+      expect(graphics.stroke).toHaveBeenCalledTimes(1)
+    })
+
+    test('eraseブレンドモードでhardness>0の場合は複数レイヤーで描画', () => {
+      const stroke: StrokeDrawable = {
+        id: 'test-soft-eraser',
+        type: 'stroke',
+        createdAt: Date.now(),
+        points: [
+          { x: 0, y: 0 },
+          { x: 100, y: 100 },
+        ],
+        style: {
+          color: 'transparent',
+          brushTip: {
+            type: 'solid',
+            size: 20,
+            hardness: 0.5,
+            opacity: 1,
+          },
+          blendMode: 'erase',
+        },
+      }
+
+      renderDrawable(graphics, stroke)
+
+      // 8レイヤーで描画される（ソフトエッジ消しゴム）
+      expect(graphics.stroke).toHaveBeenCalledTimes(8)
     })
 
     test('normalブレンドモードでは指定色を使用する', () => {
