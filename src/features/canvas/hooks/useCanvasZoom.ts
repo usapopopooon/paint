@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { DISPLAY_MULTIPLIER } from '@/constants'
 
 /** ズームの最小倍率 */
 export const MIN_ZOOM = 0.1
@@ -6,8 +7,13 @@ export const MIN_ZOOM = 0.1
 export const MAX_ZOOM = 10
 /** ズームのステップ（ホイール1回分） */
 const ZOOM_STEP = 0.1
-/** デフォルトのズーム倍率 */
-const DEFAULT_ZOOM = 1
+/** デフォルトのズーム倍率（内部値、UI表示は2倍にマッピング） */
+const DEFAULT_ZOOM = 0.5
+
+/**
+ * @deprecated DISPLAY_MULTIPLIER を使用してください
+ */
+export const ZOOM_DISPLAY_MULTIPLIER = DISPLAY_MULTIPLIER
 
 /**
  * キャンバスのズームを管理するhook
@@ -56,9 +62,10 @@ export const useCanvasZoom = () => {
   }, [])
 
   /**
-   * ズーム倍率をパーセント表示用にフォーマット
+   * ズーム倍率をパーセント表示用にフォーマット（UI表示は2倍）
+   * 内部50% → UI 100%
    */
-  const zoomPercent = Math.round(zoom * 100)
+  const zoomPercent = Math.round(zoom * 100 * DISPLAY_MULTIPLIER)
 
   return {
     zoom,

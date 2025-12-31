@@ -2,8 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { type ResizeAnchor, calculateResizeOffset } from '../types'
 
 /** デフォルトのキャンバスサイズ */
-export const DEFAULT_CANVAS_WIDTH = 800
-export const DEFAULT_CANVAS_HEIGHT = 600
+export const DEFAULT_CANVAS_WIDTH = 1600
+export const DEFAULT_CANVAS_HEIGHT = 1600
 
 /** キャンバスサイズの最小・最大値 */
 export const MIN_CANVAS_SIZE = 100

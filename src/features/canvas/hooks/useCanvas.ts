@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import type { ToolConfig } from '../../tools/types'
 import type { Layer } from '@/features/layer'
 import type { Drawable, Point } from '@/features/drawable'
-import { useLayers } from '@/features/layer'
+import { useLayers, BACKGROUND_LAYER_ID } from '@/features/layer'
 import { stabilizeStroke, stabilizationToParams } from '@/features/stabilization'
 import { useCanvasHistory } from './useCanvasHistory'
 import { useDrawing } from './useDrawing'
@@ -274,6 +274,20 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     [layerManager, history]
   )
 
+  /**
+   * 背景レイヤーを表示（エクスポート時に使用）
+   */
+  const showBackgroundLayer = useCallback(() => {
+    layerManager.setLayerVisibility(BACKGROUND_LAYER_ID, true)
+  }, [layerManager])
+
+  /**
+   * 背景レイヤーを非表示（エクスポート後に使用）
+   */
+  const hideBackgroundLayer = useCallback(() => {
+    layerManager.setLayerVisibility(BACKGROUND_LAYER_ID, false)
+  }, [layerManager])
+
   return {
     drawables: allDrawables,
     layers: allLayers,
@@ -293,5 +307,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
     flipHorizontal,
+    showBackgroundLayer,
+    hideBackgroundLayer,
   } as const
 }

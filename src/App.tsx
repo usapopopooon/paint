@@ -11,6 +11,7 @@ import {
 } from './features/canvas'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
+import { useExportImage } from './features/export'
 import { LocaleToggle } from './features/i18n'
 import {
   Toolbar,
@@ -26,6 +27,7 @@ import {
   ZoomResetButton,
   ZoomDisplay,
   FlipHorizontalButton,
+  SaveButton,
 } from './features/toolbar'
 import {
   useTool,
@@ -45,6 +47,8 @@ import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 function App() {
   // canvasSizeのsetSizeDirectlyをrefで保持（循環依存を避けるため）
   const setSizeDirectlyRef = useRef<(width: number, height: number) => void>(() => {})
+  // キャンバスコンテナのref（画像エクスポート用）
+  const canvasContainerRef = useRef<HTMLDivElement>(null)
 
   // キャンバスリサイズundo/redo時のコールバック
   const handleCanvasResize = useCallback((width: number, height: number) => {
@@ -80,6 +84,7 @@ function App() {
   const canvasOffset = useCanvasOffset()
   const canvasZoom = useCanvasZoom()
   const tool = useTool()
+  const exportImage = useExportImage(canvasContainerRef)
 
   // ページを離れる前に確認ダイアログを表示
   useBeforeUnload()
@@ -214,6 +219,12 @@ function App() {
             onAnchorChange={canvasSize.setAnchor}
           />
           <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
+          <ToolbarDivider />
+          <SaveButton
+            onSave={() =>
+              exportImage.downloadAsJpg(canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
+            }
+          />
         </Toolbar>
         <div className="flex items-center gap-1">
           <LocaleToggle />
@@ -272,19 +283,22 @@ function App() {
             zoom={canvasZoom.zoom}
             onWheel={canvasZoom.handleWheel}
           >
-            <Canvas
-              layers={canvas.layers}
-              onStartStroke={handleStartStroke}
-              onAddPoint={canvas.addPoint}
-              onEndStroke={canvas.endStroke}
-              cursor={tool.cursor}
-              width={canvasSize.width}
-              height={canvasSize.height}
-              toolType={tool.currentType}
-              offset={canvasOffset.offset}
-              onPan={canvasOffset.pan}
-              onPickColor={handleColorChange}
-            />
+            <div ref={canvasContainerRef}>
+              <Canvas
+                layers={canvas.layers}
+                onStartStroke={handleStartStroke}
+                onAddPoint={canvas.addPoint}
+                onEndStroke={canvas.endStroke}
+                cursor={tool.cursor}
+                width={canvasSize.width}
+                height={canvasSize.height}
+                toolType={tool.currentType}
+                offset={canvasOffset.offset}
+                onPan={canvasOffset.pan}
+                onPickColor={handleColorChange}
+                zoom={canvasZoom.zoom}
+              />
+            </div>
           </CanvasViewport>
         </main>
       </div>

@@ -24,6 +24,8 @@ type UsePointerInputOptions = {
   onMove: (point: PointerPoint) => void
   onEnd: () => void
   onWheel?: (deltaY: number) => void
+  /** ズーム倍率（座標変換に使用、デフォルト: 1） */
+  zoom?: number
 }
 
 /**
@@ -62,6 +64,7 @@ export const usePointerInput = ({
   onMove,
   onEnd,
   onWheel,
+  zoom = 1,
 }: UsePointerInputOptions): UsePointerInputReturn => {
   // マルチポインターの競合を防ぐためアクティブなポインターIDを追跡
   const activePointerIdRef = useRef<number | null>(null)
@@ -112,11 +115,11 @@ export const usePointerInput = ({
       setActivePointerType(getPointerType(event.pointerType))
       setIsDrawing(true)
 
-      const point = extractPointerPoint(event, element)
+      const point = extractPointerPoint(event, element, zoom)
       setPointerPosition({ x: point.x, y: point.y })
       onStart(point)
     },
-    [onStart]
+    [onStart, zoom]
   )
 
   /**
@@ -126,7 +129,7 @@ export const usePointerInput = ({
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
-      const point = extractPointerPoint(event, element)
+      const point = extractPointerPoint(event, element, zoom)
       setPointerPosition({ x: point.x, y: point.y })
 
       // アクティブなポインターのムーブイベントのみ処理
@@ -136,7 +139,7 @@ export const usePointerInput = ({
 
       onMove(point)
     },
-    [onMove]
+    [onMove, zoom]
   )
 
   /**
@@ -217,7 +220,7 @@ export const usePointerInput = ({
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
       canvasElementRef.current = element
-      const point = extractPointerPoint(event, element)
+      const point = extractPointerPoint(event, element, zoom)
       setPointerPosition({ x: point.x, y: point.y })
 
       // 別のポインターで描画中の場合は無視
@@ -251,7 +254,7 @@ export const usePointerInput = ({
         }
       }
     },
-    [onStart]
+    [onStart, zoom]
   )
 
   // ホイールイベントはpassive: falseでネイティブリスナーを使用（useEffect内で設定）
@@ -281,8 +284,8 @@ export const usePointerInput = ({
 
       if (isPrimaryButtonPressed(event.buttons)) {
         const rect = canvasElementRef.current.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
+        const x = (event.clientX - rect.left) / zoom
+        const y = (event.clientY - rect.top) / zoom
 
         pendingStrokeStartRef.current = {
           x,
@@ -307,7 +310,7 @@ export const usePointerInput = ({
       window.removeEventListener('pointermove', handleWindowPointerMove)
       window.removeEventListener('pointerup', handleWindowPointerUp)
     }
-  }, [])
+  }, [zoom])
 
   // refコールバック: マウント時にキャンバス要素を設定
   const canvasRef = useCallback((element: HTMLElement | null) => {

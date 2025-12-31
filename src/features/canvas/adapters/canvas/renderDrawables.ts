@@ -25,16 +25,6 @@ const calculateBlurStrength = (hardness: number, brushSize: number): number => {
 }
 
 /**
- * 背景をステージに追加
- */
-const addBackground = (app: Application, backgroundColor: string): void => {
-  const background = new Graphics()
-  background.rect(0, 0, app.screen.width, app.screen.height)
-  background.fill(backgroundColor)
-  app.stage.addChild(background)
-}
-
-/**
  * 描画要素をRenderTextureにレンダリングしてSpriteとして返す
  */
 const renderToTexture = (app: Application, drawables: readonly Drawable[]): Sprite => {
@@ -72,17 +62,9 @@ const renderToTexture = (app: Application, drawables: readonly Drawable[]): Spri
  * RenderTextureを使用して消しゴムが正しく機能するようにする
  * @param app - PixiJS Application
  * @param drawables - レンダリングするDrawable配列
- * @param backgroundColor - 背景色（nullの場合は背景を描画しない）
  */
-export const renderDrawables = (
-  app: Application,
-  drawables: readonly Drawable[],
-  backgroundColor: string | null
-): void => {
+export const renderDrawables = (app: Application, drawables: readonly Drawable[]): void => {
   app.stage.removeChildren()
-  if (backgroundColor) {
-    addBackground(app, backgroundColor)
-  }
 
   if (drawables.length === 0) return
 

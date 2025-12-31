@@ -7,6 +7,7 @@ import type { PointerType, PointerPoint } from '../types'
  * @param rect - 要素のバウンディングボックス
  * @param pressure - 筆圧（0-1）
  * @param pointerType - ポインターの種類
+ * @param zoom - ズーム倍率（デフォルト: 1）
  * @returns ローカル座標を含むPointerPoint
  */
 export const getPointerPoint = (
@@ -14,10 +15,11 @@ export const getPointerPoint = (
   clientY: number,
   rect: DOMRect,
   pressure: number,
-  pointerType: PointerType
+  pointerType: PointerType,
+  zoom: number = 1
 ): PointerPoint => ({
-  x: clientX - rect.left,
-  y: clientY - rect.top,
+  x: (clientX - rect.left) / zoom,
+  y: (clientY - rect.top) / zoom,
   pressure,
   pointerType,
 })

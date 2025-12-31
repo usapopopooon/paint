@@ -38,27 +38,18 @@ describe('renderDrawables', () => {
     app = createMockApp()
   })
 
-  test('ステージをクリアしてコンテナと背景を追加する', async () => {
+  test('ステージをクリアする', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
-    renderDrawables(app, [], '#ff0000')
+    renderDrawables(app, [])
 
     expect(app.stage.removeChildren).toHaveBeenCalled()
-    expect(app.stage.addChild).toHaveBeenCalled()
-  })
-
-  test('コンテナをステージに追加する', async () => {
-    const { renderDrawables } = await import('./renderDrawables')
-
-    renderDrawables(app, [], '#ffffff')
-
-    expect(app.stage.addChild).toHaveBeenCalled()
   })
 
   test('空の描画要素配列でもエラーにならない', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
-    expect(() => renderDrawables(app, [], '#ffffff')).not.toThrow()
+    expect(() => renderDrawables(app, [])).not.toThrow()
   })
 
   test('描画要素がある場合にRenderTextureにレンダリングしてSpriteをステージに追加する', async () => {
@@ -81,23 +72,23 @@ describe('renderDrawables', () => {
       },
     ]
 
-    renderDrawables(app, drawables, '#ffffff')
+    renderDrawables(app, drawables)
 
     // RenderTextureにレンダリングされることを確認
     expect(app.renderer.render).toHaveBeenCalled()
-    // 背景 + レイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
+    // レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
   test('空の描画要素配列の場合はRenderTextureにレンダリングしない', async () => {
     const { renderDrawables } = await import('./renderDrawables')
 
-    renderDrawables(app, [], '#ffffff')
+    renderDrawables(app, [])
 
     // 描画要素がない場合はRenderTextureにレンダリングしない
     expect(app.renderer.render).not.toHaveBeenCalled()
-    // 背景のみがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+    // 何もステージに追加されない
+    expect(app.stage.addChild).not.toHaveBeenCalled()
   })
 
   test('消しゴムモードのストロークをRenderTextureにレンダリングする', async () => {
@@ -119,7 +110,7 @@ describe('renderDrawables', () => {
     }
 
     // エラーなく実行されることを確認
-    expect(() => renderDrawables(app, [eraserStroke], '#ffffff')).not.toThrow()
+    expect(() => renderDrawables(app, [eraserStroke])).not.toThrow()
     // RenderTextureにレンダリングされることを確認（消しゴムが透過として機能するため）
     expect(app.renderer.render).toHaveBeenCalled()
   })

@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import type { Application } from 'pixi.js'
 import type { Layer } from '@/features/layer'
+import { BACKGROUND_LAYER_ID } from '@/features/layer'
 import { createSolidBrushTip } from '@/features/brush'
 
 // モックPixiJS Application
@@ -38,20 +39,62 @@ describe('renderLayers', () => {
     app = createMockApp()
   })
 
-  test('ステージをクリアして背景を追加する', async () => {
+  test('ステージをクリアする', async () => {
     const { renderLayers } = await import('./renderLayers')
 
-    renderLayers(app, [], '#00ff00')
+    renderLayers(app, [])
 
     expect(app.stage.removeChildren).toHaveBeenCalled()
-    // 背景がステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalled()
   })
 
   test('空のレイヤー配列でもエラーにならない', async () => {
     const { renderLayers } = await import('./renderLayers')
 
-    expect(() => renderLayers(app, [], '#ffffff')).not.toThrow()
+    expect(() => renderLayers(app, [])).not.toThrow()
+  })
+
+  test('背景レイヤーが表示状態の場合、白背景を描画する', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    const layers: Layer[] = [
+      {
+        id: BACKGROUND_LAYER_ID,
+        name: 'Background',
+        type: 'background',
+        isVisible: true,
+        isLocked: true,
+        opacity: 1,
+        blendMode: 'normal',
+        drawables: [],
+      },
+    ]
+
+    renderLayers(app, layers)
+
+    // 背景がステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+  })
+
+  test('背景レイヤーが非表示の場合、背景を描画しない', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    const layers: Layer[] = [
+      {
+        id: BACKGROUND_LAYER_ID,
+        name: 'Background',
+        type: 'background',
+        isVisible: false,
+        isLocked: true,
+        opacity: 1,
+        blendMode: 'normal',
+        drawables: [],
+      },
+    ]
+
+    renderLayers(app, layers)
+
+    // 背景は追加されない
+    expect(app.stage.addChild).not.toHaveBeenCalled()
   })
 
   test('非表示レイヤーはスキップする', async () => {
@@ -85,10 +128,10 @@ describe('renderLayers', () => {
       },
     ]
 
-    renderLayers(app, layers, '#ffffff')
+    renderLayers(app, layers)
 
-    // 背景のみがステージに追加される（非表示レイヤーはスキップ）
-    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+    // 非表示レイヤーはスキップ
+    expect(app.stage.addChild).not.toHaveBeenCalled()
   })
 
   test('描画要素が空のレイヤーはスキップする', async () => {
@@ -107,10 +150,10 @@ describe('renderLayers', () => {
       },
     ]
 
-    renderLayers(app, layers, '#ffffff')
+    renderLayers(app, layers)
 
-    // 背景のみがステージに追加される（空レイヤーはスキップ）
-    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+    // 空レイヤーはスキップ
+    expect(app.stage.addChild).not.toHaveBeenCalled()
   })
 
   test('表示レイヤーをRenderTextureにレンダリングしてSpriteをステージに追加する', async () => {
@@ -144,12 +187,12 @@ describe('renderLayers', () => {
       },
     ]
 
-    renderLayers(app, layers, '#ffffff')
+    renderLayers(app, layers)
 
     // RenderTextureにレンダリングされることを確認
     expect(app.renderer.render).toHaveBeenCalled()
-    // 背景 + レイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
+    // レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
   test('複数の表示レイヤーを各々RenderTextureにレンダリングする', async () => {
@@ -208,12 +251,12 @@ describe('renderLayers', () => {
       },
     ]
 
-    renderLayers(app, layers, '#ffffff')
+    renderLayers(app, layers)
 
     // 各レイヤーごとにRenderTextureにレンダリングされる
     expect(app.renderer.render).toHaveBeenCalledTimes(2)
-    // 背景 + 2つのレイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(3)
+    // 2つのレイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
   test('消しゴムモードのストロークを含むレイヤーをRenderTextureにレンダリングする', async () => {
@@ -248,7 +291,7 @@ describe('renderLayers', () => {
     ]
 
     // エラーなく実行されることを確認
-    expect(() => renderLayers(app, layers, '#ffffff')).not.toThrow()
+    expect(() => renderLayers(app, layers)).not.toThrow()
     // RenderTextureにレンダリングされることを確認（消しゴムが透過として機能するため）
     expect(app.renderer.render).toHaveBeenCalled()
   })
@@ -284,7 +327,7 @@ describe('renderLayers', () => {
       },
     ]
 
-    renderLayers(app, layers, '#ffffff')
+    renderLayers(app, layers)
 
     // 非表示レイヤーはRenderTextureにレンダリングしない
     expect(app.renderer.render).not.toHaveBeenCalled()

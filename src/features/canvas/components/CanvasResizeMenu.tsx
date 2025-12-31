@@ -1,21 +1,24 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocale } from '@/features/i18n'
 import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { AnchorSelector } from './AnchorSelector'
 import type { ResizeAnchor } from '../types'
 import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../hooks/useCanvasSize'
+import { toDisplayValue, toInternalValue } from '@/utils'
 
-/** ホイールスクロール1回あたりの変化量 */
+/** ホイールスクロール1回あたりの変化量（UI表示値） */
 const WHEEL_STEP = 10
 
 /**
  * ホイールイベントでpreventDefaultを使用するためのカスタムフック
  * passive: false でイベントリスナーを登録する
+ * displayValue: UI表示値（内部値の1/2）
+ * onChange: 内部値で呼ばれる
  */
 const useWheelHandler = (
-  value: number,
-  onChange: (value: number) => void
+  displayValue: number,
+  onChange: (internalValue: number) => void
 ): React.RefObject<HTMLInputElement | null> => {
   const ref = useRef<HTMLInputElement | null>(null)
 
@@ -26,13 +29,15 @@ const useWheelHandler = (
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
       const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP
-      const newValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, value + delta))
-      onChange(newValue)
+      const newDisplayValue = displayValue + delta
+      const newInternalValue = toInternalValue(newDisplayValue)
+      const clampedValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, newInternalValue))
+      onChange(clampedValue)
     }
 
     element.addEventListener('wheel', handleWheel, { passive: false })
     return () => element.removeEventListener('wheel', handleWheel)
-  }, [value, onChange])
+  }, [displayValue, onChange])
 
   return ref
 }
@@ -84,22 +89,69 @@ export const CanvasResizeMenu = ({
 }: CanvasResizeMenuProps) => {
   const { t } = useLocale()
 
+  // UI表示値（内部値の1/2）
+  const displayWidth = toDisplayValue(width)
+  const displayHeight = toDisplayValue(height)
+  const minDisplaySize = toDisplayValue(MIN_CANVAS_SIZE)
+  const maxDisplaySize = toDisplayValue(MAX_CANVAS_SIZE)
+
+  // 入力中の値を保持するローカルステート（空文字入力を許可するため）
+  const [widthInput, setWidthInput] = useState(String(displayWidth))
+  const [heightInput, setHeightInput] = useState(String(displayHeight))
+
+  // propsの値が変わったらローカルステートを更新
+  useEffect(() => {
+    setWidthInput(String(displayWidth))
+  }, [displayWidth])
+
+  useEffect(() => {
+    setHeightInput(String(displayHeight))
+  }, [displayHeight])
+
   const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10)
-    if (!isNaN(value)) {
-      onWidthChange(value)
-    }
+    setWidthInput(e.target.value)
   }
 
   const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value, 10)
-    if (!isNaN(value)) {
-      onHeightChange(value)
+    setHeightInput(e.target.value)
+  }
+
+  const commitWidth = () => {
+    const displayValue = parseInt(widthInput, 10)
+    if (!isNaN(displayValue) && displayValue >= minDisplaySize && displayValue <= maxDisplaySize) {
+      onWidthChange(toInternalValue(displayValue))
+    } else {
+      // 無効な値の場合は元の値に戻す
+      setWidthInput(String(displayWidth))
     }
   }
 
-  const widthInputRef = useWheelHandler(width, onWidthChange)
-  const heightInputRef = useWheelHandler(height, onHeightChange)
+  const commitHeight = () => {
+    const displayValue = parseInt(heightInput, 10)
+    if (!isNaN(displayValue) && displayValue >= minDisplaySize && displayValue <= maxDisplaySize) {
+      onHeightChange(toInternalValue(displayValue))
+    } else {
+      // 無効な値の場合は元の値に戻す
+      setHeightInput(String(displayHeight))
+    }
+  }
+
+  const handleWidthKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      commitWidth()
+      e.currentTarget.blur()
+    }
+  }
+
+  const handleHeightKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      commitHeight()
+      e.currentTarget.blur()
+    }
+  }
+
+  const widthInputRef = useWheelHandler(displayWidth, onWidthChange)
+  const heightInputRef = useWheelHandler(displayHeight, onHeightChange)
 
   return (
     <Popover>
@@ -128,10 +180,12 @@ export const CanvasResizeMenu = ({
               <input
                 ref={widthInputRef}
                 type="number"
-                value={width}
+                value={widthInput}
                 onChange={handleWidthChange}
-                min={MIN_CANVAS_SIZE}
-                max={MAX_CANVAS_SIZE}
+                onBlur={commitWidth}
+                onKeyDown={handleWidthKeyDown}
+                min={minDisplaySize}
+                max={maxDisplaySize}
                 className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
               />
               <span className="text-xs text-muted-foreground ml-1">px</span>
@@ -143,10 +197,12 @@ export const CanvasResizeMenu = ({
               <input
                 ref={heightInputRef}
                 type="number"
-                value={height}
+                value={heightInput}
                 onChange={handleHeightChange}
-                min={MIN_CANVAS_SIZE}
-                max={MAX_CANVAS_SIZE}
+                onBlur={commitHeight}
+                onKeyDown={handleHeightKeyDown}
+                min={minDisplaySize}
+                max={maxDisplaySize}
                 className="w-20 px-2 py-1 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
               />
               <span className="text-xs text-muted-foreground ml-1">px</span>

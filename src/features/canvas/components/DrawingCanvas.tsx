@@ -6,10 +6,11 @@ import { renderDrawables, renderLayers } from '../adapters'
 
 /**
  * 透明パターン（チェッカーボード）のCSSスタイル
+ * サイズ40pxはデフォルトズーム50%で20pxに見えるように設定
  */
 const TRANSPARENCY_PATTERN_STYLE = {
   background:
-    'conic-gradient(#ccc 90deg, #fff 90deg 180deg, #ccc 180deg 270deg, #fff 270deg) 0 0 / 20px 20px',
+    'conic-gradient(#ccc 90deg, #fff 90deg 180deg, #ccc 180deg 270deg, #fff 270deg) 0 0 / 40px 40px',
 } as const
 
 /**
@@ -139,9 +140,9 @@ export const DrawingCanvas = ({
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {
-      renderLayers(app, layers, null)
+      renderLayers(app, layers)
     } else if (drawables) {
-      renderDrawables(app, drawables, null)
+      renderDrawables(app, drawables)
     } else {
       // コンテンツなし
       app.stage.removeChildren()

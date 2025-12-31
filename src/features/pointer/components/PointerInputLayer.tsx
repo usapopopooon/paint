@@ -15,6 +15,8 @@ type PointerInputLayerProps = {
   readonly onWheel?: (deltaY: number) => void
   readonly cursor?: CursorConfig
   readonly className?: string
+  /** ズーム倍率（座標変換に使用、デフォルト: 1） */
+  readonly zoom?: number
 }
 
 /**
@@ -29,12 +31,14 @@ export const PointerInputLayer = ({
   onWheel,
   cursor,
   className,
+  zoom = 1,
 }: PointerInputLayerProps) => {
   const { pointerProps, pointerPosition, canvasRef } = usePointerInput({
     onStart,
     onMove,
     onEnd,
     onWheel,
+    zoom,
   })
 
   return (
