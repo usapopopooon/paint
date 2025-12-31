@@ -122,4 +122,58 @@ describe('HardnessSlider', () => {
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '50')
   })
+
+  test('初期hardness値が0より大きい場合、その値が保存される', async () => {
+    const onHardnessChange = vi.fn()
+    const user = userEvent.setup()
+
+    // 初期状態: hardness=0.8
+    const { rerender } = renderWithProviders(
+      <HardnessSlider hardness={0.8} onHardnessChange={onHardnessChange} />
+    )
+
+    // トグルオフ
+    await user.click(screen.getByRole('button'))
+    expect(onHardnessChange).toHaveBeenCalledWith(0)
+
+    // hardness=0で再レンダリング
+    rerender(
+      <LocaleProvider>
+        <TooltipProvider>
+          <HardnessSlider hardness={0} onHardnessChange={onHardnessChange} />
+        </TooltipProvider>
+      </LocaleProvider>
+    )
+
+    // トグルオン → 保存された0.8が復元される
+    await user.click(screen.getByRole('button'))
+    expect(onHardnessChange).toHaveBeenCalledWith(0.8)
+  })
+
+  test('hardness=1の場合、トグルオフ→オンで1が復元される', async () => {
+    const onHardnessChange = vi.fn()
+    const user = userEvent.setup()
+
+    // 初期状態: hardness=1（最大値）
+    const { rerender } = renderWithProviders(
+      <HardnessSlider hardness={1} onHardnessChange={onHardnessChange} />
+    )
+
+    // トグルオフ
+    await user.click(screen.getByRole('button'))
+    expect(onHardnessChange).toHaveBeenCalledWith(0)
+
+    // hardness=0で再レンダリング
+    rerender(
+      <LocaleProvider>
+        <TooltipProvider>
+          <HardnessSlider hardness={0} onHardnessChange={onHardnessChange} />
+        </TooltipProvider>
+      </LocaleProvider>
+    )
+
+    // トグルオン → 保存された1が復元される
+    await user.click(screen.getByRole('button'))
+    expect(onHardnessChange).toHaveBeenCalledWith(1)
+  })
 })
