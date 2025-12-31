@@ -343,6 +343,7 @@ function App() {
             onLayerVisibilityChange={canvas.setLayerVisibility}
             onLayerAdd={canvas.addLayer}
             onLayerDelete={canvas.deleteLayer}
+            onLayerNameChange={canvas.setLayerName}
           />
         </ToolPanel>
 

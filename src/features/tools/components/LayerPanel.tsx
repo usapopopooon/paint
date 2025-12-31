@@ -1,6 +1,7 @@
-import { memo, useMemo, useState } from 'react'
+import { memo, useMemo, useState, useRef, useEffect } from 'react'
 import { Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
   AlertDialog,
@@ -12,6 +13,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { useLocale } from '@/features/i18n'
 import type { Layer, LayerId } from '@/features/layer'
 import { BACKGROUND_LAYER_ID } from '@/features/layer'
@@ -24,6 +32,7 @@ type LayerPanelProps = {
   readonly onLayerVisibilityChange: (id: LayerId, isVisible: boolean) => void
   readonly onLayerAdd: () => void
   readonly onLayerDelete: (id: LayerId) => void
+  readonly onLayerNameChange: (id: LayerId, name: string) => void
 }
 
 export const LayerPanel = memo(function LayerPanel({
@@ -34,9 +43,13 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerVisibilityChange,
   onLayerAdd,
   onLayerDelete,
+  onLayerNameChange,
 }: LayerPanelProps) {
   const { t } = useLocale()
   const [deleteTargetId, setDeleteTargetId] = useState<LayerId | null>(null)
+  const [editingLayerId, setEditingLayerId] = useState<LayerId | null>(null)
+  const [editingName, setEditingName] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // 背景レイヤーをUI上から非表示にする
   const visibleLayers = useMemo(
@@ -63,6 +76,45 @@ export const LayerPanel = memo(function LayerPanel({
   const handleDeleteCancel = () => {
     setDeleteTargetId(null)
   }
+
+  const handleNameDoubleClick = (e: React.MouseEvent, layer: Layer) => {
+    e.stopPropagation()
+    setEditingLayerId(layer.id)
+    setEditingName(layer.name)
+  }
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditingName(e.target.value)
+  }
+
+  const handleNameSubmit = () => {
+    if (editingLayerId && editingName.trim()) {
+      onLayerNameChange(editingLayerId, editingName.trim())
+    }
+    setEditingLayerId(null)
+    setEditingName('')
+  }
+
+  const handleNameCancel = () => {
+    setEditingLayerId(null)
+    setEditingName('')
+  }
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleNameSubmit()
+    } else if (e.key === 'Escape') {
+      handleNameCancel()
+    }
+  }
+
+  // ダイアログが開いたときにinputにフォーカス
+  useEffect(() => {
+    if (editingLayerId && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [editingLayerId])
 
   return (
     <div className="flex flex-col gap-2">
@@ -119,7 +171,13 @@ export const LayerPanel = memo(function LayerPanel({
                 {layer.isVisible ? t('layers.hide') : t('layers.show')}
               </TooltipContent>
             </Tooltip>
-            <span className="text-sm flex-1">{layer.name}</span>
+            <span
+              className="text-sm flex-1 truncate cursor-text"
+              onDoubleClick={(e) => handleNameDoubleClick(e, layer)}
+              title={layer.name}
+            >
+              {layer.name}
+            </span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="inline-flex">
@@ -159,6 +217,26 @@ export const LayerPanel = memo(function LayerPanel({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={editingLayerId !== null} onOpenChange={(open) => !open && handleNameCancel()}>
+        <DialogContent className="sm:max-w-[300px]">
+          <DialogHeader>
+            <DialogTitle>{t('layers.rename')}</DialogTitle>
+          </DialogHeader>
+          <Input
+            ref={inputRef}
+            value={editingName}
+            onChange={handleNameChange}
+            onKeyDown={handleNameKeyDown}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={handleNameCancel}>
+              {t('actions.cancel')}
+            </Button>
+            <Button onClick={handleNameSubmit}>{t('actions.ok')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })

@@ -51,6 +51,7 @@ const meta = {
     onLayerVisibilityChange: fn(),
     onLayerAdd: fn(),
     onLayerDelete: fn(),
+    onLayerNameChange: fn(),
   },
 } satisfies Meta<typeof LayerPanel>
 
@@ -193,5 +194,101 @@ export const CannotDeleteLastLayer: Story = {
 
     // 削除ボタンは無効化されている
     await expect(deleteButton).toBeDisabled()
+  },
+}
+
+const onLayerNameChangeFn = fn()
+/**
+ * レイヤー名をダブルクリックで編集できる
+ */
+export const RenameLayer: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerNameChange: onLayerNameChangeFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const layer1Name = canvas.getByText('Layer 1')
+
+    // ダブルクリックでダイアログを開く
+    await userEvent.dblClick(layer1Name)
+
+    // ダイアログが開かれたことを確認
+    await expect(canvas.getByRole('dialog')).toBeInTheDocument()
+    await expect(canvas.getByText('Rename layer')).toBeInTheDocument()
+
+    // 入力フィールドに新しい名前を入力
+    const input = canvas.getByRole('textbox')
+    await userEvent.clear(input)
+    await userEvent.type(input, 'New Layer Name')
+
+    // OKボタンをクリック
+    const okButton = canvas.getByRole('button', { name: 'OK' })
+    await userEvent.click(okButton)
+
+    // コールバックが呼ばれたことを確認
+    await expect(onLayerNameChangeFn).toHaveBeenCalledWith('layer-1', 'New Layer Name')
+  },
+}
+
+const onLayerNameChangeCancelFn = fn()
+/**
+ * レイヤー名変更をキャンセルできる
+ */
+export const RenameLayerCancel: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerNameChange: onLayerNameChangeCancelFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const layer1Name = canvas.getByText('Layer 1')
+
+    // ダブルクリックでダイアログを開く
+    await userEvent.dblClick(layer1Name)
+
+    // 入力フィールドに新しい名前を入力
+    const input = canvas.getByRole('textbox')
+    await userEvent.clear(input)
+    await userEvent.type(input, 'New Layer Name')
+
+    // キャンセルボタンをクリック
+    const cancelButton = canvas.getByRole('button', { name: 'Cancel' })
+    await userEvent.click(cancelButton)
+
+    // コールバックは呼ばれていないことを確認
+    await expect(onLayerNameChangeCancelFn).not.toHaveBeenCalled()
+  },
+}
+
+/**
+ * 長いレイヤー名は省略表示される
+ */
+export const LongLayerName: Story = {
+  args: {
+    layers: [
+      {
+        ...sampleLayers[0]!,
+        name: 'This is a very long layer name that should be truncated with ellipsis',
+      },
+      sampleLayers[1]!,
+      sampleLayers[2]!,
+    ],
+    activeLayerId: 'layer-1',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const longName = canvas.getByText(
+      'This is a very long layer name that should be truncated with ellipsis'
+    )
+
+    // title属性でフルネームが表示されることを確認
+    await expect(longName).toHaveAttribute(
+      'title',
+      'This is a very long layer name that should be truncated with ellipsis'
+    )
+
+    // truncateクラスが適用されていることを確認
+    await expect(longName).toHaveClass('truncate')
   },
 }

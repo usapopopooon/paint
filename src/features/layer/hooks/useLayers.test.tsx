@@ -338,4 +338,68 @@ describe('useLayers', () => {
       expect(result.current.drawingLayerCount).toBe(3)
     })
   })
+
+  describe('setLayerName', () => {
+    test('レイヤー名を変更できる', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      const initialLayerId = result.current.activeLayerId
+
+      act(() => {
+        result.current.setLayerName(initialLayerId, 'New Name')
+      })
+
+      const updatedLayer = result.current.getLayerById(initialLayerId)
+      expect(updatedLayer?.name).toBe('New Name')
+    })
+
+    test('存在しないレイヤーIDでもエラーにならない', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      expect(() => {
+        act(() => {
+          result.current.setLayerName('non-existent-id', 'New Name')
+        })
+      }).not.toThrow()
+    })
+
+    test('長い名前も設定できる', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+      const layerId = result.current.activeLayerId
+      const longName = 'This is a very long layer name that exceeds typical length limits'
+
+      act(() => {
+        result.current.setLayerName(layerId, longName)
+      })
+
+      const layer = result.current.getLayerById(layerId)
+      expect(layer?.name).toBe(longName)
+    })
+
+    test('複数のレイヤーがある場合、指定したレイヤーのみ名前が変更される', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      const initialLayerId = result.current.activeLayerId
+
+      // レイヤーを追加
+      let newLayerId: string
+      act(() => {
+        const { layerId } = result.current.addLayer()
+        newLayerId = layerId
+      })
+
+      // 元のレイヤーの名前を変更
+      act(() => {
+        result.current.setLayerName(initialLayerId, 'Changed Name')
+      })
+
+      // 変更したレイヤーの名前が変わっている
+      const changedLayer = result.current.getLayerById(initialLayerId)
+      expect(changedLayer?.name).toBe('Changed Name')
+
+      // 新しいレイヤーの名前は変わっていない
+      const newLayer = result.current.getLayerById(newLayerId!)
+      expect(newLayer?.name).not.toBe('Changed Name')
+    })
+  })
 })
