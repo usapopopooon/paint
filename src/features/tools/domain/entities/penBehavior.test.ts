@@ -31,7 +31,14 @@ describe('penBehavior', () => {
   describe('createStroke', () => {
     test('指定されたポイントとコンフィグでストロークDrawableを作成する', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1, hardness: 0, isBlurEnabled: true }
+      const config = {
+        type: 'pen' as const,
+        width: 5,
+        color: '#ff0000',
+        opacity: 1,
+        hardness: 0,
+        isBlurEnabled: true,
+      }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -47,7 +54,14 @@ describe('penBehavior', () => {
 
     test('opacityがブラシチップに反映される', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 0.5, hardness: 0, isBlurEnabled: true }
+      const config = {
+        type: 'pen' as const,
+        width: 5,
+        color: '#ff0000',
+        opacity: 0.5,
+        hardness: 0,
+        isBlurEnabled: true,
+      }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -56,7 +70,14 @@ describe('penBehavior', () => {
 
     test('hardnessがブラシチップに反映される', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1, hardness: 0.5, isBlurEnabled: true }
+      const config = {
+        type: 'pen' as const,
+        width: 5,
+        color: '#ff0000',
+        opacity: 1,
+        hardness: 0.5,
+        isBlurEnabled: true,
+      }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -65,7 +86,14 @@ describe('penBehavior', () => {
 
     test('isBlurEnabled=falseの場合、hardnessは1.0になる', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1, hardness: 0.3, isBlurEnabled: false }
+      const config = {
+        type: 'pen' as const,
+        width: 5,
+        color: '#ff0000',
+        opacity: 1,
+        hardness: 0.3,
+        isBlurEnabled: false,
+      }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -74,7 +102,14 @@ describe('penBehavior', () => {
 
     test('isBlurEnabled=trueの場合、設定されたhardnessが使用される', () => {
       const point = { x: 10, y: 20 }
-      const config = { type: 'pen' as const, width: 5, color: '#ff0000', opacity: 1, hardness: 0.3, isBlurEnabled: true }
+      const config = {
+        type: 'pen' as const,
+        width: 5,
+        color: '#ff0000',
+        opacity: 1,
+        hardness: 0.3,
+        isBlurEnabled: true,
+      }
 
       const stroke = penBehavior.createStroke(point, config)
 
@@ -84,7 +119,14 @@ describe('penBehavior', () => {
 
   describe('getCursor', () => {
     test('penコンフィグに対応したカーソルコンフィグを返す', () => {
-      const config = { type: 'pen' as const, width: 10, color: '#00ff00', opacity: 1, hardness: 0, isBlurEnabled: true }
+      const config = {
+        type: 'pen' as const,
+        width: 10,
+        color: '#00ff00',
+        opacity: 1,
+        hardness: 0,
+        isBlurEnabled: true,
+      }
 
       const cursor = penBehavior.getCursor(config)
 

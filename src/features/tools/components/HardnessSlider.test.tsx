@@ -69,7 +69,11 @@ describe('HardnessSlider', () => {
     const user = userEvent.setup()
 
     renderWithProviders(
-      <HardnessSlider {...defaultProps} isBlurEnabled={true} onBlurEnabledChange={onBlurEnabledChange} />
+      <HardnessSlider
+        {...defaultProps}
+        isBlurEnabled={true}
+        onBlurEnabledChange={onBlurEnabledChange}
+      />
     )
 
     const toggleButton = screen.getByRole('button')
@@ -83,7 +87,11 @@ describe('HardnessSlider', () => {
     const user = userEvent.setup()
 
     renderWithProviders(
-      <HardnessSlider {...defaultProps} isBlurEnabled={false} onBlurEnabledChange={onBlurEnabledChange} />
+      <HardnessSlider
+        {...defaultProps}
+        isBlurEnabled={false}
+        onBlurEnabledChange={onBlurEnabledChange}
+      />
     )
 
     const toggleButton = screen.getByRole('button')
