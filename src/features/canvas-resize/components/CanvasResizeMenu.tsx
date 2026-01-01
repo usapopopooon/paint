@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 import { useLocale } from '@/features/i18n'
 import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -118,21 +119,33 @@ export const CanvasResizeMenu = ({
 
   const commitWidth = () => {
     const displayValue = parseInt(widthInput, 10)
-    if (!isNaN(displayValue) && displayValue >= minDisplaySize && displayValue <= maxDisplaySize) {
-      onWidthChange(toInternalValue(displayValue))
-    } else {
-      // 無効な値の場合は元の値に戻す
+    if (isNaN(displayValue)) {
+      toast.error(t('canvas.invalidSize'))
       setWidthInput(String(displayWidth))
+    } else if (displayValue < minDisplaySize) {
+      toast.error(t('canvas.sizeTooSmall', { min: minDisplaySize }))
+      setWidthInput(String(displayWidth))
+    } else if (displayValue > maxDisplaySize) {
+      toast.error(t('canvas.sizeTooLarge', { max: maxDisplaySize }))
+      setWidthInput(String(displayWidth))
+    } else {
+      onWidthChange(toInternalValue(displayValue))
     }
   }
 
   const commitHeight = () => {
     const displayValue = parseInt(heightInput, 10)
-    if (!isNaN(displayValue) && displayValue >= minDisplaySize && displayValue <= maxDisplaySize) {
-      onHeightChange(toInternalValue(displayValue))
-    } else {
-      // 無効な値の場合は元の値に戻す
+    if (isNaN(displayValue)) {
+      toast.error(t('canvas.invalidSize'))
       setHeightInput(String(displayHeight))
+    } else if (displayValue < minDisplaySize) {
+      toast.error(t('canvas.sizeTooSmall', { min: minDisplaySize }))
+      setHeightInput(String(displayHeight))
+    } else if (displayValue > maxDisplaySize) {
+      toast.error(t('canvas.sizeTooLarge', { max: maxDisplaySize }))
+      setHeightInput(String(displayHeight))
+    } else {
+      onHeightChange(toInternalValue(displayValue))
     }
   }
 
