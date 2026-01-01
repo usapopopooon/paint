@@ -40,6 +40,14 @@
   "layers.rename": "レイヤー名を変更",
   "layers.moveUp": "レイヤーを上に移動",
   "layers.moveDown": "レイヤーを下に移動",
+  "layers.blendMode": "合成モード",
+  "layers.opacity": "不透明度",
+  "blendMode.normal": "通常",
+  "blendMode.multiply": "乗算",
+  "blendMode.screen": "スクリーン",
+  "blendMode.overlay": "オーバーレイ",
+  "blendMode.darken": "比較（暗）",
+  "blendMode.lighten": "比較（明）",
   "canvas.width": "幅:",
   "canvas.height": "高さ:",
   "canvas.center": "キャンバスを中央に",
@@ -52,5 +60,7 @@
   "stabilization.title": "手ぶれ補正",
   "toolbar.save": "画像を保存 (JPG)",
   "toolbar.import": "画像を読み込む",
-  "import.invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。"
+  "import.invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。",
+  "blendMode.warning.title": "合成モードの警告",
+  "blendMode.warning.description": "合成モードはブラウザに大きな負荷がかかり、クラッシュする可能性があります。適用しますか？"
 }

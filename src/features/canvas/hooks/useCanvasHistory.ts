@@ -1,6 +1,6 @@
 import { useCallback, useState, useRef, useEffect } from 'react'
 import type { Drawable } from '@/features/drawable'
-import type { LayerId } from '@/features/layer'
+import type { LayerId, LayerBlendMode } from '@/features/layer'
 import type { HistoryStorage } from '@/features/history'
 import {
   createInMemoryStorage,
@@ -11,6 +11,7 @@ import {
   createLayerVisibilityChangedAction,
   createLayerOpacityChangedAction,
   createLayerRenamedAction,
+  createLayerBlendModeChangedAction,
   createCanvasResizedAction,
   createCanvasFlippedAction,
 } from '@/features/history'
@@ -201,6 +202,22 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   )
 
   /**
+   * レイヤーブレンドモード変更を履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param previousValue - 変更前のブレンドモード
+   * @param newValue - 変更後のブレンドモード
+   */
+  const recordLayerBlendModeChange = useCallback(
+    async (layerId: LayerId, previousValue: LayerBlendMode, newValue: LayerBlendMode) => {
+      const action = createLayerBlendModeChangedAction(layerId, previousValue, newValue)
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
    * レイヤー作成を履歴に記録
    * @param layerId - 作成されたレイヤーID
    * @param name - レイヤー名
@@ -308,6 +325,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     recordLayerVisibilityChange,
     recordLayerOpacityChange,
     recordLayerNameChange,
+    recordLayerBlendModeChange,
     recordLayerCreated,
     recordLayerDeleted,
     recordCanvasResize,

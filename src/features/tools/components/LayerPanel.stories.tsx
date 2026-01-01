@@ -52,6 +52,8 @@ const meta = {
     onLayerAdd: fn(),
     onLayerDelete: fn(),
     onLayerNameChange: fn(),
+    onLayerBlendModeChange: fn(),
+    onLayerOpacityChange: fn(),
     onLayerMove: fn(),
   },
 } satisfies Meta<typeof LayerPanel>
@@ -324,5 +326,128 @@ export const NotDraggable: Story = {
     // ドラッグ可能な要素がないことを確認
     const draggableItems = canvasElement.querySelectorAll('[draggable="true"]')
     await expect(draggableItems.length).toBe(0)
+  },
+}
+
+/**
+ * 異なるブレンドモードと透明度を持つレイヤー
+ */
+const layersWithBlendModes: readonly Layer[] = [
+  {
+    id: 'layer-1',
+    name: 'Normal Layer',
+    type: 'drawing',
+    isVisible: true,
+    isLocked: false,
+    opacity: 1,
+    blendMode: 'normal',
+    drawables: [],
+  },
+  {
+    id: 'layer-2',
+    name: 'Multiply Layer',
+    type: 'drawing',
+    isVisible: true,
+    isLocked: false,
+    opacity: 0.8,
+    blendMode: 'multiply',
+    drawables: [],
+  },
+  {
+    id: 'layer-3',
+    name: 'Screen Layer',
+    type: 'drawing',
+    isVisible: true,
+    isLocked: false,
+    opacity: 0.5,
+    blendMode: 'screen',
+    drawables: [],
+  },
+]
+
+export const WithBlendModes: Story = {
+  args: {
+    layers: layersWithBlendModes,
+    drawingLayerCount: 3,
+    activeLayerId: 'layer-2',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // 各レイヤーの透明度が表示されている
+    await expect(canvas.getByText('100%')).toBeInTheDocument()
+    await expect(canvas.getByText('80%')).toBeInTheDocument()
+    await expect(canvas.getByText('50%')).toBeInTheDocument()
+
+    // 合成モードのセレクトボックスが存在する
+    await expect(canvas.getByRole('combobox')).toBeInTheDocument()
+  },
+}
+
+const onBlendModeChangeFn = fn()
+/**
+ * 合成モード変更時に初回警告ダイアログが表示される
+ */
+export const BlendModeWarningDialog: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerBlendModeChange: onBlendModeChangeFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+
+    // 合成モードのセレクトボックスをクリック
+    const combobox = canvas.getByRole('combobox')
+    await userEvent.click(combobox)
+
+    // 乗算を選択
+    const multiplyOption = body.getByRole('option', { name: 'Multiply' })
+    await userEvent.click(multiplyOption)
+
+    // 警告ダイアログが表示される
+    await expect(body.getByRole('alertdialog')).toBeInTheDocument()
+    await expect(body.getByText('Blend Mode Warning')).toBeInTheDocument()
+    await expect(body.getByText(/Blend modes may cause heavy browser load/)).toBeInTheDocument()
+
+    // OKをクリック
+    const okButton = body.getByRole('button', { name: 'OK' })
+    await userEvent.click(okButton)
+
+    // コールバックが呼ばれる
+    await expect(onBlendModeChangeFn).toHaveBeenCalledWith('layer-1', 'multiply')
+  },
+}
+
+const onBlendModeChangeCancelFn = fn()
+/**
+ * 合成モード警告ダイアログでキャンセルした場合は変更されない
+ */
+export const BlendModeWarningDialogCancel: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerBlendModeChange: onBlendModeChangeCancelFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+
+    // 合成モードのセレクトボックスをクリック
+    const combobox = canvas.getByRole('combobox')
+    await userEvent.click(combobox)
+
+    // スクリーンを選択
+    const screenOption = body.getByRole('option', { name: 'Screen' })
+    await userEvent.click(screenOption)
+
+    // 警告ダイアログが表示される
+    await expect(body.getByRole('alertdialog')).toBeInTheDocument()
+
+    // キャンセルをクリック
+    const cancelButton = body.getByRole('button', { name: 'Cancel' })
+    await userEvent.click(cancelButton)
+
+    // コールバックは呼ばれない
+    await expect(onBlendModeChangeCancelFn).not.toHaveBeenCalled()
   },
 }
