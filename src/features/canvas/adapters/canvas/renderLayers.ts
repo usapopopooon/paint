@@ -119,7 +119,6 @@ const addCheckerboard = (app: Application): void => {
   app.stage.addChild(checkerboard)
 }
 
-
 /**
  * レイヤーを段階的に合成してRenderTextureに焼き付ける
  * これにより、ブレンドモードが正しく下のレイヤーに適用される

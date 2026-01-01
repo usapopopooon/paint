@@ -173,3 +173,49 @@ export const EmptyInputRevert: Story = {
     await expect(body.getByDisplayValue('800')).toBeInTheDocument()
   },
 }
+
+/**
+ * 最小値未満を入力するとエラートーストが表示される
+ */
+export const TooSmallValueShowsError: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const menuButton = canvas.getByRole('button')
+
+    await userEvent.click(menuButton)
+
+    const body = within(document.body)
+    const widthInput = await body.findByDisplayValue('800')
+    await userEvent.clear(widthInput)
+    await userEvent.type(widthInput, '10') // 最小値50未満
+    await userEvent.tab()
+
+    // コールバックは呼ばれない
+    await expect(args.onWidthChange).not.toHaveBeenCalled()
+    // 元の値に戻る
+    await expect(body.getByDisplayValue('800')).toBeInTheDocument()
+  },
+}
+
+/**
+ * 最大値超過を入力するとエラートーストが表示される
+ */
+export const TooLargeValueShowsError: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const menuButton = canvas.getByRole('button')
+
+    await userEvent.click(menuButton)
+
+    const body = within(document.body)
+    const widthInput = await body.findByDisplayValue('800')
+    await userEvent.clear(widthInput)
+    await userEvent.type(widthInput, '9999') // 最大値2048超過
+    await userEvent.tab()
+
+    // コールバックは呼ばれない
+    await expect(args.onWidthChange).not.toHaveBeenCalled()
+    // 元の値に戻る
+    await expect(body.getByDisplayValue('800')).toBeInTheDocument()
+  },
+}
