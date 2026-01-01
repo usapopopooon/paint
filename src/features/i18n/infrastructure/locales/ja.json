@@ -41,6 +41,8 @@
   "layers.deleteConfirm": "このレイヤーを削除しますか？",
   "layers.cannotDelete": "最後のレイヤーは削除できません",
   "layers.rename": "レイヤー名を変更",
+  "layers.nameRequired": "レイヤー名を入力してください",
+  "layers.nameTooLong": "レイヤー名は{max}文字以内で入力してください",
   "layers.moveUp": "レイヤーを上に移動",
   "layers.moveDown": "レイヤーを下に移動",
   "layers.blendMode": "合成モード",

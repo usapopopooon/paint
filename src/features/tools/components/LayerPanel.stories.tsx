@@ -451,3 +451,78 @@ export const BlendModeWarningDialogCancel: Story = {
     await expect(onBlendModeChangeCancelFn).not.toHaveBeenCalled()
   },
 }
+
+const onLayerNameEmptyFn = fn()
+/**
+ * 空のレイヤー名は保存できない（バリデーションエラー）
+ */
+export const RenameLayerEmptyValidation: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerNameChange: onLayerNameEmptyFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+    const layer1Name = canvas.getByText('Layer 1')
+
+    // ダブルクリックでダイアログを開く
+    await userEvent.dblClick(layer1Name)
+
+    // 入力フィールドをクリア
+    const input = body.getByRole('textbox')
+    await userEvent.clear(input)
+
+    // エラーメッセージが表示される
+    await expect(body.getByText('Please enter a layer name')).toBeInTheDocument()
+
+    // OKボタンが無効になっている
+    const okButton = body.getByRole('button', { name: 'OK' })
+    await expect(okButton).toBeDisabled()
+
+    // キャンセルボタンはクリック可能
+    const cancelButton = body.getByRole('button', { name: 'Cancel' })
+    await userEvent.click(cancelButton)
+
+    // コールバックは呼ばれない
+    await expect(onLayerNameEmptyFn).not.toHaveBeenCalled()
+  },
+}
+
+const onLayerNameTooLongFn = fn()
+/**
+ * 50文字を超えるレイヤー名は保存できない（バリデーションエラー）
+ */
+export const RenameLayerTooLongValidation: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerNameChange: onLayerNameTooLongFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+    const layer1Name = canvas.getByText('Layer 1')
+
+    // ダブルクリックでダイアログを開く
+    await userEvent.dblClick(layer1Name)
+
+    // 51文字の名前を入力
+    const input = body.getByRole('textbox')
+    await userEvent.clear(input)
+    await userEvent.type(input, 'a'.repeat(51))
+
+    // エラーメッセージが表示される
+    await expect(body.getByText('Layer name must be 50 characters or less')).toBeInTheDocument()
+
+    // OKボタンが無効になっている
+    const okButton = body.getByRole('button', { name: 'OK' })
+    await expect(okButton).toBeDisabled()
+
+    // キャンセルボタンはクリック可能
+    const cancelButton = body.getByRole('button', { name: 'Cancel' })
+    await userEvent.click(cancelButton)
+
+    // コールバックは呼ばれない
+    await expect(onLayerNameTooLongFn).not.toHaveBeenCalled()
+  },
+}

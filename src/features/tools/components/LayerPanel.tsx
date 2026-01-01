@@ -1,4 +1,7 @@
-import { memo, useMemo, useState, useRef, useEffect, useCallback } from 'react'
+import { memo, useMemo, useState, useEffect, useCallback, useRef } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Eye, EyeOff, Plus, Trash2, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,8 +32,14 @@ import {
 } from '@/components/ui/dialog'
 import { useLocale } from '@/features/i18n'
 import type { Layer, LayerId, LayerBlendMode } from '@/features/layer'
-import { BACKGROUND_LAYER_ID } from '@/features/layer'
+import { BACKGROUND_LAYER_ID, layerNameSchema, MAX_LAYER_NAME_LENGTH } from '@/features/layer'
 import { OpacityPopover } from './OpacityPopover'
+
+const renameFormSchema = z.object({
+  name: layerNameSchema,
+})
+
+type RenameFormData = z.infer<typeof renameFormSchema>
 
 // overlay, darken, lightenはPixiJSのバグで透明背景と誤って相互作用するため除外
 // @see https://github.com/pixijs/pixijs/issues/11206
@@ -66,12 +75,22 @@ export const LayerPanel = memo(function LayerPanel({
   const { t } = useLocale()
   const [deleteTargetId, setDeleteTargetId] = useState<LayerId | null>(null)
   const [editingLayerId, setEditingLayerId] = useState<LayerId | null>(null)
-  const [editingName, setEditingName] = useState('')
   const [draggedLayerId, setDraggedLayerId] = useState<LayerId | null>(null)
   const [dragOverLayerId, setDragOverLayerId] = useState<LayerId | null>(null)
   const [pendingBlendMode, setPendingBlendMode] = useState<LayerBlendMode | null>(null)
   const [blendModeWarningShown, setBlendModeWarningShown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    reset,
+  } = useForm<RenameFormData>({
+    resolver: zodResolver(renameFormSchema),
+    defaultValues: { name: '' },
+    mode: 'onChange',
+  })
 
   // 背景レイヤーをUI上から非表示にする
   const visibleLayers = useMemo(
@@ -111,39 +130,42 @@ export const LayerPanel = memo(function LayerPanel({
   const handleNameDoubleClick = (e: React.MouseEvent, layer: Layer) => {
     e.stopPropagation()
     setEditingLayerId(layer.id)
-    setEditingName(layer.name)
+    reset({ name: layer.name })
   }
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditingName(e.target.value)
-  }
-
-  const handleNameSubmit = () => {
-    if (editingLayerId && editingName.trim()) {
-      onLayerNameChange(editingLayerId, editingName.trim())
+  const onRenameSubmit = (data: RenameFormData) => {
+    if (editingLayerId) {
+      onLayerNameChange(editingLayerId, data.name.trim())
     }
     setEditingLayerId(null)
-    setEditingName('')
+    reset({ name: '' })
   }
 
   const handleNameCancel = () => {
     setEditingLayerId(null)
-    setEditingName('')
+    reset({ name: '' })
   }
 
-  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleNameSubmit()
-    } else if (e.key === 'Escape') {
-      handleNameCancel()
+  const getNameErrorMessage = (): string | undefined => {
+    if (!errors.name) return undefined
+    const errorType = errors.name.type
+    if (errorType === 'too_small') {
+      return t('layers.nameRequired')
     }
+    if (errorType === 'too_big') {
+      return t('layers.nameTooLong', { max: MAX_LAYER_NAME_LENGTH })
+    }
+    return t('layers.nameRequired')
   }
 
   // ダイアログが開いたときにinputにフォーカス
   useEffect(() => {
-    if (editingLayerId && inputRef.current) {
-      inputRef.current.focus()
-      inputRef.current.select()
+    if (editingLayerId) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus()
+        inputRef.current?.select()
+      }, 50)
+      return () => clearTimeout(timer)
     }
   }, [editingLayerId])
 
@@ -379,18 +401,27 @@ export const LayerPanel = memo(function LayerPanel({
           <DialogHeader>
             <DialogTitle>{t('layers.rename')}</DialogTitle>
           </DialogHeader>
-          <Input
-            ref={inputRef}
-            value={editingName}
-            onChange={handleNameChange}
-            onKeyDown={handleNameKeyDown}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={handleNameCancel}>
-              {t('actions.cancel')}
-            </Button>
-            <Button onClick={handleNameSubmit}>{t('actions.ok')}</Button>
-          </DialogFooter>
+          <form onSubmit={handleSubmit(onRenameSubmit)}>
+            <div className="flex flex-col gap-2">
+              <Input
+                {...register('name')}
+                ref={(e) => {
+                  register('name').ref(e)
+                  inputRef.current = e
+                }}
+                className={errors.name ? 'border-destructive' : ''}
+              />
+              {errors.name && <p className="text-sm text-destructive">{getNameErrorMessage()}</p>}
+            </div>
+            <DialogFooter className="mt-4">
+              <Button type="button" variant="outline" onClick={handleNameCancel}>
+                {t('actions.cancel')}
+              </Button>
+              <Button type="submit" disabled={!isValid}>
+                {t('actions.ok')}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
