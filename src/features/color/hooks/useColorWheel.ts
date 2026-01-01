@@ -42,11 +42,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   const cachedRectRef = useRef<DOMRect | null>(null)
 
   /**
-   * マウスイベントからカラーホイール内の位置を取得
-   * @param event - マウスイベント
+   * ポインターイベントからカラーホイール内の位置を取得
+   * @param event - ポインターイベント
    * @returns 中心からの相対座標と距離、またはnull
    */
-  const getPositionFromEvent = useCallback((event: React.MouseEvent | MouseEvent) => {
+  const getPositionFromEvent = useCallback((event: React.PointerEvent | PointerEvent) => {
     const container = containerRef.current
     if (!container) return null
 
@@ -95,11 +95,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   )
 
   /**
-   * マウスダウン時のハンドラ
-   * @param event - マウスイベント
+   * ポインターダウン時のハンドラ
+   * @param event - ポインターイベント
    */
-  const handleMouseDown = useCallback(
-    (event: React.MouseEvent) => {
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent) => {
       // ドラッグ開始時にrectをキャッシュ
       const container = containerRef.current
       if (container) {
@@ -128,10 +128,10 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   )
 
   /**
-   * 彩度・明度インジケーターのマウスダウンハンドラ
-   * @param event - マウスイベント
+   * 彩度・明度インジケーターのポインターダウンハンドラ
+   * @param event - ポインターイベント
    */
-  const handleSvIndicatorMouseDown = useCallback((event: React.MouseEvent) => {
+  const handleSvIndicatorPointerDown = useCallback((event: React.PointerEvent) => {
     event.stopPropagation()
     // ドラッグ開始時にrectをキャッシュ
     const container = containerRef.current
@@ -142,10 +142,10 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   }, [])
 
   /**
-   * 色相インジケーターのマウスダウンハンドラ
-   * @param event - マウスイベント
+   * 色相インジケーターのポインターダウンハンドラ
+   * @param event - ポインターイベント
    */
-  const handleHueIndicatorMouseDown = useCallback((event: React.MouseEvent) => {
+  const handleHueIndicatorPointerDown = useCallback((event: React.PointerEvent) => {
     event.stopPropagation()
     // ドラッグ開始時にrectをキャッシュ
     const container = containerRef.current
@@ -156,11 +156,11 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   }, [])
 
   /**
-   * マウス移動時のハンドラ
-   * @param event - マウスイベント
+   * ポインター移動時のハンドラ
+   * @param event - ポインターイベント
    */
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
+  const handlePointerMove = useCallback(
+    (event: PointerEvent) => {
       if (dragMode === 'none') return
 
       const pos = getPositionFromEvent(event)
@@ -177,8 +177,8 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     [dragMode, getPositionFromEvent, updateSV, updateHue]
   )
 
-  /** マウスアップ時のハンドラ */
-  const handleMouseUp = useCallback(() => {
+  /** ポインターアップ時のハンドラ */
+  const handlePointerUp = useCallback(() => {
     setDragMode('none')
     // ドラッグ終了時にキャッシュをクリア
     cachedRectRef.current = null
@@ -192,15 +192,17 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
 
     colorWheelState.isDragging = true
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerUp)
+    document.addEventListener('pointercancel', handlePointerUp)
 
     return () => {
       colorWheelState.isDragging = false
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('pointermove', handlePointerMove)
+      document.removeEventListener('pointerup', handlePointerUp)
+      document.removeEventListener('pointercancel', handlePointerUp)
     }
-  }, [dragMode, handleMouseMove, handleMouseUp])
+  }, [dragMode, handlePointerMove, handlePointerUp])
 
   /**
    * 外部からHex色を設定
@@ -228,9 +230,9 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     containerRef,
     hsv,
     setColor,
-    handleMouseDown,
-    handleSvIndicatorMouseDown,
-    handleHueIndicatorMouseDown,
+    handlePointerDown,
+    handleSvIndicatorPointerDown,
+    handleHueIndicatorPointerDown,
     hueIndicatorX,
     hueIndicatorY,
     svIndicatorX,

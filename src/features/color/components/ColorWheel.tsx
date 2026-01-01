@@ -37,9 +37,9 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
     containerRef,
     hsv,
     setColor,
-    handleMouseDown,
-    handleSvIndicatorMouseDown,
-    handleHueIndicatorMouseDown,
+    handlePointerDown,
+    handleSvIndicatorPointerDown,
+    handleHueIndicatorPointerDown,
     hueIndicatorX,
     hueIndicatorY,
     svIndicatorX,
@@ -81,8 +81,8 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
       <div
         ref={containerRef}
         className="relative cursor-crosshair"
-        style={{ width: WHEEL_SIZE, height: WHEEL_SIZE }}
-        onMouseDown={handleMouseDown}
+        style={{ width: WHEEL_SIZE, height: WHEEL_SIZE, touchAction: 'none' }}
+        onPointerDown={handlePointerDown}
       >
         {/* Hue wheel using conic-gradient */}
         <div
@@ -130,7 +130,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
             top: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorY - 6,
             left: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorX - 6,
           }}
-          onMouseDown={handleSvIndicatorMouseDown}
+          onPointerDown={handleSvIndicatorPointerDown}
         />
 
         {/* Hue indicator */}
@@ -145,7 +145,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
             top: hueIndicatorY - (RING_WIDTH - 4) / 2,
             left: hueIndicatorX - (RING_WIDTH - 4) / 2,
           }}
-          onMouseDown={handleHueIndicatorMouseDown}
+          onPointerDown={handleHueIndicatorPointerDown}
         />
       </div>
       <div className="flex items-center gap-2">
