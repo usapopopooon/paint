@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import type { IResult } from 'ua-parser-js'
 
 // ua-parser-jsをモック
@@ -7,7 +7,7 @@ vi.mock('ua-parser-js', () => ({
 }))
 
 describe('platform', () => {
-  it('should detect Mac OS', async () => {
+  test('Mac OSを検出する', async () => {
     const { UAParser } = await import('ua-parser-js')
     ;(UAParser as unknown as ReturnType<typeof vi.fn<() => IResult>>).mockReturnValue({
       os: { name: 'Mac OS', version: '10.15' },
@@ -22,7 +22,7 @@ describe('platform', () => {
     expect(getModifierKey()).toBe('⌘')
   })
 
-  it('should detect Windows', async () => {
+  test('Windowsを検出する', async () => {
     const { UAParser } = await import('ua-parser-js')
     ;(UAParser as unknown as ReturnType<typeof vi.fn<() => IResult>>).mockReturnValue({
       os: { name: 'Windows', version: '10' },
@@ -36,7 +36,7 @@ describe('platform', () => {
     expect(getModifierKey()).toBe('Ctrl')
   })
 
-  it('should return Ctrl for other OS', async () => {
+  test('その他のOSではCtrlを返す', async () => {
     const { UAParser } = await import('ua-parser-js')
     ;(UAParser as unknown as ReturnType<typeof vi.fn<() => IResult>>).mockReturnValue({
       os: { name: 'Linux', version: '5.0' },

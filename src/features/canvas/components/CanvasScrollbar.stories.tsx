@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
+import { expect, userEvent, within } from 'storybook/test'
 import { CanvasScrollbar } from './CanvasScrollbar'
 
 const meta = {
@@ -114,5 +115,35 @@ export const NotNeeded: Story = {
     contentSize: 300,
     scrollPosition: 0,
     onScroll: () => {},
+  },
+}
+
+/**
+ * サムをポインターでドラッグしてスクロールするケース
+ */
+export const DragThumb: Story = {
+  render: () => (
+    <InteractiveScrollbar orientation="horizontal" viewportSize={400} contentSize={800} />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // 初期位置を確認
+    const positionText = canvas.getByText(/Position:/)
+    await expect(positionText).toHaveTextContent('Position: 0')
+
+    // サム要素を取得（grabカーソルを持つ要素）
+    const thumb = canvasElement.querySelector('[style*="cursor: grab"]') as HTMLElement
+    await expect(thumb).toBeInTheDocument()
+
+    // サムをドラッグ
+    await userEvent.pointer([
+      { keys: '[MouseLeft>]', target: thumb },
+      { coords: { x: 100, y: 0 } },
+      { keys: '[/MouseLeft]' },
+    ])
+
+    // スクロール位置が変更されたことを確認（0以外になっている）
+    await expect(positionText).not.toHaveTextContent('Position: 0')
   },
 }

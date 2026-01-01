@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { useLocale } from './useLocale'
 import { LocaleProvider } from './LocaleProvider'
 import type { ReactNode } from 'react'
@@ -11,13 +11,13 @@ vi.mock('@/lib/storage', () => ({
 }))
 
 describe('useLocale', () => {
-  it('should throw error when used outside of LocaleProvider', () => {
+  test('LocaleProvider外で使用するとエラーをスローする', () => {
     expect(() => {
       renderHook(() => useLocale())
     }).toThrow('useLocale must be used within a LocaleProvider')
   })
 
-  it('should return locale context when used within LocaleProvider', () => {
+  test('LocaleProvider内で使用するとロケールコンテキストを返す', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <LocaleProvider defaultLocale="en">{children}</LocaleProvider>
     )
@@ -30,7 +30,7 @@ describe('useLocale', () => {
     expect(typeof result.current.t).toBe('function')
   })
 
-  it('should return Japanese locale when defaultLocale is ja', () => {
+  test('defaultLocaleがjaの場合は日本語ロケールを返す', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <LocaleProvider defaultLocale="ja">{children}</LocaleProvider>
     )
@@ -40,7 +40,7 @@ describe('useLocale', () => {
     expect(result.current.locale).toBe('ja')
   })
 
-  it('should translate keys correctly based on locale', () => {
+  test('ロケールに基づいてキーを正しく翻訳する', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <LocaleProvider defaultLocale="en">{children}</LocaleProvider>
     )
@@ -51,7 +51,7 @@ describe('useLocale', () => {
     expect(result.current.t('tools.eraser')).toBe('Eraser')
   })
 
-  it('should translate keys to Japanese when locale is ja', () => {
+  test('ロケールがjaの場合は日本語でキーを翻訳する', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <LocaleProvider defaultLocale="ja">{children}</LocaleProvider>
     )

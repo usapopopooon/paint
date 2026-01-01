@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { flipDrawableHorizontal, flipDrawablesHorizontal } from './flipDrawable'
 import { createStrokeDrawable, createImageDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
@@ -13,7 +13,7 @@ describe('flipDrawable', () => {
     })
 
   describe('flipDrawableHorizontal', () => {
-    it('ストロークの座標を水平方向に反転する', () => {
+    test('ストロークの座標を水平方向に反転する', () => {
       const stroke = createTestStroke([
         { x: 100, y: 100 },
         { x: 200, y: 200 },
@@ -27,7 +27,7 @@ describe('flipDrawable', () => {
       ])
     })
 
-    it('Y座標は変更されない', () => {
+    test('Y座標は変更されない', () => {
       const stroke = createTestStroke([
         { x: 100, y: 50 },
         { x: 200, y: 150 },
@@ -41,7 +41,7 @@ describe('flipDrawable', () => {
       expect(flipped.points[2]?.y).toBe(250)
     })
 
-    it('キャンバス中央の座標は反転後も同じ位置', () => {
+    test('キャンバス中央の座標は反転後も同じ位置', () => {
       const canvasWidth = 800
       const stroke = createTestStroke([{ x: 400, y: 100 }])
 
@@ -50,7 +50,7 @@ describe('flipDrawable', () => {
       expect(flipped.points[0]?.x).toBe(400)
     })
 
-    it('元のDrawableを変更しない（イミュータブル）', () => {
+    test('元のDrawableを変更しない（イミュータブル）', () => {
       const stroke = createTestStroke([
         { x: 100, y: 100 },
         { x: 200, y: 200 },
@@ -64,7 +64,7 @@ describe('flipDrawable', () => {
       ])
     })
 
-    it('キャンバス端の座標が正しく反転される', () => {
+    test('キャンバス端の座標が正しく反転される', () => {
       const stroke = createTestStroke([
         { x: 0, y: 100 },
         { x: 800, y: 200 },
@@ -78,7 +78,7 @@ describe('flipDrawable', () => {
       ])
     })
 
-    it('ImageDrawableを水平方向に反転する', () => {
+    test('ImageDrawableを水平方向に反転する', () => {
       const image = createImageDrawable({
         src: 'data:image/png;base64,test',
         x: 100,
@@ -98,7 +98,7 @@ describe('flipDrawable', () => {
       expect(flipped.scaleX).toBe(-1)
     })
 
-    it('ImageDrawableを2回反転すると元に戻る', () => {
+    test('ImageDrawableを2回反転すると元に戻る', () => {
       const image = createImageDrawable({
         src: 'data:image/png;base64,test',
         x: 100,
@@ -114,7 +114,7 @@ describe('flipDrawable', () => {
       expect(flippedTwice.scaleX).toBe(1)
     })
 
-    it('ImageDrawableのY座標とサイズは変更されない', () => {
+    test('ImageDrawableのY座標とサイズは変更されない', () => {
       const image = createImageDrawable({
         src: 'data:image/png;base64,test',
         x: 0,
@@ -132,7 +132,7 @@ describe('flipDrawable', () => {
   })
 
   describe('flipDrawablesHorizontal', () => {
-    it('複数のDrawableを水平方向に反転する', () => {
+    test('複数のDrawableを水平方向に反転する', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
 
@@ -142,13 +142,13 @@ describe('flipDrawable', () => {
       expect(flipped[1]?.points).toEqual([{ x: 600, y: 200 }])
     })
 
-    it('空配列を処理できる', () => {
+    test('空配列を処理できる', () => {
       const flipped = flipDrawablesHorizontal([], 800)
 
       expect(flipped).toEqual([])
     })
 
-    it('元の配列を変更しない（イミュータブル）', () => {
+    test('元の配列を変更しない（イミュータブル）', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
       const drawables = [stroke1, stroke2]

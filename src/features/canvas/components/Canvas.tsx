@@ -105,7 +105,7 @@ export const Canvas = ({
    * ズームツールクリック時のハンドラ
    */
   const handleZoomClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: React.PointerEvent<HTMLDivElement>) => {
       if (!onZoomAtPoint || (!isZoomInTool && !isZoomOutTool)) return
 
       const container = containerRef.current
@@ -195,7 +195,7 @@ export const Canvas = ({
 
   // クリックハンドラを統合
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: React.PointerEvent<HTMLDivElement>) => {
       if (isEyedropperTool) {
         handleSecondaryClick(e)
       } else if (isZoomInTool || isZoomOutTool) {
@@ -216,7 +216,7 @@ export const Canvas = ({
         cursor: cursorStyle,
       }}
       className={fillContainer ? 'w-full h-full' : 'inline-block'}
-      onClick={handleClick}
+      onPointerUp={handleClick}
       onContextMenu={handleSecondaryClick}
     >
       <PointerInputLayer

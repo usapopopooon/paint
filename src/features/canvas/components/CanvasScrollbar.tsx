@@ -55,7 +55,7 @@ export const CanvasScrollbar = ({
   const isNeeded = contentSize > viewportSize
 
   const handleTrackClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+    (e: React.PointerEvent<HTMLDivElement>) => {
       if (!trackRef.current || !isNeeded) return
 
       const rect = trackRef.current.getBoundingClientRect()
@@ -74,8 +74,8 @@ export const CanvasScrollbar = ({
     [orientation, viewportSize, maxScroll, onScroll, isNeeded]
   )
 
-  const handleThumbMouseDown = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleThumbPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
       e.stopPropagation()
       setIsDragging(true)
       dragStartRef.current = {
@@ -89,7 +89,7 @@ export const CanvasScrollbar = ({
   useEffect(() => {
     if (!isDragging) return
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       if (!dragStartRef.current) return
 
       const currentPosition = orientation === 'horizontal' ? e.clientX : e.clientY
@@ -104,17 +104,19 @@ export const CanvasScrollbar = ({
       onScroll(clampedPosition)
     }
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       setIsDragging(false)
       dragStartRef.current = null
     }
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('pointermove', handlePointerMove)
+    document.addEventListener('pointerup', handlePointerUp)
+    document.addEventListener('pointercancel', handlePointerUp)
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('pointermove', handlePointerMove)
+      document.removeEventListener('pointerup', handlePointerUp)
+      document.removeEventListener('pointercancel', handlePointerUp)
     }
   }, [isDragging, orientation, viewportSize, thumbSize, maxScroll, onScroll])
 
@@ -147,7 +149,7 @@ export const CanvasScrollbar = ({
       }}
     >
       <div
-        onMouseDown={handleThumbMouseDown}
+        onPointerDown={handleThumbPointerDown}
         className={`bg-muted-foreground/40 hover:bg-muted-foreground/60 transition-colors ${
           isDragging ? 'bg-muted-foreground/60' : ''
         }`}

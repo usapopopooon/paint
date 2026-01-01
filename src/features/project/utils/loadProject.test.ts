@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { loadProject } from './loadProject'
 
 // カスタムFileクラス（textメソッドを持つ）
@@ -45,8 +45,8 @@ describe('loadProject', () => {
     return new MockFile(content, name) as unknown as File
   }
 
-  describe('successful loading', () => {
-    it('should load valid project file', async () => {
+  describe('読み込み成功', () => {
+    test('有効なプロジェクトファイルを読み込む', async () => {
       const file = createFile(JSON.stringify(validProjectData))
       const result = await loadProject(file)
 
@@ -59,7 +59,7 @@ describe('loadProject', () => {
       }
     })
 
-    it('should load project with drawables', async () => {
+    test('Drawableを含むプロジェクトを読み込む', async () => {
       const projectWithDrawables = {
         ...validProjectData,
         layers: [
@@ -96,8 +96,8 @@ describe('loadProject', () => {
     })
   })
 
-  describe('parse errors', () => {
-    it('should return parse_error for invalid JSON', async () => {
+  describe('パースエラー', () => {
+    test('無効なJSONの場合はparse_errorを返す', async () => {
       const file = createFile('not valid json {{{')
       const result = await loadProject(file)
 
@@ -107,7 +107,7 @@ describe('loadProject', () => {
       }
     })
 
-    it('should return parse_error for empty file', async () => {
+    test('空ファイルの場合はparse_errorを返す', async () => {
       const file = createFile('')
       const result = await loadProject(file)
 
@@ -118,8 +118,8 @@ describe('loadProject', () => {
     })
   })
 
-  describe('validation errors', () => {
-    it('should return invalid_format for missing required fields', async () => {
+  describe('バリデーションエラー', () => {
+    test('必須フィールドが欠けている場合はinvalid_formatを返す', async () => {
       const invalidData = {
         version: 1,
         // missing other required fields
@@ -136,7 +136,7 @@ describe('loadProject', () => {
       }
     })
 
-    it('should return invalid_format for invalid layer structure', async () => {
+    test('無効なレイヤー構造の場合はinvalid_formatを返す', async () => {
       const invalidData = {
         ...validProjectData,
         layers: [{ id: 'layer-1' }], // missing required layer fields
@@ -150,7 +150,7 @@ describe('loadProject', () => {
       }
     })
 
-    it('should return invalid_format for invalid blend mode', async () => {
+    test('無効なブレンドモードの場合はinvalid_formatを返す', async () => {
       const invalidData = {
         ...validProjectData,
         layers: [
@@ -169,7 +169,7 @@ describe('loadProject', () => {
       }
     })
 
-    it('should return invalid_format for empty layers array', async () => {
+    test('空のlayers配列の場合はinvalid_formatを返す', async () => {
       const invalidData = {
         ...validProjectData,
         layers: [],
@@ -184,8 +184,8 @@ describe('loadProject', () => {
     })
   })
 
-  describe('version errors', () => {
-    it('should return unsupported_version for newer version', async () => {
+  describe('バージョンエラー', () => {
+    test('新しいバージョンの場合はunsupported_versionを返す', async () => {
       const futureVersionData = {
         ...validProjectData,
         version: 999,
@@ -202,7 +202,7 @@ describe('loadProject', () => {
       }
     })
 
-    it('should accept current version', async () => {
+    test('現在のバージョンを受け入れる', async () => {
       const file = createFile(JSON.stringify(validProjectData))
       const result = await loadProject(file)
 

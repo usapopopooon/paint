@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.29] - 2026-01-01
+
+### Fixes
+
+- **カラーホイールとスクロールバーのタブレットペン対応**
+  - mouseイベントをpointerイベントに移行
+  - touch-action: noneを追加してWindows Inkとの競合を解消
+  - Windowsタブレットでカラーピッカーのドラッグが効かない問題を修正
+
+- **DialogContentのアクセシビリティ警告を修正**
+  - LayerPanelとSaveProjectDialogにDialogDescriptionを追加
+
 ## [0.0.28] - 2026-01-01
 
 ### Fixes

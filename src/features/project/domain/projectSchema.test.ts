@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { parseProjectFile, projectFileSchema } from './projectSchema'
 
 describe('projectFileSchema', () => {
@@ -25,7 +25,7 @@ describe('projectFileSchema', () => {
   }
 
   describe('parseProjectFile', () => {
-    it('should parse valid project file', () => {
+    test('有効なプロジェクトファイルをパースする', () => {
       const result = parseProjectFile(validProject)
 
       expect(result.success).toBe(true)
@@ -36,7 +36,7 @@ describe('projectFileSchema', () => {
       }
     })
 
-    it('should parse project with stroke drawable', () => {
+    test('ストロークDrawableを含むプロジェクトをパースする', () => {
       const projectWithStroke = {
         ...validProject,
         layers: [
@@ -71,7 +71,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should parse project with image drawable', () => {
+    test('画像Drawableを含むプロジェクトをパースする', () => {
       const projectWithImage = {
         ...validProject,
         layers: [
@@ -98,7 +98,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should fail for missing required fields', () => {
+    test('必須フィールドが欠けている場合は失敗する', () => {
       const invalidProject = {
         version: 1,
         // name is missing
@@ -110,7 +110,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should fail for invalid version (non-positive)', () => {
+    test('無効なバージョン（0以下）の場合は失敗する', () => {
       const result = parseProjectFile({
         ...validProject,
         version: 0,
@@ -119,7 +119,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should fail for empty name', () => {
+    test('空のname場合は失敗する', () => {
       const result = parseProjectFile({
         ...validProject,
         name: '',
@@ -128,7 +128,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should fail for empty layers array', () => {
+    test('空のlayers配列の場合は失敗する', () => {
       const result = parseProjectFile({
         ...validProject,
         layers: [],
@@ -137,7 +137,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should fail for invalid layer blend mode', () => {
+    test('無効なレイヤーブレンドモードの場合は失敗する', () => {
       const result = parseProjectFile({
         ...validProject,
         layers: [
@@ -151,7 +151,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should fail for invalid drawable type', () => {
+    test('無効なDrawableタイプの場合は失敗する', () => {
       const result = parseProjectFile({
         ...validProject,
         layers: [
@@ -171,7 +171,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should fail for opacity out of range', () => {
+    test('opacityが範囲外の場合は失敗する', () => {
       const result = parseProjectFile({
         ...validProject,
         layers: [
@@ -185,7 +185,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should return ZodError with issue details on failure', () => {
+    test('失敗時にZodErrorとissue詳細を返す', () => {
       const result = parseProjectFile({
         version: 'not a number',
       })
@@ -198,7 +198,7 @@ describe('projectFileSchema', () => {
   })
 
   describe('projectFileSchema.safeParse', () => {
-    it('should validate all layer types', () => {
+    test('すべてのレイヤータイプをバリデートする', () => {
       const projectWithBackground = {
         ...validProject,
         layers: [
@@ -220,7 +220,7 @@ describe('projectFileSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should validate all blend modes', () => {
+    test('すべてのブレンドモードをバリデートする', () => {
       const blendModes = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten'] as const
 
       for (const blendMode of blendModes) {
@@ -239,7 +239,7 @@ describe('projectFileSchema', () => {
       }
     })
 
-    it('should validate brush tip types', () => {
+    test('すべてのブラシ先端タイプをバリデートする', () => {
       const brushTipTypes = ['solid', 'soft', 'airbrush'] as const
 
       for (const tipType of brushTipTypes) {

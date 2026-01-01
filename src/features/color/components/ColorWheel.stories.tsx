@@ -260,3 +260,69 @@ export const CopyPasteButtons: Story = {
     await expect(pasteButton).toBeInTheDocument()
   },
 }
+
+/**
+ * SV領域（四角い部分）をポインターでクリックして色を変更するケース
+ */
+export const ClickSvArea: Story = {
+  args: {
+    color: '#ff0000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // 初期値を確認
+    const input = canvas.getByRole('textbox')
+    await expect(input).toHaveValue('#FF0000')
+
+    // SV領域（カラーホイールの中央の四角い部分）をポインターでクリック
+    const colorWheelContainer = canvasElement.querySelector('.cursor-crosshair') as HTMLElement
+    await expect(colorWheelContainer).toBeInTheDocument()
+
+    // 中央付近をクリックして色を変更（ホイールサイズ200pxなので中心は100,100）
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: colorWheelContainer,
+      coords: { x: 100, y: 100 },
+    })
+
+    // 色が変更されたことを確認（onChangeが呼ばれた）
+    await expect(args.onChange).toHaveBeenCalled()
+  },
+}
+
+/**
+ * Hueリング（丸い色相部分）をポインターでクリックして色相を変更するケース
+ */
+export const ClickHueRing: Story = {
+  args: {
+    color: '#ff0000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // 初期値を確認（赤）
+    const input = canvas.getByRole('textbox')
+    await expect(input).toHaveValue('#FF0000')
+
+    // カラーホイールコンテナを取得
+    const colorWheelContainer = canvasElement.querySelector('.cursor-crosshair') as HTMLElement
+    await expect(colorWheelContainer).toBeInTheDocument()
+
+    // Hueリング上（右端付近＝シアン方向）をクリックして色相を変更
+    // ホイールサイズ200px、リング幅16pxなので、右端のリング中央は約x:192, y:100
+    await userEvent.pointer({
+      keys: '[MouseLeft]',
+      target: colorWheelContainer,
+      coords: { x: 192, y: 100 },
+    })
+
+    // 色が変更されたことを確認（onChangeが呼ばれた）
+    await expect(args.onChange).toHaveBeenCalled()
+
+    // 色相が変わったので、入力値も変わっているはず（赤以外になる）
+    await expect(input).not.toHaveValue('#FF0000')
+  },
+}

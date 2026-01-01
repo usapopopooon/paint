@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import { extractPointerPoint } from './extractPointerPoint'
 
 describe('extractPointerPoint', () => {
@@ -20,7 +20,7 @@ describe('extractPointerPoint', () => {
       pointerType,
     }) as React.PointerEvent<HTMLElement>
 
-  it('should extract pointer point with correct local coordinates', () => {
+  test('正しいローカル座標でポインターポイントを抽出する', () => {
     const rect = {
       left: 100,
       top: 50,
@@ -38,7 +38,7 @@ describe('extractPointerPoint', () => {
     expect(result.pointerType).toBe('pen')
   })
 
-  it('should handle mouse pointer type', () => {
+  test('マウスポインタータイプを処理する', () => {
     const rect = { left: 0, top: 0 } as DOMRect
     const element = createMockElement(rect)
     const event = createMockEvent(100, 200, 0, 'mouse')
@@ -50,7 +50,7 @@ describe('extractPointerPoint', () => {
     expect(result.pointerType).toBe('mouse')
   })
 
-  it('should handle touch pointer type', () => {
+  test('タッチポインタータイプを処理する', () => {
     const rect = { left: 0, top: 0 } as DOMRect
     const element = createMockElement(rect)
     const event = createMockEvent(50, 75, 1, 'touch')
@@ -60,7 +60,7 @@ describe('extractPointerPoint', () => {
     expect(result.pointerType).toBe('touch')
   })
 
-  it('should handle negative coordinates when pointer is outside element', () => {
+  test('ポインターが要素外の場合は負の座標を処理する', () => {
     const rect = { left: 100, top: 100 } as DOMRect
     const element = createMockElement(rect)
     const event = createMockEvent(50, 50, 0.5, 'pen')
@@ -71,8 +71,8 @@ describe('extractPointerPoint', () => {
     expect(result.y).toBe(-50) // 50 - 100
   })
 
-  describe('zoom parameter', () => {
-    it('should scale coordinates when zoom is 0.5', () => {
+  describe('zoomパラメータ', () => {
+    test('zoom 0.5で座標をスケールする', () => {
       const rect = { left: 0, top: 0 } as DOMRect
       const element = createMockElement(rect)
       const event = createMockEvent(100, 100, 0.5, 'pen')
@@ -83,7 +83,7 @@ describe('extractPointerPoint', () => {
       expect(result.y).toBe(200) // 100 / 0.5
     })
 
-    it('should scale coordinates when zoom is 2', () => {
+    test('zoom 2で座標をスケールする', () => {
       const rect = { left: 0, top: 0 } as DOMRect
       const element = createMockElement(rect)
       const event = createMockEvent(100, 100, 0.5, 'pen')
@@ -94,7 +94,7 @@ describe('extractPointerPoint', () => {
       expect(result.y).toBe(50) // 100 / 2
     })
 
-    it('should use default zoom of 1 when not specified', () => {
+    test('未指定時はデフォルトzoom 1を使用する', () => {
       const rect = { left: 0, top: 0 } as DOMRect
       const element = createMockElement(rect)
       const event = createMockEvent(100, 100, 0.5, 'pen')
@@ -105,7 +105,7 @@ describe('extractPointerPoint', () => {
       expect(result.y).toBe(100)
     })
 
-    it('should apply zoom after offset calculation', () => {
+    test('オフセット計算後にzoomを適用する', () => {
       const rect = { left: 100, top: 50 } as DOMRect
       const element = createMockElement(rect)
       const event = createMockEvent(200, 150, 0.5, 'pen')

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { getPixelColor } from './getPixelColor'
 import { TRANSPARENT_THRESHOLD } from '../constants'
 
@@ -8,7 +8,7 @@ describe('getPixelColor', () => {
   })
 
   describe('Canvas2D context', () => {
-    it('should return hex color from 2D canvas', () => {
+    test('2Dキャンバスからhex色を返す', () => {
       const mockImageData = {
         data: new Uint8ClampedArray([255, 128, 64, 255]), // RGBA
       }
@@ -29,7 +29,7 @@ describe('getPixelColor', () => {
       expect(mockCtx.getImageData).toHaveBeenCalledWith(10, 20, 1, 1)
     })
 
-    it('should floor decimal coordinates', () => {
+    test('小数座標を切り捨てる', () => {
       const mockImageData = {
         data: new Uint8ClampedArray([0, 0, 0, 255]),
       }
@@ -49,7 +49,7 @@ describe('getPixelColor', () => {
       expect(mockCtx.getImageData).toHaveBeenCalledWith(10, 20, 1, 1)
     })
 
-    it('should return null when no context available', () => {
+    test('コンテキストが取得できない場合はnullを返す', () => {
       const mockCanvas = {
         getContext: vi.fn().mockReturnValue(null),
         height: 100,
@@ -60,7 +60,7 @@ describe('getPixelColor', () => {
       expect(result).toBeNull()
     })
 
-    it('should pad single digit hex values', () => {
+    test('1桁のhex値をゼロパディングする', () => {
       const mockImageData = {
         data: new Uint8ClampedArray([0, 5, 15, 255]),
       }
@@ -80,7 +80,7 @@ describe('getPixelColor', () => {
       expect(result).toBe('#00050f')
     })
 
-    it('透明なピクセル（alpha=0）の場合はnullを返す', () => {
+    test('透明なピクセル（alpha=0）の場合はnullを返す', () => {
       const mockImageData = {
         data: new Uint8ClampedArray([0, 0, 0, 0]), // 完全に透明
       }
@@ -100,7 +100,7 @@ describe('getPixelColor', () => {
       expect(result).toBeNull()
     })
 
-    it('ほぼ透明なピクセル（alpha<TRANSPARENT_THRESHOLD）の場合はnullを返す', () => {
+    test('ほぼ透明なピクセル（alpha<TRANSPARENT_THRESHOLD）の場合はnullを返す', () => {
       const mockImageData = {
         data: new Uint8ClampedArray([100, 50, 25, TRANSPARENT_THRESHOLD - 1]),
       }
@@ -120,7 +120,7 @@ describe('getPixelColor', () => {
       expect(result).toBeNull()
     })
 
-    it('alpha=TRANSPARENT_THRESHOLDのピクセルは色を返す（しきい値境界）', () => {
+    test('alpha=TRANSPARENT_THRESHOLDのピクセルは色を返す（しきい値境界）', () => {
       const mockImageData = {
         data: new Uint8ClampedArray([100, 50, 25, TRANSPARENT_THRESHOLD]),
       }
@@ -142,7 +142,7 @@ describe('getPixelColor', () => {
   })
 
   describe('WebGL context', () => {
-    it('should return hex color from WebGL canvas', () => {
+    test('WebGLキャンバスからhex色を返す', () => {
       const mockGl = {
         readPixels: vi.fn(
           (
@@ -186,7 +186,7 @@ describe('getPixelColor', () => {
       )
     })
 
-    it('should prefer webgl2 over webgl', () => {
+    test('webgl2をwebglより優先する', () => {
       const mockGl2 = {
         readPixels: vi.fn(),
         RGBA: 6408,
@@ -212,7 +212,7 @@ describe('getPixelColor', () => {
       expect(mockGl.readPixels).not.toHaveBeenCalled()
     })
 
-    it('WebGLで透明なピクセルの場合はnullを返す', () => {
+    test('WebGLで透明なピクセルの場合はnullを返す', () => {
       const mockGl = {
         readPixels: vi.fn(
           (

@@ -1,33 +1,33 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { createInitialToolState, isDrawingToolType } from './createInitialToolState'
 import { penBehavior, eraserBehavior } from '../domain'
 
 describe('createInitialToolState', () => {
-  it('should create initial tool state with hand tool as default', () => {
+  test('デフォルトでハンドツールの初期状態を作成する', () => {
     const state = createInitialToolState()
 
     expect(state.currentType).toBe('hand')
   })
 
-  it('should have null lastDrawingToolType initially', () => {
+  test('lastDrawingToolTypeは初期状態でnullである', () => {
     const state = createInitialToolState()
 
     expect(state.lastDrawingToolType).toBeNull()
   })
 
-  it('should create initial pen config from penBehavior.defaultConfig', () => {
+  test('penBehavior.defaultConfigからペン設定を作成する', () => {
     const state = createInitialToolState()
 
     expect(state.penConfig).toEqual(penBehavior.defaultConfig())
   })
 
-  it('should create initial eraser config from eraserBehavior.defaultConfig', () => {
+  test('eraserBehavior.defaultConfigから消しゴム設定を作成する', () => {
     const state = createInitialToolState()
 
     expect(state.eraserConfig).toEqual(eraserBehavior.defaultConfig())
   })
 
-  it('should return a new object each time', () => {
+  test('毎回新しいオブジェクトを返す', () => {
     const state1 = createInitialToolState()
     const state2 = createInitialToolState()
 
@@ -38,23 +38,23 @@ describe('createInitialToolState', () => {
 })
 
 describe('isDrawingToolType', () => {
-  it('should return true for pen', () => {
+  test('penに対してtrueを返す', () => {
     expect(isDrawingToolType('pen')).toBe(true)
   })
 
-  it('should return true for brush', () => {
+  test('brushに対してtrueを返す', () => {
     expect(isDrawingToolType('brush')).toBe(true)
   })
 
-  it('should return true for eraser', () => {
+  test('eraserに対してtrueを返す', () => {
     expect(isDrawingToolType('eraser')).toBe(true)
   })
 
-  it('should return false for hand', () => {
+  test('handに対してfalseを返す', () => {
     expect(isDrawingToolType('hand')).toBe(false)
   })
 
-  it('should return false for eyedropper', () => {
+  test('eyedropperに対してfalseを返す', () => {
     expect(isDrawingToolType('eyedropper')).toBe(false)
   })
 })

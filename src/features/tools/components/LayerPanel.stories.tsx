@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fireEvent, fn, userEvent, waitFor, within } from 'storybook/test'
 import { LayerPanel } from './LayerPanel'
 import type { Layer } from '@/features/layer'
 import { BACKGROUND_LAYER_ID } from '@/features/layer'
@@ -210,6 +210,7 @@ export const RenameLayer: Story = {
     onLayerNameChange: onLayerNameChangeFn,
   },
   play: async ({ canvasElement }) => {
+    onLayerNameChangeFn.mockClear()
     const canvas = within(canvasElement)
     const body = within(document.body)
     const layer1Name = canvas.getByText('Layer 1')
@@ -218,12 +219,21 @@ export const RenameLayer: Story = {
     await userEvent.dblClick(layer1Name)
 
     // ダイアログが開かれたことを確認（ダイアログはportal経由でbodyに追加される）
-    await expect(body.getByRole('dialog')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(body.getByRole('dialog')).toBeInTheDocument()
+    })
     await expect(body.getByText('Rename layer')).toBeInTheDocument()
 
     // 入力フィールドに新しい名前を入力
-    const input = body.getByRole('textbox')
-    await userEvent.clear(input)
+    const input = body.getByRole('textbox') as HTMLInputElement
+
+    // inputにフォーカスが当たるまで待つ
+    await waitFor(() => {
+      expect(input).toHaveFocus()
+    })
+
+    // Ctrl+Aで全選択してからBackspaceで削除し、入力
+    await userEvent.keyboard('{Control>}a{/Control}{Backspace}')
     await userEvent.type(input, 'New Layer Name')
 
     // OKボタンをクリック
@@ -231,7 +241,9 @@ export const RenameLayer: Story = {
     await userEvent.click(okButton)
 
     // コールバックが呼ばれたことを確認
-    await expect(onLayerNameChangeFn).toHaveBeenCalledWith('layer-1', 'New Layer Name')
+    await waitFor(() => {
+      expect(onLayerNameChangeFn).toHaveBeenCalledWith('layer-1', 'New Layer Name')
+    })
   },
 }
 
@@ -245,6 +257,7 @@ export const RenameLayerCancel: Story = {
     onLayerNameChange: onLayerNameChangeCancelFn,
   },
   play: async ({ canvasElement }) => {
+    onLayerNameChangeCancelFn.mockClear()
     const canvas = within(canvasElement)
     const body = within(document.body)
     const layer1Name = canvas.getByText('Layer 1')
@@ -252,9 +265,21 @@ export const RenameLayerCancel: Story = {
     // ダブルクリックでダイアログを開く
     await userEvent.dblClick(layer1Name)
 
+    // ダイアログが開くのを待つ
+    await waitFor(() => {
+      expect(body.getByRole('dialog')).toBeInTheDocument()
+    })
+
     // 入力フィールドに新しい名前を入力（ダイアログはportal経由でbodyに追加される）
-    const input = body.getByRole('textbox')
-    await userEvent.clear(input)
+    const input = body.getByRole('textbox') as HTMLInputElement
+
+    // inputにフォーカスが当たるまで待つ
+    await waitFor(() => {
+      expect(input).toHaveFocus()
+    })
+
+    // Ctrl+Aで全選択してからBackspaceで削除し、入力
+    await userEvent.keyboard('{Control>}a{/Control}{Backspace}')
     await userEvent.type(input, 'New Layer Name')
 
     // キャンセルボタンをクリック
@@ -462,6 +487,7 @@ export const RenameLayerEmptyValidation: Story = {
     onLayerNameChange: onLayerNameEmptyFn,
   },
   play: async ({ canvasElement }) => {
+    onLayerNameEmptyFn.mockClear()
     const canvas = within(canvasElement)
     const body = within(document.body)
     const layer1Name = canvas.getByText('Layer 1')
@@ -469,12 +495,29 @@ export const RenameLayerEmptyValidation: Story = {
     // ダブルクリックでダイアログを開く
     await userEvent.dblClick(layer1Name)
 
+    // ダイアログが開くのを待つ
+    await waitFor(() => {
+      expect(body.getByRole('dialog')).toBeInTheDocument()
+    })
+
     // 入力フィールドをクリア
-    const input = body.getByRole('textbox')
-    await userEvent.clear(input)
+    const input = body.getByRole('textbox') as HTMLInputElement
+
+    // inputにフォーカスが当たるまで待つ
+    await waitFor(() => {
+      expect(input).toHaveFocus()
+    })
+
+    // Ctrl+Aで全選択してからBackspaceで削除
+    await userEvent.keyboard('{Control>}a{/Control}{Backspace}')
+
+    // blurイベントを発火してバリデーションをトリガー
+    fireEvent.blur(input)
 
     // エラーメッセージが表示される
-    await expect(body.getByText('Please enter a layer name')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(body.getByText('Please enter a layer name')).toBeInTheDocument()
+    })
 
     // OKボタンが無効になっている
     const okButton = body.getByRole('button', { name: 'OK' })
@@ -499,6 +542,7 @@ export const RenameLayerTooLongValidation: Story = {
     onLayerNameChange: onLayerNameTooLongFn,
   },
   play: async ({ canvasElement }) => {
+    onLayerNameTooLongFn.mockClear()
     const canvas = within(canvasElement)
     const body = within(document.body)
     const layer1Name = canvas.getByText('Layer 1')
@@ -506,13 +550,38 @@ export const RenameLayerTooLongValidation: Story = {
     // ダブルクリックでダイアログを開く
     await userEvent.dblClick(layer1Name)
 
+    // ダイアログが開くのを待つ
+    await waitFor(() => {
+      expect(body.getByRole('dialog')).toBeInTheDocument()
+    })
+
     // 51文字の名前を入力
-    const input = body.getByRole('textbox')
-    await userEvent.clear(input)
-    await userEvent.type(input, 'a'.repeat(51))
+    const input = body.getByRole('textbox') as HTMLInputElement
+
+    // inputにフォーカスが当たるまで待つ
+    await waitFor(() => {
+      expect(input).toHaveFocus()
+    })
+
+    // 51文字を直接設定（userEvent.typeは大量の文字で不安定なため）
+    const longName = 'a'.repeat(51)
+    fireEvent.change(input, { target: { value: longName } })
+
+    // 入力値を確認（51文字入力されているはず）
+    await waitFor(() => {
+      expect(input.value.length).toBe(51)
+    })
+
+    // blurイベントを発火してバリデーションをトリガー
+    fireEvent.blur(input)
 
     // エラーメッセージが表示される
-    await expect(body.getByText('Layer name must be 50 characters or less')).toBeInTheDocument()
+    await waitFor(
+      () => {
+        expect(body.getByText('Layer name must be 50 characters or less')).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
 
     // OKボタンが無効になっている
     const okButton = body.getByRole('button', { name: 'OK' })

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -95,6 +96,9 @@ export const SaveProjectDialog = memo(function SaveProjectDialog({
       <DialogContent className="sm:max-w-[350px]">
         <DialogHeader>
           <DialogTitle>{t('project.saveDialog.title')}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {t('project.saveDialog.description')}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-2">
