@@ -40,6 +40,14 @@
   "layers.rename": "Rename layer",
   "layers.moveUp": "Move layer up",
   "layers.moveDown": "Move layer down",
+  "layers.blendMode": "Blend mode",
+  "layers.opacity": "Opacity",
+  "blendMode.normal": "Normal",
+  "blendMode.multiply": "Multiply",
+  "blendMode.screen": "Screen",
+  "blendMode.overlay": "Overlay",
+  "blendMode.darken": "Darken",
+  "blendMode.lighten": "Lighten",
   "canvas.width": "Width:",
   "canvas.height": "Height:",
   "canvas.center": "Center canvas",
@@ -52,5 +60,7 @@
   "stabilization.title": "Stabilization",
   "toolbar.save": "Save as JPG",
   "toolbar.import": "Import image",
-  "import.invalidFileType": "Unsupported image format. Please select PNG, JPG, GIF, or WebP."
+  "import.invalidFileType": "Unsupported image format. Please select PNG, JPG, GIF, or WebP.",
+  "blendMode.warning.title": "Blend Mode Warning",
+  "blendMode.warning.description": "Blend modes may cause heavy browser load and could potentially crash. Apply anyway?"
 }

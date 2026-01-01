@@ -4,6 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -21,8 +28,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useLocale } from '@/features/i18n'
-import type { Layer, LayerId } from '@/features/layer'
+import type { Layer, LayerId, LayerBlendMode } from '@/features/layer'
 import { BACKGROUND_LAYER_ID } from '@/features/layer'
+import { OpacityPopover } from './OpacityPopover'
+
+// overlay, darken, lightenはPixiJSのバグで透明背景と誤って相互作用するため除外
+// @see https://github.com/pixijs/pixijs/issues/11206
+const BLEND_MODES: LayerBlendMode[] = ['normal', 'multiply', 'screen']
 
 type LayerPanelProps = {
   readonly layers: readonly Layer[]
@@ -33,6 +45,8 @@ type LayerPanelProps = {
   readonly onLayerAdd: () => void
   readonly onLayerDelete: (id: LayerId) => void
   readonly onLayerNameChange: (id: LayerId, name: string) => void
+  readonly onLayerBlendModeChange: (id: LayerId, blendMode: LayerBlendMode) => void
+  readonly onLayerOpacityChange: (id: LayerId, opacity: number) => void
   readonly onLayerMove?: (id: LayerId, newIndex: number) => void
 }
 
@@ -45,6 +59,8 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerAdd,
   onLayerDelete,
   onLayerNameChange,
+  onLayerBlendModeChange,
+  onLayerOpacityChange,
   onLayerMove,
 }: LayerPanelProps) {
   const { t } = useLocale()
@@ -53,6 +69,8 @@ export const LayerPanel = memo(function LayerPanel({
   const [editingName, setEditingName] = useState('')
   const [draggedLayerId, setDraggedLayerId] = useState<LayerId | null>(null)
   const [dragOverLayerId, setDragOverLayerId] = useState<LayerId | null>(null)
+  const [pendingBlendMode, setPendingBlendMode] = useState<LayerBlendMode | null>(null)
+  const [blendModeWarningShown, setBlendModeWarningShown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // 背景レイヤーをUI上から非表示にする
@@ -61,7 +79,16 @@ export const LayerPanel = memo(function LayerPanel({
     [layers]
   )
 
+  // アクティブレイヤーを取得
+  const activeLayer = useMemo(
+    () => layers.find((layer) => layer.id === activeLayerId),
+    [layers, activeLayerId]
+  )
+
   const canDeleteLayer = drawingLayerCount > 1
+
+  // ブレンドモードのラベルを取得
+  const getBlendModeLabel = useCallback((mode: LayerBlendMode) => t(`blendMode.${mode}`), [t])
 
   const handleDeleteClick = (e: React.MouseEvent, layerId: LayerId) => {
     e.stopPropagation()
@@ -168,8 +195,41 @@ export const LayerPanel = memo(function LayerPanel({
     setDragOverLayerId(null)
   }, [])
 
+  // 合成モード変更ハンドラ（初回のみ警告ダイアログを表示）
+  const handleBlendModeChange = useCallback(
+    (value: LayerBlendMode) => {
+      // normalへの変更は警告不要
+      if (value === 'normal') {
+        onLayerBlendModeChange(activeLayerId, value)
+        return
+      }
+
+      // 警告が既に表示済みの場合はそのまま適用
+      if (blendModeWarningShown) {
+        onLayerBlendModeChange(activeLayerId, value)
+        return
+      }
+
+      // 初回はダイアログを表示
+      setPendingBlendMode(value)
+    },
+    [activeLayerId, blendModeWarningShown, onLayerBlendModeChange]
+  )
+
+  const handleBlendModeWarningConfirm = useCallback(() => {
+    if (pendingBlendMode) {
+      setBlendModeWarningShown(true)
+      onLayerBlendModeChange(activeLayerId, pendingBlendMode)
+      setPendingBlendMode(null)
+    }
+  }, [activeLayerId, pendingBlendMode, onLayerBlendModeChange])
+
+  const handleBlendModeWarningCancel = useCallback(() => {
+    setPendingBlendMode(null)
+  }, [])
+
   return (
-    <div className="flex flex-col gap-2 flex-1 min-h-0">
+    <div className="flex flex-col gap-1 flex-1 min-h-0">
       <div className="flex items-center justify-between flex-shrink-0">
         <span className="text-sm font-medium text-foreground">{t('layers.title')}</span>
         <Tooltip>
@@ -187,7 +247,28 @@ export const LayerPanel = memo(function LayerPanel({
           <TooltipContent side="left">{t('layers.add')}</TooltipContent>
         </Tooltip>
       </div>
-      <div className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto">
+      {/* 選択中レイヤーの合成モード・透明度設定 */}
+      {activeLayer && (
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <Select value={activeLayer.blendMode} onValueChange={handleBlendModeChange}>
+            <SelectTrigger className="h-7 text-xs flex-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {BLEND_MODES.map((mode) => (
+                <SelectItem key={mode} value={mode} className="text-xs">
+                  {getBlendModeLabel(mode)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <OpacityPopover
+            opacity={activeLayer.opacity}
+            onOpacityChange={(opacity) => onLayerOpacityChange(activeLayerId, opacity)}
+          />
+        </div>
+      )}
+      <div className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto mt-2">
         {[...visibleLayers].reverse().map((layer) => (
           <div
             key={layer.id}
@@ -197,7 +278,7 @@ export const LayerPanel = memo(function LayerPanel({
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, layer.id)}
             onDragEnd={handleDragEnd}
-            className={`flex items-center gap-1 px-1 py-1 rounded cursor-pointer ${
+            className={`flex flex-col gap-0.5 px-1 py-1 rounded cursor-pointer ${
               activeLayerId === layer.id
                 ? 'bg-control text-control-foreground'
                 : 'hover:bg-secondary/80 dark:hover:bg-white/10'
@@ -206,62 +287,74 @@ export const LayerPanel = memo(function LayerPanel({
             }`}
             onClick={() => onLayerSelect(layer.id)}
           >
-            {onLayerMove && (
-              <GripVertical className="size-4 cursor-grab text-muted-foreground flex-shrink-0" />
-            )}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="size-6 p-0"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onLayerVisibilityChange(layer.id, !layer.isVisible)
-                  }}
-                  aria-label={layer.isVisible ? t('layers.hide') : t('layers.show')}
-                >
-                  {layer.isVisible ? (
-                    <Eye
-                      className={`size-4 ${activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
-                    />
-                  ) : (
-                    <EyeOff className="size-4 text-muted-foreground" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                {layer.isVisible ? t('layers.hide') : t('layers.show')}
-              </TooltipContent>
-            </Tooltip>
-            <span
-              className="text-sm flex-1 truncate cursor-text"
-              onDoubleClick={(e) => handleNameDoubleClick(e, layer)}
-              title={layer.name}
-            >
-              {layer.name}
-            </span>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex">
+            {/* 1段目: 表示切替・合成モード・透明度・削除 */}
+            <div className="flex items-center gap-1">
+              {onLayerMove && (
+                <GripVertical className="size-4 cursor-grab text-muted-foreground flex-shrink-0" />
+              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
                   <Button
                     variant="secondary"
                     size="sm"
-                    className="size-6 p-0"
-                    onClick={(e) => handleDeleteClick(e, layer.id)}
-                    disabled={!canDeleteLayer}
-                    aria-label={t('layers.delete')}
+                    className="size-5 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onLayerVisibilityChange(layer.id, !layer.isVisible)
+                    }}
+                    aria-label={layer.isVisible ? t('layers.hide') : t('layers.show')}
                   >
-                    <Trash2
-                      className={`size-4 ${!canDeleteLayer ? 'text-muted-foreground' : activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
-                    />
+                    {layer.isVisible ? (
+                      <Eye
+                        className={`size-3.5 ${activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
+                      />
+                    ) : (
+                      <EyeOff className="size-3.5 text-muted-foreground" />
+                    )}
                   </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                {canDeleteLayer ? t('layers.delete') : t('layers.cannotDelete')}
-              </TooltipContent>
-            </Tooltip>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {layer.isVisible ? t('layers.hide') : t('layers.show')}
+                </TooltipContent>
+              </Tooltip>
+              <span className="text-xs text-muted-foreground truncate flex-1">
+                {getBlendModeLabel(layer.blendMode)}
+              </span>
+              <span className="text-xs text-muted-foreground flex-shrink-0">
+                {Math.round(layer.opacity * 100)}%
+              </span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="size-5 p-0"
+                      onClick={(e) => handleDeleteClick(e, layer.id)}
+                      disabled={!canDeleteLayer}
+                      aria-label={t('layers.delete')}
+                    >
+                      <Trash2
+                        className={`size-3.5 ${!canDeleteLayer ? 'text-muted-foreground' : activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
+                      />
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  {canDeleteLayer ? t('layers.delete') : t('layers.cannotDelete')}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            {/* 2段目: レイヤー名 */}
+            <div className="flex items-center pl-5">
+              <span
+                className="text-sm flex-1 truncate cursor-text"
+                onDoubleClick={(e) => handleNameDoubleClick(e, layer)}
+                title={layer.name}
+              >
+                {layer.name}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -300,6 +393,21 @@ export const LayerPanel = memo(function LayerPanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={pendingBlendMode !== null} onOpenChange={handleBlendModeWarningCancel}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('blendMode.warning.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('blendMode.warning.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('actions.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBlendModeWarningConfirm}>
+              {t('actions.ok')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 })

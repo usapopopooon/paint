@@ -1,5 +1,5 @@
 import type { Drawable } from '@/features/drawable'
-import type { LayerId } from '@/features/layer'
+import type { LayerId, LayerBlendMode } from '@/features/layer'
 import type { LayerSnapshot } from './layer'
 
 // 便宜上LayerIdを再エクスポート
@@ -74,6 +74,12 @@ export type LayerRenamedAction = ActionMetadata & {
   readonly newName: string
 }
 
+export type LayerBlendModeChangedAction = ActionMetadata & {
+  readonly type: 'layer:blendmode-changed'
+  readonly previousValue: LayerBlendMode
+  readonly newValue: LayerBlendMode
+}
+
 // === キャンバスアクション ===
 
 export type CanvasResizedAction = ActionMetadata & {
@@ -115,6 +121,7 @@ export type LayerAction =
   | LayerVisibilityChangedAction
   | LayerOpacityChangedAction
   | LayerRenamedAction
+  | LayerBlendModeChangedAction
 
 export type CanvasAction = CanvasResizedAction | CanvasFlippedAction
 

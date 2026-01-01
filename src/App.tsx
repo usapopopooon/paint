@@ -425,6 +425,8 @@ function App() {
             onLayerAdd={canvas.addLayer}
             onLayerDelete={canvas.deleteLayer}
             onLayerNameChange={canvas.setLayerName}
+            onLayerBlendModeChange={canvas.setLayerBlendMode}
+            onLayerOpacityChange={canvas.setLayerOpacity}
             onLayerMove={canvas.moveLayer}
           />
         </ToolPanel>

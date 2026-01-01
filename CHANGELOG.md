@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.0.25] - 2026-01-01
+
+### Features
+
+- **レイヤー合成モード・透明度機能** (#81)
+  - レイヤーパネルに合成モード選択（通常/乗算/スクリーン）と透明度スライダーを追加
+  - 段階的合成（Progressive Compositing）によるブレンドモードの正しい適用
+  - 初回の合成モード変更時に警告ダイアログを表示（ブラウザ負荷の注意喚起）
+
+### Docs
+
+- **READMEを英語化**
+  - README.mdを英語版に変更
+  - 日本語版をdocs/README.ja.mdに配置
+  - タイトルを「Paint (Tentative Name)」に変更
+
+### Known Issues
+
+- PixiJS 8のバグにより、overlay/darken/lighten合成モードは透明背景と誤って相互作用するため除外
+  - https://github.com/pixijs/pixijs/issues/11206
+
 ## [0.0.24] - 2026-01-01
 
 ### Fixes
