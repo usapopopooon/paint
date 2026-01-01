@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { type ResizeAnchor, calculateResizeOffset } from '../types'
+import type { ResizeAnchor } from '../types'
+import { calculateResizeOffset } from '../helpers'
 import {
   DEFAULT_CANVAS_WIDTH,
   DEFAULT_CANVAS_HEIGHT,

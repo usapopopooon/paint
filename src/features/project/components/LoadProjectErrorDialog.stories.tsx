@@ -57,9 +57,7 @@ export const UnsupportedVersion: Story = {
     const body = within(document.body)
 
     // エラーメッセージが表示されていることを確認
-    const description = body.getByText(
-      getTranslation('en', 'project.loadError.unsupportedVersion')
-    )
+    const description = body.getByText(getTranslation('en', 'project.loadError.unsupportedVersion'))
     await expect(description).toBeVisible()
 
     // バージョン情報が表示されていることを確認
