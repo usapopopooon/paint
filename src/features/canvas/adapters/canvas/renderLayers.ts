@@ -119,15 +119,6 @@ const addCheckerboard = (app: Application): void => {
   app.stage.addChild(checkerboard)
 }
 
-/**
- * 背景をステージに追加
- */
-const addBackground = (app: Application, backgroundColor: string): void => {
-  const background = new Graphics()
-  background.rect(0, 0, app.screen.width, app.screen.height)
-  background.fill(backgroundColor)
-  app.stage.addChild(background)
-}
 
 /**
  * レイヤーを段階的に合成してRenderTextureに焼き付ける
@@ -189,6 +180,27 @@ const compositeLayersProgressively = async (
 }
 
 /**
+ * 白背景をRenderTextureにレンダリングしてSpriteとして返す
+ */
+const renderBackgroundToTexture = (app: Application, backgroundColor: string): Sprite => {
+  const renderTexture = RenderTexture.create({
+    width: app.screen.width,
+    height: app.screen.height,
+  })
+
+  const graphics = new Graphics()
+  graphics.rect(0, 0, app.screen.width, app.screen.height)
+  graphics.fill(backgroundColor)
+
+  app.renderer.render({ container: graphics, target: renderTexture, clear: true })
+  graphics.destroy()
+
+  const sprite = new Sprite(renderTexture)
+  sprite.blendMode = 'normal'
+  return sprite
+}
+
+/**
  * レイヤーをPixiJS Applicationにレンダリング
  * RenderTextureを使用して消しゴムが正しく機能するようにする
  * 背景レイヤーが表示状態の場合、白背景を描画する
@@ -220,9 +232,11 @@ export const renderLayers = async (app: Application, layers: readonly Layer[]): 
     layerSprites.push(layerSprite)
   }
 
-  // 背景がある場合は白背景を追加
+  // 背景がある場合は白背景Spriteを最下層に追加
+  // 段階的合成に含めることでブレンドモードが正しく適用される
   if (hasBackground) {
-    addBackground(app, BACKGROUND_COLOR)
+    const backgroundSprite = renderBackgroundToTexture(app, BACKGROUND_COLOR)
+    layerSprites.unshift(backgroundSprite)
   }
 
   // レイヤーが1つ以下の場合は直接追加

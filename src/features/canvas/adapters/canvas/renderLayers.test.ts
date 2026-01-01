@@ -643,7 +643,7 @@ describe('renderLayers', () => {
 
     await renderLayers(app, layers)
 
-    // チェッカーボード + 白背景 + 合成されたSprite
-    expect(app.stage.addChild).toHaveBeenCalledTimes(3)
+    // チェッカーボード + 合成されたSprite（白背景は段階的合成に含まれる）
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 })
