@@ -9,7 +9,7 @@ import { useLocale } from '@/features/i18n'
 import { toast } from 'sonner'
 import { useColorWheel } from '../hooks/useColorWheel'
 import { WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../constants'
-import { isValidHex, normalizeHex } from '../helpers'
+import { normalizeHex } from '../helpers'
 import { hexColorSchema } from '../domain'
 
 const colorInputSchema = z.object({
@@ -175,7 +175,10 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
               variant="secondary"
               size="icon"
               className="size-6"
-              onClick={() => navigator.clipboard.writeText(color.toUpperCase())}
+              onClick={() => {
+                navigator.clipboard.writeText(color.toUpperCase())
+                toast.success(t('color.copied'))
+              }}
               aria-label={t('color.copy')}
             >
               <Copy className="size-3" />
@@ -191,10 +194,12 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
               className="size-6"
               onClick={async () => {
                 const text = await navigator.clipboard.readText()
-                if (isValidHex(text.trim())) {
-                  const normalized = normalizeHex(text.trim())
+                const result = hexColorSchema.safeParse(text.trim())
+                if (result.success) {
+                  const normalized = normalizeHex(result.data)
                   setColor(normalized)
                   onChange(normalized)
+                  toast.success(t('color.pasted'))
                 } else {
                   toast.error(t('color.invalidFormat'))
                 }

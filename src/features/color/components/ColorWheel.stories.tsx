@@ -241,3 +241,22 @@ export const InvalidInputReverts: Story = {
     await expect(input).toHaveValue('#FF0000')
   },
 }
+
+/**
+ * コピー・ペーストボタンが存在するケース
+ */
+export const CopyPasteButtons: Story = {
+  args: {
+    color: '#3366FF',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // コピーボタンとペーストボタンが存在することを確認
+    const copyButton = canvas.getByLabelText('Copy')
+    const pasteButton = canvas.getByLabelText('Paste')
+
+    await expect(copyButton).toBeInTheDocument()
+    await expect(pasteButton).toBeInTheDocument()
+  },
+}
