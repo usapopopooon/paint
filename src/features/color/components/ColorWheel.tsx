@@ -8,8 +8,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useLocale } from '@/features/i18n'
 import { toast } from 'sonner'
 import { useColorWheel } from '../hooks/useColorWheel'
-import { WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../constants'
-import { normalizeHex } from '../helpers'
+import { WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE, HSV_MIN, HSV_MAX } from '../constants'
+import { normalizeHex, getColorNameKey } from '../helpers'
 import { hexColorSchema } from '../domain'
 
 const colorInputSchema = z.object({
@@ -40,11 +40,17 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
     handlePointerDown,
     handleSvIndicatorPointerDown,
     handleHueIndicatorPointerDown,
+    handleHueKeyDown,
+    handleSvKeyDown,
     hueIndicatorX,
     hueIndicatorY,
     svIndicatorX,
     svIndicatorY,
   } = useColorWheel({ color, onChange })
+
+  const colorName = t(getColorNameKey(hsv.h))
+  const hueValueText = t('color.hueValue', { color: colorName })
+  const svValueText = t('color.svValue', { s: hsv.s, v: hsv.v })
 
   const {
     register,
@@ -120,7 +126,14 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
 
         {/* SV indicator */}
         <div
-          className="absolute"
+          role="slider"
+          tabIndex={0}
+          aria-label={t('color.saturationBrightness')}
+          aria-valuenow={hsv.s}
+          aria-valuemin={HSV_MIN}
+          aria-valuemax={HSV_MAX}
+          aria-valuetext={svValueText}
+          className="absolute focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
           style={{
             width: 12,
             height: 12,
@@ -131,11 +144,19 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
             left: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorX - 6,
           }}
           onPointerDown={handleSvIndicatorPointerDown}
+          onKeyDown={handleSvKeyDown}
         />
 
         {/* Hue indicator */}
         <div
-          className="absolute"
+          role="slider"
+          tabIndex={0}
+          aria-label={t('color.hue')}
+          aria-valuenow={hsv.h}
+          aria-valuemin={HSV_MIN}
+          aria-valuemax={359}
+          aria-valuetext={hueValueText}
+          className="absolute focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
           style={{
             width: RING_WIDTH - 4,
             height: RING_WIDTH - 4,
@@ -146,6 +167,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
             left: hueIndicatorX - (RING_WIDTH - 4) / 2,
           }}
           onPointerDown={handleHueIndicatorPointerDown}
+          onKeyDown={handleHueKeyDown}
         />
       </div>
       <div className="flex items-center gap-2">
