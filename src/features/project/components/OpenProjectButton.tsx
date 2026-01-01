@@ -3,6 +3,7 @@ import { FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useLocale } from '@/features/i18n'
+import { PROJECT_FILE_EXTENSION } from '../constants'
 
 type OpenProjectButtonProps = {
   readonly inputRef: RefObject<HTMLInputElement | null>
@@ -25,7 +26,7 @@ export const OpenProjectButton = memo(function OpenProjectButton({
       <input
         ref={inputRef}
         type="file"
-        accept=".usapo"
+        accept={PROJECT_FILE_EXTENSION}
         onChange={onFileChange}
         className="hidden"
         aria-hidden="true"

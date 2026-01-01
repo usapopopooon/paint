@@ -44,7 +44,8 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "ua-parser-js": "^2.0.7"
+    "ua-parser-js": "^2.0.7",
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.3",

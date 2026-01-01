@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { ThemeToggle } from './components/ui/ThemeToggle'
@@ -10,7 +10,15 @@ import type { Point } from './features/drawable'
 import { SaveButton, useExportImage } from './features/export'
 import { useLocale, LocaleToggle } from './features/i18n'
 import { ImportButton, useImportImage } from './features/import'
-import { SaveProjectButton, OpenProjectButton } from './features/project'
+import {
+  SaveProjectButton,
+  OpenProjectButton,
+  SaveProjectDialog,
+  LoadProjectErrorDialog,
+  saveProject,
+  loadProject,
+} from './features/project'
+import type { LoadProjectError } from './features/project'
 import {
   Toolbar,
   UndoButton,
@@ -100,18 +108,67 @@ function App() {
 
   // プロジェクトファイル読み込み用ref
   const projectInputRef = useRef<HTMLInputElement>(null)
+  // プロジェクト名とダイアログの状態
+  const [projectName, setProjectName] = useState<string | null>(null)
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false)
+  const [loadError, setLoadError] = useState<LoadProjectError | null>(null)
+
+  // プロジェクト名が変わったらブラウザタイトルを更新
+  useEffect(() => {
+    document.title = projectName ? `${projectName} - Paint` : 'Paint'
+  }, [projectName])
 
   const handleOpenProjectFilePicker = useCallback(() => {
     projectInputRef.current?.click()
   }, [])
 
-  const handleProjectFileChange = useCallback(() => {
-    // TODO: プロジェクト読み込み処理を実装
-  }, [])
+  const handleProjectFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      const result = await loadProject(file)
+      if (!result.success) {
+        setLoadError(result.error)
+        e.target.value = ''
+        return
+      }
+
+      // プロジェクト読み込み
+      const project = result.project
+      canvas.setLayers(project.layers, project.activeLayerId)
+      canvas.clearHistory()
+      canvasSize.setSizeDirectly(project.canvasWidth, project.canvasHeight)
+      setProjectName(project.name)
+      toast.success(t('project.loaded'))
+
+      // inputをリセット
+      e.target.value = ''
+    },
+    [canvas, canvasSize, t]
+  )
 
   const handleSaveProject = useCallback(() => {
-    // TODO: プロジェクト保存処理を実装
+    setSaveDialogOpen(true)
   }, [])
+
+  const handleSaveProjectConfirm = useCallback(
+    async (fileName: string) => {
+      const saved = await saveProject({
+        fileName,
+        canvasWidth: canvasSize.width,
+        canvasHeight: canvasSize.height,
+        layers: canvas.layers,
+        activeLayerId: canvas.activeLayerId,
+      })
+
+      if (saved) {
+        setProjectName(fileName)
+        toast.success(t('project.saved'))
+      }
+    },
+    [canvas.layers, canvas.activeLayerId, canvasSize.width, canvasSize.height, t]
+  )
 
   // toolの最新状態をrefで保持（useCallbackの依存配列問題を回避）
   const toolRef = useRef(tool)
@@ -488,6 +545,16 @@ function App() {
         </main>
       </div>
       <Toaster />
+      <SaveProjectDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        onSave={handleSaveProjectConfirm}
+      />
+      <LoadProjectErrorDialog
+        open={loadError !== null}
+        onOpenChange={(open) => !open && setLoadError(null)}
+        error={loadError}
+      />
     </div>
   )
 }
