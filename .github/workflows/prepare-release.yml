@@ -31,7 +31,7 @@ jobs:
           VERSION="${GITHUB_HEAD_REF#release/v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Update package.json and README
+      - name: Update package.json and READMEs
         run: |
           VERSION=${{ steps.version.outputs.version }}
           TIMESTAMP=$(date +%s)
@@ -39,16 +39,23 @@ jobs:
           # Update package.json version
           node -e "const pkg = require('./package.json'); pkg.version = '$VERSION'; require('fs').writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n')"
 
-          # Update version badge
+          # Update version badge (README.md)
           sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" README.md
           sed -i "s|releases/tag/v[0-9.]*|releases/tag/v${VERSION}|g" README.md
 
-          # Update screenshot filename with timestamp
+          # Update screenshot filename with timestamp (README.md)
           sed -i "s|screenshot_[0-9]*\.png|screenshot_${TIMESTAMP}.png|g" README.md
+
+          # Update version badge (docs/README.ja.md)
+          sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" docs/README.ja.md
+          sed -i "s|releases/tag/v[0-9.]*|releases/tag/v${VERSION}|g" docs/README.ja.md
+
+          # Update screenshot filename with timestamp (docs/README.ja.md)
+          sed -i "s|screenshot_[0-9]*\.png|screenshot_${TIMESTAMP}.png|g" docs/README.ja.md
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json README.md
+          git add package.json README.md docs/README.ja.md
 
           # Check if there are changes to commit
           if ! git diff --staged --quiet; then
