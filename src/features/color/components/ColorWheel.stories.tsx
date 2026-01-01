@@ -169,3 +169,94 @@ export const ExternalColorUpdate: Story = {
     await expect(input).toHaveValue('#00FF00')
   },
 }
+
+/**
+ * 入力フィールドに直接HEXコードを入力するケース
+ */
+export const DirectInput: Story = {
+  args: {
+    color: '#000000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole('textbox')
+
+    // 入力フィールドをクリア
+    await userEvent.clear(input)
+
+    // 新しい色を入力
+    await userEvent.type(input, '#FF5500')
+
+    // Enterキーで確定
+    await userEvent.keyboard('{Enter}')
+
+    // onChangeが呼ばれることを確認（normalizeHexは小文字で返す）
+    await expect(args.onChange).toHaveBeenCalledWith('#ff5500')
+  },
+}
+
+/**
+ * #なしのHEXコードを入力するケース
+ */
+export const InputWithoutHash: Story = {
+  args: {
+    color: '#000000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole('textbox')
+
+    await userEvent.clear(input)
+    await userEvent.type(input, 'AA33FF')
+    await userEvent.keyboard('{Enter}')
+
+    // #が自動で付与されることを確認（normalizeHexは小文字で返す）
+    await expect(args.onChange).toHaveBeenCalledWith('#aa33ff')
+  },
+}
+
+/**
+ * 無効な入力で元の値に戻るケース
+ */
+export const InvalidInputReverts: Story = {
+  args: {
+    color: '#FF0000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const input = canvas.getByRole('textbox')
+
+    // 初期値を確認
+    await expect(input).toHaveValue('#FF0000')
+
+    // 無効な値を入力
+    await userEvent.clear(input)
+    await userEvent.type(input, 'invalid')
+    await userEvent.keyboard('{Enter}')
+
+    // 元の値に戻ることを確認
+    await expect(input).toHaveValue('#FF0000')
+  },
+}
+
+/**
+ * コピー・ペーストボタンが存在するケース
+ */
+export const CopyPasteButtons: Story = {
+  args: {
+    color: '#3366FF',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // コピーボタンとペーストボタンが存在することを確認
+    const copyButton = canvas.getByLabelText('Copy')
+    const pasteButton = canvas.getByLabelText('Paste')
+
+    await expect(copyButton).toBeInTheDocument()
+    await expect(pasteButton).toBeInTheDocument()
+  },
+}
