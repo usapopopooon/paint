@@ -32,7 +32,9 @@ import type { Layer, LayerId, LayerBlendMode } from '@/features/layer'
 import { BACKGROUND_LAYER_ID } from '@/features/layer'
 import { OpacityPopover } from './OpacityPopover'
 
-const BLEND_MODES: LayerBlendMode[] = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten']
+// overlay, darken, lightenはPixiJSのバグで透明背景と誤って相互作用するため除外
+// @see https://github.com/pixijs/pixijs/issues/11206
+const BLEND_MODES: LayerBlendMode[] = ['normal', 'multiply', 'screen']
 
 type LayerPanelProps = {
   readonly layers: readonly Layer[]
@@ -67,6 +69,8 @@ export const LayerPanel = memo(function LayerPanel({
   const [editingName, setEditingName] = useState('')
   const [draggedLayerId, setDraggedLayerId] = useState<LayerId | null>(null)
   const [dragOverLayerId, setDragOverLayerId] = useState<LayerId | null>(null)
+  const [pendingBlendMode, setPendingBlendMode] = useState<LayerBlendMode | null>(null)
+  const [blendModeWarningShown, setBlendModeWarningShown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   // 背景レイヤーをUI上から非表示にする
@@ -84,10 +88,7 @@ export const LayerPanel = memo(function LayerPanel({
   const canDeleteLayer = drawingLayerCount > 1
 
   // ブレンドモードのラベルを取得
-  const getBlendModeLabel = useCallback(
-    (mode: LayerBlendMode) => t(`blendMode.${mode}`),
-    [t]
-  )
+  const getBlendModeLabel = useCallback((mode: LayerBlendMode) => t(`blendMode.${mode}`), [t])
 
   const handleDeleteClick = (e: React.MouseEvent, layerId: LayerId) => {
     e.stopPropagation()
@@ -194,6 +195,39 @@ export const LayerPanel = memo(function LayerPanel({
     setDragOverLayerId(null)
   }, [])
 
+  // 合成モード変更ハンドラ（初回のみ警告ダイアログを表示）
+  const handleBlendModeChange = useCallback(
+    (value: LayerBlendMode) => {
+      // normalへの変更は警告不要
+      if (value === 'normal') {
+        onLayerBlendModeChange(activeLayerId, value)
+        return
+      }
+
+      // 警告が既に表示済みの場合はそのまま適用
+      if (blendModeWarningShown) {
+        onLayerBlendModeChange(activeLayerId, value)
+        return
+      }
+
+      // 初回はダイアログを表示
+      setPendingBlendMode(value)
+    },
+    [activeLayerId, blendModeWarningShown, onLayerBlendModeChange]
+  )
+
+  const handleBlendModeWarningConfirm = useCallback(() => {
+    if (pendingBlendMode) {
+      setBlendModeWarningShown(true)
+      onLayerBlendModeChange(activeLayerId, pendingBlendMode)
+      setPendingBlendMode(null)
+    }
+  }, [activeLayerId, pendingBlendMode, onLayerBlendModeChange])
+
+  const handleBlendModeWarningCancel = useCallback(() => {
+    setPendingBlendMode(null)
+  }, [])
+
   return (
     <div className="flex flex-col gap-1 flex-1 min-h-0">
       <div className="flex items-center justify-between flex-shrink-0">
@@ -216,12 +250,7 @@ export const LayerPanel = memo(function LayerPanel({
       {/* 選択中レイヤーの合成モード・透明度設定 */}
       {activeLayer && (
         <div className="flex items-center gap-1 flex-shrink-0">
-          <Select
-            value={activeLayer.blendMode}
-            onValueChange={(value: LayerBlendMode) =>
-              onLayerBlendModeChange(activeLayerId, value)
-            }
-          >
+          <Select value={activeLayer.blendMode} onValueChange={handleBlendModeChange}>
             <SelectTrigger className="h-7 text-xs flex-1">
               <SelectValue />
             </SelectTrigger>
@@ -364,6 +393,21 @@ export const LayerPanel = memo(function LayerPanel({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={pendingBlendMode !== null} onOpenChange={handleBlendModeWarningCancel}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('blendMode.warning.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('blendMode.warning.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('actions.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBlendModeWarningConfirm}>
+              {t('actions.ok')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 })

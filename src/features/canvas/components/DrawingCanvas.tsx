@@ -5,7 +5,6 @@ import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import { renderDrawables, renderLayers } from '../adapters'
 
-
 /**
  * DrawingCanvasコンポーネントのプロパティ
  */
@@ -62,8 +61,9 @@ export const DrawingCanvas = ({
         backgroundAlpha: 0,
         antialias: true,
         preserveDrawingBuffer: true, // スポイトツールでピクセルを読み取るために必要
-        resolution: window.devicePixelRatio || 1, // 高DPIディスプレイ対応
-        autoDensity: true, // CSSサイズを維持しつつ内部解像度を上げる
+        // resolution: 1 に固定（PixiJSのバグ: advanced blend modesがresolution != 1で正しく動作しない）
+        // https://github.com/pixijs/pixijs/issues/11311
+        resolution: 1,
         useBackBuffer: true, // overlay, darken, lighten等の高度なブレンドモードに必要
       })
       .then(() => {
@@ -145,10 +145,5 @@ export const DrawingCanvas = ({
     }
   }, [drawables, layers, isInitialized])
 
-  return (
-    <div
-      ref={containerRef}
-      className={fillContainer ? 'w-full h-full' : undefined}
-    />
-  )
+  return <div ref={containerRef} className={fillContainer ? 'w-full h-full' : undefined} />
 }

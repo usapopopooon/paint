@@ -355,12 +355,12 @@ const layersWithBlendModes: readonly Layer[] = [
   },
   {
     id: 'layer-3',
-    name: 'Overlay Layer',
+    name: 'Screen Layer',
     type: 'drawing',
     isVisible: true,
     isLocked: false,
     opacity: 0.5,
-    blendMode: 'overlay',
+    blendMode: 'screen',
     drawables: [],
   },
 ]
@@ -381,5 +381,73 @@ export const WithBlendModes: Story = {
 
     // 合成モードのセレクトボックスが存在する
     await expect(canvas.getByRole('combobox')).toBeInTheDocument()
+  },
+}
+
+const onBlendModeChangeFn = fn()
+/**
+ * 合成モード変更時に初回警告ダイアログが表示される
+ */
+export const BlendModeWarningDialog: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerBlendModeChange: onBlendModeChangeFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+
+    // 合成モードのセレクトボックスをクリック
+    const combobox = canvas.getByRole('combobox')
+    await userEvent.click(combobox)
+
+    // 乗算を選択
+    const multiplyOption = body.getByRole('option', { name: 'Multiply' })
+    await userEvent.click(multiplyOption)
+
+    // 警告ダイアログが表示される
+    await expect(body.getByRole('alertdialog')).toBeInTheDocument()
+    await expect(body.getByText('Blend Mode Warning')).toBeInTheDocument()
+    await expect(body.getByText(/Blend modes may cause heavy browser load/)).toBeInTheDocument()
+
+    // OKをクリック
+    const okButton = body.getByRole('button', { name: 'OK' })
+    await userEvent.click(okButton)
+
+    // コールバックが呼ばれる
+    await expect(onBlendModeChangeFn).toHaveBeenCalledWith('layer-1', 'multiply')
+  },
+}
+
+const onBlendModeChangeCancelFn = fn()
+/**
+ * 合成モード警告ダイアログでキャンセルした場合は変更されない
+ */
+export const BlendModeWarningDialogCancel: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerBlendModeChange: onBlendModeChangeCancelFn,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+
+    // 合成モードのセレクトボックスをクリック
+    const combobox = canvas.getByRole('combobox')
+    await userEvent.click(combobox)
+
+    // スクリーンを選択
+    const screenOption = body.getByRole('option', { name: 'Screen' })
+    await userEvent.click(screenOption)
+
+    // 警告ダイアログが表示される
+    await expect(body.getByRole('alertdialog')).toBeInTheDocument()
+
+    // キャンセルをクリック
+    const cancelButton = body.getByRole('button', { name: 'Cancel' })
+    await userEvent.click(cancelButton)
+
+    // コールバックは呼ばれない
+    await expect(onBlendModeChangeCancelFn).not.toHaveBeenCalled()
   },
 }

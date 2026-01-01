@@ -60,5 +60,7 @@
   "stabilization.title": "手ぶれ補正",
   "toolbar.save": "画像を保存 (JPG)",
   "toolbar.import": "画像を読み込む",
-  "import.invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。"
+  "import.invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。",
+  "blendMode.warning.title": "合成モードの警告",
+  "blendMode.warning.description": "合成モードはブラウザに大きな負荷がかかり、クラッシュする可能性があります。適用しますか？"
 }

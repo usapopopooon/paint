@@ -53,8 +53,8 @@ describe('i18n/locales', () => {
     test('すべてのキーがドット記法のフラット形式である', () => {
       const keys = Object.keys(en)
       for (const key of keys) {
-        // ドット記法: "category.name" 形式（カテゴリはキャメルケースも許可）
-        expect(key).toMatch(/^[a-zA-Z]+\.[a-zA-Z]+$/)
+        // ドット記法: "category.name" または "category.subcategory.name" 形式
+        expect(key).toMatch(/^[a-zA-Z]+(\.[a-zA-Z]+)+$/)
       }
     })
 

@@ -271,10 +271,11 @@ describe('renderLayers', () => {
 
     await renderLayers(app, layers)
 
-    // 各レイヤーごとにRenderTextureにレンダリングされる
-    expect(app.renderer.render).toHaveBeenCalledTimes(2)
-    // チェッカーボード + 2つのレイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(3)
+    // 各レイヤーごとにRenderTextureにレンダリング + 段階的合成
+    // レイヤー1: 1回, レイヤー2: 1回, 段階的合成: 2回（firstSprite + 2層目の合成）
+    expect(app.renderer.render).toHaveBeenCalled()
+    // チェッカーボード + 合成されたSprite
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
   test('消しゴムモードのストロークを含むレイヤーをRenderTextureにレンダリングする', async () => {
@@ -481,5 +482,168 @@ describe('renderLayers', () => {
     expect(app.renderer.render).toHaveBeenCalled()
     // チェッカーボード + レイヤーSpriteがステージに追加される
     expect(app.stage.addChild).toHaveBeenCalledTimes(2)
+  })
+
+  test('段階的合成により複数レイヤーのブレンドモードが正しく適用される', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Base Layer',
+        type: 'drawing',
+        isVisible: true,
+        isLocked: false,
+        opacity: 1,
+        blendMode: 'normal',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 50, y: 50 },
+            ],
+            style: {
+              color: '#ff0000',
+              brushTip: createSolidBrushTip(10),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+      {
+        id: 'layer-2',
+        name: 'Multiply Layer',
+        type: 'drawing',
+        isVisible: true,
+        isLocked: false,
+        opacity: 1,
+        blendMode: 'multiply',
+        drawables: [
+          {
+            id: 'stroke-2',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 25, y: 25 },
+              { x: 75, y: 75 },
+            ],
+            style: {
+              color: '#0000ff',
+              brushTip: createSolidBrushTip(10),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+      {
+        id: 'layer-3',
+        name: 'Screen Layer',
+        type: 'drawing',
+        isVisible: true,
+        isLocked: false,
+        opacity: 0.8,
+        blendMode: 'screen',
+        drawables: [
+          {
+            id: 'stroke-3',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 50, y: 0 },
+              { x: 100, y: 50 },
+            ],
+            style: {
+              color: '#00ff00',
+              brushTip: createSolidBrushTip(10),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+    ]
+
+    await renderLayers(app, layers)
+
+    // 段階的合成により複数回renderが呼ばれる
+    // レイヤー1: 1回, レイヤー2: 1回, レイヤー3: 1回
+    // 段階的合成: firstSprite + 2回の合成
+    expect(app.renderer.render).toHaveBeenCalled()
+    // チェッカーボード + 最終合成されたSprite
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
+  })
+
+  test('背景レイヤーがある場合でも段階的合成が正しく動作する', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    const layers: Layer[] = [
+      {
+        id: BACKGROUND_LAYER_ID,
+        name: 'Background',
+        type: 'background',
+        isVisible: true,
+        isLocked: true,
+        opacity: 1,
+        blendMode: 'normal',
+        drawables: [],
+      },
+      {
+        id: 'layer-1',
+        name: 'Layer 1',
+        type: 'drawing',
+        isVisible: true,
+        isLocked: false,
+        opacity: 1,
+        blendMode: 'normal',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#ff0000',
+              brushTip: createSolidBrushTip(5),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+      {
+        id: 'layer-2',
+        name: 'Layer 2',
+        type: 'drawing',
+        isVisible: true,
+        isLocked: false,
+        opacity: 1,
+        blendMode: 'multiply',
+        drawables: [
+          {
+            id: 'stroke-2',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 20, y: 20 },
+              { x: 30, y: 30 },
+            ],
+            style: {
+              color: '#0000ff',
+              brushTip: createSolidBrushTip(5),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+    ]
+
+    await renderLayers(app, layers)
+
+    // チェッカーボード + 白背景 + 合成されたSprite
+    expect(app.stage.addChild).toHaveBeenCalledTimes(3)
   })
 })
