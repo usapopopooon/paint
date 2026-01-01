@@ -29,6 +29,7 @@
   "messages.noRedoHistory": "履歴がありません",
   "color.copy": "コピー",
   "color.paste": "ペースト",
+  "color.invalidFormat": "HEX形式で入力してください（例: #FF0000 等）",
   "layers.title": "レイヤー",
   "layers.defaultName": "レイヤー{number}",
   "layers.show": "表示にする",
