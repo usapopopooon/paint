@@ -425,5 +425,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     showBackgroundLayer,
     hideBackgroundLayer,
     addDrawable,
+    setLayers: layerManager.setLayers,
+    clearHistory: history.clear,
   } as const
 }

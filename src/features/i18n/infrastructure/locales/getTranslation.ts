@@ -1,14 +1,21 @@
 import en from './en.json'
 import ja from './ja.json'
 import type { Locale } from '../../types'
+import { validateTranslation } from '../../domain'
 import { getModifierKey } from '@/lib/platform'
+
+/**
+ * 検証済み翻訳データ
+ */
+const validatedEn = validateTranslation(en, 'en')
+const validatedJa = validateTranslation(ja, 'ja')
 
 /**
  * 全翻訳データ
  */
 export const translations = {
-  en,
-  ja,
+  en: validatedEn,
+  ja: validatedJa,
 } as const
 
 /**

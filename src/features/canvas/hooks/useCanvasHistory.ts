@@ -302,6 +302,15 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     [updateStackInfo]
   )
 
+  /**
+   * 履歴をクリア（プロジェクト読み込み時などに使用）
+   */
+  const clear = useCallback(async () => {
+    await getStorage().clear()
+    await updateStackInfo()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateStackInfo])
+
   // アンマウント時にクリーンアップ
   useEffect(() => {
     return () => {
@@ -330,5 +339,6 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     recordLayerDeleted,
     recordCanvasResize,
     recordCanvasFlip,
+    clear,
   } as const
 }

@@ -35,6 +35,7 @@ export type UseLayersReturn = {
   readonly getLayerById: (id: LayerId) => Layer | undefined
   readonly getLayerIndex: (id: LayerId) => number
   readonly drawingLayerCount: number
+  readonly setLayers: (layers: readonly Layer[], activeLayerId: LayerId) => void
 }
 
 /**
@@ -445,6 +446,22 @@ export const useLayers = (): UseLayersReturn => {
     [state.layers]
   )
 
+  /**
+   * レイヤー状態を一括で設定（プロジェクト読み込み用）
+   * @param layers - 設定するレイヤー配列
+   * @param activeLayerId - アクティブレイヤーID
+   */
+  const setLayers = useCallback((layers: readonly Layer[], activeLayerId: LayerId) => {
+    // レイヤー番号カウンターを更新
+    const drawingLayers = layers.filter((l) => l.id !== BACKGROUND_LAYER_ID)
+    layerCounterRef.current = drawingLayers.length
+
+    setState({
+      layers,
+      activeLayerId,
+    })
+  }, [])
+
   return {
     layers: state.layers,
     activeLayer,
@@ -473,5 +490,6 @@ export const useLayers = (): UseLayersReturn => {
     getLayerById,
     getLayerIndex,
     drawingLayerCount,
+    setLayers,
   }
 }
