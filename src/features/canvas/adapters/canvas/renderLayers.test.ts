@@ -89,8 +89,8 @@ describe('renderLayers', () => {
 
     await renderLayers(app, layers)
 
-    // 背景がステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+    // チェッカーボード + 白背景がステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
   test('背景レイヤーが非表示の場合、背景を描画しない', async () => {
@@ -111,8 +111,8 @@ describe('renderLayers', () => {
 
     await renderLayers(app, layers)
 
-    // 背景は追加されない
-    expect(app.stage.addChild).not.toHaveBeenCalled()
+    // チェッカーボードのみ追加される（白背景は追加されない）
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
   test('非表示レイヤーはスキップする', async () => {
@@ -148,8 +148,8 @@ describe('renderLayers', () => {
 
     await renderLayers(app, layers)
 
-    // 非表示レイヤーはスキップ
-    expect(app.stage.addChild).not.toHaveBeenCalled()
+    // チェッカーボードのみ追加される（非表示レイヤーはスキップ）
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
   test('描画要素が空のレイヤーはスキップする', async () => {
@@ -170,8 +170,8 @@ describe('renderLayers', () => {
 
     await renderLayers(app, layers)
 
-    // 空レイヤーはスキップ
-    expect(app.stage.addChild).not.toHaveBeenCalled()
+    // チェッカーボードのみ追加される（空レイヤーはスキップ）
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
   })
 
   test('表示レイヤーをRenderTextureにレンダリングしてSpriteをステージに追加する', async () => {
@@ -209,8 +209,8 @@ describe('renderLayers', () => {
 
     // RenderTextureにレンダリングされることを確認
     expect(app.renderer.render).toHaveBeenCalled()
-    // レイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+    // チェッカーボード + レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
   test('複数の表示レイヤーを各々RenderTextureにレンダリングする', async () => {
@@ -273,8 +273,8 @@ describe('renderLayers', () => {
 
     // 各レイヤーごとにRenderTextureにレンダリングされる
     expect(app.renderer.render).toHaveBeenCalledTimes(2)
-    // 2つのレイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
+    // チェッカーボード + 2つのレイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(3)
   })
 
   test('消しゴムモードのストロークを含むレイヤーをRenderTextureにレンダリングする', async () => {
@@ -383,8 +383,8 @@ describe('renderLayers', () => {
     await expect(renderLayers(app, layers)).resolves.not.toThrow()
     // RenderTextureにレンダリングされることを確認
     expect(app.renderer.render).toHaveBeenCalled()
-    // レイヤーSpriteがステージに追加される
-    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+    // チェッカーボード + レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 
   test('StrokeDrawableとImageDrawableが混在するレイヤーをレンダリングする', async () => {
@@ -433,5 +433,53 @@ describe('renderLayers', () => {
     await expect(renderLayers(app, layers)).resolves.not.toThrow()
     // RenderTextureにレンダリングされることを確認
     expect(app.renderer.render).toHaveBeenCalled()
+  })
+
+  test('チェッカーボードが最下層に追加される', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    await renderLayers(app, [])
+
+    // チェッカーボードが追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(1)
+  })
+
+  test('レイヤーの透明度がSpriteに適用される', async () => {
+    const { renderLayers } = await import('./renderLayers')
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Semi-transparent Layer',
+        type: 'drawing',
+        isVisible: true,
+        isLocked: false,
+        opacity: 0.5,
+        blendMode: 'normal',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: createSolidBrushTip(3),
+              blendMode: 'normal',
+            },
+          },
+        ],
+      },
+    ]
+
+    await renderLayers(app, layers)
+
+    // レイヤーがレンダリングされる
+    expect(app.renderer.render).toHaveBeenCalled()
+    // チェッカーボード + レイヤーSpriteがステージに追加される
+    expect(app.stage.addChild).toHaveBeenCalledTimes(2)
   })
 })

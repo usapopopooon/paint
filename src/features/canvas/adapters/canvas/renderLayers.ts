@@ -33,6 +33,39 @@ const calculateBlurStrength = (hardness: number, brushSize: number): number => {
 }
 
 /**
+ * チェッカーボードパターン（透明を表す背景）をステージに追加
+ * レイヤーの透明度を正しく表示するためにPixiJS内で描画
+ * パフォーマンス最適化: 同じ色のタイルをまとめて描画
+ */
+const addCheckerboard = (app: Application, tileSize: number = 20): void => {
+  const checkerboard = new Graphics()
+  const cols = Math.ceil(app.screen.width / tileSize)
+  const rows = Math.ceil(app.screen.height / tileSize)
+
+  // 白タイルをまとめて描画
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if ((row + col) % 2 === 0) {
+        checkerboard.rect(col * tileSize, row * tileSize, tileSize, tileSize)
+      }
+    }
+  }
+  checkerboard.fill(0xffffff)
+
+  // グレータイルをまとめて描画
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if ((row + col) % 2 !== 0) {
+        checkerboard.rect(col * tileSize, row * tileSize, tileSize, tileSize)
+      }
+    }
+  }
+  checkerboard.fill(0xcccccc)
+
+  app.stage.addChild(checkerboard)
+}
+
+/**
  * 背景をステージに追加
  */
 const addBackground = (app: Application, backgroundColor: string): void => {
@@ -76,10 +109,13 @@ const renderLayerToTexture = async (app: Application, layer: Layer): Promise<Spr
     tempContainer.addChild(graphics)
   }
 
-  app.renderer.render({ container: tempContainer, target: renderTexture })
+  // RenderTextureにレンダリング（透明背景でクリア）
+  app.renderer.render({ container: tempContainer, target: renderTexture, clear: true })
   tempContainer.destroy({ children: true })
 
   const sprite = new Sprite(renderTexture)
+  // レイヤーの透明度をSpriteに適用
+  // RenderTexture後に適用することで、透明背景に対しても透明度が反映される
   sprite.alpha = layer.opacity
   sprite.blendMode = blendModeToPixi(layer.blendMode)
   return sprite
@@ -94,6 +130,9 @@ const renderLayerToTexture = async (app: Application, layer: Layer): Promise<Spr
  */
 export const renderLayers = async (app: Application, layers: readonly Layer[]): Promise<void> => {
   app.stage.removeChildren()
+
+  // チェッカーボードを最下層に追加（透明度の可視化のため）
+  addCheckerboard(app)
 
   for (const layer of layers) {
     if (!layer.isVisible) continue

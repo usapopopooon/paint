@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import type { ToolConfig } from '../../tools/types'
-import type { Layer } from '@/features/layer'
+import type { Layer, LayerBlendMode } from '@/features/layer'
 import type { Drawable, Point } from '@/features/drawable'
 import { useLayers, BACKGROUND_LAYER_ID } from '@/features/layer'
 import { stabilizeStroke, stabilizationToParams } from '@/features/stabilization'
@@ -134,6 +134,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       } else if (action.type === 'layer:renamed' && targetLayerId) {
         // レイヤー名を元に戻す
         layerManager.setLayerName(targetLayerId, action.previousName)
+      } else if (action.type === 'layer:blendmode-changed' && targetLayerId) {
+        // ブレンドモードを元に戻す
+        layerManager.setLayerBlendMode(targetLayerId, action.previousValue)
       } else if (action.type === 'canvas:resized') {
         // キャンバスリサイズを元に戻す
         const reverseOffsetX = -action.offsetX
@@ -199,6 +202,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       } else if (action.type === 'layer:renamed' && targetLayerId) {
         // レイヤー名を再適用
         layerManager.setLayerName(targetLayerId, action.newName)
+      } else if (action.type === 'layer:blendmode-changed' && targetLayerId) {
+        // ブレンドモードを再適用
+        layerManager.setLayerBlendMode(targetLayerId, action.newValue)
       } else if (action.type === 'canvas:resized') {
         // キャンバスリサイズを再適用
         layerManager.translateAllLayers(action.offsetX, action.offsetY)
@@ -282,6 +288,23 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       const previousName = layer.name
       layerManager.setLayerName(layerId, name)
       history.recordLayerNameChange(layerId, previousName, name)
+    },
+    [layerManager, history]
+  )
+
+  /**
+   * レイヤーのブレンドモードを変更 + 履歴に記録
+   * @param layerId - 対象レイヤーID
+   * @param blendMode - 新しいブレンドモード
+   */
+  const setLayerBlendMode = useCallback(
+    (layerId: string, blendMode: LayerBlendMode) => {
+      const layer = layerManager.layers.find((l) => l.id === layerId)
+      if (!layer || layer.blendMode === blendMode) return
+
+      const previousValue = layer.blendMode
+      layerManager.setLayerBlendMode(layerId, blendMode)
+      history.recordLayerBlendModeChange(layerId, previousValue, blendMode)
     },
     [layerManager, history]
   )
@@ -390,6 +413,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     setLayerVisibility,
     setLayerOpacity,
     setLayerName,
+    setLayerBlendMode,
     moveLayer: layerManager.moveLayer,
     moveLayerUp: layerManager.moveLayerUp,
     moveLayerDown: layerManager.moveLayerDown,

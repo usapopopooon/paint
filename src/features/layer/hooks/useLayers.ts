@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from 'react'
-import type { Layer, LayerState, LayerId } from '../types'
+import type { Layer, LayerState, LayerId, LayerBlendMode } from '../types'
 import { createInitialLayerState, createDrawingLayer } from '../domain'
 import type { Drawable } from '@/features/drawable'
 import { translateDrawables, flipDrawablesHorizontal } from '@/features/drawable'
@@ -23,6 +23,7 @@ export type UseLayersReturn = {
   readonly setLayerOpacity: (id: LayerId, opacity: number) => void
   readonly setLayerVisibility: (id: LayerId, isVisible: boolean) => void
   readonly setLayerName: (id: LayerId, name: string) => void
+  readonly setLayerBlendMode: (id: LayerId, blendMode: LayerBlendMode) => void
   readonly moveLayer: (id: LayerId, newIndex: number) => void
   readonly moveLayerUp: (id: LayerId) => boolean
   readonly moveLayerDown: (id: LayerId) => boolean
@@ -211,6 +212,18 @@ export const useLayers = (): UseLayersReturn => {
     setState((prev) => ({
       ...prev,
       layers: prev.layers.map((layer) => (layer.id === id ? { ...layer, name } : layer)),
+    }))
+  }, [])
+
+  /**
+   * レイヤーのブレンドモードを設定
+   * @param id - 対象のレイヤーID
+   * @param blendMode - 新しいブレンドモード
+   */
+  const setLayerBlendMode = useCallback((id: LayerId, blendMode: LayerBlendMode) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) => (layer.id === id ? { ...layer, blendMode } : layer)),
     }))
   }, [])
 
@@ -448,6 +461,7 @@ export const useLayers = (): UseLayersReturn => {
     setLayerOpacity,
     setLayerVisibility,
     setLayerName,
+    setLayerBlendMode,
     moveLayer,
     moveLayerUp,
     moveLayerDown,

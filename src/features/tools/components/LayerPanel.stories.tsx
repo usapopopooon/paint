@@ -52,6 +52,8 @@ const meta = {
     onLayerAdd: fn(),
     onLayerDelete: fn(),
     onLayerNameChange: fn(),
+    onLayerBlendModeChange: fn(),
+    onLayerOpacityChange: fn(),
     onLayerMove: fn(),
   },
 } satisfies Meta<typeof LayerPanel>
@@ -324,5 +326,60 @@ export const NotDraggable: Story = {
     // ドラッグ可能な要素がないことを確認
     const draggableItems = canvasElement.querySelectorAll('[draggable="true"]')
     await expect(draggableItems.length).toBe(0)
+  },
+}
+
+/**
+ * 異なるブレンドモードと透明度を持つレイヤー
+ */
+const layersWithBlendModes: readonly Layer[] = [
+  {
+    id: 'layer-1',
+    name: 'Normal Layer',
+    type: 'drawing',
+    isVisible: true,
+    isLocked: false,
+    opacity: 1,
+    blendMode: 'normal',
+    drawables: [],
+  },
+  {
+    id: 'layer-2',
+    name: 'Multiply Layer',
+    type: 'drawing',
+    isVisible: true,
+    isLocked: false,
+    opacity: 0.8,
+    blendMode: 'multiply',
+    drawables: [],
+  },
+  {
+    id: 'layer-3',
+    name: 'Overlay Layer',
+    type: 'drawing',
+    isVisible: true,
+    isLocked: false,
+    opacity: 0.5,
+    blendMode: 'overlay',
+    drawables: [],
+  },
+]
+
+export const WithBlendModes: Story = {
+  args: {
+    layers: layersWithBlendModes,
+    drawingLayerCount: 3,
+    activeLayerId: 'layer-2',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // 各レイヤーの透明度が表示されている
+    await expect(canvas.getByText('100%')).toBeInTheDocument()
+    await expect(canvas.getByText('80%')).toBeInTheDocument()
+    await expect(canvas.getByText('50%')).toBeInTheDocument()
+
+    // 合成モードのセレクトボックスが存在する
+    await expect(canvas.getByRole('combobox')).toBeInTheDocument()
   },
 }

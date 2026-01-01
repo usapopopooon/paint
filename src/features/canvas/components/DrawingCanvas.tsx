@@ -1,17 +1,10 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { Application } from 'pixi.js'
+import 'pixi.js/advanced-blend-modes' // overlay, darken, lighten等の高度なブレンドモードに必要
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import { renderDrawables, renderLayers } from '../adapters'
 
-/**
- * 透明パターン（チェッカーボード）のCSSスタイル
- * サイズ40pxはデフォルトズーム50%で20pxに見えるように設定
- */
-const TRANSPARENCY_PATTERN_STYLE = {
-  background:
-    'conic-gradient(#ccc 90deg, #fff 90deg 180deg, #ccc 180deg 270deg, #fff 270deg) 0 0 / 40px 40px',
-} as const
 
 /**
  * DrawingCanvasコンポーネントのプロパティ
@@ -71,6 +64,7 @@ export const DrawingCanvas = ({
         preserveDrawingBuffer: true, // スポイトツールでピクセルを読み取るために必要
         resolution: window.devicePixelRatio || 1, // 高DPIディスプレイ対応
         autoDensity: true, // CSSサイズを維持しつつ内部解像度を上げる
+        useBackBuffer: true, // overlay, darken, lighten等の高度なブレンドモードに必要
       })
       .then(() => {
         // クリーンアップが先に呼ばれた場合は何もしない
@@ -155,7 +149,6 @@ export const DrawingCanvas = ({
     <div
       ref={containerRef}
       className={fillContainer ? 'w-full h-full' : undefined}
-      style={TRANSPARENCY_PATTERN_STYLE}
     />
   )
 }
