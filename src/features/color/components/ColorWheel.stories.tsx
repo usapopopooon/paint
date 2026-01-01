@@ -277,9 +277,7 @@ export const ClickSvArea: Story = {
     await expect(input).toHaveValue('#FF0000')
 
     // SV領域（カラーホイールの中央の四角い部分）をポインターでクリック
-    const colorWheelContainer = canvasElement.querySelector(
-      '[style*="cursor: crosshair"]'
-    ) as HTMLElement
+    const colorWheelContainer = canvasElement.querySelector('.cursor-crosshair') as HTMLElement
     await expect(colorWheelContainer).toBeInTheDocument()
 
     // 中央付近をクリックして色を変更（ホイールサイズ200pxなので中心は100,100）
@@ -310,9 +308,7 @@ export const ClickHueRing: Story = {
     await expect(input).toHaveValue('#FF0000')
 
     // カラーホイールコンテナを取得
-    const colorWheelContainer = canvasElement.querySelector(
-      '[style*="cursor: crosshair"]'
-    ) as HTMLElement
+    const colorWheelContainer = canvasElement.querySelector('.cursor-crosshair') as HTMLElement
     await expect(colorWheelContainer).toBeInTheDocument()
 
     // Hueリング上（右端付近＝シアン方向）をクリックして色相を変更
