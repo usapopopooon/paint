@@ -1,22 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { hexToHsv, hsvToHex, type HSV } from '../helpers'
 import { colorWheelState } from './colorWheelState'
-import { WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE } from '../constants'
-
-/** HSV値の最小値（パーセンテージ） */
-const HSV_MIN = 0
-/** HSV値の最大値（パーセンテージ） */
-const HSV_MAX = 100
-/** 角度変換: ラジアンから度への係数 */
-const RADIANS_TO_DEGREES = 180 / Math.PI
-/** 角度変換: 度からラジアンへの係数 */
-const DEGREES_TO_RADIANS = Math.PI / 180
-/** 円の全周（度） */
-const FULL_CIRCLE_DEGREES = 360
-/** 色相の開始オフセット角度（上方向を0度とするため） */
-const HUE_ANGLE_OFFSET = 90
-/** クリック判定の拡張パディング（ピクセル） */
-const CLICK_PADDING = 8
+import {
+  WHEEL_SIZE,
+  RING_WIDTH,
+  SQUARE_SIZE,
+  HSV_MIN,
+  HSV_MAX,
+  RADIANS_TO_DEGREES,
+  DEGREES_TO_RADIANS,
+  FULL_CIRCLE_DEGREES,
+  HUE_ANGLE_OFFSET,
+  CLICK_PADDING,
+  KEYBOARD_STEP,
+  KEYBOARD_STEP_LARGE,
+} from '../constants'
 
 /** ドラッグモードの型 */
 type DragMode = 'none' | 'hue' | 'sv'
@@ -226,6 +224,71 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
   const svIndicatorX = (hsv.s / HSV_MAX) * SQUARE_SIZE
   const svIndicatorY = (1 - hsv.v / HSV_MAX) * SQUARE_SIZE
 
+  /**
+   * 色相リングのキーボード操作ハンドラ
+   * @param event - キーボードイベント
+   */
+  const handleHueKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      const step = event.shiftKey ? KEYBOARD_STEP_LARGE : KEYBOARD_STEP
+      let newHue = hsv.h
+
+      switch (event.key) {
+        case 'ArrowLeft':
+        case 'ArrowDown':
+          newHue = (hsv.h - step + FULL_CIRCLE_DEGREES) % FULL_CIRCLE_DEGREES
+          break
+        case 'ArrowRight':
+        case 'ArrowUp':
+          newHue = (hsv.h + step) % FULL_CIRCLE_DEGREES
+          break
+        default:
+          return
+      }
+
+      event.preventDefault()
+      const newHsv = { h: newHue, s: hsv.s, v: hsv.v }
+      setHsv(newHsv)
+      onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v))
+    },
+    [hsv, onChange]
+  )
+
+  /**
+   * 彩度・明度スクエアのキーボード操作ハンドラ
+   * @param event - キーボードイベント
+   */
+  const handleSvKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      const step = event.shiftKey ? KEYBOARD_STEP_LARGE : KEYBOARD_STEP
+      let newS = hsv.s
+      let newV = hsv.v
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          newS = Math.max(HSV_MIN, hsv.s - step)
+          break
+        case 'ArrowRight':
+          newS = Math.min(HSV_MAX, hsv.s + step)
+          break
+        case 'ArrowUp':
+          newV = Math.min(HSV_MAX, hsv.v + step)
+          break
+        case 'ArrowDown':
+          newV = Math.max(HSV_MIN, hsv.v - step)
+          break
+        default:
+          return
+      }
+
+      event.preventDefault()
+      const newHsv = { h: hsv.h, s: newS, v: newV }
+      setHsv(newHsv)
+      onChange(hsvToHex(newHsv.h, newHsv.s, newHsv.v))
+    },
+    [hsv, onChange]
+  )
+
   return {
     containerRef,
     hsv,
@@ -233,6 +296,8 @@ export const useColorWheel = ({ color, onChange }: UseColorWheelProps) => {
     handlePointerDown,
     handleSvIndicatorPointerDown,
     handleHueIndicatorPointerDown,
+    handleHueKeyDown,
+    handleSvKeyDown,
     hueIndicatorX,
     hueIndicatorY,
     svIndicatorX,
