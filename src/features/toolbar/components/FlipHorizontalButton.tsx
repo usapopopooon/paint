@@ -2,7 +2,8 @@ import { memo } from 'react'
 import { FlipHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
+import { getModifierKey } from '@/lib/platform'
 
 type FlipHorizontalButtonProps = {
   readonly onClick: () => void
@@ -11,7 +12,8 @@ type FlipHorizontalButtonProps = {
 export const FlipHorizontalButton = memo(function FlipHorizontalButton({
   onClick,
 }: FlipHorizontalButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
+  const modifier = getModifierKey()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -25,7 +27,7 @@ export const FlipHorizontalButton = memo(function FlipHorizontalButton({
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {t('canvas.flipHorizontal')} ({t('shortcuts.flipHorizontal')})
+        {t('canvas.flipHorizontal')} ({t('shortcuts.flipHorizontal', { modifier })})
       </TooltipContent>
     </Tooltip>
   )

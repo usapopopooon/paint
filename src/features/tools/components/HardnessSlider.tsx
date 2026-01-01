@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Popover, PopoverContent, PopoverAnchor } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { MIN_HARDNESS, MAX_HARDNESS } from '../constants'
 
 type HardnessSliderProps = {
@@ -22,7 +22,7 @@ export const HardnessSlider = memo(function HardnessSlider({
   onBlurEnabledChange,
   disabled = false,
 }: HardnessSliderProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   const [isDragging, setIsDragging] = useState(false)
 
   // 表示用のパーセント

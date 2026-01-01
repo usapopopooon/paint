@@ -1,2 +1,2 @@
 export * from './LocaleProvider'
-export * from './useLocale'
+export { useLocale, useTranslation } from '@bf-i18n/react'

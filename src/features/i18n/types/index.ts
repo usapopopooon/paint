@@ -1,4 +1,6 @@
+import { ALLOWED_LOCALES } from '../constants'
+
 /**
  * サポートするロケール
  */
-export type Locale = 'en' | 'ja'
+export type Locale = (typeof ALLOWED_LOCALES)[number]

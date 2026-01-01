@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { SaveButton } from './SaveButton'
-import { getTranslation } from '@/features/i18n/infrastructure/locales/getTranslation'
+import { i18nEn } from '@/test/i18n'
 
 const meta = {
   title: 'Features/Export/SaveButton',
@@ -23,7 +23,7 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const button = canvas.getByRole('button', {
-      name: getTranslation('en', 'toolbar.save'),
+      name: i18nEn.t('toolbar.save'),
     })
 
     await expect(button).toBeEnabled()

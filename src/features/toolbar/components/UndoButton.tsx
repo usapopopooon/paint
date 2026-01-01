@@ -2,7 +2,8 @@ import { memo } from 'react'
 import { Undo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
+import { getModifierKey } from '@/lib/platform'
 
 type UndoButtonProps = {
   readonly disabled: boolean
@@ -10,7 +11,8 @@ type UndoButtonProps = {
 }
 
 export const UndoButton = memo(function UndoButton({ disabled, onClick }: UndoButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
+  const modifier = getModifierKey()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -27,7 +29,8 @@ export const UndoButton = memo(function UndoButton({ disabled, onClick }: UndoBu
         </span>
       </TooltipTrigger>
       <TooltipContent>
-        {t('actions.undo')} ({disabled ? t('messages.noUndoHistory') : t('shortcuts.undo')})
+        {t('actions.undo')} (
+        {disabled ? t('messages.noUndoHistory') : t('shortcuts.undo', { modifier })})
       </TooltipContent>
     </Tooltip>
   )

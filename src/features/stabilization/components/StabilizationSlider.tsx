@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { MIN_STABILIZATION, MAX_STABILIZATION } from '../constants'
 
 /** ペンが線を引いているアイコン（手ぶれ補正用） */
@@ -38,7 +38,7 @@ export const StabilizationSlider = memo(function StabilizationSlider({
   onStabilizationChange,
   disabled = false,
 }: StabilizationSliderProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   const displayPercent = Math.round(stabilization * 100)
   const isActive = stabilization > 0

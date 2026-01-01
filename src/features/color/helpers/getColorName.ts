@@ -1,8 +1,5 @@
-import type { TranslationKey } from '@/features/i18n/infrastructure/locales/getTranslation'
-
 /** 色名の翻訳キー型 */
-type ColorNameKey = Extract<
-  TranslationKey,
+type ColorNameKey =
   | 'color.red'
   | 'color.orange'
   | 'color.yellow'
@@ -11,7 +8,6 @@ type ColorNameKey = Extract<
   | 'color.blue'
   | 'color.purple'
   | 'color.magenta'
->
 
 /**
  * 色相から色名のキーを取得

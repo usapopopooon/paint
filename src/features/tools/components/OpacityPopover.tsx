@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { MIN_OPACITY, MAX_OPACITY } from '../constants'
 
 type OpacityPopoverProps = {
@@ -18,7 +18,7 @@ export const OpacityPopover = memo(function OpacityPopover({
   onOpacityChange,
   onOpen,
 }: OpacityPopoverProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   const opacityPercent = Math.round(opacity * 100)
 
   const handleSliderChange = useCallback(

@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import type { LoadProjectError } from '../utils/loadProject'
 
 type LoadProjectErrorDialogProps = {
@@ -25,7 +25,7 @@ export const LoadProjectErrorDialog = memo(function LoadProjectErrorDialog({
   onOpenChange,
   error,
 }: LoadProjectErrorDialogProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   const { title, description, details } = useMemo(() => {
     if (!error) {

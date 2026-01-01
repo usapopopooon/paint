@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from './button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { useTheme } from '@/features/theme'
 
 /**
@@ -10,7 +10,7 @@ import { useTheme } from '@/features/theme'
  */
 export const ThemeToggle = memo(function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme()
-  const { t } = useLocale()
+  const { t } = useTranslation()
   const label = isDark ? t('theme.lightMode') : t('theme.darkMode')
 
   return (

@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Hand } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 
 type HandButtonProps = {
   readonly isActive: boolean
@@ -10,7 +10,7 @@ type HandButtonProps = {
 }
 
 export const HandButton = memo(function HandButton({ isActive, onClick }: HandButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

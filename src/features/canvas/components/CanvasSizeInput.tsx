@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { toDisplayValue, toInternalValue } from '@/utils'
 import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../constants'
 
@@ -58,7 +58,7 @@ export const CanvasSizeInput = ({
   onWidthChange,
   onHeightChange,
 }: CanvasSizeInputProps) => {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   // UI表示値（内部値の1/2）
   const displayWidth = toDisplayValue(width)

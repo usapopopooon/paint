@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { Button, Popover, PopoverContent, PopoverTrigger } from '@/components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { AnchorSelector } from './AnchorSelector'
@@ -88,7 +88,7 @@ export const CanvasResizeMenu = ({
   onHeightChange,
   onAnchorChange,
 }: CanvasResizeMenuProps) => {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   // UI表示値（内部値の1/2）
   const displayWidth = toDisplayValue(width)

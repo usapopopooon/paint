@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { fileNameSchema, MAX_FILE_NAME_LENGTH } from '../domain'
 
 const formSchema = z.object({
@@ -35,7 +35,7 @@ export const SaveProjectDialog = memo(function SaveProjectDialog({
   onOpenChange,
   onSave,
 }: SaveProjectDialogProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   const {
     register,

@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { ZoomOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { getModifierKey } from '@/lib/platform'
 
 type ZoomOutButtonProps = {
@@ -14,7 +14,7 @@ export const ZoomOutButton = memo(function ZoomOutButton({
   isActive = false,
   onClick,
 }: ZoomOutButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

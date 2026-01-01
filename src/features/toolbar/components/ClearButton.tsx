@@ -2,14 +2,16 @@ import { memo } from 'react'
 import { ImageOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
+import { getModifierKey } from '@/lib/platform'
 
 type ClearButtonProps = {
   readonly onClick: () => void
 }
 
 export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
+  const modifier = getModifierKey()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -23,7 +25,7 @@ export const ClearButton = memo(function ClearButton({ onClick }: ClearButtonPro
         </Button>
       </TooltipTrigger>
       <TooltipContent>
-        {t('actions.clearLayer')} ({t('shortcuts.clearLayer')})
+        {t('actions.clearLayer')} ({t('shortcuts.clearLayer', { modifier })})
       </TooltipContent>
     </Tooltip>
   )

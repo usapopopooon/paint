@@ -31,7 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import type { Layer, LayerId, LayerBlendMode } from '@/features/layer'
 import { BACKGROUND_LAYER_ID, layerNameSchema, MAX_LAYER_NAME_LENGTH } from '@/features/layer'
 import { OpacityPopover } from './OpacityPopover'
@@ -73,7 +73,7 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerOpacityChange,
   onLayerMove,
 }: LayerPanelProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   const [deleteTargetId, setDeleteTargetId] = useState<LayerId | null>(null)
   const [editingLayerId, setEditingLayerId] = useState<LayerId | null>(null)
   const [draggedLayerId, setDraggedLayerId] = useState<LayerId | null>(null)

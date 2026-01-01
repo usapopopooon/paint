@@ -1,67 +1,53 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { setStorageItem } from '@/lib/storage'
+import { useEffect, useMemo, type ReactNode } from 'react'
+import { I18nProvider, useLocale as useBfLocale } from '@bf-i18n/react'
+import { createI18n } from '@bf-i18n/core'
+import { getStorageItem, setStorageItem } from '@/lib/storage'
 import type { Locale } from '../types'
-import { LOCALE_STORAGE_KEY } from '../constants'
-import {
-  getTranslation,
-  type TranslationKey,
-  type TranslateFunction,
-  type TranslationParams,
-} from '../infrastructure'
-import { LocaleContext, type LocaleContextValue } from './LocaleContext'
-import { getInitialLocale } from '../helpers'
+import { ALLOWED_LOCALES, LOCALE_STORAGE_KEY } from '../constants'
+import en from '../infrastructure/locales/en.json'
+import ja from '../infrastructure/locales/ja.json'
 
 /**
- * LocaleProviderコンポーネントのプロパティ
+ * i18nインスタンスを作成
+ * ライブラリがブラウザのロケール検出とフォールバックを自動で行う
  */
+const createI18nInstance = (storedLocale: Locale | null) =>
+  createI18n({
+    defaultLocale: 'en',
+    locale: storedLocale ?? undefined,
+    translations: { en, ja },
+    detectBrowserLocale: !storedLocale,
+  })
+
 type LocaleProviderProps = {
   readonly children: ReactNode
   readonly defaultLocale?: Locale
 }
 
 /**
- * ロケールを管理するProviderコンポーネント
- * @param props - LocaleProviderコンポーネントのプロパティ
+ * ロケール変更時にLocalStorageに保存するコンポーネント
  */
-export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps) => {
-  const [locale, setLocaleState] = useState<Locale>(defaultLocale ?? getInitialLocale)
+const LocaleStorageSync = ({ children }: { children: ReactNode }) => {
+  const { locale } = useBfLocale()
 
-  // ロケール変更時にLocalStorageに保存
   useEffect(() => {
     setStorageItem(LOCALE_STORAGE_KEY, locale)
   }, [locale])
 
-  /**
-   * ロケールを設定
-   * @param newLocale - 新しいロケール
-   */
-  const setLocale = useCallback((newLocale: Locale) => {
-    setLocaleState(newLocale)
-  }, [])
+  return <>{children}</>
+}
 
-  /** 英語/日本語を切り替え */
-  const toggleLocale = useCallback(() => {
-    setLocaleState((prev) => (prev === 'en' ? 'ja' : 'en'))
-  }, [])
+/**
+ * ロケールを管理するProviderコンポーネント
+ * @bf-i18n/reactを使用
+ */
+export const LocaleProvider = ({ children, defaultLocale }: LocaleProviderProps) => {
+  const storedLocale = defaultLocale ?? getStorageItem(LOCALE_STORAGE_KEY, ALLOWED_LOCALES)
+  const i18n = useMemo(() => createI18nInstance(storedLocale), [storedLocale])
 
-  /**
-   * 翻訳関数
-   * @param key - 翻訳キー
-   * @param params - 置換パラメータ（オプション）
-   * @param overrideLocale - ロケール（省略時は現在のロケール）
-   * @returns 指定ロケールに対応する翻訳テキスト
-   */
-  const t = useCallback<TranslateFunction>(
-    (key: TranslationKey, params?: TranslationParams, overrideLocale?: Locale) =>
-      getTranslation(overrideLocale ?? locale, key, params),
-    [locale]
+  return (
+    <I18nProvider i18n={i18n}>
+      <LocaleStorageSync>{children}</LocaleStorageSync>
+    </I18nProvider>
   )
-
-  /** Context valueをメモ化（子コンポーネントの不要な再レンダリングを防ぐ） */
-  const value = useMemo<LocaleContextValue>(
-    () => ({ locale, setLocale, toggleLocale, t }),
-    [locale, setLocale, toggleLocale, t]
-  )
-
-  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
 }
