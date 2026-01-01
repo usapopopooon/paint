@@ -3,7 +3,14 @@ import type { TranslationKey } from '@/features/i18n/infrastructure/locales/getT
 /** 色名の翻訳キー型 */
 type ColorNameKey = Extract<
   TranslationKey,
-  'color.red' | 'color.orange' | 'color.yellow' | 'color.green' | 'color.cyan' | 'color.blue' | 'color.purple' | 'color.magenta'
+  | 'color.red'
+  | 'color.orange'
+  | 'color.yellow'
+  | 'color.green'
+  | 'color.cyan'
+  | 'color.blue'
+  | 'color.purple'
+  | 'color.magenta'
 >
 
 /**

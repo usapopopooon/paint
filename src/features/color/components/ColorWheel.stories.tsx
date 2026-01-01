@@ -326,3 +326,87 @@ export const ClickHueRing: Story = {
     await expect(input).not.toHaveValue('#FF0000')
   },
 }
+
+/**
+ * キーボード操作で色相を変更するケース
+ */
+export const KeyboardHueControl: Story = {
+  args: {
+    color: '#ff0000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // 色相スライダーを取得
+    const hueSlider = canvas.getByRole('slider', { name: /色相|Hue/i })
+    await expect(hueSlider).toBeInTheDocument()
+
+    // フォーカスを当てる
+    await userEvent.click(hueSlider)
+    await expect(hueSlider).toHaveFocus()
+
+    // 右矢印キーで色相を増加
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(args.onChange).toHaveBeenCalled()
+
+    // 入力値が変わったことを確認
+    const input = canvas.getByRole('textbox')
+    await expect(input).not.toHaveValue('#FF0000')
+  },
+}
+
+/**
+ * キーボード操作で彩度・明度を変更するケース
+ */
+export const KeyboardSvControl: Story = {
+  args: {
+    color: '#ff0000',
+  },
+  render: (args) => <InteractiveColorWheel {...args} />,
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+
+    // 彩度・明度スライダーを取得
+    const svSlider = canvas.getByRole('slider', { name: /彩度と明度|Saturation and brightness/i })
+    await expect(svSlider).toBeInTheDocument()
+
+    // フォーカスを当てる
+    await userEvent.click(svSlider)
+    await expect(svSlider).toHaveFocus()
+
+    // 下矢印キーで明度を減少
+    await userEvent.keyboard('{ArrowDown}')
+    await expect(args.onChange).toHaveBeenCalled()
+
+    // 入力値が変わったことを確認
+    const input = canvas.getByRole('textbox')
+    await expect(input).not.toHaveValue('#FF0000')
+  },
+}
+
+/**
+ * ARIA属性が正しく設定されているかのテスト
+ */
+export const AccessibilityAttributes: Story = {
+  args: {
+    color: '#ff0000',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // 色相スライダーのARIA属性を確認
+    const hueSlider = canvas.getByRole('slider', { name: /色相|Hue/i })
+    await expect(hueSlider).toHaveAttribute('aria-valuenow')
+    await expect(hueSlider).toHaveAttribute('aria-valuemin', '0')
+    await expect(hueSlider).toHaveAttribute('aria-valuemax', '359')
+    await expect(hueSlider).toHaveAttribute('aria-valuetext')
+
+    // 彩度・明度スライダーのARIA属性を確認
+    const svSlider = canvas.getByRole('slider', { name: /彩度と明度|Saturation and brightness/i })
+    await expect(svSlider).toHaveAttribute('aria-valuenow')
+    await expect(svSlider).toHaveAttribute('aria-valuemin', '0')
+    await expect(svSlider).toHaveAttribute('aria-valuemax', '100')
+    await expect(svSlider).toHaveAttribute('aria-valuetext')
+  },
+}
