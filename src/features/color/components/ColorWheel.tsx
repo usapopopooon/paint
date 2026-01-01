@@ -133,7 +133,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
           aria-valuemin={HSV_MIN}
           aria-valuemax={HSV_MAX}
           aria-valuetext={svValueText}
-          className="absolute focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          className="absolute focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           style={{
             width: 12,
             height: 12,
@@ -156,7 +156,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
           aria-valuemin={HSV_MIN}
           aria-valuemax={359}
           aria-valuetext={hueValueText}
-          className="absolute focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+          className="absolute focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           style={{
             width: RING_WIDTH - 4,
             height: RING_WIDTH - 4,
