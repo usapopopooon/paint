@@ -10,6 +10,7 @@ import type { Point } from './features/drawable'
 import { SaveButton, useExportImage } from './features/export'
 import { useLocale, LocaleToggle } from './features/i18n'
 import { ImportButton, useImportImage } from './features/import'
+import { SaveProjectButton, OpenProjectButton } from './features/project'
 import {
   Toolbar,
   UndoButton,
@@ -96,6 +97,21 @@ function App() {
 
   // ページを離れる前に確認ダイアログを表示
   useBeforeUnload()
+
+  // プロジェクトファイル読み込み用ref
+  const projectInputRef = useRef<HTMLInputElement>(null)
+
+  const handleOpenProjectFilePicker = useCallback(() => {
+    projectInputRef.current?.click()
+  }, [])
+
+  const handleProjectFileChange = useCallback(() => {
+    // TODO: プロジェクト読み込み処理を実装
+  }, [])
+
+  const handleSaveProject = useCallback(() => {
+    // TODO: プロジェクト保存処理を実装
+  }, [])
 
   // toolの最新状態をrefで保持（useCallbackの依存配列問題を回避）
   const toolRef = useRef(tool)
@@ -374,6 +390,13 @@ function App() {
               exportImage.downloadAsJpg(canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
             }
           />
+          <ToolbarDivider />
+          <OpenProjectButton
+            inputRef={projectInputRef}
+            onOpenFilePicker={handleOpenProjectFilePicker}
+            onFileChange={handleProjectFileChange}
+          />
+          <SaveProjectButton onSave={handleSaveProject} />
         </Toolbar>
         <div className="flex items-center gap-1">
           <LocaleToggle />

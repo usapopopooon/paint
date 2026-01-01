@@ -60,6 +60,8 @@
   "stabilization.title": "Stabilization",
   "toolbar.save": "Save as JPG",
   "toolbar.import": "Import image",
+  "toolbar.saveProject": "Save project",
+  "toolbar.openProject": "Open project",
   "import.invalidFileType": "Unsupported image format. Please select PNG, JPG, GIF, or WebP.",
   "blendMode.warning.title": "Blend Mode Warning",
   "blendMode.warning.description": "Blend modes may cause heavy browser load and could potentially crash. Apply anyway?"
