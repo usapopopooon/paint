@@ -282,11 +282,11 @@ export const ClickSvArea: Story = {
     ) as HTMLElement
     await expect(colorWheelContainer).toBeInTheDocument()
 
-    // 中央付近をクリックして色を変更
+    // 中央付近をクリックして色を変更（ホイールサイズ200pxなので中心は100,100）
     await userEvent.pointer({
       keys: '[MouseLeft]',
       target: colorWheelContainer,
-      coords: { x: 90, y: 90 },
+      coords: { x: 100, y: 100 },
     })
 
     // 色が変更されたことを確認（onChangeが呼ばれた）
@@ -316,11 +316,11 @@ export const ClickHueRing: Story = {
     await expect(colorWheelContainer).toBeInTheDocument()
 
     // Hueリング上（右端付近＝シアン方向）をクリックして色相を変更
-    // ホイールサイズ180px、リング幅20pxなので、右端のリング中央は約x:170, y:90
+    // ホイールサイズ200px、リング幅16pxなので、右端のリング中央は約x:192, y:100
     await userEvent.pointer({
       keys: '[MouseLeft]',
       target: colorWheelContainer,
-      coords: { x: 170, y: 90 },
+      coords: { x: 192, y: 100 },
     })
 
     // 色が変更されたことを確認（onChangeが呼ばれた）
