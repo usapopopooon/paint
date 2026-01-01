@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.26] - 2026-01-01
+
+### Docs
+
+- **MIT LICENSEファイルを追加**
+  - 公開フォークを推奨する注釈付き
+
+### CI
+
+- **日本語READMEのバージョンとスクリーンショットを自動更新**
+  - prepare-release.ymlでdocs/README.ja.mdも更新対象に追加
+
 ## [0.0.25] - 2026-01-01
 
 ### Features
