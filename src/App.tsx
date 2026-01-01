@@ -8,7 +8,7 @@ import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { SaveButton, useExportImage } from './features/export'
-import { useLocale, LocaleToggle } from './features/i18n'
+import { useTranslation, LocaleToggle } from './features/i18n'
 import { ImportButton, useImportImage } from './features/import'
 import {
   SaveProjectButton,
@@ -91,7 +91,7 @@ function App() {
   const zoom = useZoom()
   const tool = useTool()
   const exportImage = useExportImage(canvasContainerRef)
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   // 画像インポート（canvasSizeは内部座標系なのでUI座標系に変換）
   const importImage = useImportImage({

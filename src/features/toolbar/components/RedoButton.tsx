@@ -2,7 +2,8 @@ import { memo } from 'react'
 import { Redo2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
+import { getModifierKey } from '@/lib/platform'
 
 type RedoButtonProps = {
   readonly disabled: boolean
@@ -10,7 +11,8 @@ type RedoButtonProps = {
 }
 
 export const RedoButton = memo(function RedoButton({ disabled, onClick }: RedoButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
+  const modifier = getModifierKey()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -27,7 +29,8 @@ export const RedoButton = memo(function RedoButton({ disabled, onClick }: RedoBu
         </span>
       </TooltipTrigger>
       <TooltipContent>
-        {t('actions.redo')} ({disabled ? t('messages.noRedoHistory') : t('shortcuts.redo')})
+        {t('actions.redo')} (
+        {disabled ? t('messages.noRedoHistory') : t('shortcuts.redo', { modifier })})
       </TooltipContent>
     </Tooltip>
   )

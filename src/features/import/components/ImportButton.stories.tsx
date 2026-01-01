@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { useRef } from 'react'
 import { ImportButton } from './ImportButton'
-import { getTranslation } from '@/features/i18n/infrastructure/locales/getTranslation'
+import { i18nEn } from '@/test/i18n'
 
 const meta = {
   title: 'Features/Import/ImportButton',
@@ -35,7 +35,7 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const button = canvas.getByRole('button', {
-      name: getTranslation('en', 'toolbar.import'),
+      name: i18nEn.t('toolbar.import'),
     })
 
     await expect(button).toBeEnabled()

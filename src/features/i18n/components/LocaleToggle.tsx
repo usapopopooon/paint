@@ -1,12 +1,15 @@
 import { memo } from 'react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '../hooks'
+import { useLocale, useTranslation } from '../hooks'
 
 /**
  * 言語切り替えトグルコンポーネント
  */
 export const LocaleToggle = memo(function LocaleToggle() {
-  const { locale, toggleLocale, t } = useLocale()
+  const { locale, setLocale } = useLocale()
+  const { t } = useTranslation()
+
+  const toggleLocale = () => setLocale(locale === 'en' ? 'ja' : 'en')
 
   // 切り替え先の言語に応じたツールチップを表示
   const tooltipText = locale === 'ja' ? t('locale.switchToEnglish') : t('locale.switchToJapanese')

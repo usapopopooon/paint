@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Crosshair } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 
 type CenterCanvasButtonProps = {
   readonly onClick: () => void
@@ -11,7 +11,7 @@ type CenterCanvasButtonProps = {
 export const CenterCanvasButton = memo(function CenterCanvasButton({
   onClick,
 }: CenterCanvasButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

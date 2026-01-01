@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Pipette } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 
 type EyedropperButtonProps = {
   readonly isActive: boolean
@@ -13,7 +13,7 @@ export const EyedropperButton = memo(function EyedropperButton({
   isActive,
   onClick,
 }: EyedropperButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   return (
     <Tooltip>
       <TooltipTrigger asChild>

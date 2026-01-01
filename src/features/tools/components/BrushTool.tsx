@@ -3,7 +3,7 @@ import { Brush } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { toDisplayValue } from '@/utils'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from '../constants'
@@ -26,7 +26,7 @@ export const BrushTool = memo(function BrushTool({
   onWidthChange,
   onOpacityChange,
 }: BrushToolProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   const handleWidthSliderChange = useCallback(
     (values: number[]) => {
       onSelect()

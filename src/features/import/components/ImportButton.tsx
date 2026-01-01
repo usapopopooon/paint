@@ -2,7 +2,7 @@ import { memo, type RefObject, type ChangeEventHandler } from 'react'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 
 type ImportButtonProps = {
   readonly inputRef: RefObject<HTMLInputElement | null>
@@ -18,7 +18,7 @@ export const ImportButton = memo(function ImportButton({
   onOpenFilePicker,
   onFileChange,
 }: ImportButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   return (
     <>

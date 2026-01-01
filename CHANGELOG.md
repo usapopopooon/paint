@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.32] - 2026-01-02
+
+### Refactor
+
+- **i18nを@bf-i18n/reactに移行しシンプル化**
+  - @bf-i18n/core, @bf-i18n/reactライブラリを導入
+  - Rails形式のJSON翻訳ファイル（%{variable}プレースホルダー）に対応
+  - カスタムのgetTranslation, getInitialLocale, LocaleContextを削除
+  - ライブラリのuseLocale, useTranslation, detectBrowserLocaleを直接使用
+  - 翻訳キー整合性テストを追加
+
 ## [0.0.31] - 2026-01-02
 
 ### Features

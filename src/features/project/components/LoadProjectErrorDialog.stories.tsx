@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, within } from 'storybook/test'
 import { z } from 'zod'
 import { LoadProjectErrorDialog } from './LoadProjectErrorDialog'
-import { getTranslation } from '@/features/i18n/infrastructure/locales/getTranslation'
+import { i18nEn } from '@/test/i18n'
 
 const meta = {
   title: 'Features/Project/LoadProjectErrorDialog',
@@ -32,16 +32,16 @@ export const ParseError: Story = {
     await expect(dialog).toBeVisible()
 
     // タイトルが表示されていることを確認
-    const title = body.getByText(getTranslation('en', 'project.loadError.title'))
+    const title = body.getByText(i18nEn.t('project.loadError.title'))
     await expect(title).toBeVisible()
 
     // エラーメッセージが表示されていることを確認
-    const description = body.getByText(getTranslation('en', 'project.loadError.parseError'))
+    const description = body.getByText(i18nEn.t('project.loadError.parseError'))
     await expect(description).toBeVisible()
 
     // OKボタンが表示されていることを確認
     const okButton = body.getByRole('button', {
-      name: getTranslation('en', 'actions.ok'),
+      name: i18nEn.t('actions.ok'),
     })
     await expect(okButton).toBeEnabled()
   },
@@ -57,7 +57,7 @@ export const UnsupportedVersion: Story = {
     const body = within(document.body)
 
     // エラーメッセージが表示されていることを確認
-    const description = body.getByText(getTranslation('en', 'project.loadError.unsupportedVersion'))
+    const description = body.getByText(i18nEn.t('project.loadError.unsupportedVersion'))
     await expect(description).toBeVisible()
 
     // バージョン情報が表示されていることを確認
@@ -89,7 +89,7 @@ export const InvalidFormat: Story = {
     const body = within(document.body)
 
     // エラーメッセージが表示されていることを確認
-    const description = body.getByText(getTranslation('en', 'project.loadError.invalidFormat'))
+    const description = body.getByText(i18nEn.t('project.loadError.invalidFormat'))
     await expect(description).toBeVisible()
 
     // Zodエラー詳細がpre要素に表示されていることを確認

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
 import { SaveProjectDialog } from './SaveProjectDialog'
-import { getTranslation } from '@/features/i18n/infrastructure/locales/getTranslation'
+import { i18nEn } from '@/test/i18n'
 
 const meta = {
   title: 'Features/Project/SaveProjectDialog',
@@ -32,7 +32,7 @@ export const Default: Story = {
     await expect(dialog).toBeVisible()
 
     // タイトルが表示されていることを確認
-    const title = body.getByText(getTranslation('en', 'project.saveDialog.title'))
+    const title = body.getByText(i18nEn.t('project.saveDialog.title'))
     await expect(title).toBeVisible()
 
     // ファイル名入力フィールドが表示されていることを確認
@@ -46,13 +46,13 @@ export const Default: Story = {
 
     // 保存ボタンが表示されていることを確認
     const saveButton = body.getByRole('button', {
-      name: getTranslation('en', 'project.saveDialog.save'),
+      name: i18nEn.t('project.saveDialog.save'),
     })
     await expect(saveButton).toBeEnabled()
 
     // キャンセルボタンが表示されていることを確認
     const cancelButton = body.getByRole('button', {
-      name: getTranslation('en', 'actions.cancel'),
+      name: i18nEn.t('actions.cancel'),
     })
     await expect(cancelButton).toBeEnabled()
   },
@@ -78,7 +78,7 @@ export const SaveWithCustomName: Story = {
 
     // 保存ボタンをクリック
     const saveButton = body.getByRole('button', {
-      name: getTranslation('en', 'project.saveDialog.save'),
+      name: i18nEn.t('project.saveDialog.save'),
     })
     await userEvent.click(saveButton)
 

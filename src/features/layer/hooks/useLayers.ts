@@ -5,7 +5,7 @@ import type { Drawable } from '@/features/drawable'
 import { translateDrawables, flipDrawablesHorizontal } from '@/features/drawable'
 import { BACKGROUND_LAYER_ID } from '../constants'
 import { generateId } from '@/lib/id'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 
 export type UseLayersReturn = {
   readonly layers: readonly Layer[]
@@ -43,7 +43,7 @@ export type UseLayersReturn = {
  * @returns レイヤー操作用のメソッドと現在の状態
  */
 export const useLayers = (): UseLayersReturn => {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   const [state, setState] = useState<LayerState>(() =>
     createInitialLayerState(t('layers.defaultName', { number: 1 }))
   )

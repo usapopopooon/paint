@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 
 type SaveButtonProps = {
   readonly onSave: () => void
@@ -12,7 +12,7 @@ type SaveButtonProps = {
  * 保存ボタンコンポーネント
  */
 export const SaveButton = memo(function SaveButton({ onSave }: SaveButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   return (
     <Tooltip>

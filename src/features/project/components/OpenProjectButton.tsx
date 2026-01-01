@@ -2,7 +2,7 @@ import { memo, type RefObject, type ChangeEventHandler } from 'react'
 import { FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { PROJECT_FILE_EXTENSION } from '../constants'
 
 type OpenProjectButtonProps = {
@@ -19,7 +19,7 @@ export const OpenProjectButton = memo(function OpenProjectButton({
   onOpenFilePicker,
   onFileChange,
 }: OpenProjectButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
 
   return (
     <>

@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { SquareDot } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useLocale } from '@/features/i18n'
+import { useTranslation } from '@/features/i18n'
 import { getModifierKey } from '@/lib/platform'
 
 type ZoomResetButtonProps = {
@@ -10,7 +10,7 @@ type ZoomResetButtonProps = {
 }
 
 export const ZoomResetButton = memo(function ZoomResetButton({ onClick }: ZoomResetButtonProps) {
-  const { t } = useLocale()
+  const { t } = useTranslation()
   return (
     <Tooltip>
       <TooltipTrigger asChild>
