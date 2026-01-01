@@ -115,7 +115,7 @@ function App() {
 
   // プロジェクト名が変わったらブラウザタイトルを更新
   useEffect(() => {
-    document.title = projectName ? `${projectName} - Paint` : 'Paint'
+    document.title = projectName ? `${projectName} - Paint` : 'untitled - Paint'
   }, [projectName])
 
   const handleOpenProjectFilePicker = useCallback(() => {
