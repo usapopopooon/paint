@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { getInitialLocale } from './getInitialLocale'
 
 // モック
@@ -19,7 +19,7 @@ describe('getInitialLocale', () => {
     vi.restoreAllMocks()
   })
 
-  it('should return stored locale from localStorage', () => {
+  test('localStorageに保存されたロケールを返す（日本語）', () => {
     mockGetStorageItem.mockReturnValue('ja')
 
     const result = getInitialLocale()
@@ -27,7 +27,7 @@ describe('getInitialLocale', () => {
     expect(result).toBe('ja')
   })
 
-  it('should return english locale from localStorage', () => {
+  test('localStorageに保存されたロケールを返す（英語）', () => {
     mockGetStorageItem.mockReturnValue('en')
 
     const result = getInitialLocale()
@@ -35,7 +35,7 @@ describe('getInitialLocale', () => {
     expect(result).toBe('en')
   })
 
-  it('should return ja when browser language is Japanese and no stored value', () => {
+  test('保存値がなくブラウザ言語が日本語の場合はjaを返す', () => {
     mockGetStorageItem.mockReturnValue(null)
     vi.stubGlobal('navigator', { language: 'ja-JP' })
 
@@ -44,7 +44,7 @@ describe('getInitialLocale', () => {
     expect(result).toBe('ja')
   })
 
-  it('should return en when browser language is English and no stored value', () => {
+  test('保存値がなくブラウザ言語が英語の場合はenを返す', () => {
     mockGetStorageItem.mockReturnValue(null)
     vi.stubGlobal('navigator', { language: 'en-US' })
 
@@ -53,7 +53,7 @@ describe('getInitialLocale', () => {
     expect(result).toBe('en')
   })
 
-  it('should return en for other languages and no stored value', () => {
+  test('保存値がなくその他の言語の場合はenを返す', () => {
     mockGetStorageItem.mockReturnValue(null)
     vi.stubGlobal('navigator', { language: 'fr-FR' })
 

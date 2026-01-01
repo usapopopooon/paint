@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { LocaleProvider } from './LocaleProvider'
 import { useLocale } from './useLocale'
 
@@ -29,7 +29,7 @@ describe('LocaleProvider', () => {
     vi.clearAllMocks()
   })
 
-  it('should provide default locale as en', () => {
+  test('デフォルトロケールとしてenを提供する', () => {
     render(
       <LocaleProvider defaultLocale="en">
         <TestComponent />
@@ -40,7 +40,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('translation')).toHaveTextContent('Pen')
   })
 
-  it('should provide default locale as ja', () => {
+  test('デフォルトロケールとしてjaを提供する', () => {
     render(
       <LocaleProvider defaultLocale="ja">
         <TestComponent />
@@ -51,7 +51,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('translation')).toHaveTextContent('ペン')
   })
 
-  it('should toggle locale from en to ja', async () => {
+  test('enからjaにロケールを切り替える', async () => {
     const user = userEvent.setup()
 
     render(
@@ -68,7 +68,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('translation')).toHaveTextContent('ペン')
   })
 
-  it('should toggle locale from ja to en', async () => {
+  test('jaからenにロケールを切り替える', async () => {
     const user = userEvent.setup()
 
     render(
@@ -85,7 +85,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('translation')).toHaveTextContent('Pen')
   })
 
-  it('should set locale directly with setLocale', async () => {
+  test('setLocaleでロケールを直接設定する', async () => {
     const user = userEvent.setup()
 
     render(
@@ -101,7 +101,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('locale')).toHaveTextContent('ja')
   })
 
-  it('should translate different keys correctly', () => {
+  test('異なるキーを正しく翻訳する', () => {
     const TranslationTestComponent = () => {
       const { t } = useLocale()
       return (
@@ -128,7 +128,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('clear')).toHaveTextContent('Clear layer')
   })
 
-  it('should translate different keys correctly in Japanese', () => {
+  test('日本語で異なるキーを正しく翻訳する', () => {
     const TranslationTestComponent = () => {
       const { t } = useLocale()
       return (
@@ -155,7 +155,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('clear')).toHaveTextContent('レイヤーをクリア')
   })
 
-  it('should update translations when locale changes', async () => {
+  test('ロケール変更時に翻訳を更新する', async () => {
     const user = userEvent.setup()
 
     render(
@@ -175,7 +175,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('translation')).toHaveTextContent('Pen')
   })
 
-  it('should override locale with third parameter', () => {
+  test('第3引数でロケールを上書きする', () => {
     const OverrideTestComponent = () => {
       const { t } = useLocale()
       return (
@@ -198,7 +198,7 @@ describe('LocaleProvider', () => {
     expect(screen.getByTestId('force-ja')).toHaveTextContent('ペン')
   })
 
-  it('should override locale regardless of current locale', () => {
+  test('現在のロケールに関係なくロケールを上書きする', () => {
     const OverrideTestComponent = () => {
       const { t } = useLocale()
       return (

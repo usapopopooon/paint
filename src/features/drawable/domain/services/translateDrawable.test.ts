@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { translateDrawable, translateDrawables } from './translateDrawable'
 import { createStrokeDrawable, createImageDrawable } from '../entities'
 import { createSolidBrushTip } from '@/features/brush'
@@ -13,7 +13,7 @@ describe('translateDrawable', () => {
     })
 
   describe('translateDrawable', () => {
-    it('ストロークの座標をオフセット分移動する', () => {
+    test('ストロークの座標をオフセット分移動する', () => {
       const stroke = createTestStroke([
         { x: 100, y: 100 },
         { x: 200, y: 200 },
@@ -27,7 +27,7 @@ describe('translateDrawable', () => {
       ])
     })
 
-    it('負のオフセットで座標を移動する', () => {
+    test('負のオフセットで座標を移動する', () => {
       const stroke = createTestStroke([
         { x: 100, y: 100 },
         { x: 200, y: 200 },
@@ -41,7 +41,7 @@ describe('translateDrawable', () => {
       ])
     })
 
-    it('オフセット0の場合は座標が変わらない', () => {
+    test('オフセット0の場合は座標が変わらない', () => {
       const stroke = createTestStroke([
         { x: 100, y: 100 },
         { x: 200, y: 200 },
@@ -55,7 +55,7 @@ describe('translateDrawable', () => {
       ])
     })
 
-    it('元のDrawableを変更しない（イミュータブル）', () => {
+    test('元のDrawableを変更しない（イミュータブル）', () => {
       const stroke = createTestStroke([
         { x: 100, y: 100 },
         { x: 200, y: 200 },
@@ -69,7 +69,7 @@ describe('translateDrawable', () => {
       ])
     })
 
-    it('ImageDrawableの座標をオフセット分移動する', () => {
+    test('ImageDrawableの座標をオフセット分移動する', () => {
       const image = createImageDrawable({
         src: 'data:image/png;base64,test',
         x: 100,
@@ -86,7 +86,7 @@ describe('translateDrawable', () => {
       expect(translated.height).toBe(150)
     })
 
-    it('ImageDrawableの負のオフセット移動', () => {
+    test('ImageDrawableの負のオフセット移動', () => {
       const image = createImageDrawable({
         src: 'data:image/png;base64,test',
         x: 100,
@@ -103,7 +103,7 @@ describe('translateDrawable', () => {
   })
 
   describe('translateDrawables', () => {
-    it('複数のDrawableの座標をオフセット分移動する', () => {
+    test('複数のDrawableの座標をオフセット分移動する', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
 
@@ -113,7 +113,7 @@ describe('translateDrawable', () => {
       expect(translated[1]?.points).toEqual([{ x: 210, y: 220 }])
     })
 
-    it('オフセット0の場合は元の配列を返す', () => {
+    test('オフセット0の場合は元の配列を返す', () => {
       const stroke1 = createTestStroke([{ x: 100, y: 100 }])
       const stroke2 = createTestStroke([{ x: 200, y: 200 }])
       const drawables = [stroke1, stroke2]
@@ -123,7 +123,7 @@ describe('translateDrawable', () => {
       expect(translated).toBe(drawables)
     })
 
-    it('空配列を処理できる', () => {
+    test('空配列を処理できる', () => {
       const translated = translateDrawables([], 10, 20)
 
       expect(translated).toEqual([])

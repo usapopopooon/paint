@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { parseTranslation, validateTranslation } from './translationSchema'
 import en from '../infrastructure/locales/en.json'
 import ja from '../infrastructure/locales/ja.json'
 
 describe('translationSchema', () => {
   describe('parseTranslation', () => {
-    it('should parse valid translation data', () => {
+    test('有効な翻訳データをパースする', () => {
       const result = parseTranslation({ 'test.key': 'value' })
 
       expect(result.success).toBe(true)
@@ -14,43 +14,43 @@ describe('translationSchema', () => {
       }
     })
 
-    it('should parse empty object', () => {
+    test('空オブジェクトをパースする', () => {
       const result = parseTranslation({})
 
       expect(result.success).toBe(true)
     })
 
-    it('should fail for non-string values', () => {
+    test('文字列以外の値は失敗する', () => {
       const result = parseTranslation({ key: 123 })
 
       expect(result.success).toBe(false)
     })
 
-    it('should fail for nested objects', () => {
+    test('ネストしたオブジェクトは失敗する', () => {
       const result = parseTranslation({ key: { nested: 'value' } })
 
       expect(result.success).toBe(false)
     })
 
-    it('should fail for array values', () => {
+    test('配列値は失敗する', () => {
       const result = parseTranslation({ key: ['value'] })
 
       expect(result.success).toBe(false)
     })
 
-    it('should fail for null values', () => {
+    test('null値は失敗する', () => {
       const result = parseTranslation({ key: null })
 
       expect(result.success).toBe(false)
     })
 
-    it('should parse en.json successfully', () => {
+    test('en.jsonを正常にパースする', () => {
       const result = parseTranslation(en)
 
       expect(result.success).toBe(true)
     })
 
-    it('should parse ja.json successfully', () => {
+    test('ja.jsonを正常にパースする', () => {
       const result = parseTranslation(ja)
 
       expect(result.success).toBe(true)
@@ -58,24 +58,24 @@ describe('translationSchema', () => {
   })
 
   describe('validateTranslation', () => {
-    it('should return data for valid translation', () => {
+    test('有効な翻訳データを返す', () => {
       const data = { 'test.key': 'value' }
       const result = validateTranslation(data, 'test')
 
       expect(result).toEqual(data)
     })
 
-    it('should throw error for invalid translation', () => {
+    test('無効な翻訳データでエラーをスローする', () => {
       expect(() => validateTranslation({ key: 123 }, 'test')).toThrow(
         'Invalid translation data for locale "test"'
       )
     })
 
-    it('should validate en.json without throwing', () => {
+    test('en.jsonのバリデーションでエラーをスローしない', () => {
       expect(() => validateTranslation(en, 'en')).not.toThrow()
     })
 
-    it('should validate ja.json without throwing', () => {
+    test('ja.jsonのバリデーションでエラーをスローしない', () => {
       expect(() => validateTranslation(ja, 'ja')).not.toThrow()
     })
   })
