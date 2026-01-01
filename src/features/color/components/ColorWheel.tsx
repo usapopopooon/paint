@@ -38,8 +38,6 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
     hsv,
     setColor,
     handlePointerDown,
-    handleSvIndicatorPointerDown,
-    handleHueIndicatorPointerDown,
     handleHueKeyDown,
     handleSvKeyDown,
     hueIndicatorX,
@@ -90,17 +88,25 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
         style={{ width: WHEEL_SIZE, height: WHEEL_SIZE, touchAction: 'none' }}
         onPointerDown={handlePointerDown}
       >
-        {/* Hue wheel using conic-gradient */}
+        {/* Hue ring - フォーカス可能 */}
         <div
-          className="absolute inset-0 rounded-full"
+          role="slider"
+          tabIndex={0}
+          aria-label={t('color.hue')}
+          aria-valuenow={hsv.h}
+          aria-valuemin={HSV_MIN}
+          aria-valuemax={359}
+          aria-valuetext={hueValueText}
+          className="absolute inset-0 rounded-full outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
           style={{
             background:
               'conic-gradient(from 0deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))',
           }}
+          onKeyDown={handleHueKeyDown}
         />
         {/* Inner circle mask */}
         <div
-          className="absolute rounded-full bg-background"
+          className="absolute rounded-full bg-background pointer-events-none"
           style={{
             top: RING_WIDTH,
             left: RING_WIDTH,
@@ -109,9 +115,16 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
           }}
         />
 
-        {/* SV square */}
+        {/* SV square - フォーカス可能 */}
         <div
-          className="absolute"
+          role="slider"
+          tabIndex={0}
+          aria-label={t('color.saturationBrightness')}
+          aria-valuenow={hsv.s}
+          aria-valuemin={HSV_MIN}
+          aria-valuemax={HSV_MAX}
+          aria-valuetext={svValueText}
+          className="absolute rounded-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
           style={{
             width: SQUARE_SIZE,
             height: SQUARE_SIZE,
@@ -122,41 +135,12 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
               linear-gradient(to right, #fff, hsl(${hsv.h}, 100%, 50%))
             `,
           }}
-        />
-
-        {/* SV indicator */}
-        <div
-          role="slider"
-          tabIndex={0}
-          aria-label={t('color.saturationBrightness')}
-          aria-valuenow={hsv.s}
-          aria-valuemin={HSV_MIN}
-          aria-valuemax={HSV_MAX}
-          aria-valuetext={svValueText}
-          className="absolute outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-          style={{
-            width: 12,
-            height: 12,
-            borderRadius: '50%',
-            border: '2px solid white',
-            boxShadow: 'inset 0 0 0 1px black, 0 0 0 1px black',
-            top: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorY - 6,
-            left: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorX - 6,
-          }}
-          onPointerDown={handleSvIndicatorPointerDown}
           onKeyDown={handleSvKeyDown}
         />
 
-        {/* Hue indicator */}
+        {/* Hue indicator - pointer-events: none */}
         <div
-          role="slider"
-          tabIndex={0}
-          aria-label={t('color.hue')}
-          aria-valuenow={hsv.h}
-          aria-valuemin={HSV_MIN}
-          aria-valuemax={359}
-          aria-valuetext={hueValueText}
-          className="absolute outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+          className="absolute pointer-events-none"
           style={{
             width: RING_WIDTH - 4,
             height: RING_WIDTH - 4,
@@ -166,8 +150,20 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
             top: hueIndicatorY - (RING_WIDTH - 4) / 2,
             left: hueIndicatorX - (RING_WIDTH - 4) / 2,
           }}
-          onPointerDown={handleHueIndicatorPointerDown}
-          onKeyDown={handleHueKeyDown}
+        />
+
+        {/* SV indicator - pointer-events: none */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            border: '2px solid white',
+            boxShadow: 'inset 0 0 0 1px black, 0 0 0 1px black',
+            top: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorY - 6,
+            left: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorX - 6,
+          }}
         />
       </div>
       <div className="flex items-center gap-2">
