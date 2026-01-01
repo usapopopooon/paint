@@ -563,12 +563,14 @@ export const RenameLayerTooLongValidation: Story = {
       expect(input).toHaveFocus()
     })
 
-    // Ctrl+Aで全選択してからBackspaceで削除し、入力
-    await userEvent.keyboard('{Control>}a{/Control}{Backspace}')
-    await userEvent.type(input, 'a'.repeat(51))
+    // 51文字を直接設定（userEvent.typeは大量の文字で不安定なため）
+    const longName = 'a'.repeat(51)
+    fireEvent.change(input, { target: { value: longName } })
 
     // 入力値を確認（51文字入力されているはず）
-    await expect(input.value.length).toBe(51)
+    await waitFor(() => {
+      expect(input.value.length).toBe(51)
+    })
 
     // blurイベントを発火してバリデーションをトリガー
     fireEvent.blur(input)

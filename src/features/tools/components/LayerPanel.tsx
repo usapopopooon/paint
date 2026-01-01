@@ -26,6 +26,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -400,6 +401,9 @@ export const LayerPanel = memo(function LayerPanel({
         <DialogContent className="sm:max-w-[300px]">
           <DialogHeader>
             <DialogTitle>{t('layers.rename')}</DialogTitle>
+            <DialogDescription className="sr-only">
+              {t('layers.renameDescription')}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onRenameSubmit)}>
             <div className="flex flex-col gap-2">
