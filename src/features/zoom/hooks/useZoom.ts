@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react'
-import { DISPLAY_MULTIPLIER } from '@/constants'
 import type { CanvasOffset } from '@/features/canvas'
 import { MIN_ZOOM, MAX_ZOOM, ZOOM_STEP, DEFAULT_ZOOM } from '../constants'
 import { calculateZoomOffset } from '../helpers'
@@ -127,10 +126,9 @@ export const useZoom = () => {
   )
 
   /**
-   * ズーム倍率をパーセント表示用にフォーマット（UI表示は2倍）
-   * 内部50% → UI 100%
+   * ズーム倍率をパーセント表示用にフォーマット
    */
-  const zoomPercent = Math.round(zoom * 100 * DISPLAY_MULTIPLIER)
+  const zoomPercent = Math.round(zoom * 100)
 
   return {
     zoom,

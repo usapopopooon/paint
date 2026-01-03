@@ -1,5 +1,5 @@
 import { useCallback, type RefObject } from 'react'
-import { JPEG_QUALITY, EXPORT_SCALE } from '../constants'
+import { JPEG_QUALITY } from '../constants'
 
 /**
  * 次のアニメーションフレームまで待機
@@ -84,22 +84,8 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
       // 背景レイヤーを非表示に戻す
       hideBackgroundLayer()
 
-      // 50%に縮小したキャンバスを作成
-      const exportWidth = Math.round(width * EXPORT_SCALE)
-      const exportHeight = Math.round(height * EXPORT_SCALE)
-      const exportCanvas = document.createElement('canvas')
-      exportCanvas.width = exportWidth
-      exportCanvas.height = exportHeight
-      const exportCtx = exportCanvas.getContext('2d')
-      if (!exportCtx) return
-
-      // 高品質なスケーリングのために設定
-      exportCtx.imageSmoothingEnabled = true
-      exportCtx.imageSmoothingQuality = 'high'
-      exportCtx.drawImage(fullSizeCanvas, 0, 0, exportWidth, exportHeight)
-
       // JPGに変換してダウンロード
-      const dataUrl = exportCanvas.toDataURL('image/jpeg', JPEG_QUALITY)
+      const dataUrl = fullSizeCanvas.toDataURL('image/jpeg', JPEG_QUALITY)
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
       const filename = `paint_${timestamp}.jpg`
 

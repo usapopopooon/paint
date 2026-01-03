@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslation } from '@/features/i18n'
-import { toDisplayValue } from '@/utils'
 import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from '../constants'
 import { OpacityPopover } from './OpacityPopover'
@@ -65,7 +64,7 @@ export const EraserTool = memo(function EraserTool({
           step={0.1}
         />
         <span className="text-sm font-mono text-foreground w-8 text-right">
-          {toDisplayValue(width)}
+          {width}
         </span>
       </div>
       <OpacityPopover opacity={opacity} onOpacityChange={onOpacityChange} onOpen={onSelect} />

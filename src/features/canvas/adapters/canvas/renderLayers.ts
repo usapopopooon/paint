@@ -37,7 +37,7 @@ const calculateBlurStrength = (hardness: number, brushSize: number): number => {
  * レイヤーの透明度を正しく表示するためにPixiJS内で描画
  * パフォーマンス最適化: 同じ色のタイルをまとめて描画
  */
-const createCheckerboard = (width: number, height: number, tileSize: number = 20): Graphics => {
+const createCheckerboard = (width: number, height: number, tileSize: number = 10): Graphics => {
   const checkerboard = new Graphics()
   const cols = Math.ceil(width / tileSize)
   const rows = Math.ceil(height / tileSize)
