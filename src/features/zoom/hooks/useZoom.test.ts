@@ -116,7 +116,7 @@ describe('useZoom', () => {
       const { result } = renderHook(() => useZoom())
 
       act(() => {
-        result.current.setZoomLevel(10)
+        result.current.setZoomLevel(30)
       })
 
       expect(result.current.zoom).toBe(MAX_ZOOM)
