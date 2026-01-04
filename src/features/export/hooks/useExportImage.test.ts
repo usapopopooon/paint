@@ -182,7 +182,6 @@ describe('useExportImage', () => {
     expect(mockHideBackgroundLayer).toHaveBeenCalled()
   })
 
-
   describe('WebGLパス', () => {
     let mockGl: WebGLRenderingContext
     let mockWebGLCanvas: HTMLCanvasElement
@@ -252,5 +251,4 @@ describe('useExportImage', () => {
       expect(mockLink.click).toHaveBeenCalled()
     })
   })
-
 })

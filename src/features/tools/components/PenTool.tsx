@@ -63,9 +63,7 @@ export const PenTool = memo(function PenTool({
           max={100}
           step={0.1}
         />
-        <span className="text-sm font-mono text-foreground w-8 text-right">
-          {width}
-        </span>
+        <span className="text-sm font-mono text-foreground w-8 text-right">{width}</span>
       </div>
       <OpacityPopover opacity={opacity} onOpacityChange={onOpacityChange} onOpen={onSelect} />
     </div>
