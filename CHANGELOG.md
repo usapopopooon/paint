@@ -1,5 +1,32 @@
 # Changelog
 
+## [Unreleased]
+
+### Refactor
+
+- **ツールコンポーネントの統合**
+  - PenTool, BrushTool, EraserToolの重複コードをDrawingToolButtonに統合
+  - 各ツールコンポーネントを27行に簡素化（元：72行）
+
+- **hardness計算関数の共通化**
+  - renderDrawables.tsとrenderLayers.tsで重複していたgetHardness/calculateBlurStrengthを抽出
+  - src/features/drawable/helpers/hardness.tsに共通化
+
+- **ソフトエッジレンダリング関数の統合**
+  - renderSoftEraserとrenderSoftStrokeを単一のrenderSoftEdge関数に統合
+  - colorパラメータを追加して両方のケースを処理
+
+- **App.tsxハンドラー関数の簡素化**
+  - handleIncreaseToolSize/handleDecreaseToolSizeのif-elseチェーンを設定オブジェクトで置換
+  - handleHardnessChange/handleBlurEnabledChangeも同様に簡素化
+
+### Fixes
+
+- **PixiJS Graphics APIの色型エラーを修正**
+  - hexToNumber()ユーティリティ関数を追加して16進数文字列を数値に変換
+  - renderStroke()でstyle.colorをhexToNumber()で変換
+  - テストの期待値を数値カラーに更新
+
 ## [0.0.32] - 2026-01-02
 
 ### Refactor

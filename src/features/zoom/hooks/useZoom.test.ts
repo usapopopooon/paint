@@ -15,10 +15,10 @@ describe('useZoom', () => {
       expect(result.current.zoom).toBe(DEFAULT_ZOOM)
     })
 
-    test('zoomPercentは正しく計算される（内部値の2倍）', () => {
+    test('zoomPercentは正しく計算される', () => {
       const { result } = renderHook(() => useZoom())
 
-      // DEFAULT_ZOOM = 0.5 → UI表示は100%
+      // DEFAULT_ZOOM = 1.0 → UI表示は100%
       expect(result.current.zoomPercent).toBe(100)
     })
   })
@@ -116,7 +116,7 @@ describe('useZoom', () => {
       const { result } = renderHook(() => useZoom())
 
       act(() => {
-        result.current.setZoomLevel(10)
+        result.current.setZoomLevel(30)
       })
 
       expect(result.current.zoom).toBe(MAX_ZOOM)

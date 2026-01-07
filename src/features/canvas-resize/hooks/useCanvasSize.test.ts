@@ -146,10 +146,10 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800 = +200, offset = 100
+        result.current.setWidth(1800) // 800 -> 1800 = +1000, offset = 500
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(100, 0)
+      expect(onSizeChange).toHaveBeenCalledWith(500, 0)
     })
 
     test('高さ変更時に中央基準のオフセットでコールバックが呼ばれる', () => {
@@ -157,10 +157,10 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setHeight(1800) // 1600 -> 1800 = +200, offset = 100
+        result.current.setHeight(1800) // 800 -> 1800 = +1000, offset = 500
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(0, 100)
+      expect(onSizeChange).toHaveBeenCalledWith(0, 500)
     })
 
     test('幅縮小時に負のオフセットでコールバックが呼ばれる', () => {
@@ -168,10 +168,10 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setWidth(1400) // 1600 -> 1400 = -200, offset = -100
+        result.current.setWidth(1400) // 800 -> 1400 = +600, offset = 300
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(-100, 0)
+      expect(onSizeChange).toHaveBeenCalledWith(300, 0)
     })
 
     test('高さ縮小時に負のオフセットでコールバックが呼ばれる', () => {
@@ -179,10 +179,10 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setHeight(1400) // 1600 -> 1400 = -200, offset = -100
+        result.current.setHeight(1400) // 800 -> 1400 = +600, offset = 300
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(0, -100)
+      expect(onSizeChange).toHaveBeenCalledWith(0, 300)
     })
 
     test('同じ幅を設定した場合はコールバックが呼ばれない', () => {
@@ -225,15 +225,15 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800
+        result.current.setWidth(1800) // 800 -> 1800
       })
 
       expect(onSizeChangeForHistory).toHaveBeenCalledWith(
-        1600, // previousWidth
-        1600, // previousHeight
+        800, // previousWidth
+        800, // previousHeight
         1800, // newWidth
-        1600, // newHeight (unchanged)
-        100, // offsetX
+        800, // newHeight (unchanged)
+        500, // offsetX
         0 // offsetY
       )
     })
@@ -243,16 +243,16 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
 
       act(() => {
-        result.current.setHeight(1800) // 1600 -> 1800
+        result.current.setHeight(1800) // 800 -> 1800
       })
 
       expect(onSizeChangeForHistory).toHaveBeenCalledWith(
-        1600, // previousWidth (unchanged)
-        1600, // previousHeight
-        1600, // newWidth (unchanged)
+        800, // previousWidth (unchanged)
+        800, // previousHeight
+        800, // newWidth (unchanged)
         1800, // newHeight
         0, // offsetX
-        100 // offsetY
+        500 // offsetY
       )
     })
 
@@ -265,8 +265,8 @@ describe('useCanvasSize', () => {
         result.current.setWidth(1800)
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(100, 0)
-      expect(onSizeChangeForHistory).toHaveBeenCalledWith(1600, 1600, 1800, 1600, 100, 0)
+      expect(onSizeChange).toHaveBeenCalledWith(500, 0)
+      expect(onSizeChangeForHistory).toHaveBeenCalledWith(800, 800, 1800, 800, 500, 0)
     })
 
     test('同じ幅を設定した場合は履歴記録用コールバックが呼ばれない', () => {
@@ -349,7 +349,7 @@ describe('useCanvasSize', () => {
       })
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800 = +200
+        result.current.setWidth(1800) // 800 -> 1800 = +1000
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(0, 0)
@@ -364,10 +364,10 @@ describe('useCanvasSize', () => {
       })
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800 = +200
+        result.current.setWidth(3096) // 800 -> 3096 = +2296, offset = 1248
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(200, 0)
+      expect(onSizeChange).toHaveBeenCalledWith(1248, 0)
     })
 
     test('左アンカーで高さ拡大時に半分のY方向オフセットでコールバックが呼ばれる', () => {
@@ -379,10 +379,10 @@ describe('useCanvasSize', () => {
       })
 
       act(() => {
-        result.current.setHeight(1800) // 1600 -> 1800 = +200
+        result.current.setHeight(2848) // 800 -> 2848 = +2048, offset = 624
       })
 
-      expect(onSizeChange).toHaveBeenCalledWith(0, 100)
+      expect(onSizeChange).toHaveBeenCalledWith(0, 624)
     })
   })
 })

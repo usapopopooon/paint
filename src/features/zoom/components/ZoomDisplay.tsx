@@ -1,5 +1,4 @@
 import { memo, useState, useCallback, useEffect, useRef } from 'react'
-import { DISPLAY_MULTIPLIER } from '@/constants'
 import { MIN_ZOOM, MAX_ZOOM } from '@/features/canvas'
 
 /** ホイールスクロール1回あたりのズーム変化量（UI表示パーセント） */
@@ -31,9 +30,8 @@ export const ZoomDisplay = memo(function ZoomDisplay({
       e.preventDefault()
       const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP
       const newPercent = zoomPercent + delta
-      // UI表示%から内部倍率に変換: UI 100% = 内部 50%（0.5）
-      const internalZoom = newPercent / 100 / DISPLAY_MULTIPLIER
-      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, internalZoom))
+      const zoom = newPercent / 100
+      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom))
       onZoomChange(clampedZoom)
     }
 
@@ -48,12 +46,10 @@ export const ZoomDisplay = memo(function ZoomDisplay({
   const handleBlur = useCallback(() => {
     const value = parseInt(inputValue, 10)
     if (!isNaN(value)) {
-      // UI表示%から内部倍率に変換: UI 100% = 内部 50%（0.5）
-      const internalZoom = value / 100 / DISPLAY_MULTIPLIER
-      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, internalZoom))
+      const zoom = value / 100
+      const clampedZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom))
       onZoomChange(clampedZoom)
-      // 内部倍率からUI表示%に変換
-      setInputValue(String(Math.round(clampedZoom * 100 * DISPLAY_MULTIPLIER)))
+      setInputValue(String(Math.round(clampedZoom * 100)))
     } else {
       setInputValue(String(zoomPercent))
     }
@@ -71,9 +67,9 @@ export const ZoomDisplay = memo(function ZoomDisplay({
     [zoomPercent]
   )
 
-  // UI表示用の最小・最大パーセント（内部倍率 × 表示倍率変換係数）
-  const minPercent = Math.round(MIN_ZOOM * 100 * DISPLAY_MULTIPLIER)
-  const maxPercent = Math.round(MAX_ZOOM * 100 * DISPLAY_MULTIPLIER)
+  // UI表示用の最小・最大パーセント
+  const minPercent = Math.round(MIN_ZOOM * 100)
+  const maxPercent = Math.round(MAX_ZOOM * 100)
 
   return (
     <div className="flex items-center">

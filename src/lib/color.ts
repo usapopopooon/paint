@@ -114,3 +114,13 @@ export const normalizeHex = (hex: string): string => {
   }
   return normalized.toLowerCase()
 }
+
+/**
+ * HEXカラーコードを数値に変換
+ * @param hex - HEXカラーコード（#付きまたは#なし）
+ * @returns 数値カラー（例: 0xff0000）
+ */
+export const hexToNumber = (hex: string): number => {
+  const normalized = normalizeHex(hex)
+  return parseInt(normalized.slice(1), 16)
+}

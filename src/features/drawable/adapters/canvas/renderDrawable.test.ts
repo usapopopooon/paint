@@ -43,7 +43,7 @@ describe('renderDrawable', () => {
 
       expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
         width: 5,
-        color: '#ff0000',
+        color: 0xff0000,
         alpha: 1,
         cap: 'round',
         join: 'round',
@@ -197,7 +197,7 @@ describe('renderDrawable', () => {
 
       expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
         width: 8,
-        color: '#0000ff',
+        color: 0x0000ff,
         alpha: 1,
         cap: 'round',
         join: 'round',
@@ -229,7 +229,7 @@ describe('renderDrawable', () => {
 
       expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
         width: 5,
-        color: '#ff0000',
+        color: 0xff0000,
         alpha: 0.5,
         cap: 'round',
         join: 'round',

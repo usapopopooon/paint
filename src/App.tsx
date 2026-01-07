@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { ThemeToggle } from './components/ui/ThemeToggle'
-import { DISPLAY_SCALE } from './constants/display'
 import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
 import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
@@ -93,10 +92,10 @@ function App() {
   const exportImage = useExportImage(canvasContainerRef)
   const { t } = useTranslation()
 
-  // 画像インポート（canvasSizeは内部座標系なのでUI座標系に変換）
+  // 画像インポート
   const importImage = useImportImage({
-    canvasWidth: canvasSize.width * DISPLAY_SCALE,
-    canvasHeight: canvasSize.height * DISPLAY_SCALE,
+    canvasWidth: canvasSize.width,
+    canvasHeight: canvasSize.height,
     onImport: canvas.addDrawable,
     onError: () => {
       toast.error(t('import.invalidFileType'))
@@ -182,15 +181,30 @@ function App() {
   const handleIncreaseToolSize = useCallback(() => {
     const t = toolRef.current
     const toolType = t.currentType
-    if (toolType === 'pen') {
-      const newWidth = getNextLogValue(t.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH, 1)
-      t.setPenWidth(newWidth)
-    } else if (toolType === 'brush') {
-      const newWidth = getNextLogValue(t.brushConfig.width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH, 1)
-      t.setBrushWidth(newWidth)
-    } else if (toolType === 'eraser') {
-      const newWidth = getNextLogValue(t.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH, 1)
-      t.setEraserWidth(newWidth)
+    const configs = {
+      pen: {
+        width: t.penConfig.width,
+        min: MIN_PEN_WIDTH,
+        max: MAX_PEN_WIDTH,
+        setter: t.setPenWidth,
+      },
+      brush: {
+        width: t.brushConfig.width,
+        min: MIN_BRUSH_WIDTH,
+        max: MAX_BRUSH_WIDTH,
+        setter: t.setBrushWidth,
+      },
+      eraser: {
+        width: t.eraserConfig.width,
+        min: MIN_ERASER_WIDTH,
+        max: MAX_ERASER_WIDTH,
+        setter: t.setEraserWidth,
+      },
+    }
+    const config = configs[toolType as keyof typeof configs]
+    if (config) {
+      const newWidth = getNextLogValue(config.width, config.min, config.max, 1)
+      config.setter(newWidth)
     }
   }, [])
 
@@ -200,15 +214,30 @@ function App() {
   const handleDecreaseToolSize = useCallback(() => {
     const t = toolRef.current
     const toolType = t.currentType
-    if (toolType === 'pen') {
-      const newWidth = getNextLogValue(t.penConfig.width, MIN_PEN_WIDTH, MAX_PEN_WIDTH, -1)
-      t.setPenWidth(newWidth)
-    } else if (toolType === 'brush') {
-      const newWidth = getNextLogValue(t.brushConfig.width, MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH, -1)
-      t.setBrushWidth(newWidth)
-    } else if (toolType === 'eraser') {
-      const newWidth = getNextLogValue(t.eraserConfig.width, MIN_ERASER_WIDTH, MAX_ERASER_WIDTH, -1)
-      t.setEraserWidth(newWidth)
+    const configs = {
+      pen: {
+        width: t.penConfig.width,
+        min: MIN_PEN_WIDTH,
+        max: MAX_PEN_WIDTH,
+        setter: t.setPenWidth,
+      },
+      brush: {
+        width: t.brushConfig.width,
+        min: MIN_BRUSH_WIDTH,
+        max: MAX_BRUSH_WIDTH,
+        setter: t.setBrushWidth,
+      },
+      eraser: {
+        width: t.eraserConfig.width,
+        min: MIN_ERASER_WIDTH,
+        max: MAX_ERASER_WIDTH,
+        setter: t.setEraserWidth,
+      },
+    }
+    const config = configs[toolType as keyof typeof configs]
+    if (config) {
+      const newWidth = getNextLogValue(config.width, config.min, config.max, -1)
+      config.setter(newWidth)
     }
   }, [])
 
@@ -302,13 +331,13 @@ function App() {
    */
   const handleHardnessChange = useCallback(
     (hardness: number) => {
-      if (tool.currentType === 'pen') {
-        tool.setPenHardness(hardness)
-      } else if (tool.currentType === 'brush') {
-        tool.setBrushHardness(hardness)
-      } else if (tool.currentType === 'eraser') {
-        tool.setEraserHardness(hardness)
+      const setters = {
+        pen: tool.setPenHardness,
+        brush: tool.setBrushHardness,
+        eraser: tool.setEraserHardness,
       }
+      const setter = setters[tool.currentType as keyof typeof setters]
+      if (setter) setter(hardness)
     },
     [tool]
   )
@@ -318,13 +347,13 @@ function App() {
    */
   const handleBlurEnabledChange = useCallback(
     (enabled: boolean) => {
-      if (tool.currentType === 'pen') {
-        tool.setPenBlurEnabled(enabled)
-      } else if (tool.currentType === 'brush') {
-        tool.setBrushBlurEnabled(enabled)
-      } else if (tool.currentType === 'eraser') {
-        tool.setEraserBlurEnabled(enabled)
+      const setters = {
+        pen: tool.setPenBlurEnabled,
+        brush: tool.setBrushBlurEnabled,
+        eraser: tool.setEraserBlurEnabled,
       }
+      const setter = setters[tool.currentType as keyof typeof setters]
+      if (setter) setter(enabled)
     },
     [tool]
   )

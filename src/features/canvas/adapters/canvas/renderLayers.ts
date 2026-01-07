@@ -1,43 +1,22 @@
 import { Application, Container, Graphics, RenderTexture, Sprite, BlurFilter } from 'pixi.js'
 import type { Layer } from '@/features/layer'
 import { blendModeToPixi, BACKGROUND_COLOR, BACKGROUND_LAYER_ID } from '@/features/layer'
-import type { Drawable } from '@/features/drawable'
 import {
   renderDrawable,
   renderImage,
   isEraserStroke,
   isStrokeDrawable,
   isImageDrawable,
+  getHardness,
+  calculateBlurStrength,
 } from '@/features/drawable'
-
-/**
- * Drawableからhardness値を取得（0=ぼかしなし、1=最大ぼかし）
- */
-const getHardness = (drawable: Drawable): number => {
-  if (isStrokeDrawable(drawable)) {
-    return drawable.style.brushTip.hardness
-  }
-  return 0
-}
-
-/**
- * hardness値からBlurFilterの強度を計算
- * hardness=0 → blur=0（ぼかしなし）
- * hardness=1 → blur=最大値（ブラシサイズに応じた最大ぼかし）
- */
-const calculateBlurStrength = (hardness: number, brushSize: number): number => {
-  // hardnessが0の場合はブラーなし
-  if (hardness === 0) return 0
-  // ブラシサイズの約1/4をベースに、hardnessで調整
-  return hardness * Math.max(1, brushSize * 0.25)
-}
 
 /**
  * チェッカーボードパターン（透明を表す背景）のGraphicsを作成
  * レイヤーの透明度を正しく表示するためにPixiJS内で描画
  * パフォーマンス最適化: 同じ色のタイルをまとめて描画
  */
-const createCheckerboard = (width: number, height: number, tileSize: number = 20): Graphics => {
+const createCheckerboard = (width: number, height: number, tileSize: number = 10): Graphics => {
   const checkerboard = new Graphics()
   const cols = Math.ceil(width / tileSize)
   const rows = Math.ceil(height / tileSize)

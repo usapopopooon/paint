@@ -4,11 +4,11 @@
 
 [日本語](docs/README.ja.md)
 
-[![version](https://img.shields.io/badge/version-0.0.32-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.0.32) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
+[![version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.1.0) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
 A drawing app built with React and PixiJS 👉 [Try it out](https://usapopopooon.github.io/paint/)
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767309183.png)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767480076.png)
 
 ## Tech Stack
 
@@ -40,7 +40,7 @@ Adopts **Package by Feature** + **Clean Architecture**.
 ```
 src/
 ├── components/ui/       # Shared UI components (Button, Slider, Tooltip, etc.)
-├── constants/           # Global constants (DISPLAY_MULTIPLIER, etc.)
+├── constants/           # Global constants (zoom limits, canvas defaults, etc.)
 ├── features/            # Feature modules
 │   └── [feature]/       # Each feature (see feature list for details)
 │       ├── types/           # Type definitions only

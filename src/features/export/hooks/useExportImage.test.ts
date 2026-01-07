@@ -1,24 +1,18 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useExportImage } from './useExportImage'
-import { EXPORT_SCALE } from '../constants'
 
 describe('useExportImage', () => {
   let mockCanvas: HTMLCanvasElement
   let mockContainer: HTMLDivElement
   let mockFullSizeCanvas: HTMLCanvasElement
-  let mockExportCanvas: HTMLCanvasElement
   let mockFullSizeContext: CanvasRenderingContext2D
-  let mockExportContext: CanvasRenderingContext2D
   let mockLink: HTMLAnchorElement
   let originalCreateElement: typeof document.createElement
   let mockShowBackgroundLayer: () => void
   let mockHideBackgroundLayer: () => void
-  let canvasCreateCount: number
 
   beforeEach(() => {
-    canvasCreateCount = 0
-
     // モックのキャンバス要素（WebGLコンテキストなし - フォールバックパス）
     mockCanvas = {
       width: 800,
@@ -39,28 +33,11 @@ describe('useExportImage', () => {
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
 
-    // エクスポート用コンテキスト
-    mockExportContext = {
-      fillStyle: '',
-      fillRect: vi.fn(),
-      drawImage: vi.fn(),
-      imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high',
-      globalCompositeOperation: 'source-over',
-    } as unknown as CanvasRenderingContext2D
-
     // フルサイズのオフスクリーンキャンバス
     mockFullSizeCanvas = {
       width: 0,
       height: 0,
       getContext: vi.fn().mockReturnValue(mockFullSizeContext),
-    } as unknown as HTMLCanvasElement
-
-    // エクスポート用の縮小キャンバス
-    mockExportCanvas = {
-      width: 0,
-      height: 0,
-      getContext: vi.fn().mockReturnValue(mockExportContext),
       toDataURL: vi.fn().mockReturnValue('data:image/jpeg;base64,test'),
     } as unknown as HTMLCanvasElement
 
@@ -79,9 +56,7 @@ describe('useExportImage', () => {
     originalCreateElement = document.createElement
     document.createElement = vi.fn((tagName: string) => {
       if (tagName === 'canvas') {
-        canvasCreateCount++
-        // 1つ目はフルサイズキャンバス、2つ目はエクスポート用キャンバス
-        return canvasCreateCount === 1 ? mockFullSizeCanvas : mockExportCanvas
+        return mockFullSizeCanvas
       }
       if (tagName === 'a') {
         return mockLink
@@ -139,7 +114,7 @@ describe('useExportImage', () => {
     expect(mockHideBackgroundLayer).toHaveBeenCalled()
   })
 
-  test('downloadAsJpgはフルサイズと縮小用の2つのオフスクリーンキャンバスを作成する', async () => {
+  test('downloadAsJpgはオフスクリーンキャンバスを作成する', async () => {
     const containerRef = { current: mockContainer }
     const { result } = renderHook(() => useExportImage(containerRef))
 
@@ -151,9 +126,6 @@ describe('useExportImage', () => {
     // フルサイズキャンバス
     expect(mockFullSizeCanvas.width).toBe(800)
     expect(mockFullSizeCanvas.height).toBe(600)
-    // エクスポート用キャンバス（50%縮小）
-    expect(mockExportCanvas.width).toBe(Math.round(800 * EXPORT_SCALE))
-    expect(mockExportCanvas.height).toBe(Math.round(600 * EXPORT_SCALE))
   })
 
   test('downloadAsJpgはWebGLがない場合フォールバックでキャンバスを直接描画する', async () => {
@@ -166,14 +138,6 @@ describe('useExportImage', () => {
 
     // フルサイズキャンバスに元のキャンバスを描画
     expect(mockFullSizeContext.drawImage).toHaveBeenCalledWith(mockCanvas, 0, 0)
-    // エクスポート用キャンバスにフルサイズキャンバスを縮小描画
-    expect(mockExportContext.drawImage).toHaveBeenCalledWith(
-      mockFullSizeCanvas,
-      0,
-      0,
-      Math.round(800 * EXPORT_SCALE),
-      Math.round(600 * EXPORT_SCALE)
-    )
   })
 
   test('downloadAsJpgはJPEG形式でダウンロードリンクを作成する', async () => {
@@ -184,7 +148,7 @@ describe('useExportImage', () => {
       await result.current.downloadAsJpg(mockShowBackgroundLayer, mockHideBackgroundLayer)
     })
 
-    expect(mockExportCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 1.0)
+    expect(mockFullSizeCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 1.0)
     expect(mockLink.href).toBe('data:image/jpeg;base64,test')
     expect(mockLink.download).toMatch(/^paint_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.jpg$/)
     expect(mockLink.click).toHaveBeenCalled()
@@ -216,40 +180,6 @@ describe('useExportImage', () => {
 
     expect(mockLink.click).not.toHaveBeenCalled()
     expect(mockHideBackgroundLayer).toHaveBeenCalled()
-  })
-
-  test('downloadAsJpgはエクスポート用キャンバスのコンテキストが取得できない場合は何もしない', async () => {
-    let createCount = 0
-    const mockFullSizeOk = {
-      width: 0,
-      height: 0,
-      getContext: vi.fn().mockReturnValue(mockFullSizeContext),
-    } as unknown as HTMLCanvasElement
-    const mockExportNoContext = {
-      width: 0,
-      height: 0,
-      getContext: vi.fn().mockReturnValue(null),
-    } as unknown as HTMLCanvasElement
-
-    document.createElement = vi.fn((tagName: string) => {
-      if (tagName === 'canvas') {
-        createCount++
-        return createCount === 1 ? mockFullSizeOk : mockExportNoContext
-      }
-      if (tagName === 'a') {
-        return mockLink
-      }
-      return originalCreateElement.call(document, tagName)
-    })
-
-    const containerRef = { current: mockContainer }
-    const { result } = renderHook(() => useExportImage(containerRef))
-
-    await act(async () => {
-      await result.current.downloadAsJpg(mockShowBackgroundLayer, mockHideBackgroundLayer)
-    })
-
-    expect(mockLink.click).not.toHaveBeenCalled()
   })
 
   describe('WebGLパス', () => {
@@ -320,17 +250,5 @@ describe('useExportImage', () => {
       expect(mockFullSizeContext.createImageData).toHaveBeenCalledWith(800, 600)
       expect(mockLink.click).toHaveBeenCalled()
     })
-  })
-
-  test('downloadAsJpgは高品質なスケーリングを設定する', async () => {
-    const containerRef = { current: mockContainer }
-    const { result } = renderHook(() => useExportImage(containerRef))
-
-    await act(async () => {
-      await result.current.downloadAsJpg(mockShowBackgroundLayer, mockHideBackgroundLayer)
-    })
-
-    expect(mockExportContext.imageSmoothingEnabled).toBe(true)
-    expect(mockExportContext.imageSmoothingQuality).toBe('high')
   })
 })

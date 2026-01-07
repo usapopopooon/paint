@@ -2,7 +2,7 @@
 export { MIN_ZOOM, MAX_ZOOM } from '@/constants/zoom'
 
 /** ズームのステップ（ホイール1回分） */
-export const ZOOM_STEP = 0.1
+export const ZOOM_STEP = 0.2
 
-/** デフォルトのズーム倍率（内部値、UI表示は2倍にマッピング） */
-export const DEFAULT_ZOOM = 0.5
+/** デフォルトのズーム倍率 */
+export const DEFAULT_ZOOM = 1.0

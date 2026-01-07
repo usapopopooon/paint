@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from '@/features/i18n'
-import { toDisplayValue, toInternalValue } from '@/utils'
 import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../constants'
 
 /** ホイールスクロール1回あたりの変化量（UI表示値） */
@@ -9,12 +8,10 @@ const WHEEL_STEP = 10
 /**
  * ホイールイベントでpreventDefaultを使用するためのカスタムフック
  * passive: false でイベントリスナーを登録する
- * displayValue: UI表示値（内部値の1/2）
- * onChange: 内部値で呼ばれる
  */
 const useWheelHandler = (
-  displayValue: number,
-  onChange: (internalValue: number) => void
+  value: number,
+  onChange: (value: number) => void
 ): React.RefObject<HTMLInputElement | null> => {
   const ref = useRef<HTMLInputElement | null>(null)
 
@@ -25,15 +22,14 @@ const useWheelHandler = (
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
       const delta = e.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP
-      const newDisplayValue = displayValue + delta
-      const newInternalValue = toInternalValue(newDisplayValue)
-      const clampedValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, newInternalValue))
+      const newValue = value + delta
+      const clampedValue = Math.max(MIN_CANVAS_SIZE, Math.min(MAX_CANVAS_SIZE, newValue))
       onChange(clampedValue)
     }
 
     element.addEventListener('wheel', handleWheel, { passive: false })
     return () => element.removeEventListener('wheel', handleWheel)
-  }, [displayValue, onChange])
+  }, [value, onChange])
 
   return ref
 }
@@ -60,24 +56,18 @@ export const CanvasSizeInput = ({
 }: CanvasSizeInputProps) => {
   const { t } = useTranslation()
 
-  // UI表示値（内部値の1/2）
-  const displayWidth = toDisplayValue(width)
-  const displayHeight = toDisplayValue(height)
-  const minDisplaySize = toDisplayValue(MIN_CANVAS_SIZE)
-  const maxDisplaySize = toDisplayValue(MAX_CANVAS_SIZE)
-
   // 入力中の値を保持するローカルステート（空文字入力を許可するため）
-  const [widthInput, setWidthInput] = useState(String(displayWidth))
-  const [heightInput, setHeightInput] = useState(String(displayHeight))
+  const [widthInput, setWidthInput] = useState(String(width))
+  const [heightInput, setHeightInput] = useState(String(height))
 
   // propsの値が変わったらローカルステートを更新
   useEffect(() => {
-    setWidthInput(String(displayWidth))
-  }, [displayWidth])
+    setWidthInput(String(width))
+  }, [width])
 
   useEffect(() => {
-    setHeightInput(String(displayHeight))
-  }, [displayHeight])
+    setHeightInput(String(height))
+  }, [height])
 
   const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setWidthInput(e.target.value)
@@ -88,22 +78,22 @@ export const CanvasSizeInput = ({
   }
 
   const commitWidth = () => {
-    const displayValue = parseInt(widthInput, 10)
-    if (!isNaN(displayValue) && displayValue >= minDisplaySize && displayValue <= maxDisplaySize) {
-      onWidthChange(toInternalValue(displayValue))
+    const value = parseInt(widthInput, 10)
+    if (!isNaN(value) && value >= MIN_CANVAS_SIZE && value <= MAX_CANVAS_SIZE) {
+      onWidthChange(value)
     } else {
       // 無効な値の場合は元の値に戻す
-      setWidthInput(String(displayWidth))
+      setWidthInput(String(width))
     }
   }
 
   const commitHeight = () => {
-    const displayValue = parseInt(heightInput, 10)
-    if (!isNaN(displayValue) && displayValue >= minDisplaySize && displayValue <= maxDisplaySize) {
-      onHeightChange(toInternalValue(displayValue))
+    const value = parseInt(heightInput, 10)
+    if (!isNaN(value) && value >= MIN_CANVAS_SIZE && value <= MAX_CANVAS_SIZE) {
+      onHeightChange(value)
     } else {
       // 無効な値の場合は元の値に戻す
-      setHeightInput(String(displayHeight))
+      setHeightInput(String(height))
     }
   }
 
@@ -121,8 +111,8 @@ export const CanvasSizeInput = ({
     }
   }
 
-  const widthInputRef = useWheelHandler(displayWidth, onWidthChange)
-  const heightInputRef = useWheelHandler(displayHeight, onHeightChange)
+  const widthInputRef = useWheelHandler(width, onWidthChange)
+  const heightInputRef = useWheelHandler(height, onHeightChange)
 
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -135,8 +125,8 @@ export const CanvasSizeInput = ({
           onChange={handleWidthChange}
           onBlur={commitWidth}
           onKeyDown={handleWidthKeyDown}
-          min={minDisplaySize}
-          max={maxDisplaySize}
+          min={MIN_CANVAS_SIZE}
+          max={MAX_CANVAS_SIZE}
           className="w-16 px-1.5 py-0.5 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </label>
@@ -150,8 +140,8 @@ export const CanvasSizeInput = ({
           onChange={handleHeightChange}
           onBlur={commitHeight}
           onKeyDown={handleHeightKeyDown}
-          min={minDisplaySize}
-          max={maxDisplaySize}
+          min={MIN_CANVAS_SIZE}
+          max={MAX_CANVAS_SIZE}
           className="w-16 px-1.5 py-0.5 rounded border border-input bg-background text-foreground text-center focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </label>

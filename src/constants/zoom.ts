@@ -1,4 +1,4 @@
 /** ズームの最小倍率 */
-export const MIN_ZOOM = 0.1
+export const MIN_ZOOM = 0.2
 /** ズームの最大倍率 */
-export const MAX_ZOOM = 10
+export const MAX_ZOOM = 20
