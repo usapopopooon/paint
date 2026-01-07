@@ -17,47 +17,11 @@ const drawStrokePath = (graphics: Graphics, stroke: StrokeDrawable): void => {
 }
 
 /**
- * ソフトエッジ消しゴムをレンダリング
- * 外側から内側に向かって複数のストロークを重ねて描画し、段階的な消去効果を作る
- */
-const renderSoftEraser = (graphics: Graphics, stroke: StrokeDrawable): void => {
-  const { style } = stroke
-  const baseSize = style.brushTip.size
-  const baseOpacity = style.brushTip.opacity
-  const hardness = style.brushTip.hardness
-
-  // hardnessが高いほどソフトエッジが大きくなる（hardness=0でなし、hardness=1で最大）
-  const softEdgeRatio = hardness * 0.5 // 最大でサイズの50%をソフトエッジに
-
-  for (let i = 0; i < SOFT_EDGE_LAYERS; i++) {
-    // 外側から内側へ（i=0が最外、i=SOFT_EDGE_LAYERS-1が最内）
-    const progress = i / (SOFT_EDGE_LAYERS - 1) // 0 → 1
-
-    // サイズ: 外側は大きく、内側は小さく
-    const sizeMultiplier = 1 - progress * softEdgeRatio
-    const layerSize = baseSize * sizeMultiplier
-
-    // アルファ: 外側は薄く、内側は濃く（均等に分配）
-    const layerAlpha = (baseOpacity / SOFT_EDGE_LAYERS) * (1 + progress * 0.5)
-
-    graphics.setStrokeStyle({
-      width: layerSize,
-      color: 0xffffff,
-      alpha: layerAlpha,
-      cap: 'round',
-      join: 'round',
-    })
-
-    drawStrokePath(graphics, stroke)
-    graphics.stroke()
-  }
-}
-
-/**
- * ソフトエッジストローク（ペン・ブラシ）をレンダリング
+ * ソフトエッジストロークをレンダリング
  * 外側から内側に向かって複数のストロークを重ねて描画し、ぼかし効果を作る
+ * @param color - ストロークの色（消しゴムの場合は0xffffff）
  */
-const renderSoftStroke = (graphics: Graphics, stroke: StrokeDrawable): void => {
+const renderSoftEdge = (graphics: Graphics, stroke: StrokeDrawable, color: number): void => {
   const { style } = stroke
   const baseSize = style.brushTip.size
   const baseOpacity = style.brushTip.opacity
@@ -79,7 +43,7 @@ const renderSoftStroke = (graphics: Graphics, stroke: StrokeDrawable): void => {
 
     graphics.setStrokeStyle({
       width: layerSize,
-      color: style.color,
+      color,
       alpha: layerAlpha,
       cap: 'round',
       join: 'round',
@@ -101,22 +65,18 @@ export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void =
   const { style } = stroke
   const isEraser = style.blendMode === 'erase'
   const hardness = style.brushTip.hardness
+  const color = isEraser ? 0xffffff : style.color
 
-  // 消しゴム＋ぼかしありの場合はソフトエッジ消しゴムを使用
-  if (isEraser && hardness > 0) {
-    renderSoftEraser(graphics, stroke)
+  // ぼかしありの場合はソフトエッジレンダリング
+  if (hardness > 0) {
+    renderSoftEdge(graphics, stroke, color)
     return
   }
 
-  // 通常ストローク＋ぼかしありの場合はソフトエッジストロークを使用
-  if (!isEraser && hardness > 0) {
-    renderSoftStroke(graphics, stroke)
-    return
-  }
-
+  // ぼかしなしの場合は通常レンダリング
   graphics.setStrokeStyle({
     width: style.brushTip.size,
-    color: isEraser ? 0xffffff : style.color,
+    color,
     alpha: style.brushTip.opacity,
     cap: 'round',
     join: 'round',
