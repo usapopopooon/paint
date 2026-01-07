@@ -146,7 +146,7 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800 = +200, offset = 500
+        result.current.setWidth(1800) // 800 -> 1800 = +1000, offset = 500
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(500, 0)
@@ -157,7 +157,7 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setHeight(1800) // 1600 -> 1800 = +200, offset = 500
+        result.current.setHeight(1800) // 800 -> 1800 = +1000, offset = 500
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(0, 500)
@@ -168,7 +168,7 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize(onSizeChange))
 
       act(() => {
-        result.current.setWidth(1400) // 1600 -> 1400 = -200, offset = 300
+        result.current.setWidth(1400) // 800 -> 1400 = +600, offset = 300
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(300, 0)
@@ -225,7 +225,7 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800
+        result.current.setWidth(1800) // 800 -> 1800
       })
 
       expect(onSizeChangeForHistory).toHaveBeenCalledWith(
@@ -243,7 +243,7 @@ describe('useCanvasSize', () => {
       const { result } = renderHook(() => useCanvasSize({ onSizeChangeForHistory }))
 
       act(() => {
-        result.current.setHeight(1800) // 1600 -> 1800
+        result.current.setHeight(1800) // 800 -> 1800
       })
 
       expect(onSizeChangeForHistory).toHaveBeenCalledWith(
@@ -349,7 +349,7 @@ describe('useCanvasSize', () => {
       })
 
       act(() => {
-        result.current.setWidth(1800) // 1600 -> 1800 = +200
+        result.current.setWidth(1800) // 800 -> 1800 = +1000
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(0, 0)
@@ -364,7 +364,7 @@ describe('useCanvasSize', () => {
       })
 
       act(() => {
-        result.current.setWidth(3096) // 1600 -> 3096 = +1496, offset = 1248
+        result.current.setWidth(3096) // 800 -> 3096 = +2296, offset = 1248
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(1248, 0)
@@ -379,7 +379,7 @@ describe('useCanvasSize', () => {
       })
 
       act(() => {
-        result.current.setHeight(2848) // 1600 -> 2848 = +1248, offset = 624
+        result.current.setHeight(2848) // 800 -> 2848 = +2048, offset = 624
       })
 
       expect(onSizeChange).toHaveBeenCalledWith(0, 624)

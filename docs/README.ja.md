@@ -40,7 +40,7 @@ ReactとPixiJSで構築したお絵かきアプリ 👉 [実際に触ってみ�
 ```
 src/
 ├── components/ui/       # 共有UIコンポーネント（Button, Slider, Tooltip等）
-├── constants/           # グローバル定数（DISPLAY_MULTIPLIER等）
+├── constants/           # グローバル定数（ズーム制限、キャンバスデフォルト等）
 ├── features/            # 機能モジュール
 │   └── [feature]/       # 各機能（詳細は機能一覧を参照）
 │       ├── types/           # 型定義のみ

@@ -40,7 +40,7 @@ Adopts **Package by Feature** + **Clean Architecture**.
 ```
 src/
 ├── components/ui/       # Shared UI components (Button, Slider, Tooltip, etc.)
-├── constants/           # Global constants (DISPLAY_MULTIPLIER, etc.)
+├── constants/           # Global constants (zoom limits, canvas defaults, etc.)
 ├── features/            # Feature modules
 │   └── [feature]/       # Each feature (see feature list for details)
 │       ├── types/           # Type definitions only
