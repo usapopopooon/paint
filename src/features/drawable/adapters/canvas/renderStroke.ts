@@ -1,6 +1,7 @@
 import { Graphics } from 'pixi.js'
 import type { StrokeDrawable } from '../../types'
 import { hasMinimumPoints } from '../../constants'
+import { hexToNumber } from '@/lib/color'
 
 /** ソフトエッジのレイヤー数 */
 const SOFT_EDGE_LAYERS = 8
@@ -65,7 +66,7 @@ export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void =
   const { style } = stroke
   const isEraser = style.blendMode === 'erase'
   const hardness = style.brushTip.hardness
-  const color = isEraser ? 0xffffff : style.color
+  const color = isEraser ? 0xffffff : hexToNumber(style.color)
 
   // ぼかしありの場合はソフトエッジレンダリング
   if (hardness > 0) {

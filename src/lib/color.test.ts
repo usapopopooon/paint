@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { hsvToHex, hexToHsv, isValidHex, normalizeHex } from './color'
+import { hsvToHex, hexToHsv, isValidHex, normalizeHex, hexToNumber } from './color'
 
 describe('hsvToHex', () => {
   test('黒を変換する (h=0, s=0, v=0)', () => {
@@ -155,5 +155,39 @@ describe('normalizeHex', () => {
 
   test('小文字に変換する', () => {
     expect(normalizeHex('#FF0000')).toBe('#ff0000')
+  })
+})
+
+describe('hexToNumber', () => {
+  test('赤を数値に変換する', () => {
+    expect(hexToNumber('#ff0000')).toBe(0xff0000)
+  })
+
+  test('緑を数値に変換する', () => {
+    expect(hexToNumber('#00ff00')).toBe(0x00ff00)
+  })
+
+  test('青を数値に変換する', () => {
+    expect(hexToNumber('#0000ff')).toBe(0x0000ff)
+  })
+
+  test('白を数値に変換する', () => {
+    expect(hexToNumber('#ffffff')).toBe(0xffffff)
+  })
+
+  test('黒を数値に変換する', () => {
+    expect(hexToNumber('#000000')).toBe(0x000000)
+  })
+
+  test('#なしのHEXを処理する', () => {
+    expect(hexToNumber('ff0000')).toBe(0xff0000)
+  })
+
+  test('3桁HEXを処理する', () => {
+    expect(hexToNumber('#f00')).toBe(0xff0000)
+  })
+
+  test('大文字HEXを処理する', () => {
+    expect(hexToNumber('#FF0000')).toBe(0xff0000)
   })
 })

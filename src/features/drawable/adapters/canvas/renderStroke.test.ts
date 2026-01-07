@@ -42,7 +42,7 @@ describe('renderStroke', () => {
 
     expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
       width: 5,
-      color: '#ff0000',
+      color: 0xff0000,
       alpha: 1,
       cap: 'round',
       join: 'round',
@@ -176,7 +176,7 @@ describe('renderStroke', () => {
 
     expect(graphics.setStrokeStyle).toHaveBeenCalledWith({
       width: 10,
-      color: '#0000ff',
+      color: 0x0000ff,
       alpha: 0.7,
       cap: 'round',
       join: 'round',
