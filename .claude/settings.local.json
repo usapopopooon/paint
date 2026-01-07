@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(npm run spell:*)"
-    ]
+    "allow": ["Bash(npm run spell:*)"]
   }
 }
