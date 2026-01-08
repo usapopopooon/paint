@@ -10,7 +10,7 @@ import { useTranslation } from '@/features/i18n'
 import { toast } from 'sonner'
 import { colorWheelState } from '../hooks/colorWheelState'
 import { WHEEL_SIZE, RING_WIDTH, ALPHA_SLIDER_TRACK_SIZE } from '../constants'
-import { normalizeHex } from '../helpers'
+import { normalizeHex, hexToRgb } from '../helpers'
 import { hexColorSchema } from '../domain'
 
 const colorInputSchema = z.object({
@@ -46,16 +46,17 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
     defaultValues: { color: color.toUpperCase() },
   })
 
-  // 外部からcolorが変更された場合にフォームを更新
+  // 外部からcolorが変更された場合にフォームを更新（RGB部分のみ）
   useEffect(() => {
-    setValue('color', color.toUpperCase())
+    setValue('color', hexToRgb(color).toUpperCase())
   }, [color, setValue])
 
   const handleValueChange = useCallback(
     (hex: string) => {
       const normalized = hex.toLowerCase()
       onChange(normalized)
-      setValue('color', normalized.toUpperCase())
+      // インプットにはRGB部分のみ表示
+      setValue('color', hexToRgb(normalized).toUpperCase())
     },
     [onChange, setValue]
   )
@@ -76,7 +77,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
 
   const onError = () => {
     toast.error(t('color.invalidFormat'))
-    reset({ color: color.toUpperCase() })
+    reset({ color: hexToRgb(color).toUpperCase() })
   }
 
   const handleBlurOrEnter = handleSubmit(onSubmit, onError)
@@ -134,7 +135,7 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
               size="icon"
               className="size-6"
               onClick={() => {
-                navigator.clipboard.writeText(color.toUpperCase())
+                navigator.clipboard.writeText(hexToRgb(color).toUpperCase())
                 toast.success(t('color.copied'))
               }}
               aria-label={t('color.copy')}
