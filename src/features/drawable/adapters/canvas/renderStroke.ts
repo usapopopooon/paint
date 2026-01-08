@@ -1,7 +1,7 @@
 import { Graphics } from 'pixi.js'
 import type { StrokeDrawable } from '../../types'
 import { hasMinimumPoints } from '../../constants'
-import { hexToNumber } from '@/lib/color'
+import { hexToNumber, hexToAlpha } from '@/lib/color'
 
 /** ソフトエッジのレイヤー数 */
 const SOFT_EDGE_LAYERS = 8
@@ -21,11 +21,17 @@ const drawStrokePath = (graphics: Graphics, stroke: StrokeDrawable): void => {
  * ソフトエッジストロークをレンダリング
  * 外側から内側に向かって複数のストロークを重ねて描画し、ぼかし効果を作る
  * @param color - ストロークの色（消しゴムの場合は0xffffff）
+ * @param colorAlpha - 色のアルファ値（0-1）
  */
-const renderSoftEdge = (graphics: Graphics, stroke: StrokeDrawable, color: number): void => {
+const renderSoftEdge = (
+  graphics: Graphics,
+  stroke: StrokeDrawable,
+  color: number,
+  colorAlpha: number
+): void => {
   const { style } = stroke
   const baseSize = style.brushTip.size
-  const baseOpacity = style.brushTip.opacity
+  const baseOpacity = style.brushTip.opacity * colorAlpha
   const hardness = style.brushTip.hardness
 
   // hardnessが高いほどソフトエッジが大きくなる（hardness=0でなし、hardness=1で最大）
@@ -67,10 +73,11 @@ export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void =
   const isEraser = style.blendMode === 'erase'
   const hardness = style.brushTip.hardness
   const color = isEraser ? 0xffffff : hexToNumber(style.color)
+  const colorAlpha = isEraser ? 1 : hexToAlpha(style.color)
 
   // ぼかしありの場合はソフトエッジレンダリング
   if (hardness > 0) {
-    renderSoftEdge(graphics, stroke, color)
+    renderSoftEdge(graphics, stroke, color, colorAlpha)
     return
   }
 
@@ -78,7 +85,7 @@ export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void =
   graphics.setStrokeStyle({
     width: style.brushTip.size,
     color,
-    alpha: style.brushTip.opacity,
+    alpha: style.brushTip.opacity * colorAlpha,
     cap: 'round',
     join: 'round',
   })

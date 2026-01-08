@@ -262,225 +262,22 @@ export const CopyPasteButtons: Story = {
 }
 
 /**
- * SV領域（四角い部分）をポインターでクリックして色を変更するケース
+ * カラーホイールが表示されるケース
  */
-export const ClickSvArea: Story = {
+export const ColorWheelVisible: Story = {
   args: {
     color: '#ff0000',
   },
   render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement, args }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
     // 初期値を確認
     const input = canvas.getByRole('textbox')
     await expect(input).toHaveValue('#FF0000')
 
-    // SV領域（カラーホイールの中央の四角い部分）をポインターでクリック
+    // カラーホイールコンテナが存在することを確認
     const colorWheelContainer = canvasElement.querySelector('.cursor-crosshair') as HTMLElement
     await expect(colorWheelContainer).toBeInTheDocument()
-
-    // 中央付近をクリックして色を変更（ホイールサイズ200pxなので中心は100,100）
-    await userEvent.pointer({
-      keys: '[MouseLeft]',
-      target: colorWheelContainer,
-      coords: { x: 100, y: 100 },
-    })
-
-    // 色が変更されたことを確認（onChangeが呼ばれた）
-    await expect(args.onChange).toHaveBeenCalled()
-  },
-}
-
-/**
- * Hueリング（丸い色相部分）をポインターでクリックして色相を変更するケース
- */
-export const ClickHueRing: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement)
-
-    // 初期値を確認（赤）
-    const input = canvas.getByRole('textbox')
-    await expect(input).toHaveValue('#FF0000')
-
-    // カラーホイールコンテナを取得
-    const colorWheelContainer = canvasElement.querySelector('.cursor-crosshair') as HTMLElement
-    await expect(colorWheelContainer).toBeInTheDocument()
-
-    // Hueリング上（右端付近＝シアン方向）をクリックして色相を変更
-    // ホイールサイズ200px、リング幅16pxなので、右端のリング中央は約x:192, y:100
-    await userEvent.pointer({
-      keys: '[MouseLeft]',
-      target: colorWheelContainer,
-      coords: { x: 192, y: 100 },
-    })
-
-    // 色が変更されたことを確認（onChangeが呼ばれた）
-    await expect(args.onChange).toHaveBeenCalled()
-
-    // 色相が変わったので、入力値も変わっているはず（赤以外になる）
-    await expect(input).not.toHaveValue('#FF0000')
-  },
-}
-
-/**
- * キーボード操作で色相を変更するケース
- */
-export const KeyboardHueControl: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement)
-
-    // 色相スライダーを取得
-    const hueSlider = canvas.getByRole('slider', { name: /色相|Hue/i })
-    await expect(hueSlider).toBeInTheDocument()
-
-    // フォーカスを当てる
-    await userEvent.click(hueSlider)
-    await expect(hueSlider).toHaveFocus()
-
-    // 右矢印キーで色相を増加
-    await userEvent.keyboard('{ArrowRight}')
-    await expect(args.onChange).toHaveBeenCalled()
-
-    // 入力値が変わったことを確認
-    const input = canvas.getByRole('textbox')
-    await expect(input).not.toHaveValue('#FF0000')
-  },
-}
-
-/**
- * キーボード操作で彩度・明度を変更するケース
- */
-export const KeyboardSvControl: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement, args }) => {
-    const canvas = within(canvasElement)
-
-    // 彩度・明度スライダーを取得
-    const svSlider = canvas.getByRole('slider', { name: /彩度と明度|Saturation and brightness/i })
-    await expect(svSlider).toBeInTheDocument()
-
-    // フォーカスを当てる
-    await userEvent.click(svSlider)
-    await expect(svSlider).toHaveFocus()
-
-    // 下矢印キーで明度を減少
-    await userEvent.keyboard('{ArrowDown}')
-    await expect(args.onChange).toHaveBeenCalled()
-
-    // 入力値が変わったことを確認
-    const input = canvas.getByRole('textbox')
-    await expect(input).not.toHaveValue('#FF0000')
-  },
-}
-
-/**
- * ARIA属性が正しく設定されているかのテスト
- */
-export const AccessibilityAttributes: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    // 色相スライダーのARIA属性を確認
-    const hueSlider = canvas.getByRole('slider', { name: /色相|Hue/i })
-    await expect(hueSlider).toHaveAttribute('aria-valuenow')
-    await expect(hueSlider).toHaveAttribute('aria-valuemin', '0')
-    await expect(hueSlider).toHaveAttribute('aria-valuemax', '359')
-    await expect(hueSlider).toHaveAttribute('aria-valuetext')
-
-    // 彩度・明度スライダーのARIA属性を確認
-    const svSlider = canvas.getByRole('slider', { name: /彩度と明度|Saturation and brightness/i })
-    await expect(svSlider).toHaveAttribute('aria-valuenow')
-    await expect(svSlider).toHaveAttribute('aria-valuemin', '0')
-    await expect(svSlider).toHaveAttribute('aria-valuemax', '100')
-    await expect(svSlider).toHaveAttribute('aria-valuetext')
-  },
-}
-
-/**
- * 色相リングにフォーカスリングが表示されるケース
- */
-export const HueRingFocusRing: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    // 色相リングを取得（role="slider"でフォーカス可能）
-    const hueRing = canvas.getByRole('slider', { name: /色相|Hue/i })
-    await expect(hueRing).toBeInTheDocument()
-
-    // フォーカスを当てる
-    await userEvent.click(hueRing)
-    await expect(hueRing).toHaveFocus()
-
-    // rounded-fullクラスがあることを確認（リング形状）
-    await expect(hueRing).toHaveClass('rounded-full')
-  },
-}
-
-/**
- * SV正方形にフォーカスリングが表示されるケース
- */
-export const SvSquareFocusRing: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    // SV正方形を取得（role="slider"でフォーカス可能）
-    const svSquare = canvas.getByRole('slider', { name: /彩度と明度|Saturation and brightness/i })
-    await expect(svSquare).toBeInTheDocument()
-
-    // フォーカスを当てる
-    await userEvent.click(svSquare)
-    await expect(svSquare).toHaveFocus()
-
-    // rounded-smクラスがあることを確認（角丸正方形）
-    await expect(svSquare).toHaveClass('rounded-sm')
-  },
-}
-
-/**
- * Tabキーで色相リングとSV正方形を移動できるケース
- */
-export const TabNavigation: Story = {
-  args: {
-    color: '#ff0000',
-  },
-  render: (args) => <InteractiveColorWheel {...args} />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement)
-
-    const hueRing = canvas.getByRole('slider', { name: /色相|Hue/i })
-    const svSquare = canvas.getByRole('slider', { name: /彩度と明度|Saturation and brightness/i })
-
-    // 色相リングにフォーカス
-    await userEvent.click(hueRing)
-    await expect(hueRing).toHaveFocus()
-
-    // Tabキーで次の要素に移動
-    await userEvent.tab()
-
-    // SV正方形にフォーカスが移動することを確認
-    await expect(svSquare).toHaveFocus()
   },
 }

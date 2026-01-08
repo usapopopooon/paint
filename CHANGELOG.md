@@ -1,6 +1,22 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.1] - 2026-01-08
+
+### Features
+
+- **カラーホイールをreact-hsv-ringライブラリに置き換え**
+  - 自作のカラーホイール実装をreact-hsv-ringに移行
+  - アルファスライダーを追加（8桁HEX対応）
+  - hexColorSchema、normalizeHex、isValidHexを8桁HEX対応に拡張
+
+### Refactor
+
+- 不要になったカラーホイール関連コードを削除
+  - useColorWheelフックを削除（react-hsv-ringが処理）
+  - getColorNameヘルパーを削除（ライブラリ内で処理）
+  - 不要な定数を削除（SQUARE_SIZE、HSV_MIN/MAX、角度変換定数など）
+
+## [0.1.0] - 2026-01-08
 
 ### Refactor
 

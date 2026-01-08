@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 /**
- * HEXカラーコードのスキーマ
+ * HEXカラーコードのスキーマ（RGB部分のみ、アルファなし）
  * #付きまたは#なしの3桁または6桁のHEXを許容
  */
 export const hexColorSchema = z

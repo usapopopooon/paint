@@ -1,1 +1,1 @@
-export * from './useColorWheel'
+export * from './colorWheelState'

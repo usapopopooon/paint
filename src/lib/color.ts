@@ -99,28 +99,58 @@ export const hexToHsv = (hex: string): HSV => {
  * @returns 有効な形式の場合はtrue
  */
 export const isValidHex = (hex: string): boolean => {
-  return /^#?([a-f\d]{6}|[a-f\d]{3})$/i.test(hex)
+  return /^#?([a-f\d]{8}|[a-f\d]{6}|[a-f\d]{3})$/i.test(hex)
 }
 
 /**
- * HEXカラーコードを正規化（#付き6桁小文字形式に統一）
+ * HEXカラーコードを正規化（#付き6桁または8桁小文字形式に統一）
  * @param hex - 正規化するHEXカラーコード
- * @returns 正規化されたHEXカラーコード（例: "#ff0000"）
+ * @returns 正規化されたHEXカラーコード（例: "#ff0000" または "#ff0000ff"）
  */
 export const normalizeHex = (hex: string): string => {
   let normalized = hex.startsWith('#') ? hex : `#${hex}`
+  // 3桁を6桁に展開
   if (normalized.length === 4) {
     normalized = `#${normalized[1]}${normalized[1]}${normalized[2]}${normalized[2]}${normalized[3]}${normalized[3]}`
+  }
+  // 4桁を8桁に展開
+  if (normalized.length === 5) {
+    normalized = `#${normalized[1]}${normalized[1]}${normalized[2]}${normalized[2]}${normalized[3]}${normalized[3]}${normalized[4]}${normalized[4]}`
   }
   return normalized.toLowerCase()
 }
 
 /**
- * HEXカラーコードを数値に変換
- * @param hex - HEXカラーコード（#付きまたは#なし）
+ * HEXカラーコードからRGB部分のみを取得（アルファを除去）
+ * @param hex - HEXカラーコード（#付きまたは#なし、6桁または8桁）
+ * @returns RGB部分のみのHEXカラーコード（例: "#ff0000"）
+ */
+export const hexToRgb = (hex: string): string => {
+  const normalized = normalizeHex(hex)
+  // 8桁HEXの場合はRGB部分のみ（最初の6桁）を取得
+  return normalized.length === 9 ? normalized.slice(0, 7) : normalized.slice(0, 7)
+}
+
+/**
+ * HEXカラーコードを数値に変換（RGB部分のみ、アルファは無視）
+ * @param hex - HEXカラーコード（#付きまたは#なし、6桁または8桁）
  * @returns 数値カラー（例: 0xff0000）
  */
 export const hexToNumber = (hex: string): number => {
+  const rgb = hexToRgb(hex)
+  return parseInt(rgb.slice(1), 16)
+}
+
+/**
+ * HEXカラーコードからアルファ値を抽出（0-1の範囲）
+ * @param hex - HEXカラーコード（#付きまたは#なし、6桁または8桁）
+ * @returns アルファ値（0-1）。6桁HEXの場合は1を返す
+ */
+export const hexToAlpha = (hex: string): number => {
   const normalized = normalizeHex(hex)
-  return parseInt(normalized.slice(1), 16)
+  // 8桁HEXの場合はアルファ部分（最後の2桁）を取得
+  if (normalized.length === 9) {
+    return parseInt(normalized.slice(7, 9), 16) / 255
+  }
+  return 1
 }
