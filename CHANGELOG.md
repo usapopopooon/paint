@@ -1,8 +1,27 @@
 # Changelog
 
-## [Unreleased]
+## [0.0.33] - 2026-01-08
+
+### Features
+
+- **カラーホイールをreact-hsv-ringライブラリに置き換え**
+  - 自作のカラーホイール実装をreact-hsv-ringに移行
+  - アルファスライダーを追加（8桁HEX対応）
+  - hexColorSchema、normalizeHex、isValidHexを8桁HEX対応に拡張
+
+### Fixes
+
+- **PixiJS Graphics APIの色型エラーを修正**
+  - hexToNumber()ユーティリティ関数を追加して16進数文字列を数値に変換
+  - renderStroke()でstyle.colorをhexToNumber()で変換
+  - テストの期待値を数値カラーに更新
 
 ### Refactor
+
+- 不要になったカラーホイール関連コードを削除
+  - useColorWheelフックを削除（react-hsv-ringが処理）
+  - getColorNameヘルパーを削除（ライブラリ内で処理）
+  - 不要な定数を削除（SQUARE_SIZE、HSV_MIN/MAX、角度変換定数など）
 
 - **ツールコンポーネントの統合**
   - PenTool, BrushTool, EraserToolの重複コードをDrawingToolButtonに統合
@@ -19,13 +38,6 @@
 - **App.tsxハンドラー関数の簡素化**
   - handleIncreaseToolSize/handleDecreaseToolSizeのif-elseチェーンを設定オブジェクトで置換
   - handleHardnessChange/handleBlurEnabledChangeも同様に簡素化
-
-### Fixes
-
-- **PixiJS Graphics APIの色型エラーを修正**
-  - hexToNumber()ユーティリティ関数を追加して16進数文字列を数値に変換
-  - renderStroke()でstyle.colorをhexToNumber()で変換
-  - テストの期待値を数値カラーに更新
 
 ## [0.0.32] - 2026-01-02
 
