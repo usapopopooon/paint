@@ -121,11 +121,27 @@ export const normalizeHex = (hex: string): string => {
 }
 
 /**
- * HEXカラーコードを数値に変換
- * @param hex - HEXカラーコード（#付きまたは#なし）
+ * HEXカラーコードを数値に変換（RGB部分のみ、アルファは無視）
+ * @param hex - HEXカラーコード（#付きまたは#なし、6桁または8桁）
  * @returns 数値カラー（例: 0xff0000）
  */
 export const hexToNumber = (hex: string): number => {
   const normalized = normalizeHex(hex)
-  return parseInt(normalized.slice(1), 16)
+  // 8桁HEXの場合はRGB部分のみ（最初の6桁）を取得
+  const rgb = normalized.length === 9 ? normalized.slice(1, 7) : normalized.slice(1, 7)
+  return parseInt(rgb, 16)
+}
+
+/**
+ * HEXカラーコードからアルファ値を抽出（0-1の範囲）
+ * @param hex - HEXカラーコード（#付きまたは#なし、6桁または8桁）
+ * @returns アルファ値（0-1）。6桁HEXの場合は1を返す
+ */
+export const hexToAlpha = (hex: string): number => {
+  const normalized = normalizeHex(hex)
+  // 8桁HEXの場合はアルファ部分（最後の2桁）を取得
+  if (normalized.length === 9) {
+    return parseInt(normalized.slice(7, 9), 16) / 255
+  }
+  return 1
 }
