@@ -99,18 +99,23 @@ export const hexToHsv = (hex: string): HSV => {
  * @returns 有効な形式の場合はtrue
  */
 export const isValidHex = (hex: string): boolean => {
-  return /^#?([a-f\d]{6}|[a-f\d]{3})$/i.test(hex)
+  return /^#?([a-f\d]{8}|[a-f\d]{6}|[a-f\d]{3})$/i.test(hex)
 }
 
 /**
- * HEXカラーコードを正規化（#付き6桁小文字形式に統一）
+ * HEXカラーコードを正規化（#付き6桁または8桁小文字形式に統一）
  * @param hex - 正規化するHEXカラーコード
- * @returns 正規化されたHEXカラーコード（例: "#ff0000"）
+ * @returns 正規化されたHEXカラーコード（例: "#ff0000" または "#ff0000ff"）
  */
 export const normalizeHex = (hex: string): string => {
   let normalized = hex.startsWith('#') ? hex : `#${hex}`
+  // 3桁を6桁に展開
   if (normalized.length === 4) {
     normalized = `#${normalized[1]}${normalized[1]}${normalized[2]}${normalized[2]}${normalized[3]}${normalized[3]}`
+  }
+  // 4桁を8桁に展開
+  if (normalized.length === 5) {
+    normalized = `#${normalized[1]}${normalized[1]}${normalized[2]}${normalized[2]}${normalized[3]}${normalized[3]}${normalized[4]}${normalized[4]}`
   }
   return normalized.toLowerCase()
 }
