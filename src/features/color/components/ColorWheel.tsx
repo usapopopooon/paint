@@ -1,15 +1,16 @@
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ClipboardPaste, Copy } from 'lucide-react'
+import * as HsvRing from 'react-hsv-ring'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslation } from '@/features/i18n'
 import { toast } from 'sonner'
-import { useColorWheel } from '../hooks/useColorWheel'
-import { WHEEL_SIZE, RING_WIDTH, SQUARE_SIZE, HSV_MIN, HSV_MAX } from '../constants'
-import { normalizeHex, getColorNameKey } from '../helpers'
+import { colorWheelState } from '../hooks/colorWheelState'
+import { WHEEL_SIZE, RING_WIDTH, ALPHA_SLIDER_TRACK_SIZE } from '../constants'
+import { normalizeHex } from '../helpers'
 import { hexColorSchema } from '../domain'
 
 const colorInputSchema = z.object({
@@ -28,27 +29,11 @@ type ColorWheelProps = {
 
 /**
  * HSVカラーホイールコンポーネント
- * 色相リングと彩度・明度の正方形で色を選択
+ * react-hsv-ringライブラリを使用した色相リングと彩度・明度の正方形で色を選択
  * @param props - ColorWheelコンポーネントのプロパティ
  */
 export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
   const { t } = useTranslation()
-  const {
-    containerRef,
-    hsv,
-    setColor,
-    handlePointerDown,
-    handleHueKeyDown,
-    handleSvKeyDown,
-    hueIndicatorX,
-    hueIndicatorY,
-    svIndicatorX,
-    svIndicatorY,
-  } = useColorWheel({ color, onChange })
-
-  const colorName = t(getColorNameKey(hsv.h))
-  const hueValueText = t('color.hueValue', { color: colorName })
-  const svValueText = t('color.svValue', { s: hsv.s, v: hsv.v })
 
   const {
     register,
@@ -66,9 +51,25 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
     setValue('color', color.toUpperCase())
   }, [color, setValue])
 
+  const handleValueChange = useCallback(
+    (hex: string) => {
+      const normalized = hex.toLowerCase()
+      onChange(normalized)
+      setValue('color', normalized.toUpperCase())
+    },
+    [onChange, setValue]
+  )
+
+  const handleDragStart = useCallback(() => {
+    colorWheelState.isDragging = true
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    colorWheelState.isDragging = false
+  }, [])
+
   const onSubmit = (data: ColorInputForm) => {
     const normalized = normalizeHex(data.color)
-    setColor(normalized)
     onChange(normalized)
     setValue('color', normalized.toUpperCase())
   }
@@ -82,90 +83,29 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
 
   return (
     <div className="flex flex-col gap-3 mb-2" onWheel={(e) => e.stopPropagation()}>
-      <div
-        ref={containerRef}
-        className="relative cursor-crosshair"
-        style={{ width: WHEEL_SIZE, height: WHEEL_SIZE, touchAction: 'none' }}
-        onPointerDown={handlePointerDown}
+      <HsvRing.Root
+        value={color}
+        onValueChange={handleValueChange}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
-        {/* Hue ring - フォーカス可能 */}
-        <div
-          role="slider"
-          tabIndex={0}
-          aria-label={t('color.hue')}
-          aria-valuenow={hsv.h}
-          aria-valuemin={HSV_MIN}
-          aria-valuemax={359}
-          aria-valuetext={hueValueText}
-          className="absolute inset-0 rounded-full outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-          style={{
-            background:
-              'conic-gradient(from 0deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%))',
-          }}
-          onKeyDown={handleHueKeyDown}
+        <HsvRing.Wheel
+          size={WHEEL_SIZE}
+          ringWidth={RING_WIDTH}
+          className="cursor-crosshair"
+          style={{ touchAction: 'none' }}
+        >
+          <HsvRing.HueRing />
+          <HsvRing.HueThumb />
+          <HsvRing.Area />
+          <HsvRing.AreaThumb />
+        </HsvRing.Wheel>
+        <HsvRing.AlphaSlider
+          trackSize={ALPHA_SLIDER_TRACK_SIZE}
+          className="mt-4 mb-2 rounded"
+          style={{ width: WHEEL_SIZE }}
         />
-        {/* Inner circle mask */}
-        <div
-          className="absolute rounded-full bg-background pointer-events-none"
-          style={{
-            top: RING_WIDTH,
-            left: RING_WIDTH,
-            right: RING_WIDTH,
-            bottom: RING_WIDTH,
-          }}
-        />
-
-        {/* SV square - フォーカス可能 */}
-        <div
-          role="slider"
-          tabIndex={0}
-          aria-label={t('color.saturationBrightness')}
-          aria-valuenow={hsv.s}
-          aria-valuemin={HSV_MIN}
-          aria-valuemax={HSV_MAX}
-          aria-valuetext={svValueText}
-          className="absolute rounded-sm outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-          style={{
-            width: SQUARE_SIZE,
-            height: SQUARE_SIZE,
-            top: (WHEEL_SIZE - SQUARE_SIZE) / 2,
-            left: (WHEEL_SIZE - SQUARE_SIZE) / 2,
-            background: `
-              linear-gradient(to top, #000, transparent),
-              linear-gradient(to right, #fff, hsl(${hsv.h}, 100%, 50%))
-            `,
-          }}
-          onKeyDown={handleSvKeyDown}
-        />
-
-        {/* Hue indicator - pointer-events: none */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            width: RING_WIDTH - 4,
-            height: RING_WIDTH - 4,
-            borderRadius: '50%',
-            border: '2px solid white',
-            boxShadow: 'inset 0 0 0 1px black, 0 0 0 1px black',
-            top: hueIndicatorY - (RING_WIDTH - 4) / 2,
-            left: hueIndicatorX - (RING_WIDTH - 4) / 2,
-          }}
-        />
-
-        {/* SV indicator - pointer-events: none */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            width: 12,
-            height: 12,
-            borderRadius: '50%',
-            border: '2px solid white',
-            boxShadow: 'inset 0 0 0 1px black, 0 0 0 1px black',
-            top: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorY - 6,
-            left: (WHEEL_SIZE - SQUARE_SIZE) / 2 + svIndicatorX - 6,
-          }}
-        />
-      </div>
+      </HsvRing.Root>
       <div className="flex items-center gap-2">
         <div className="size-6 rounded border border-border" style={{ backgroundColor: color }} />
         <input
@@ -215,7 +155,6 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
                 const result = hexColorSchema.safeParse(text.trim())
                 if (result.success) {
                   const normalized = normalizeHex(result.data)
-                  setColor(normalized)
                   onChange(normalized)
                   toast.success(t('color.pasted'))
                 } else {
