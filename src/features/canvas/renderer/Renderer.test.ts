@@ -35,8 +35,27 @@ class MockPixiEngine {
   clearImageCache = mockEngineInstance.clearImageCache
 }
 
+// Canvas2DEngineをモッククラスとして定義
+class MockCanvas2DEngine {
+  get isInitialized() {
+    return mockEngineInstance.isInitialized
+  }
+  init = mockEngineInstance.init
+  dispose = mockEngineInstance.dispose
+  resize = mockEngineInstance.resize
+  getCanvas = mockEngineInstance.getCanvas
+  renderDrawables = mockEngineInstance.renderDrawables
+  renderLayers = mockEngineInstance.renderLayers
+  clear = mockEngineInstance.clear
+  clearImageCache = mockEngineInstance.clearImageCache
+}
+
 vi.mock('./engines/pixiEngine', () => ({
   PixiEngine: MockPixiEngine,
+}))
+
+vi.mock('./engines/canvas2dEngine', () => ({
+  Canvas2DEngine: MockCanvas2DEngine,
 }))
 
 describe('Renderer', () => {
@@ -59,10 +78,11 @@ describe('Renderer', () => {
     expect(renderer.engineType).toBe('pixi')
   })
 
-  test('canvasエンジンは未実装のためエラーになる', async () => {
+  test('canvasエンジンを指定して作成できる', async () => {
     const { Renderer } = await import('./Renderer')
 
-    expect(() => new Renderer('canvas')).toThrow('Canvas 2D engine is not yet implemented')
+    const renderer = new Renderer('canvas')
+    expect(renderer.engineType).toBe('canvas')
   })
 
   test('初期化前はisInitializedがfalse', async () => {
@@ -109,6 +129,30 @@ describe('Renderer', () => {
     const canvas = renderer.getCanvas()
 
     expect(canvas).toBeInstanceOf(HTMLCanvasElement)
+  })
+
+  test('初期化前にgetCanvasを呼ぶとエラー', async () => {
+    const { Renderer } = await import('./Renderer')
+
+    const renderer = new Renderer('pixi')
+
+    expect(() => renderer.getCanvas()).toThrow('Renderer is not initialized')
+  })
+
+  test('初期化前にrenderDrawablesを呼ぶとエラー', async () => {
+    const { Renderer } = await import('./Renderer')
+
+    const renderer = new Renderer('pixi')
+
+    await expect(renderer.renderDrawables([])).rejects.toThrow('Renderer is not initialized')
+  })
+
+  test('初期化前にrenderLayersを呼ぶとエラー', async () => {
+    const { Renderer } = await import('./Renderer')
+
+    const renderer = new Renderer('pixi')
+
+    await expect(renderer.renderLayers([])).rejects.toThrow('Renderer is not initialized')
   })
 
   test('renderDrawablesで描画要素をレンダリングする', async () => {
@@ -178,5 +222,14 @@ describe('Renderer', () => {
     renderer.clearImageCache()
 
     expect(mockEngineInstance.clearImageCache).toHaveBeenCalled()
+  })
+
+  test('canvasエンジンでも初期化できる', async () => {
+    const { Renderer } = await import('./Renderer')
+
+    const renderer = new Renderer('canvas')
+    await renderer.init({ width: 800, height: 600 })
+
+    expect(renderer.isInitialized).toBe(true)
   })
 })

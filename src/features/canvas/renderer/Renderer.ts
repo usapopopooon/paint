@@ -1,18 +1,21 @@
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import type { IRenderer, RenderEngine, RendererEngine, RendererOptions } from './types'
-import { PixiEngine } from './engines/pixiEngine'
 
 /**
- * エンジン種類に応じたエンジンインスタンスを作成
+ * エンジン種類に応じたエンジンインスタンスを動的に作成
+ * 遅延読み込みにより、使用するエンジンのみがバンドルに含まれる
  */
-const createEngine = (engineType: RendererEngine): RenderEngine => {
+const createEngine = async (engineType: RendererEngine): Promise<RenderEngine> => {
   switch (engineType) {
-    case 'pixi':
+    case 'pixi': {
+      const { PixiEngine } = await import('./engines/pixiEngine')
       return new PixiEngine()
-    case 'canvas':
-      // Canvas 2D エンジンは今後実装予定
-      throw new Error('Canvas 2D engine is not yet implemented')
+    }
+    case 'canvas': {
+      const { Canvas2DEngine } = await import('./engines/canvas2dEngine')
+      return new Canvas2DEngine()
+    }
     default:
       throw new Error(`Unknown engine type: ${engineType}`)
   }
@@ -21,6 +24,7 @@ const createEngine = (engineType: RendererEngine): RenderEngine => {
 /**
  * レンダラークラス
  * 描画エンジン（PixiJS, Canvas 2D）を抽象化し、統一したインターフェースを提供
+ * エンジンは動的インポートで遅延読み込みされる
  *
  * @example
  * ```ts
@@ -31,47 +35,58 @@ const createEngine = (engineType: RendererEngine): RenderEngine => {
  * ```
  */
 export class Renderer implements IRenderer {
-  private engine: RenderEngine
+  private engine: RenderEngine | null = null
   readonly engineType: RendererEngine
 
   constructor(engineType: RendererEngine = 'pixi') {
     this.engineType = engineType
-    this.engine = createEngine(engineType)
   }
 
   get isInitialized(): boolean {
-    return this.engine.isInitialized
+    return this.engine?.isInitialized ?? false
   }
 
   async init(options: RendererOptions): Promise<void> {
+    // エンジンを動的に読み込む
+    this.engine = await createEngine(this.engineType)
     await this.engine.init(options)
   }
 
   dispose(): void {
-    this.engine.dispose()
+    this.engine?.dispose()
+    this.engine = null
   }
 
   resize(width: number, height: number): void {
-    this.engine.resize(width, height)
+    this.engine?.resize(width, height)
   }
 
   getCanvas(): HTMLCanvasElement {
+    if (!this.engine) {
+      throw new Error('Renderer is not initialized')
+    }
     return this.engine.getCanvas()
   }
 
   async renderDrawables(drawables: readonly Drawable[]): Promise<void> {
+    if (!this.engine) {
+      throw new Error('Renderer is not initialized')
+    }
     await this.engine.renderDrawables(drawables)
   }
 
   async renderLayers(layers: readonly Layer[]): Promise<void> {
+    if (!this.engine) {
+      throw new Error('Renderer is not initialized')
+    }
     await this.engine.renderLayers(layers)
   }
 
   clear(): void {
-    this.engine.clear()
+    this.engine?.clear()
   }
 
   clearImageCache(): void {
-    this.engine.clearImageCache()
+    this.engine?.clearImageCache()
   }
 }
