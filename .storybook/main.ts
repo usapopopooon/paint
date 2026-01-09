@@ -20,8 +20,23 @@ const config: StorybookConfig = {
     disableTelemetry: true,
   },
   viteFinal: async (config) => {
+    // StorybookビルドではVitePWAプラグインを除外（workboxがStorybookの大きなファイルをキャッシュしようとしてエラーになるため）
+    const pwaPluginNames = [
+      'vite-plugin-pwa',
+      'vite-plugin-pwa:build',
+      'vite-plugin-pwa:dev-sw',
+      'vite-plugin-pwa:info',
+    ]
+    const plugins = config.plugins?.flat().filter((plugin) => {
+      if (plugin && typeof plugin === 'object' && 'name' in plugin) {
+        return !pwaPluginNames.includes(plugin.name as string)
+      }
+      return true
+    })
+
     return {
       ...config,
+      plugins,
       base: process.env.NODE_ENV === 'production' ? '/paint/storybook/' : '/',
       optimizeDeps: {
         ...config.optimizeDeps,

@@ -22,6 +22,7 @@
     "test:coverage:merge": "npx tsx scripts/merge-coverage.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test:full": "tsc -b && npm run lint && npm run format:check && npm run spell:check && npm run build && npm run build-storybook",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
