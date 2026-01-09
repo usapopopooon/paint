@@ -47,6 +47,7 @@ import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/e
 import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
+import { ReloadPrompt } from './components/ui/ReloadPrompt'
 import {
   useSelection,
   SelectionToolButton,
@@ -1076,6 +1077,7 @@ function App() {
         onOpenChange={setSaveImageDialogOpen}
         onSave={handleSaveImage}
       />
+      <ReloadPrompt />
     </div>
   )
 }

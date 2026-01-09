@@ -38,6 +38,16 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
     },
   },
+  // Test and mock files - allow unused vars with underscore prefix
+  {
+    files: ['**/*.test.{ts,tsx}', 'src/test/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
+  },
   // Prettier - must be last to override other formatting rules
   eslintConfigPrettier,
 ])

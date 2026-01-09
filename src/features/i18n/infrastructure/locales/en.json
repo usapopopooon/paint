@@ -153,5 +153,15 @@
   },
   "import": {
     "invalidFileType": "Unsupported image format. Please select PNG, JPG, GIF, or WebP."
+  },
+  "pwa": {
+    "newVersionAvailable": "New version available",
+    "reload": "Reload",
+    "confirmReload": {
+      "title": "Update application?",
+      "description": "Unsaved work will be lost. Please save your project before updating.",
+      "confirm": "Update",
+      "cancel": "Cancel"
+    }
   }
 }
