@@ -153,5 +153,15 @@
   },
   "import": {
     "invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。"
+  },
+  "pwa": {
+    "newVersionAvailable": "新しいバージョンがあります",
+    "reload": "更新",
+    "confirmReload": {
+      "title": "アプリを更新しますか？",
+      "description": "保存していない作業内容は失われます。更新する前にプロジェクトを保存してください。",
+      "confirm": "更新する",
+      "cancel": "キャンセル"
+    }
   }
 }

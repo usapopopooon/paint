@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.3] - 2026-01-10
+
+### Features
+
+- **PWAサポートを追加**
+  - vite-plugin-pwaによるService WorkerとPrecaching
+  - 新しいバージョンが利用可能な場合にトースト通知を表示
+  - 更新前に確認ダイアログを表示（未保存データの警告）
+
+- **アクションボタン付きトースト（showActionToast）を追加**
+  - Sonnerコンポーネントのストーリーを追加
+
+### Refactor
+
+- ReloadPromptをpwaフィーチャーに移動
+
+### Fixed
+
+- Prettierの改行コード設定を追加（Windowsでの改行コード問題を解決）
+
 ## [0.2.2] - 2026-01-09
 
 ### Features

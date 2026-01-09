@@ -47,7 +47,10 @@
     "Katsuya",
     "Yoshizumi",
     "usapo",
-    "usapopopooon"
+    "usapopopooon",
+    "workbox",
+    "maskable",
+    "precaching"
   ],
   "ignorePaths": [
     "node_modules",
