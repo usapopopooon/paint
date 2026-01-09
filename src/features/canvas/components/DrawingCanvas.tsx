@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import 'pixi.js/advanced-blend-modes' // overlay, darken, lighten等の高度なブレンドモードに必要
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import { Renderer, type RendererEngine } from '../renderer'
@@ -28,7 +27,7 @@ export const DrawingCanvas = ({
   height = 600,
   fillContainer = false,
   className,
-  engine = 'pixi',
+  engine = 'canvas',
 }: DrawingCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<Renderer | null>(null)

@@ -64,11 +64,11 @@ describe('Renderer', () => {
     mockEngineInstance.isInitialized = false
   })
 
-  test('デフォルトでpixiエンジンを使用する', async () => {
+  test('デフォルトでcanvasエンジンを使用する', async () => {
     const { Renderer } = await import('./Renderer')
 
     const renderer = new Renderer()
-    expect(renderer.engineType).toBe('pixi')
+    expect(renderer.engineType).toBe('canvas')
   })
 
   test('エンジンタイプを指定して作成できる', async () => {

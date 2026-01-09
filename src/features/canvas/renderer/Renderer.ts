@@ -38,7 +38,7 @@ export class Renderer implements IRenderer {
   private engine: RenderEngine | null = null
   readonly engineType: RendererEngine
 
-  constructor(engineType: RendererEngine = 'pixi') {
+  constructor(engineType: RendererEngine = 'canvas') {
     this.engineType = engineType
   }
 
