@@ -174,5 +174,71 @@ describe('selectionOperations', () => {
         height: 50,
       })
     })
+
+    test('小数点を含むオフセットを整数に変換', () => {
+      const shape: SelectionShape = {
+        type: 'rectangle',
+        bounds: { x: 10, y: 20, width: 100, height: 50 },
+      }
+
+      const bounds = getSelectionBounds(shape, { x: 5.7, y: 10.3 })
+
+      // x, yはfloor、width, heightはceil
+      expect(Number.isInteger(bounds.x)).toBe(true)
+      expect(Number.isInteger(bounds.y)).toBe(true)
+      expect(Number.isInteger(bounds.width)).toBe(true)
+      expect(Number.isInteger(bounds.height)).toBe(true)
+    })
+
+    test('小数点を含むLasso選択のバウンズを整数に変換', () => {
+      const shape: SelectionShape = {
+        type: 'lasso',
+        points: [
+          { x: 10.3, y: 20.7 },
+          { x: 110.5, y: 20.2 },
+          { x: 110.8, y: 70.9 },
+          { x: 10.1, y: 70.4 },
+        ],
+      }
+
+      const bounds = getSelectionBounds(shape)
+
+      expect(Number.isInteger(bounds.x)).toBe(true)
+      expect(Number.isInteger(bounds.y)).toBe(true)
+      expect(Number.isInteger(bounds.width)).toBe(true)
+      expect(Number.isInteger(bounds.height)).toBe(true)
+    })
+
+    test('すべての戻り値が整数であることを保証', () => {
+      // 様々なケースで整数であることを確認
+      const testCases: Array<{ shape: SelectionShape; offset?: { x: number; y: number } }> = [
+        {
+          shape: { type: 'rectangle', bounds: { x: 0.1, y: 0.9, width: 99.5, height: 49.5 } },
+        },
+        {
+          shape: { type: 'rectangle', bounds: { x: 10, y: 20, width: 100, height: 50 } },
+          offset: { x: 0.5, y: 0.5 },
+        },
+        {
+          shape: {
+            type: 'lasso',
+            points: [
+              { x: 0.1, y: 0.1 },
+              { x: 99.9, y: 0.1 },
+              { x: 99.9, y: 99.9 },
+            ],
+          },
+          offset: { x: 0.3, y: 0.7 },
+        },
+      ]
+
+      for (const { shape, offset } of testCases) {
+        const bounds = getSelectionBounds(shape, offset)
+        expect(Number.isInteger(bounds.x)).toBe(true)
+        expect(Number.isInteger(bounds.y)).toBe(true)
+        expect(Number.isInteger(bounds.width)).toBe(true)
+        expect(Number.isInteger(bounds.height)).toBe(true)
+      }
+    })
   })
 })

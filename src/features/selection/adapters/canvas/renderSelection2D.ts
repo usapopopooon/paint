@@ -1,6 +1,7 @@
 import type { Point, Bounds } from '@/lib/geometry'
 import type { SelectionShape, SelectionRegion } from '../../types'
 import { MARCHING_ANTS_DASH } from '../../constants'
+import { getSelectionBounds } from './selectionOperations'
 
 /**
  * マーチングアンツのスタイル設定
@@ -60,10 +61,25 @@ export const renderSelection2D = (
   region: SelectionRegion,
   style: Partial<MarchingAntsStyle> = {}
 ): void => {
-  const { shape, offset } = region
+  const { shape, offset, imageData } = region
   const mergedStyle = { ...DEFAULT_STYLE, ...style }
 
   ctx.save()
+
+  // キャッシュされたImageDataがある場合は描画
+  if (imageData) {
+    const bounds = getSelectionBounds(shape, offset)
+    // ImageDataをcanvasに変換して描画（drawImageを使用して高品質を維持）
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = imageData.width
+    tempCanvas.height = imageData.height
+    const tempCtx = tempCanvas.getContext('2d')
+    if (tempCtx) {
+      tempCtx.putImageData(imageData, 0, 0)
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(tempCanvas, Math.round(bounds.x), Math.round(bounds.y))
+    }
+  }
 
   // パスを描画
   if (shape.type === 'rectangle') {
