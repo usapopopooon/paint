@@ -44,7 +44,14 @@ const renameFormSchema = z.object({
 type RenameFormData = z.infer<typeof renameFormSchema>
 
 // Canvas 2Dでは全ブレンドモードが使用可能
-const ALL_BLEND_MODES: LayerBlendMode[] = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten']
+const ALL_BLEND_MODES: LayerBlendMode[] = [
+  'normal',
+  'multiply',
+  'screen',
+  'overlay',
+  'darken',
+  'lighten',
+]
 
 // PixiJSではoverlay, darken, lightenがバグで透明背景と誤って相互作用するため除外
 // @see https://github.com/pixijs/pixijs/issues/11206

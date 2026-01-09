@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslation } from '@/features/i18n'
 import { toast } from 'sonner'
 import { colorWheelState } from '../hooks/colorWheelState'
-import { WHEEL_SIZE, RING_WIDTH, ALPHA_SLIDER_TRACK_SIZE } from '../constants'
+import { WHEEL_SIZE, RING_WIDTH } from '../constants'
 import { normalizeHex, hexToRgb } from '../helpers'
 import { hexColorSchema } from '../domain'
 
@@ -101,11 +101,6 @@ export const ColorWheel = ({ color, onChange }: ColorWheelProps) => {
           <HsvRing.Area />
           <HsvRing.AreaThumb />
         </HsvRing.Wheel>
-        <HsvRing.AlphaSlider
-          trackSize={ALPHA_SLIDER_TRACK_SIZE}
-          className="mt-4 mb-2 rounded"
-          style={{ width: WHEEL_SIZE }}
-        />
       </HsvRing.Root>
       <div className="flex items-center gap-2">
         <div className="size-6 rounded border border-border" style={{ backgroundColor: color }} />
