@@ -1,7 +1,16 @@
 /**
  * ツールの種類
  */
-export type ToolType = 'pen' | 'brush' | 'eraser' | 'hand' | 'eyedropper' | 'zoom-in' | 'zoom-out'
+export type ToolType =
+  | 'pen'
+  | 'brush'
+  | 'eraser'
+  | 'hand'
+  | 'eyedropper'
+  | 'zoom-in'
+  | 'zoom-out'
+  | 'select-rectangle'
+  | 'select-lasso'
 
 /**
  * カーソル設定
@@ -79,6 +88,24 @@ export type ZoomOutToolConfig = {
 }
 
 /**
+ * 矩形選択ツールの設定
+ */
+export type SelectRectangleToolConfig = {
+  readonly type: 'select-rectangle'
+  readonly feather: number
+  readonly antiAlias: boolean
+}
+
+/**
+ * 自由選択ツールの設定
+ */
+export type SelectLassoToolConfig = {
+  readonly type: 'select-lasso'
+  readonly feather: number
+  readonly antiAlias: boolean
+}
+
+/**
  * ツール設定の判別ユニオン型
  */
 export type ToolConfig =
@@ -89,3 +116,5 @@ export type ToolConfig =
   | EyedropperToolConfig
   | ZoomInToolConfig
   | ZoomOutToolConfig
+  | SelectRectangleToolConfig
+  | SelectLassoToolConfig

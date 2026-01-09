@@ -12,6 +12,15 @@ export type KeyboardShortcutsHandlers = {
   readonly onSelectEraser: () => void
   readonly onSelectHand: () => void
   readonly onSelectEyedropper: () => void
+  readonly onSelectRectangle?: () => void
+  readonly onSelectLasso?: () => void
+  readonly onSelectAll?: () => void
+  readonly onDeselect?: () => void
+  readonly onDeleteSelection?: () => void
+  readonly onCopySelection?: () => void
+  readonly onCutSelection?: () => void
+  readonly onPasteSelection?: () => void
+  readonly onFillSelection?: () => void
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
@@ -40,6 +49,16 @@ export type KeyboardShortcutsHandlers = {
  * - E: 消しゴムツール選択
  * - H: ハンドツール選択
  * - I: スポイトツール選択
+ * - M: 矩形選択ツール選択
+ * - L: 自由選択ツール選択
+ * - Escape: 選択解除
+ * - Delete/Backspace: 選択領域を削除
+ * - Ctrl+A / Cmd+A: すべて選択
+ * - Ctrl+D / Cmd+D: 選択解除
+ * - Ctrl+C / Cmd+C: 選択領域をコピー
+ * - Ctrl+X / Cmd+X: 選択領域をカット
+ * - Ctrl+V / Cmd+V: ペースト
+ * - Alt+Backspace / Alt+Delete: 選択領域を塗りつぶし
  * @param handlers - ショートカットに対応するコールバック関数
  */
 export const useKeyboardShortcuts = ({
@@ -51,6 +70,15 @@ export const useKeyboardShortcuts = ({
   onSelectEraser,
   onSelectHand,
   onSelectEyedropper,
+  onSelectRectangle,
+  onSelectLasso,
+  onSelectAll,
+  onDeselect,
+  onDeleteSelection,
+  onCopySelection,
+  onCutSelection,
+  onPasteSelection,
+  onFillSelection,
   onZoomIn,
   onZoomOut,
   onZoomReset,
@@ -105,6 +133,42 @@ export const useKeyboardShortcuts = ({
         onFlipHorizontal()
         return
       }
+      // すべて選択 (Ctrl/Cmd + A)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A') && onSelectAll) {
+        e.preventDefault()
+        onSelectAll()
+        return
+      }
+      // 選択解除 (Ctrl/Cmd + D)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D') && onDeselect) {
+        e.preventDefault()
+        onDeselect()
+        return
+      }
+      // コピー (Ctrl/Cmd + C)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C') && onCopySelection) {
+        e.preventDefault()
+        onCopySelection()
+        return
+      }
+      // カット (Ctrl/Cmd + X)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'x' || e.key === 'X') && onCutSelection) {
+        e.preventDefault()
+        onCutSelection()
+        return
+      }
+      // ペースト (Ctrl/Cmd + V)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V') && onPasteSelection) {
+        e.preventDefault()
+        onPasteSelection()
+        return
+      }
+      // 選択領域を塗りつぶし (Alt + Backspace)
+      if (e.altKey && (e.key === 'Backspace' || e.key === 'Delete') && onFillSelection) {
+        e.preventDefault()
+        onFillSelection()
+        return
+      }
       // レイヤーを上に移動 (Alt + ])
       if (e.altKey && e.key === ']') {
         e.preventDefault()
@@ -144,6 +208,27 @@ export const useKeyboardShortcuts = ({
           onSelectEyedropper()
           return
         }
+        if ((e.key === 'm' || e.key === 'M') && onSelectRectangle) {
+          e.preventDefault()
+          onSelectRectangle()
+          return
+        }
+        if ((e.key === 'l' || e.key === 'L') && onSelectLasso) {
+          e.preventDefault()
+          onSelectLasso()
+          return
+        }
+        if (e.key === 'Escape' && onDeselect) {
+          e.preventDefault()
+          onDeselect()
+          return
+        }
+        // 選択領域を削除 (Delete/Backspace)
+        if ((e.key === 'Delete' || e.key === 'Backspace') && onDeleteSelection) {
+          e.preventDefault()
+          onDeleteSelection()
+          return
+        }
         // ツールサイズ変更 (] で大きく、[ で小さく)
         if (e.key === ']') {
           e.preventDefault()
@@ -169,6 +254,15 @@ export const useKeyboardShortcuts = ({
     onSelectEraser,
     onSelectHand,
     onSelectEyedropper,
+    onSelectRectangle,
+    onSelectLasso,
+    onSelectAll,
+    onDeselect,
+    onDeleteSelection,
+    onCopySelection,
+    onCutSelection,
+    onPasteSelection,
+    onFillSelection,
     onZoomIn,
     onZoomOut,
     onZoomReset,

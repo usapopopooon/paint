@@ -5,6 +5,8 @@
     "eraser": "Eraser",
     "hand": "Hand",
     "eyedropper": "Eyedropper",
+    "selectRectangle": "Rectangle Select",
+    "selectLasso": "Lasso Select",
     "opacity": "Opacity",
     "hardness": "Edge blur",
     "enableBlur": "Enable edge blur",

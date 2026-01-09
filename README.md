@@ -4,11 +4,11 @@
 
 [日本語](docs/README.ja.md)
 
-[![version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.2.0) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
+[![version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.2.1) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
 A drawing app built with React and Canvas 2D 👉 [Try it out](https://usapopopooon.github.io/paint/)
 
-![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767949360.png)
+![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767957471.png)
 
 ## Tech Stack
 

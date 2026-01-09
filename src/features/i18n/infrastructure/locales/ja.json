@@ -5,6 +5,8 @@
     "eraser": "消しゴム",
     "hand": "ハンドツール",
     "eyedropper": "スポイト",
+    "selectRectangle": "矩形選択",
+    "selectLasso": "自由選択",
     "opacity": "透明度",
     "hardness": "輪郭ぼかし",
     "enableBlur": "輪郭ぼかしを有効にする",

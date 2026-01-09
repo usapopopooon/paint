@@ -524,4 +524,106 @@ describe('useLayers', () => {
       expect(moved).toBe(false)
     })
   })
+
+  describe('setDrawablesToLayer', () => {
+    test('指定レイヤーのDrawablesを置き換える', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      const layerId = result.current.activeLayerId
+
+      // 最初に2つ追加
+      act(() => {
+        result.current.addDrawable(createTestStroke([{ x: 100, y: 100 }]))
+        result.current.addDrawable(createTestStroke([{ x: 200, y: 200 }]))
+      })
+
+      expect(result.current.activeLayer.drawables).toHaveLength(2)
+
+      // setDrawablesToLayerで置き換え
+      const newDrawable = createTestStroke([{ x: 300, y: 300 }])
+      act(() => {
+        result.current.setDrawablesToLayer([newDrawable], layerId)
+      })
+
+      expect(result.current.activeLayer.drawables).toHaveLength(1)
+      expect((result.current.activeLayer.drawables[0] as StrokeDrawable).points).toEqual([
+        { x: 300, y: 300 },
+      ])
+    })
+
+    test('空の配列でクリアできる', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      const layerId = result.current.activeLayerId
+
+      act(() => {
+        result.current.addDrawable(createTestStroke([{ x: 100, y: 100 }]))
+      })
+
+      expect(result.current.activeLayer.drawables).toHaveLength(1)
+
+      act(() => {
+        result.current.setDrawablesToLayer([], layerId)
+      })
+
+      expect(result.current.activeLayer.drawables).toHaveLength(0)
+    })
+
+    test('存在しないレイヤーIDを指定しても何も起きない', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      act(() => {
+        result.current.addDrawable(createTestStroke([{ x: 100, y: 100 }]))
+      })
+
+      const countBefore = result.current.activeLayer.drawables.length
+
+      act(() => {
+        result.current.setDrawablesToLayer(
+          [createTestStroke([{ x: 200, y: 200 }])],
+          'non-existent-layer'
+        )
+      })
+
+      expect(result.current.activeLayer.drawables.length).toBe(countBefore)
+    })
+
+    test('他のレイヤーに影響を与えない', () => {
+      const { result } = renderHook(() => useLayers(), { wrapper })
+
+      // 最初のレイヤーにDrawableを追加
+      act(() => {
+        result.current.addDrawable(createTestStroke([{ x: 100, y: 100 }]))
+      })
+
+      const firstLayerId = result.current.activeLayerId
+
+      // 新しいレイヤーを追加
+      act(() => {
+        result.current.addLayer()
+      })
+
+      const secondLayerId = result.current.activeLayerId
+
+      // 新しいレイヤーにDrawableを追加
+      act(() => {
+        result.current.addDrawable(createTestStroke([{ x: 200, y: 200 }]))
+      })
+
+      // 最初のレイヤーのDrawablesを置き換え
+      act(() => {
+        result.current.setDrawablesToLayer([createTestStroke([{ x: 300, y: 300 }])], firstLayerId)
+      })
+
+      // 最初のレイヤーは置き換わっている
+      const firstLayer = result.current.getLayerById(firstLayerId)
+      expect(firstLayer?.drawables).toHaveLength(1)
+      expect((firstLayer?.drawables[0] as StrokeDrawable).points).toEqual([{ x: 300, y: 300 }])
+
+      // 2番目のレイヤーは変わっていない
+      const secondLayer = result.current.getLayerById(secondLayerId)
+      expect(secondLayer?.drawables).toHaveLength(1)
+      expect((secondLayer?.drawables[0] as StrokeDrawable).points).toEqual([{ x: 200, y: 200 }])
+    })
+  })
 })
