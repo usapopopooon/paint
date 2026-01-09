@@ -3,4 +3,13 @@ export {
   renderSelectionPreview2D,
   renderRectanglePreview2D,
   renderLassoPreview2D,
+  getImageDataFromSelection,
+  getSelectionBounds,
+  clearSelectionRegion,
+  putImageDataAt,
+  fillSelectionRegion,
+  getMaskedImageDataFromSelection,
+  imageDataToDataURL,
+  renderLayerToOffscreenCanvas,
+  canvasToDataURL,
 } from './canvas'

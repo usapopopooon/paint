@@ -56,7 +56,7 @@ type CanvasProps = {
   /** 選択確定コールバック */
   readonly onCommitSelection?: () => void
   /** 移動開始コールバック */
-  readonly onStartMove?: (point: Point) => void
+  readonly onStartMove?: (point: Point) => void | Promise<void>
   /** 移動更新コールバック */
   readonly onUpdateMove?: (point: Point) => void
   /** 移動確定コールバック */

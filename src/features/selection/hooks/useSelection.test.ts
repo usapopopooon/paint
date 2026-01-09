@@ -316,6 +316,127 @@ describe('useSelection', () => {
 
       expect(result.current.state.phase).toBe('selected')
     })
+
+    test('commitMoveでshapeの座標がoffset分移動しoffsetがリセットされる', () => {
+      const { result } = renderHook(() => useSelection())
+
+      // 矩形選択を作成（10,20 から 100,120）
+      act(() => {
+        result.current.startSelection({ x: 10, y: 20 }, mockLayerId)
+      })
+      act(() => {
+        result.current.updateSelection({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitSelection()
+      })
+
+      // 選択領域を30,30移動
+      act(() => {
+        result.current.startMove({ x: 50, y: 70 })
+      })
+      act(() => {
+        result.current.updateMove({ x: 80, y: 100 }) // dx=30, dy=30
+      })
+      act(() => {
+        result.current.commitMove()
+      })
+
+      // shapeの座標が移動後の位置になっている
+      expect(result.current.state.region?.shape.type).toBe('rectangle')
+      if (result.current.state.region?.shape.type === 'rectangle') {
+        expect(result.current.state.region.shape.bounds).toEqual({
+          x: 40, // 10 + 30
+          y: 50, // 20 + 30
+          width: 90,
+          height: 100,
+        })
+      }
+
+      // offsetはリセットされている
+      expect(result.current.state.region?.offset).toEqual({ x: 0, y: 0 })
+    })
+
+    test('2回目の移動も正しく動作する', () => {
+      const { result } = renderHook(() => useSelection())
+
+      // 矩形選択を作成
+      act(() => {
+        result.current.startSelection({ x: 10, y: 20 }, mockLayerId)
+      })
+      act(() => {
+        result.current.updateSelection({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitSelection()
+      })
+
+      // 1回目の移動（30,30移動）
+      act(() => {
+        result.current.startMove({ x: 50, y: 70 })
+      })
+      act(() => {
+        result.current.updateMove({ x: 80, y: 100 })
+      })
+      act(() => {
+        result.current.commitMove()
+      })
+
+      // 2回目の移動（20,10移動）
+      act(() => {
+        result.current.startMove({ x: 60, y: 80 })
+      })
+      act(() => {
+        result.current.updateMove({ x: 80, y: 90 }) // dx=20, dy=10
+      })
+      act(() => {
+        result.current.commitMove()
+      })
+
+      // shapeの座標が累積移動後の位置になっている
+      if (result.current.state.region?.shape.type === 'rectangle') {
+        expect(result.current.state.region.shape.bounds).toEqual({
+          x: 60, // 10 + 30 + 20
+          y: 60, // 20 + 30 + 10
+          width: 90,
+          height: 100,
+        })
+      }
+
+      expect(result.current.state.region?.offset).toEqual({ x: 0, y: 0 })
+    })
+
+    test('offsetが0の場合はshapeを更新しない', () => {
+      const { result } = renderHook(() => useSelection())
+
+      act(() => {
+        result.current.startSelection({ x: 10, y: 20 }, mockLayerId)
+      })
+      act(() => {
+        result.current.updateSelection({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitSelection()
+      })
+
+      // 移動せずにcommit
+      act(() => {
+        result.current.startMove({ x: 50, y: 70 })
+      })
+      act(() => {
+        result.current.commitMove()
+      })
+
+      // shapeの座標は変わらない
+      if (result.current.state.region?.shape.type === 'rectangle') {
+        expect(result.current.state.region.shape.bounds).toEqual({
+          x: 10,
+          y: 20,
+          width: 90,
+          height: 100,
+        })
+      }
+    })
   })
 
   describe('deleteSelection', () => {
@@ -332,7 +453,7 @@ describe('useSelection', () => {
         result.current.commitSelection()
       })
 
-      let deletedRegion: ReturnType<typeof result.current.deleteSelection>
+      let deletedRegion: ReturnType<typeof result.current.deleteSelection> = null
       act(() => {
         deletedRegion = result.current.deleteSelection()
       })
@@ -345,7 +466,7 @@ describe('useSelection', () => {
     test('選択がない場合はnullを返す', () => {
       const { result } = renderHook(() => useSelection())
 
-      let deletedRegion: ReturnType<typeof result.current.deleteSelection>
+      let deletedRegion: ReturnType<typeof result.current.deleteSelection> = null
       act(() => {
         deletedRegion = result.current.deleteSelection()
       })
@@ -383,7 +504,7 @@ describe('useSelection', () => {
         result.current.commitSelection()
       })
 
-      let cutRegion: ReturnType<typeof result.current.cutSelection>
+      let cutRegion: ReturnType<typeof result.current.cutSelection> = null
       act(() => {
         cutRegion = result.current.cutSelection(mockImageData, bounds)
       })
@@ -403,7 +524,7 @@ describe('useSelection', () => {
         result.current.copySelection(mockImageData, bounds)
       })
 
-      let pastedClipboard: ReturnType<typeof result.current.pasteSelection>
+      let pastedClipboard: ReturnType<typeof result.current.pasteSelection> = null
       act(() => {
         pastedClipboard = result.current.pasteSelection(mockLayerId, {
           x: 0,
@@ -427,7 +548,7 @@ describe('useSelection', () => {
     test('クリップボードが空の場合pasteSelectionはnullを返す', () => {
       const { result } = renderHook(() => useSelection())
 
-      let pastedClipboard: ReturnType<typeof result.current.pasteSelection>
+      let pastedClipboard: ReturnType<typeof result.current.pasteSelection> = null
       act(() => {
         pastedClipboard = result.current.pasteSelection(mockLayerId, {
           x: 0,
@@ -455,7 +576,8 @@ describe('useSelection', () => {
         result.current.commitSelection()
       })
 
-      let fillResult: ReturnType<typeof result.current.fillSelection>
+      type FillResult = { shape: { type: string }; color: string } | null
+      let fillResult: FillResult = null as FillResult
       act(() => {
         fillResult = result.current.fillSelection('#ff0000')
       })
@@ -468,7 +590,8 @@ describe('useSelection', () => {
     test('選択領域がない場合はnullを返す', () => {
       const { result } = renderHook(() => useSelection())
 
-      let fillResult: ReturnType<typeof result.current.fillSelection>
+      type FillResult = { shape: { type: string }; color: string } | null
+      let fillResult: FillResult = null as FillResult
       act(() => {
         fillResult = result.current.fillSelection('#ff0000')
       })
@@ -616,6 +739,114 @@ describe('useSelection', () => {
       const bounds = result.current.getSelectionBounds()
 
       expect(bounds).toBeNull()
+    })
+  })
+
+  describe('ImageDataキャッシュ', () => {
+    test('setRegionImageDataでImageDataをキャッシュできる', () => {
+      const { result } = renderHook(() => useSelection())
+
+      act(() => {
+        result.current.startSelection({ x: 10, y: 20 }, mockLayerId)
+      })
+      act(() => {
+        result.current.updateSelection({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitSelection()
+      })
+
+      const mockImageData = new ImageData(90, 100)
+
+      act(() => {
+        result.current.setRegionImageData(mockImageData)
+      })
+
+      expect(result.current.state.region?.imageData).toBe(mockImageData)
+    })
+
+    test('clearRegionImageDataでキャッシュをクリアできる', () => {
+      const { result } = renderHook(() => useSelection())
+
+      act(() => {
+        result.current.startSelection({ x: 10, y: 20 }, mockLayerId)
+      })
+      act(() => {
+        result.current.updateSelection({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitSelection()
+      })
+
+      const mockImageData = new ImageData(90, 100)
+
+      act(() => {
+        result.current.setRegionImageData(mockImageData)
+      })
+
+      expect(result.current.state.region?.imageData).toBe(mockImageData)
+
+      act(() => {
+        result.current.clearRegionImageData()
+      })
+
+      expect(result.current.state.region?.imageData).toBeNull()
+    })
+
+    test('regionがない場合はsetRegionImageDataは何もしない', () => {
+      const { result } = renderHook(() => useSelection())
+
+      const mockImageData = new ImageData(90, 100)
+
+      act(() => {
+        result.current.setRegionImageData(mockImageData)
+      })
+
+      expect(result.current.state.region).toBeNull()
+    })
+
+    test('regionがない場合はclearRegionImageDataは何もしない', () => {
+      const { result } = renderHook(() => useSelection())
+
+      act(() => {
+        result.current.clearRegionImageData()
+      })
+
+      expect(result.current.state.region).toBeNull()
+    })
+
+    test('移動後もImageDataキャッシュは保持される', () => {
+      const { result } = renderHook(() => useSelection())
+
+      act(() => {
+        result.current.startSelection({ x: 10, y: 20 }, mockLayerId)
+      })
+      act(() => {
+        result.current.updateSelection({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitSelection()
+      })
+
+      const mockImageData = new ImageData(90, 100)
+
+      act(() => {
+        result.current.setRegionImageData(mockImageData)
+      })
+
+      // 移動開始〜確定
+      act(() => {
+        result.current.startMove({ x: 50, y: 70 })
+      })
+      act(() => {
+        result.current.updateMove({ x: 100, y: 120 })
+      })
+      act(() => {
+        result.current.commitMove()
+      })
+
+      // ImageDataは保持されている
+      expect(result.current.state.region?.imageData).toBe(mockImageData)
     })
   })
 })

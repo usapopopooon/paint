@@ -68,6 +68,10 @@ export type UseSelectionReturn = {
   readonly isPointInRegion: (point: Point) => boolean
   /** 選択領域のバウンディングボックスを取得 */
   readonly getSelectionBounds: () => Bounds | null
+  /** 選択領域のImageDataを設定（キャッシュ用） */
+  readonly setRegionImageData: (imageData: ImageData) => void
+  /** 選択領域のImageDataをクリア */
+  readonly clearRegionImageData: () => void
 }
 
 /**
@@ -275,14 +279,54 @@ export const useSelection = (
 
   /**
    * 移動を確定
+   * shape座標をoffset分移動し、offsetをリセット
    */
   const commitMove = useCallback(() => {
     moveStartRef.current = null
 
-    setState((prev) => ({
-      ...prev,
-      phase: 'selected',
-    }))
+    setState((prev) => {
+      if (!prev.region || (prev.region.offset.x === 0 && prev.region.offset.y === 0)) {
+        return {
+          ...prev,
+          phase: 'selected',
+        }
+      }
+
+      const { shape, offset } = prev.region
+      let newShape: SelectionShape
+
+      if (shape.type === 'rectangle') {
+        // 矩形選択: boundsをoffset分移動
+        newShape = {
+          type: 'rectangle',
+          bounds: {
+            x: shape.bounds.x + offset.x,
+            y: shape.bounds.y + offset.y,
+            width: shape.bounds.width,
+            height: shape.bounds.height,
+          },
+        }
+      } else {
+        // Lasso選択: 全ポイントをoffset分移動
+        newShape = {
+          type: 'lasso',
+          points: shape.points.map((p) => ({
+            x: p.x + offset.x,
+            y: p.y + offset.y,
+          })),
+        }
+      }
+
+      return {
+        ...prev,
+        phase: 'selected',
+        region: {
+          ...prev.region,
+          shape: newShape,
+          offset: { x: 0, y: 0 },
+        },
+      }
+    })
   }, [])
 
   /**
@@ -458,6 +502,38 @@ export const useSelection = (
     }
   }, [state.region])
 
+  /**
+   * 選択領域のImageDataを設定（キャッシュ用）
+   */
+  const setRegionImageData = useCallback((imageData: ImageData) => {
+    setState((prev) => {
+      if (!prev.region) return prev
+      return {
+        ...prev,
+        region: {
+          ...prev.region,
+          imageData,
+        },
+      }
+    })
+  }, [])
+
+  /**
+   * 選択領域のImageDataをクリア
+   */
+  const clearRegionImageData = useCallback(() => {
+    setState((prev) => {
+      if (!prev.region) return prev
+      return {
+        ...prev,
+        region: {
+          ...prev.region,
+          imageData: null,
+        },
+      }
+    })
+  }, [])
+
   return {
     state,
     selectionPoints,
@@ -477,5 +553,7 @@ export const useSelection = (
     setToolType,
     isPointInRegion,
     getSelectionBounds,
+    setRegionImageData,
+    clearRegionImageData,
   }
 }

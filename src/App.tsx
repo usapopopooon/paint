@@ -45,7 +45,19 @@ import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/e
 import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
-import { useSelection, SelectionToolButton } from './features/selection'
+import {
+  useSelection,
+  SelectionToolButton,
+  renderLayerToOffscreenCanvas,
+  clearSelectionRegion,
+  getMaskedImageDataFromSelection,
+  imageDataToDataURL,
+  canvasToDataURL,
+  getSelectionBounds,
+  fillSelectionRegion,
+} from './features/selection'
+import type { ImageDrawable } from './features/drawable'
+import { generateId } from './lib/id'
 
 /**
  * ペイントアプリケーションのメインコンポーネント
@@ -265,52 +277,218 @@ function App() {
 
   /**
    * 選択領域を削除するハンドラ
+   * レイヤーをオフスクリーンCanvasにレンダリング → 選択領域をクリア → ImageDrawableとして保存
    */
-  const handleDeleteSelection = useCallback(() => {
-    const region = selection.deleteSelection()
-    if (region) {
-      // TODO: 実際にキャンバスから選択領域を削除する処理を実装
-      // 現在は選択状態を解除するのみ
+  const handleDeleteSelection = useCallback(async () => {
+    const region = selection.state.region
+    if (!region) return
+
+    // 対象レイヤーを取得
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (!layer || layer.drawables.length === 0) {
+      selection.deselect()
+      return
     }
-  }, [selection])
+
+    // レイヤーをオフスクリーンCanvasにレンダリング
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(
+      layer,
+      canvasSize.width,
+      canvasSize.height
+    )
+    const ctx = offscreenCanvas.getContext('2d')!
+
+    // 選択領域をクリア
+    clearSelectionRegion(ctx, region.shape, region.offset)
+
+    // 結果をImageDrawableとして作成
+    const dataURL = canvasToDataURL(offscreenCanvas)
+    const imageDrawable: ImageDrawable = {
+      id: generateId('drawable'),
+      createdAt: Date.now(),
+      type: 'image',
+      src: dataURL,
+      x: 0,
+      y: 0,
+      width: canvasSize.width,
+      height: canvasSize.height,
+      scaleX: 1,
+    }
+
+    // レイヤーのdrawablesを置き換え（既存のdrawablesを新しいImageDrawableで置換）
+    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+    // 選択を解除
+    selection.deselect()
+  }, [selection, canvas, canvasSize.width, canvasSize.height])
 
   /**
    * 選択領域をコピーするハンドラ
+   * レイヤーをオフスクリーンCanvasにレンダリング → 選択領域のImageDataを取得 → clipboardに保存
    */
-  const handleCopySelection = useCallback(() => {
-    const bounds = selection.getSelectionBounds()
-    if (bounds) {
-      // TODO: 実際にキャンバスから画像データを取得する処理を実装
-      // 現在はスタブ
-    }
-  }, [selection])
+  const handleCopySelection = useCallback(async () => {
+    const region = selection.state.region
+    if (!region) return
+
+    // 対象レイヤーを取得
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (!layer) return
+
+    // レイヤーをオフスクリーンCanvasにレンダリング
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(
+      layer,
+      canvasSize.width,
+      canvasSize.height
+    )
+    const ctx = offscreenCanvas.getContext('2d')!
+
+    // 選択領域からImageDataを取得（Lassoの場合はマスク適用）
+    const imageData = getMaskedImageDataFromSelection(ctx, region.shape, region.offset)
+    const bounds = getSelectionBounds(region.shape, region.offset)
+
+    // clipboardに保存
+    selection.copySelection(imageData, bounds)
+  }, [selection, canvas.layers, canvasSize.width, canvasSize.height])
 
   /**
    * 選択領域をカットするハンドラ
+   * コピー + 削除
    */
-  const handleCutSelection = useCallback(() => {
-    const bounds = selection.getSelectionBounds()
-    if (bounds) {
-      // TODO: 実際にキャンバスから画像データを取得して削除する処理を実装
-      // 現在はスタブ
+  const handleCutSelection = useCallback(async () => {
+    const region = selection.state.region
+    if (!region) return
+
+    // 対象レイヤーを取得
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (!layer) return
+
+    // レイヤーをオフスクリーンCanvasにレンダリング
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(
+      layer,
+      canvasSize.width,
+      canvasSize.height
+    )
+    const ctx = offscreenCanvas.getContext('2d')!
+
+    // 選択領域からImageDataを取得（Lassoの場合はマスク適用）
+    const imageData = getMaskedImageDataFromSelection(ctx, region.shape, region.offset)
+    const bounds = getSelectionBounds(region.shape, region.offset)
+
+    // 選択領域をクリア
+    clearSelectionRegion(ctx, region.shape, region.offset)
+
+    // 結果をImageDrawableとして作成
+    const dataURL = canvasToDataURL(offscreenCanvas)
+    const imageDrawable: ImageDrawable = {
+      id: generateId('drawable'),
+      createdAt: Date.now(),
+      type: 'image',
+      src: dataURL,
+      x: 0,
+      y: 0,
+      width: canvasSize.width,
+      height: canvasSize.height,
+      scaleX: 1,
     }
-  }, [selection])
+
+    // レイヤーのdrawablesを置き換え（既存のdrawablesを新しいImageDrawableで置換）
+    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+    // clipboardに保存してから選択解除
+    selection.cutSelection(imageData, bounds)
+  }, [selection, canvas, canvasSize.width, canvasSize.height])
 
   /**
    * ペーストするハンドラ
+   * clipboardのImageDataをImageDrawableとしてレイヤーに追加
    */
   const handlePasteSelection = useCallback(() => {
-    const clipboard = selection.pasteSelection(canvas.activeLayerId, {
+    const clipboard = selection.state.clipboard
+    if (!clipboard) return
+
+    // ImageDataをbase64データURLに変換
+    const dataURL = imageDataToDataURL(clipboard.imageData)
+
+    // 中央にペースト
+    const centerX = (canvasSize.width - clipboard.bounds.width) / 2
+    const centerY = (canvasSize.height - clipboard.bounds.height) / 2
+
+    // ImageDrawableとして追加
+    const imageDrawable: ImageDrawable = {
+      id: generateId('drawable'),
+      createdAt: Date.now(),
+      type: 'image',
+      src: dataURL,
+      x: centerX,
+      y: centerY,
+      width: clipboard.bounds.width,
+      height: clipboard.bounds.height,
+      scaleX: 1,
+    }
+    canvas.addDrawable(imageDrawable)
+
+    // 選択状態を更新（pasteSelectionは内部でregionを更新するが、ここでは描画のみ）
+    selection.pasteSelection(canvas.activeLayerId, {
       x: 0,
       y: 0,
       width: canvasSize.width,
       height: canvasSize.height,
     })
-    if (clipboard) {
-      // TODO: 実際にキャンバスに画像データを描画する処理を実装
-      // 現在はスタブ
+  }, [selection, canvas, canvasSize.width, canvasSize.height])
+
+  /**
+   * 選択領域を前景色で塗りつぶすハンドラ
+   */
+  const handleFillSelection = useCallback(async () => {
+    const region = selection.state.region
+    if (!region) return
+
+    // 対象レイヤーを取得
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (!layer) return
+
+    // 現在の前景色を取得
+    const color = tool.currentType === 'brush' ? tool.brushConfig.color : tool.penConfig.color
+
+    // レイヤーをオフスクリーンCanvasにレンダリング
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(
+      layer,
+      canvasSize.width,
+      canvasSize.height
+    )
+    const ctx = offscreenCanvas.getContext('2d')!
+
+    // 選択領域を塗りつぶし
+    fillSelectionRegion(ctx, region.shape, color, region.offset)
+
+    // 結果をImageDrawableとして作成
+    const dataURL = canvasToDataURL(offscreenCanvas)
+    const imageDrawable: ImageDrawable = {
+      id: generateId('drawable'),
+      createdAt: Date.now(),
+      type: 'image',
+      src: dataURL,
+      x: 0,
+      y: 0,
+      width: canvasSize.width,
+      height: canvasSize.height,
+      scaleX: 1,
     }
-  }, [selection, canvas.activeLayerId, canvasSize.width, canvasSize.height])
+
+    // レイヤーのdrawablesを置き換え（既存のdrawablesを新しいImageDrawableで置換）
+    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+    // 選択を解除
+    selection.deselect()
+  }, [
+    selection,
+    canvas,
+    tool.currentType,
+    tool.brushConfig.color,
+    tool.penConfig.color,
+    canvasSize.width,
+    canvasSize.height,
+  ])
 
   // キーボードショートカット
   useKeyboardShortcuts({
@@ -330,6 +508,7 @@ function App() {
     onCopySelection: handleCopySelection,
     onCutSelection: handleCutSelection,
     onPasteSelection: handlePasteSelection,
+    onFillSelection: handleFillSelection,
     onZoomIn: zoom.zoomIn,
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
@@ -372,6 +551,156 @@ function App() {
     },
     [selection, canvas.activeLayerId]
   )
+
+  /**
+   * 選択領域の移動を開始するハンドラ
+   * 最初の移動時にImageDataをキャッシュして品質劣化を防ぐ
+   * 2回目以降の移動時も現在位置から選択領域をクリアする
+   */
+  const handleStartMove = useCallback(
+    async (point: Point) => {
+      const region = selection.state.region
+      if (!region) return
+
+      // 対象レイヤーを取得
+      const layer = canvas.layers.find((l) => l.id === region.layerId)
+      if (!layer || layer.drawables.length === 0) {
+        selection.startMove(point)
+        return
+      }
+
+      // レイヤーをオフスクリーンCanvasにレンダリング
+      const offscreenCanvas = await renderLayerToOffscreenCanvas(
+        layer,
+        canvasSize.width,
+        canvasSize.height
+      )
+      const ctx = offscreenCanvas.getContext('2d')!
+
+      // すでにImageDataがキャッシュされている場合
+      if (region.imageData) {
+        // 現在の位置から選択領域をクリア（2回目以降の移動）
+        clearSelectionRegion(ctx, region.shape, { x: 0, y: 0 })
+
+        // クリア後のキャンバスをImageDrawableとして保存
+        const dataURL = canvasToDataURL(offscreenCanvas)
+        const imageDrawable: ImageDrawable = {
+          id: generateId('drawable'),
+          createdAt: Date.now(),
+          type: 'image',
+          src: dataURL,
+          x: 0,
+          y: 0,
+          width: canvasSize.width,
+          height: canvasSize.height,
+          scaleX: 1,
+        }
+        canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+        selection.startMove(point)
+        return
+      }
+
+      // 最初の移動：選択領域からImageDataを取得してキャッシュ
+      const imageData = getMaskedImageDataFromSelection(ctx, region.shape, { x: 0, y: 0 })
+      selection.setRegionImageData(imageData)
+
+      // オリジナルの位置から選択領域をクリア
+      clearSelectionRegion(ctx, region.shape, { x: 0, y: 0 })
+
+      // クリア後のキャンバスをImageDrawableとして保存
+      const dataURL = canvasToDataURL(offscreenCanvas)
+      const imageDrawable: ImageDrawable = {
+        id: generateId('drawable'),
+        createdAt: Date.now(),
+        type: 'image',
+        src: dataURL,
+        x: 0,
+        y: 0,
+        width: canvasSize.width,
+        height: canvasSize.height,
+        scaleX: 1,
+      }
+      canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+      // 移動開始
+      selection.startMove(point)
+    },
+    [selection, canvas, canvasSize.width, canvasSize.height]
+  )
+
+  /**
+   * 選択領域の移動を確定するハンドラ
+   * キャッシュされたImageDataを使用して新しい位置に描画
+   */
+  const handleCommitMove = useCallback(async () => {
+    const region = selection.state.region
+    if (!region) {
+      selection.commitMove()
+      return
+    }
+
+    // オフセットがない場合（移動していない場合）は何もしない
+    if (region.offset.x === 0 && region.offset.y === 0) {
+      selection.commitMove()
+      return
+    }
+
+    // キャッシュされたImageDataがない場合は何もしない（handleStartMoveでキャッシュされるはず）
+    if (!region.imageData) {
+      selection.commitMove()
+      return
+    }
+
+    // 対象レイヤーを取得
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (!layer || layer.drawables.length === 0) {
+      selection.commitMove()
+      return
+    }
+
+    // レイヤーをオフスクリーンCanvasにレンダリング（元の位置がクリアされた状態）
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(
+      layer,
+      canvasSize.width,
+      canvasSize.height
+    )
+    const ctx = offscreenCanvas.getContext('2d')!
+
+    // キャッシュされたImageDataを使用
+    const imageData = region.imageData
+    const bounds = getSelectionBounds(region.shape, { x: 0, y: 0 })
+
+    // キャッシュされたImageDataを一時Canvasに描画
+    const tempCanvas = document.createElement('canvas')
+    tempCanvas.width = bounds.width
+    tempCanvas.height = bounds.height
+    const tempCtx = tempCanvas.getContext('2d')!
+    tempCtx.putImageData(imageData, 0, 0)
+
+    // 移動先の位置に描画
+    ctx.drawImage(tempCanvas, bounds.x + region.offset.x, bounds.y + region.offset.y)
+
+    // 結果をImageDrawableとして作成
+    const dataURL = canvasToDataURL(offscreenCanvas)
+    const imageDrawable: ImageDrawable = {
+      id: generateId('drawable'),
+      createdAt: Date.now(),
+      type: 'image',
+      src: dataURL,
+      x: 0,
+      y: 0,
+      width: canvasSize.width,
+      height: canvasSize.height,
+      scaleX: 1,
+    }
+
+    // レイヤーのdrawablesを置き換え
+    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+    // 選択状態をコミット（shape座標が更新される）
+    selection.commitMove()
+  }, [selection, canvas, canvasSize.width, canvasSize.height])
 
   /**
    * 色変更ハンドラ（ペンとブラシの両方に適用）
@@ -674,9 +1003,9 @@ function App() {
                   onStartSelection={handleStartSelection}
                   onUpdateSelection={selection.updateSelection}
                   onCommitSelection={selection.commitSelection}
-                  onStartMove={selection.startMove}
+                  onStartMove={handleStartMove}
                   onUpdateMove={selection.updateMove}
-                  onCommitMove={selection.commitMove}
+                  onCommitMove={handleCommitMove}
                   isPointInRegion={selection.isPointInRegion}
                 />
               </div>

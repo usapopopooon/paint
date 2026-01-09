@@ -20,6 +20,7 @@ export type KeyboardShortcutsHandlers = {
   readonly onCopySelection?: () => void
   readonly onCutSelection?: () => void
   readonly onPasteSelection?: () => void
+  readonly onFillSelection?: () => void
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
@@ -57,6 +58,7 @@ export type KeyboardShortcutsHandlers = {
  * - Ctrl+C / Cmd+C: 選択領域をコピー
  * - Ctrl+X / Cmd+X: 選択領域をカット
  * - Ctrl+V / Cmd+V: ペースト
+ * - Alt+Backspace / Alt+Delete: 選択領域を塗りつぶし
  * @param handlers - ショートカットに対応するコールバック関数
  */
 export const useKeyboardShortcuts = ({
@@ -76,6 +78,7 @@ export const useKeyboardShortcuts = ({
   onCopySelection,
   onCutSelection,
   onPasteSelection,
+  onFillSelection,
   onZoomIn,
   onZoomOut,
   onZoomReset,
@@ -158,6 +161,12 @@ export const useKeyboardShortcuts = ({
       if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V') && onPasteSelection) {
         e.preventDefault()
         onPasteSelection()
+        return
+      }
+      // 選択領域を塗りつぶし (Alt + Backspace)
+      if (e.altKey && (e.key === 'Backspace' || e.key === 'Delete') && onFillSelection) {
+        e.preventDefault()
+        onFillSelection()
         return
       }
       // レイヤーを上に移動 (Alt + ])
@@ -253,6 +262,7 @@ export const useKeyboardShortcuts = ({
     onCopySelection,
     onCutSelection,
     onPasteSelection,
+    onFillSelection,
     onZoomIn,
     onZoomOut,
     onZoomReset,
