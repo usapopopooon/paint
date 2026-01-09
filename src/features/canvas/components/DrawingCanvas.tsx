@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { Application } from 'pixi.js'
-import 'pixi.js/advanced-blend-modes' // overlay, darken, lighten等の高度なブレンドモードに必要
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
-import { renderDrawables, renderLayers } from '../adapters'
+import { Renderer, type RendererEngine } from '../renderer'
 
 /**
  * DrawingCanvasコンポーネントのプロパティ
@@ -15,6 +13,7 @@ type DrawingCanvasProps = {
   readonly height?: number
   readonly fillContainer?: boolean
   readonly className?: string
+  readonly engine?: RendererEngine
 }
 
 /**
@@ -28,9 +27,10 @@ export const DrawingCanvas = ({
   height = 600,
   fillContainer = false,
   className,
+  engine = 'canvas',
 }: DrawingCanvasProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const appRef = useRef<Application | null>(null)
+  const rendererRef = useRef<Renderer | null>(null)
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
 
@@ -45,56 +45,50 @@ export const DrawingCanvas = ({
     return { width, height }
   }, [fillContainer, containerSize, width, height])
 
-  // PixiJS Applicationの初期化（一度だけ実行）
+  // Rendererの初期化（一度だけ実行）
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
     let isCancelled = false
-    const app = new Application()
-    appRef.current = app
+    const renderer = new Renderer(engine)
+    rendererRef.current = renderer
 
-    app
+    renderer
       .init({
         width: size.width,
         height: size.height,
-        backgroundAlpha: 0,
         antialias: true,
-        preserveDrawingBuffer: true, // スポイトツールでピクセルを読み取るために必要
-        // resolution: 1 に固定（PixiJSのバグ: advanced blend modesがresolution != 1で正しく動作しない）
-        // https://github.com/pixijs/pixijs/issues/11311
-        resolution: 1,
-        useBackBuffer: true, // overlay, darken, lighten等の高度なブレンドモードに必要
       })
       .then(() => {
         // クリーンアップが先に呼ばれた場合は何もしない
         if (isCancelled) {
-          app.destroy(true, { children: true })
+          renderer.dispose()
           return
         }
-        container.appendChild(app.canvas)
+        container.appendChild(renderer.getCanvas())
         setIsInitialized(true)
       })
 
     return () => {
       isCancelled = true
-      // 初期化完了後のみdestroyを呼ぶ
-      if (app.renderer) {
-        app.destroy(true, { children: true })
+      // 初期化完了後のみdisposeを呼ぶ
+      if (renderer.isInitialized) {
+        renderer.dispose()
       }
-      appRef.current = null
+      rendererRef.current = null
       setIsInitialized(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // 初期化は一度だけ
+  }, [engine]) // 初期化は一度だけ（engineが変わった場合は再初期化）
 
   // classNameの適用
   useEffect(() => {
-    const app = appRef.current
-    if (!app || !isInitialized) return
+    const renderer = rendererRef.current
+    if (!renderer || !isInitialized) return
 
     if (className) {
-      app.canvas.className = className
+      renderer.getCanvas().className = className
     }
   }, [className, isInitialized])
 
@@ -123,25 +117,25 @@ export const DrawingCanvas = ({
 
   // サイズ変更時のリサイズ
   useEffect(() => {
-    const app = appRef.current
-    if (!app || !isInitialized || !app.renderer) return
+    const renderer = rendererRef.current
+    if (!renderer || !isInitialized) return
 
-    app.renderer.resize(size.width, size.height)
+    renderer.resize(size.width, size.height)
   }, [size.width, size.height, isInitialized])
 
   // 描画要素のレンダリング
   useEffect(() => {
-    const app = appRef.current
-    if (!app || !isInitialized || !app.renderer) return
+    const renderer = rendererRef.current
+    if (!renderer || !isInitialized) return
 
     // layersがあればlayersを使用、なければdrawablesにフォールバック
     if (layers) {
-      void renderLayers(app, layers)
+      void renderer.renderLayers(layers)
     } else if (drawables) {
-      void renderDrawables(app, drawables)
+      void renderer.renderDrawables(drawables)
     } else {
       // コンテンツなし
-      app.stage.removeChildren()
+      renderer.clear()
     }
   }, [drawables, layers, isInitialized])
 

@@ -3,6 +3,7 @@ import { expect, fireEvent, fn, userEvent, waitFor, within } from 'storybook/tes
 import { LayerPanel } from './LayerPanel'
 import type { Layer } from '@/features/layer'
 import { BACKGROUND_LAYER_ID } from '@/features/layer'
+import { RendererProvider } from '@/features/canvas'
 
 const sampleLayers: readonly Layer[] = [
   {
@@ -409,11 +410,45 @@ export const WithBlendModes: Story = {
   },
 }
 
+const onBlendModeChangeCanvasFn = fn()
+/**
+ * Canvas 2Dエンジンでは警告ダイアログなしで直接ブレンドモードが変更される
+ */
+export const BlendModeChangeCanvas2D: Story = {
+  args: {
+    activeLayerId: 'layer-1',
+    onLayerBlendModeChange: onBlendModeChangeCanvasFn,
+  },
+  play: async ({ canvasElement }) => {
+    onBlendModeChangeCanvasFn.mockClear()
+    const canvas = within(canvasElement)
+    const body = within(document.body)
+
+    // 合成モードのセレクトボックスをクリック
+    const combobox = canvas.getByRole('combobox')
+    await userEvent.click(combobox)
+
+    // 乗算を選択
+    const multiplyOption = body.getByRole('option', { name: 'Multiply' })
+    await userEvent.click(multiplyOption)
+
+    // Canvas 2Dエンジンでは警告ダイアログが表示されず、直接コールバックが呼ばれる
+    await expect(onBlendModeChangeCanvasFn).toHaveBeenCalledWith('layer-1', 'multiply')
+  },
+}
+
 const onBlendModeChangeFn = fn()
 /**
- * 合成モード変更時に初回警告ダイアログが表示される
+ * 合成モード変更時に初回警告ダイアログが表示される（PixiJSエンジン時のみ）
  */
 export const BlendModeWarningDialog: Story = {
+  decorators: [
+    (Story) => (
+      <RendererProvider engineType="pixi">
+        <Story />
+      </RendererProvider>
+    ),
+  ],
   args: {
     activeLayerId: 'layer-1',
     onLayerBlendModeChange: onBlendModeChangeFn,
@@ -446,9 +481,16 @@ export const BlendModeWarningDialog: Story = {
 
 const onBlendModeChangeCancelFn = fn()
 /**
- * 合成モード警告ダイアログでキャンセルした場合は変更されない
+ * 合成モード警告ダイアログでキャンセルした場合は変更されない（PixiJSエンジン時のみ）
  */
 export const BlendModeWarningDialogCancel: Story = {
+  decorators: [
+    (Story) => (
+      <RendererProvider engineType="pixi">
+        <Story />
+      </RendererProvider>
+    ),
+  ],
   args: {
     activeLayerId: 'layer-1',
     onLayerBlendModeChange: onBlendModeChangeCancelFn,

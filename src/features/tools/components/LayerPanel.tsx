@@ -34,6 +34,7 @@ import {
 import { useTranslation } from '@/features/i18n'
 import type { Layer, LayerId, LayerBlendMode } from '@/features/layer'
 import { BACKGROUND_LAYER_ID, layerNameSchema, MAX_LAYER_NAME_LENGTH } from '@/features/layer'
+import { useIsPixiEngine } from '@/features/canvas'
 import { OpacityPopover } from './OpacityPopover'
 
 const renameFormSchema = z.object({
@@ -42,9 +43,19 @@ const renameFormSchema = z.object({
 
 type RenameFormData = z.infer<typeof renameFormSchema>
 
-// overlay, darken, lightenはPixiJSのバグで透明背景と誤って相互作用するため除外
+// Canvas 2Dでは全ブレンドモードが使用可能
+const ALL_BLEND_MODES: LayerBlendMode[] = [
+  'normal',
+  'multiply',
+  'screen',
+  'overlay',
+  'darken',
+  'lighten',
+]
+
+// PixiJSではoverlay, darken, lightenがバグで透明背景と誤って相互作用するため除外
 // @see https://github.com/pixijs/pixijs/issues/11206
-const BLEND_MODES: LayerBlendMode[] = ['normal', 'multiply', 'screen']
+const PIXI_BLEND_MODES: LayerBlendMode[] = ['normal', 'multiply', 'screen']
 
 type LayerPanelProps = {
   readonly layers: readonly Layer[]
@@ -74,6 +85,8 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerMove,
 }: LayerPanelProps) {
   const { t } = useTranslation()
+  const isPixiEngine = useIsPixiEngine()
+  const blendModes = isPixiEngine ? PIXI_BLEND_MODES : ALL_BLEND_MODES
   const [deleteTargetId, setDeleteTargetId] = useState<LayerId | null>(null)
   const [editingLayerId, setEditingLayerId] = useState<LayerId | null>(null)
   const [draggedLayerId, setDraggedLayerId] = useState<LayerId | null>(null)
@@ -218,7 +231,7 @@ export const LayerPanel = memo(function LayerPanel({
     setDragOverLayerId(null)
   }, [])
 
-  // 合成モード変更ハンドラ（初回のみ警告ダイアログを表示）
+  // 合成モード変更ハンドラ（PixiJSの場合のみ初回警告ダイアログを表示）
   const handleBlendModeChange = useCallback(
     (value: LayerBlendMode) => {
       // normalへの変更は警告不要
@@ -227,16 +240,22 @@ export const LayerPanel = memo(function LayerPanel({
         return
       }
 
-      // 警告が既に表示済みの場合はそのまま適用
+      // Canvas 2Dエンジンの場合は警告不要
+      if (!isPixiEngine) {
+        onLayerBlendModeChange(activeLayerId, value)
+        return
+      }
+
+      // PixiJS: 警告が既に表示済みの場合はそのまま適用
       if (blendModeWarningShown) {
         onLayerBlendModeChange(activeLayerId, value)
         return
       }
 
-      // 初回はダイアログを表示
+      // PixiJS: 初回はダイアログを表示
       setPendingBlendMode(value)
     },
-    [activeLayerId, blendModeWarningShown, onLayerBlendModeChange]
+    [activeLayerId, blendModeWarningShown, isPixiEngine, onLayerBlendModeChange]
   )
 
   const handleBlendModeWarningConfirm = useCallback(() => {
@@ -278,7 +297,7 @@ export const LayerPanel = memo(function LayerPanel({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {BLEND_MODES.map((mode) => (
+              {blendModes.map((mode) => (
                 <SelectItem key={mode} value={mode} className="text-xs">
                   {getBlendModeLabel(mode)}
                 </SelectItem>
