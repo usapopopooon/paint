@@ -2,8 +2,8 @@ import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, within, waitFor } from 'storybook/test'
 import { toast } from 'sonner'
-import { Toaster } from './sonner'
-import { Button } from './button'
+import { Toaster } from '@/components/ui/sonner'
+import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from './alert-dialog'
+} from '@/components/ui/alert-dialog'
 
 /**
  * ReloadPromptは、PWAの新しいバージョンが利用可能な場合に
@@ -24,7 +24,7 @@ import {
  * 保存していないデータが失われる可能性があることを警告します。
  */
 const meta = {
-  title: 'UI/ReloadPrompt',
+  title: 'Features/PWA/ReloadPrompt',
   parameters: {
     layout: 'fullscreen',
   },

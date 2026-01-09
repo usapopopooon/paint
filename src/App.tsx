@@ -47,7 +47,7 @@ import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/e
 import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
-import { ReloadPrompt } from './components/ui/ReloadPrompt'
+import { ReloadPrompt } from './features/pwa'
 import {
   useSelection,
   SelectionToolButton,
