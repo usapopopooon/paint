@@ -14,6 +14,7 @@ import {
   OpenProjectButton,
   SaveProjectDialog,
   LoadProjectErrorDialog,
+  ConfirmLoadProjectDialog,
   saveProject,
   loadProject,
 } from './features/project'
@@ -182,25 +183,39 @@ function App() {
   const [projectName, setProjectName] = useState<string | null>(null)
   const [saveDialogOpen, setSaveDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<LoadProjectError | null>(null)
+  const [confirmLoadDialogOpen, setConfirmLoadDialogOpen] = useState(false)
 
   // プロジェクト名が変わったらブラウザタイトルを更新
   useEffect(() => {
     document.title = projectName ? `${projectName} - Paint` : 'untitled - Paint'
   }, [projectName])
 
+  // canvas.canUndoをrefで保持（useCallbackの依存配列問題を回避）
+  const canUndoRef = useRef(canvas.canUndo)
+  useEffect(() => {
+    canUndoRef.current = canvas.canUndo
+  }, [canvas.canUndo])
+
+  /**
+   * プロジェクトを開くボタンのハンドラ
+   * 未保存の編集がある場合は確認ダイアログを表示してからファイル選択
+   */
   const handleOpenProjectFilePicker = useCallback(() => {
+    if (canUndoRef.current) {
+      setConfirmLoadDialogOpen(true)
+      return
+    }
     projectInputRef.current?.click()
   }, [])
 
-  const handleProjectFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0]
-      if (!file) return
-
+  /**
+   * プロジェクトファイルを実際に読み込む処理
+   */
+  const loadProjectFile = useCallback(
+    async (file: File) => {
       const result = await loadProject(file)
       if (!result.success) {
         setLoadError(result.error)
-        e.target.value = ''
         return
       }
 
@@ -211,12 +226,30 @@ function App() {
       canvasSize.setSizeDirectly(project.canvasWidth, project.canvasHeight)
       setProjectName(project.name)
       toast.success(t('project.loaded'))
-
-      // inputをリセット
-      e.target.value = ''
     },
     [canvas, canvasSize, t]
   )
+
+  const handleProjectFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      // inputをリセット（同じファイルを再選択可能にする）
+      e.target.value = ''
+
+      await loadProjectFile(file)
+    },
+    [loadProjectFile]
+  )
+
+  /**
+   * 確認ダイアログでOKを押した時の処理（ファイル選択ダイアログを開く）
+   */
+  const handleConfirmLoad = useCallback(() => {
+    setConfirmLoadDialogOpen(false)
+    projectInputRef.current?.click()
+  }, [])
 
   const handleSaveProject = useCallback(() => {
     setSaveDialogOpen(true)
@@ -1011,6 +1044,11 @@ function App() {
         open={loadError !== null}
         onOpenChange={(open) => !open && setLoadError(null)}
         error={loadError}
+      />
+      <ConfirmLoadProjectDialog
+        open={confirmLoadDialogOpen}
+        onOpenChange={setConfirmLoadDialogOpen}
+        onConfirm={handleConfirmLoad}
       />
     </div>
   )

@@ -132,6 +132,11 @@
       "unsupportedVersion": "This project file was created with a newer version",
       "parseError": "Failed to read project file"
     },
+    "confirmLoad": {
+      "title": "Discard Changes",
+      "description": "You have unsaved changes. Loading a project will discard your current work. Continue?",
+      "confirm": "Load"
+    },
     "loaded": "Project loaded"
   },
   "import": {
