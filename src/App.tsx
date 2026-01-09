@@ -253,6 +253,65 @@ function App() {
     selection.setToolType('select-lasso')
   }, [tool, selection])
 
+  /**
+   * すべて選択するハンドラ
+   */
+  const handleSelectAll = useCallback(() => {
+    selection.selectAll(
+      { x: 0, y: 0, width: canvasSize.width, height: canvasSize.height },
+      canvas.activeLayerId
+    )
+  }, [selection, canvasSize.width, canvasSize.height, canvas.activeLayerId])
+
+  /**
+   * 選択領域を削除するハンドラ
+   */
+  const handleDeleteSelection = useCallback(() => {
+    const region = selection.deleteSelection()
+    if (region) {
+      // TODO: 実際にキャンバスから選択領域を削除する処理を実装
+      // 現在は選択状態を解除するのみ
+    }
+  }, [selection])
+
+  /**
+   * 選択領域をコピーするハンドラ
+   */
+  const handleCopySelection = useCallback(() => {
+    const bounds = selection.getSelectionBounds()
+    if (bounds) {
+      // TODO: 実際にキャンバスから画像データを取得する処理を実装
+      // 現在はスタブ
+    }
+  }, [selection])
+
+  /**
+   * 選択領域をカットするハンドラ
+   */
+  const handleCutSelection = useCallback(() => {
+    const bounds = selection.getSelectionBounds()
+    if (bounds) {
+      // TODO: 実際にキャンバスから画像データを取得して削除する処理を実装
+      // 現在はスタブ
+    }
+  }, [selection])
+
+  /**
+   * ペーストするハンドラ
+   */
+  const handlePasteSelection = useCallback(() => {
+    const clipboard = selection.pasteSelection(canvas.activeLayerId, {
+      x: 0,
+      y: 0,
+      width: canvasSize.width,
+      height: canvasSize.height,
+    })
+    if (clipboard) {
+      // TODO: 実際にキャンバスに画像データを描画する処理を実装
+      // 現在はスタブ
+    }
+  }, [selection, canvas.activeLayerId, canvasSize.width, canvasSize.height])
+
   // キーボードショートカット
   useKeyboardShortcuts({
     onUndo: canvas.undo,
@@ -265,7 +324,12 @@ function App() {
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
     onSelectRectangle: handleSelectRectangle,
     onSelectLasso: handleSelectLasso,
+    onSelectAll: handleSelectAll,
     onDeselect: selection.deselect,
+    onDeleteSelection: handleDeleteSelection,
+    onCopySelection: handleCopySelection,
+    onCutSelection: handleCutSelection,
+    onPasteSelection: handlePasteSelection,
     onZoomIn: zoom.zoomIn,
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
@@ -606,9 +670,14 @@ function App() {
                   selectionPoints={selection.selectionPoints}
                   selectionToolType={selection.state.toolConfig.type}
                   isSelecting={selection.state.phase === 'selecting'}
+                  isMoving={selection.state.phase === 'moving'}
                   onStartSelection={handleStartSelection}
                   onUpdateSelection={selection.updateSelection}
                   onCommitSelection={selection.commitSelection}
+                  onStartMove={selection.startMove}
+                  onUpdateMove={selection.updateMove}
+                  onCommitMove={selection.commitMove}
+                  isPointInRegion={selection.isPointInRegion}
                 />
               </div>
             )}

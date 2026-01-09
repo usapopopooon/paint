@@ -14,7 +14,12 @@ export type KeyboardShortcutsHandlers = {
   readonly onSelectEyedropper: () => void
   readonly onSelectRectangle?: () => void
   readonly onSelectLasso?: () => void
+  readonly onSelectAll?: () => void
   readonly onDeselect?: () => void
+  readonly onDeleteSelection?: () => void
+  readonly onCopySelection?: () => void
+  readonly onCutSelection?: () => void
+  readonly onPasteSelection?: () => void
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
@@ -46,6 +51,12 @@ export type KeyboardShortcutsHandlers = {
  * - M: 矩形選択ツール選択
  * - L: 自由選択ツール選択
  * - Escape: 選択解除
+ * - Delete/Backspace: 選択領域を削除
+ * - Ctrl+A / Cmd+A: すべて選択
+ * - Ctrl+D / Cmd+D: 選択解除
+ * - Ctrl+C / Cmd+C: 選択領域をコピー
+ * - Ctrl+X / Cmd+X: 選択領域をカット
+ * - Ctrl+V / Cmd+V: ペースト
  * @param handlers - ショートカットに対応するコールバック関数
  */
 export const useKeyboardShortcuts = ({
@@ -59,7 +70,12 @@ export const useKeyboardShortcuts = ({
   onSelectEyedropper,
   onSelectRectangle,
   onSelectLasso,
+  onSelectAll,
   onDeselect,
+  onDeleteSelection,
+  onCopySelection,
+  onCutSelection,
+  onPasteSelection,
   onZoomIn,
   onZoomOut,
   onZoomReset,
@@ -112,6 +128,36 @@ export const useKeyboardShortcuts = ({
       if ((e.ctrlKey || e.metaKey) && (e.key === 'h' || e.key === 'H')) {
         e.preventDefault()
         onFlipHorizontal()
+        return
+      }
+      // すべて選択 (Ctrl/Cmd + A)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A') && onSelectAll) {
+        e.preventDefault()
+        onSelectAll()
+        return
+      }
+      // 選択解除 (Ctrl/Cmd + D)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D') && onDeselect) {
+        e.preventDefault()
+        onDeselect()
+        return
+      }
+      // コピー (Ctrl/Cmd + C)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C') && onCopySelection) {
+        e.preventDefault()
+        onCopySelection()
+        return
+      }
+      // カット (Ctrl/Cmd + X)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'x' || e.key === 'X') && onCutSelection) {
+        e.preventDefault()
+        onCutSelection()
+        return
+      }
+      // ペースト (Ctrl/Cmd + V)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'V') && onPasteSelection) {
+        e.preventDefault()
+        onPasteSelection()
         return
       }
       // レイヤーを上に移動 (Alt + ])
@@ -168,6 +214,12 @@ export const useKeyboardShortcuts = ({
           onDeselect()
           return
         }
+        // 選択領域を削除 (Delete/Backspace)
+        if ((e.key === 'Delete' || e.key === 'Backspace') && onDeleteSelection) {
+          e.preventDefault()
+          onDeleteSelection()
+          return
+        }
         // ツールサイズ変更 (] で大きく、[ で小さく)
         if (e.key === ']') {
           e.preventDefault()
@@ -195,7 +247,12 @@ export const useKeyboardShortcuts = ({
     onSelectEyedropper,
     onSelectRectangle,
     onSelectLasso,
+    onSelectAll,
     onDeselect,
+    onDeleteSelection,
+    onCopySelection,
+    onCutSelection,
+    onPasteSelection,
     onZoomIn,
     onZoomOut,
     onZoomReset,

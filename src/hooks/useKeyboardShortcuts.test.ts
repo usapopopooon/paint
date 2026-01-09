@@ -439,6 +439,501 @@ describe('useKeyboardShortcuts', () => {
     })
   })
 
+  describe('選択ツール (M / L)', () => {
+    test('Mキーで矩形選択ツール選択', () => {
+      const handlersWithSelection = {
+        ...mockHandlers,
+        onSelectRectangle: vi.fn(),
+        onSelectLasso: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelection))
+
+      dispatchKeyDown('m')
+
+      expect(handlersWithSelection.onSelectRectangle).toHaveBeenCalledTimes(1)
+      expect(handlersWithSelection.onSelectLasso).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Mでも矩形選択ツール選択', () => {
+      const handlersWithSelection = {
+        ...mockHandlers,
+        onSelectRectangle: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelection))
+
+      dispatchKeyDown('M')
+
+      expect(handlersWithSelection.onSelectRectangle).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onSelectRectangleがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('m')
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('Lキーで自由選択ツール選択', () => {
+      const handlersWithSelection = {
+        ...mockHandlers,
+        onSelectRectangle: vi.fn(),
+        onSelectLasso: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelection))
+
+      dispatchKeyDown('l')
+
+      expect(handlersWithSelection.onSelectLasso).toHaveBeenCalledTimes(1)
+      expect(handlersWithSelection.onSelectRectangle).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Lでも自由選択ツール選択', () => {
+      const handlersWithSelection = {
+        ...mockHandlers,
+        onSelectLasso: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelection))
+
+      dispatchKeyDown('L')
+
+      expect(handlersWithSelection.onSelectLasso).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onSelectLassoがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('l')
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('Ctrl+Mは矩形選択ツール選択しない', () => {
+      const handlersWithSelection = {
+        ...mockHandlers,
+        onSelectRectangle: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelection))
+
+      dispatchKeyDown('m', { ctrlKey: true })
+
+      expect(handlersWithSelection.onSelectRectangle).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Ctrl+Lは自由選択ツール選択しない', () => {
+      const handlersWithSelection = {
+        ...mockHandlers,
+        onSelectLasso: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelection))
+
+      dispatchKeyDown('l', { ctrlKey: true })
+
+      expect(handlersWithSelection.onSelectLasso).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('すべて選択 (Ctrl+A / Cmd+A)', () => {
+    test('Ctrl+Aですべて選択', () => {
+      const handlersWithSelectAll = {
+        ...mockHandlers,
+        onSelectAll: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelectAll))
+
+      dispatchKeyDown('a', { ctrlKey: true })
+
+      expect(handlersWithSelectAll.onSelectAll).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+A (Mac)ですべて選択', () => {
+      const handlersWithSelectAll = {
+        ...mockHandlers,
+        onSelectAll: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelectAll))
+
+      dispatchKeyDown('a', { metaKey: true })
+
+      expect(handlersWithSelectAll.onSelectAll).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Aでもすべて選択', () => {
+      const handlersWithSelectAll = {
+        ...mockHandlers,
+        onSelectAll: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelectAll))
+
+      dispatchKeyDown('A', { ctrlKey: true })
+
+      expect(handlersWithSelectAll.onSelectAll).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onSelectAllがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('a', { ctrlKey: true })
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('修飾キーなしのAは無視', () => {
+      const handlersWithSelectAll = {
+        ...mockHandlers,
+        onSelectAll: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithSelectAll))
+
+      dispatchKeyDown('a')
+
+      expect(handlersWithSelectAll.onSelectAll).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('選択解除 (Escape / Ctrl+D / Cmd+D)', () => {
+    test('Escapeで選択解除', () => {
+      const handlersWithDeselect = {
+        ...mockHandlers,
+        onDeselect: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDeselect))
+
+      dispatchKeyDown('Escape')
+
+      expect(handlersWithDeselect.onDeselect).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Ctrl+Dで選択解除', () => {
+      const handlersWithDeselect = {
+        ...mockHandlers,
+        onDeselect: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDeselect))
+
+      dispatchKeyDown('d', { ctrlKey: true })
+
+      expect(handlersWithDeselect.onDeselect).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+D (Mac)で選択解除', () => {
+      const handlersWithDeselect = {
+        ...mockHandlers,
+        onDeselect: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDeselect))
+
+      dispatchKeyDown('d', { metaKey: true })
+
+      expect(handlersWithDeselect.onDeselect).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Dでも選択解除', () => {
+      const handlersWithDeselect = {
+        ...mockHandlers,
+        onDeselect: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDeselect))
+
+      dispatchKeyDown('D', { ctrlKey: true })
+
+      expect(handlersWithDeselect.onDeselect).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onDeselectがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Escape')
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('Ctrl+Escapeは選択解除しない', () => {
+      const handlersWithDeselect = {
+        ...mockHandlers,
+        onDeselect: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDeselect))
+
+      dispatchKeyDown('Escape', { ctrlKey: true })
+
+      expect(handlersWithDeselect.onDeselect).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('修飾キーなしのDは無視', () => {
+      const handlersWithDeselect = {
+        ...mockHandlers,
+        onDeselect: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDeselect))
+
+      dispatchKeyDown('d')
+
+      expect(handlersWithDeselect.onDeselect).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('選択領域の削除 (Delete / Backspace)', () => {
+    test('Deleteで選択領域を削除', () => {
+      const handlersWithDelete = {
+        ...mockHandlers,
+        onDeleteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDelete))
+
+      dispatchKeyDown('Delete')
+
+      expect(handlersWithDelete.onDeleteSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Backspaceで選択領域を削除', () => {
+      const handlersWithDelete = {
+        ...mockHandlers,
+        onDeleteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDelete))
+
+      dispatchKeyDown('Backspace')
+
+      expect(handlersWithDelete.onDeleteSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onDeleteSelectionがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Delete')
+
+      // エラーが発生しないことを確認（onClearも呼ばれない）
+      expect(mockHandlers.onClear).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('Ctrl+Deleteはレイヤークリア（選択削除ではない）', () => {
+      const handlersWithDelete = {
+        ...mockHandlers,
+        onDeleteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithDelete))
+
+      dispatchKeyDown('Delete', { ctrlKey: true })
+
+      expect(handlersWithDelete.onDeleteSelection).not.toHaveBeenCalled()
+      expect(mockHandlers.onClear).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+  })
+
+  describe('コピー (Ctrl+C / Cmd+C)', () => {
+    test('Ctrl+Cでコピー', () => {
+      const handlersWithCopy = {
+        ...mockHandlers,
+        onCopySelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCopy))
+
+      dispatchKeyDown('c', { ctrlKey: true })
+
+      expect(handlersWithCopy.onCopySelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+C (Mac)でコピー', () => {
+      const handlersWithCopy = {
+        ...mockHandlers,
+        onCopySelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCopy))
+
+      dispatchKeyDown('c', { metaKey: true })
+
+      expect(handlersWithCopy.onCopySelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Cでもコピー', () => {
+      const handlersWithCopy = {
+        ...mockHandlers,
+        onCopySelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCopy))
+
+      dispatchKeyDown('C', { ctrlKey: true })
+
+      expect(handlersWithCopy.onCopySelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onCopySelectionがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('c', { ctrlKey: true })
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('修飾キーなしのCは無視', () => {
+      const handlersWithCopy = {
+        ...mockHandlers,
+        onCopySelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCopy))
+
+      dispatchKeyDown('c')
+
+      expect(handlersWithCopy.onCopySelection).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('カット (Ctrl+X / Cmd+X)', () => {
+    test('Ctrl+Xでカット', () => {
+      const handlersWithCut = {
+        ...mockHandlers,
+        onCutSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCut))
+
+      dispatchKeyDown('x', { ctrlKey: true })
+
+      expect(handlersWithCut.onCutSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+X (Mac)でカット', () => {
+      const handlersWithCut = {
+        ...mockHandlers,
+        onCutSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCut))
+
+      dispatchKeyDown('x', { metaKey: true })
+
+      expect(handlersWithCut.onCutSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Xでもカット', () => {
+      const handlersWithCut = {
+        ...mockHandlers,
+        onCutSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCut))
+
+      dispatchKeyDown('X', { ctrlKey: true })
+
+      expect(handlersWithCut.onCutSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onCutSelectionがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('x', { ctrlKey: true })
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('修飾キーなしのXは無視', () => {
+      const handlersWithCut = {
+        ...mockHandlers,
+        onCutSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithCut))
+
+      dispatchKeyDown('x')
+
+      expect(handlersWithCut.onCutSelection).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
+  describe('ペースト (Ctrl+V / Cmd+V)', () => {
+    test('Ctrl+Vでペースト', () => {
+      const handlersWithPaste = {
+        ...mockHandlers,
+        onPasteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithPaste))
+
+      dispatchKeyDown('v', { ctrlKey: true })
+
+      expect(handlersWithPaste.onPasteSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Cmd+V (Mac)でペースト', () => {
+      const handlersWithPaste = {
+        ...mockHandlers,
+        onPasteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithPaste))
+
+      dispatchKeyDown('v', { metaKey: true })
+
+      expect(handlersWithPaste.onPasteSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Vでもペースト', () => {
+      const handlersWithPaste = {
+        ...mockHandlers,
+        onPasteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithPaste))
+
+      dispatchKeyDown('V', { ctrlKey: true })
+
+      expect(handlersWithPaste.onPasteSelection).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('onPasteSelectionがundefinedの場合は何もしない', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('v', { ctrlKey: true })
+
+      // エラーが発生しないことを確認
+      unmount()
+    })
+
+    test('修飾キーなしのVは無視', () => {
+      const handlersWithPaste = {
+        ...mockHandlers,
+        onPasteSelection: vi.fn(),
+      }
+      const { unmount } = renderHook(() => useKeyboardShortcuts(handlersWithPaste))
+
+      dispatchKeyDown('v')
+
+      expect(handlersWithPaste.onPasteSelection).not.toHaveBeenCalled()
+      unmount()
+    })
+  })
+
   describe('クリーンアップ', () => {
     test('アンマウント時にイベントリスナーを削除', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))

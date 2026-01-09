@@ -47,12 +47,22 @@ type CanvasProps = {
   readonly selectionToolType?: SelectionToolType
   /** 選択中かどうか */
   readonly isSelecting?: boolean
+  /** 移動中かどうか */
+  readonly isMoving?: boolean
   /** 選択開始コールバック */
   readonly onStartSelection?: (point: Point) => void
   /** 選択更新コールバック */
   readonly onUpdateSelection?: (point: Point) => void
   /** 選択確定コールバック */
   readonly onCommitSelection?: () => void
+  /** 移動開始コールバック */
+  readonly onStartMove?: (point: Point) => void
+  /** 移動更新コールバック */
+  readonly onUpdateMove?: (point: Point) => void
+  /** 移動確定コールバック */
+  readonly onCommitMove?: () => void
+  /** 点が選択領域内かどうか判定 */
+  readonly isPointInRegion?: (point: Point) => boolean
 }
 
 /**
@@ -80,9 +90,14 @@ export const Canvas = ({
   selectionPoints = [],
   selectionToolType = 'select-rectangle',
   isSelecting = false,
+  isMoving = false,
   onStartSelection,
   onUpdateSelection,
   onCommitSelection,
+  onStartMove,
+  onUpdateMove,
+  onCommitMove,
+  isPointInRegion,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
@@ -201,6 +216,9 @@ export const Canvas = ({
     }
   }, [isHandTool, onPan])
 
+  // 移動中かどうかを追跡するref
+  const isMovingRef = useRef(false)
+
   // 選択ツール時のポインターイベント処理
   useEffect(() => {
     if (!isSelectionTool) return
@@ -225,13 +243,27 @@ export const Canvas = ({
       container.setPointerCapture(e.pointerId)
 
       const point = getCanvasPoint(e)
-      onStartSelection?.(point)
+
+      // 選択領域内をクリックした場合は移動開始
+      if (selectionRegion && isPointInRegion?.(point)) {
+        isMovingRef.current = true
+        onStartMove?.(point)
+      } else {
+        // 選択領域外をクリックした場合は新規選択開始
+        isMovingRef.current = false
+        onStartSelection?.(point)
+      }
     }
 
     const handlePointerMove = (e: PointerEvent) => {
       if (!isDraggingRef.current) return
       const point = getCanvasPoint(e)
-      onUpdateSelection?.(point)
+
+      if (isMovingRef.current) {
+        onUpdateMove?.(point)
+      } else {
+        onUpdateSelection?.(point)
+      }
     }
 
     const handlePointerUp = (e: PointerEvent) => {
@@ -239,7 +271,13 @@ export const Canvas = ({
       isDraggingRef.current = false
       setIsDragging(false)
       container.releasePointerCapture(e.pointerId)
-      onCommitSelection?.()
+
+      if (isMovingRef.current) {
+        onCommitMove?.()
+        isMovingRef.current = false
+      } else {
+        onCommitSelection?.()
+      }
     }
 
     container.addEventListener('pointerdown', handlePointerDown)
@@ -253,7 +291,18 @@ export const Canvas = ({
       container.removeEventListener('pointerup', handlePointerUp)
       container.removeEventListener('pointercancel', handlePointerUp)
     }
-  }, [isSelectionTool, zoom, onStartSelection, onUpdateSelection, onCommitSelection])
+  }, [
+    isSelectionTool,
+    zoom,
+    selectionRegion,
+    isPointInRegion,
+    onStartSelection,
+    onUpdateSelection,
+    onCommitSelection,
+    onStartMove,
+    onUpdateMove,
+    onCommitMove,
+  ])
 
   // ツールに応じたカーソルスタイルを計算（描画ツール以外）
   const cursorStyle = useMemo(() => {
@@ -270,10 +319,22 @@ export const Canvas = ({
       return 'zoom-out'
     }
     if (isSelectionTool) {
+      // 移動中はmoveカーソル
+      if (isMoving) {
+        return 'move'
+      }
       return 'crosshair'
     }
     return undefined // 描画ツールはPointerInputLayerがカーソルを制御
-  }, [isHandTool, isEyedropperTool, isZoomInTool, isZoomOutTool, isSelectionTool, isDragging])
+  }, [
+    isHandTool,
+    isEyedropperTool,
+    isZoomInTool,
+    isZoomOutTool,
+    isSelectionTool,
+    isDragging,
+    isMoving,
+  ])
 
   // クリックハンドラを統合
   const handleClick = useCallback(
