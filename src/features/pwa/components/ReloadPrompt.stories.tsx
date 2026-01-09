@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, userEvent, within, waitFor } from 'storybook/test'
+import { expect, userEvent, within, waitFor, screen } from 'storybook/test'
 import { Toaster, showActionToast } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -112,17 +112,18 @@ export const ConfirmDialogPreview: Story = {
     const triggerButton = canvas.getByRole('button', { name: 'ダイアログを開く' })
     await userEvent.click(triggerButton)
 
+    // AlertDialogはポータルでbody直下にレンダリングされるため、screenを使用
     await waitFor(() => {
-      expect(canvas.getByText('アプリを更新しますか？')).toBeInTheDocument()
+      expect(screen.getByText('アプリを更新しますか？')).toBeInTheDocument()
     })
 
     expect(
-      canvas.getByText(
+      screen.getByText(
         '保存していない作業内容は失われます。更新する前にプロジェクトを保存してください。'
       )
     ).toBeInTheDocument()
-    expect(canvas.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument()
-    expect(canvas.getByRole('button', { name: '更新する' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '更新する' })).toBeInTheDocument()
   },
 }
 
@@ -176,8 +177,8 @@ export const DialogCancelInteraction: Story = {
       expect(canvas.getByText('ダイアログ状態: 開いている')).toBeInTheDocument()
     })
 
-    // キャンセルボタンをクリック
-    const cancelButton = canvas.getByRole('button', { name: 'キャンセル' })
+    // AlertDialogはポータルでbody直下にレンダリングされるため、screenを使用
+    const cancelButton = screen.getByRole('button', { name: 'キャンセル' })
     await userEvent.click(cancelButton)
 
     // ダイアログが閉じたことを確認
