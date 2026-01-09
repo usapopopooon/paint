@@ -110,10 +110,22 @@
     "title": "手ぶれ補正"
   },
   "toolbar": {
-    "save": "画像を保存 (JPG)",
+    "save": "画像を保存",
     "import": "画像を読み込む",
     "saveProject": "プロジェクトを保存",
     "openProject": "プロジェクトを開く"
+  },
+  "export": {
+    "saveDialog": {
+      "title": "画像を保存",
+      "description": "保存するファイル名と形式を選択してください",
+      "fileName": "ファイル名",
+      "format": "形式",
+      "save": "保存",
+      "fileNameRequired": "ファイル名を入力してください",
+      "fileNameTooLong": "ファイル名は%{max}文字以内で入力してください",
+      "invalidCharacters": "ファイル名に使用できない文字が含まれています"
+    }
   },
   "project": {
     "saveDialog": {

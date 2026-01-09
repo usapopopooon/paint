@@ -1,5 +1,6 @@
 import { useCallback, type RefObject } from 'react'
 import { JPEG_QUALITY } from '../constants'
+import type { ImageFormat } from '../components/SaveImageDialog'
 
 /**
  * 次のアニメーションフレームまで待機
@@ -13,18 +14,27 @@ const waitForNextFrame = (): Promise<void> =>
  */
 export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
   /**
-   * キャンバスをJPGとしてダウンロード
-   * 背景レイヤーを一時的に表示してエクスポートする
+   * キャンバスを指定フォーマットでダウンロード
+   * JPGの場合は背景レイヤーを表示、PNGの場合は透過でエクスポート
+   * @param fileName - ファイル名（拡張子なし）
+   * @param format - 画像フォーマット（jpg または png）
    * @param showBackgroundLayer - 背景レイヤーを表示する関数
    * @param hideBackgroundLayer - 背景レイヤーを非表示にする関数
    */
-  const downloadAsJpg = useCallback(
-    async (showBackgroundLayer: () => void, hideBackgroundLayer: () => void) => {
+  const downloadImage = useCallback(
+    async (
+      fileName: string,
+      format: ImageFormat,
+      showBackgroundLayer: () => void,
+      hideBackgroundLayer: () => void
+    ) => {
       const container = containerRef.current
       if (!container) return
 
-      // 背景レイヤーを表示
-      showBackgroundLayer()
+      // JPGの場合のみ背景レイヤーを表示（PNGは透過のまま）
+      if (format === 'jpg') {
+        showBackgroundLayer()
+      }
 
       // PixiJSがレンダリングするのを待つ（2フレーム待機で確実にレンダリング完了）
       await waitForNextFrame()
@@ -33,7 +43,9 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
       // コンテナ内のキャンバス要素を取得
       const canvas = container.querySelector('canvas') as HTMLCanvasElement | null
       if (!canvas) {
-        hideBackgroundLayer()
+        if (format === 'jpg') {
+          hideBackgroundLayer()
+        }
         return
       }
 
@@ -46,7 +58,9 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
       fullSizeCanvas.height = height
       const fullSizeCtx = fullSizeCanvas.getContext('2d')
       if (!fullSizeCtx) {
-        hideBackgroundLayer()
+        if (format === 'jpg') {
+          hideBackgroundLayer()
+        }
         return
       }
 
@@ -62,7 +76,6 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
         const data = imageData.data
 
         // WebGLは左下が原点なので上下反転しながらコピー
-        // 背景レイヤーが表示されているため、アルファブレンディング不要
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < width; x++) {
             const srcIdx = ((height - 1 - y) * width + x) * 4
@@ -71,7 +84,8 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
             data[dstIdx] = pixels[srcIdx]
             data[dstIdx + 1] = pixels[srcIdx + 1]
             data[dstIdx + 2] = pixels[srcIdx + 2]
-            data[dstIdx + 3] = 255 // JPGは完全不透明
+            // JPGは完全不透明、PNGは元のアルファ値を保持（透過PNG対応）
+            data[dstIdx + 3] = format === 'jpg' ? 255 : pixels[srcIdx + 3]
           }
         }
 
@@ -81,13 +95,16 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
         fullSizeCtx.drawImage(canvas, 0, 0)
       }
 
-      // 背景レイヤーを非表示に戻す
-      hideBackgroundLayer()
+      // JPGの場合のみ背景レイヤーを非表示に戻す
+      if (format === 'jpg') {
+        hideBackgroundLayer()
+      }
 
-      // JPGに変換してダウンロード
-      const dataUrl = fullSizeCanvas.toDataURL('image/jpeg', JPEG_QUALITY)
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
-      const filename = `paint_${timestamp}.jpg`
+      // 指定フォーマットに変換してダウンロード
+      const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png'
+      const quality = format === 'jpg' ? JPEG_QUALITY : undefined
+      const dataUrl = fullSizeCanvas.toDataURL(mimeType, quality)
+      const filename = `${fileName}.${format}`
 
       const link = document.createElement('a')
       link.download = filename
@@ -97,7 +114,21 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
     [containerRef]
   )
 
+  /**
+   * キャンバスをJPGとしてダウンロード（後方互換性のため残す）
+   * @deprecated downloadImageを使用してください
+   */
+  const downloadAsJpg = useCallback(
+    async (showBackgroundLayer: () => void, hideBackgroundLayer: () => void) => {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+      const fileName = `paint_${timestamp}`
+      await downloadImage(fileName, 'jpg', showBackgroundLayer, hideBackgroundLayer)
+    },
+    [downloadImage]
+  )
+
   return {
+    downloadImage,
     downloadAsJpg,
   } as const
 }

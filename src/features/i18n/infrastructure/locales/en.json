@@ -110,10 +110,22 @@
     "title": "Stabilization"
   },
   "toolbar": {
-    "save": "Save as JPG",
+    "save": "Save image",
     "import": "Import image",
     "saveProject": "Save project",
     "openProject": "Open project"
+  },
+  "export": {
+    "saveDialog": {
+      "title": "Save Image",
+      "description": "Choose a file name and format to save",
+      "fileName": "File name",
+      "format": "Format",
+      "save": "Save",
+      "fileNameRequired": "Please enter a file name",
+      "fileNameTooLong": "File name must be %{max} characters or less",
+      "invalidCharacters": "File name contains invalid characters"
+    }
   },
   "project": {
     "saveDialog": {

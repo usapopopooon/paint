@@ -6,7 +6,8 @@ import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/c
 import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
-import { SaveButton, useExportImage } from './features/export'
+import { SaveButton, SaveImageDialog, useExportImage } from './features/export'
+import type { ImageFormat } from './features/export'
 import { useTranslation, LocaleToggle } from './features/i18n'
 import { ImportButton, useImportImage } from './features/import'
 import {
@@ -184,6 +185,8 @@ function App() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false)
   const [loadError, setLoadError] = useState<LoadProjectError | null>(null)
   const [confirmLoadDialogOpen, setConfirmLoadDialogOpen] = useState(false)
+  // 画像保存ダイアログの状態
+  const [saveImageDialogOpen, setSaveImageDialogOpen] = useState(false)
 
   // プロジェクト名が変わったらブラウザタイトルを更新
   useEffect(() => {
@@ -254,6 +257,28 @@ function App() {
   const handleSaveProject = useCallback(() => {
     setSaveDialogOpen(true)
   }, [])
+
+  /**
+   * 画像保存ボタンのハンドラ（ダイアログを開く）
+   */
+  const handleOpenSaveImageDialog = useCallback(() => {
+    setSaveImageDialogOpen(true)
+  }, [])
+
+  /**
+   * 画像保存ダイアログで保存を確定した時のハンドラ
+   */
+  const handleSaveImage = useCallback(
+    async (fileName: string, format: ImageFormat) => {
+      await exportImage.downloadImage(
+        fileName,
+        format,
+        canvas.showBackgroundLayer,
+        canvas.hideBackgroundLayer
+      )
+    },
+    [exportImage, canvas.showBackgroundLayer, canvas.hideBackgroundLayer]
+  )
 
   const handleSaveProjectConfirm = useCallback(
     async (fileName: string) => {
@@ -910,11 +935,7 @@ function App() {
             onOpenFilePicker={importImage.openFilePicker}
             onFileChange={importImage.handleFileChange}
           />
-          <SaveButton
-            onSave={() =>
-              exportImage.downloadAsJpg(canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
-            }
-          />
+          <SaveButton onSave={handleOpenSaveImageDialog} />
           <ToolbarDivider />
           <OpenProjectButton
             inputRef={projectInputRef}
@@ -1049,6 +1070,11 @@ function App() {
         open={confirmLoadDialogOpen}
         onOpenChange={setConfirmLoadDialogOpen}
         onConfirm={handleConfirmLoad}
+      />
+      <SaveImageDialog
+        open={saveImageDialogOpen}
+        onOpenChange={setSaveImageDialogOpen}
+        onSave={handleSaveImage}
       />
     </div>
   )
