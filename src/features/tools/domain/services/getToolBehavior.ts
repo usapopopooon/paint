@@ -8,6 +8,8 @@ import {
   eyedropperBehavior,
   zoomInBehavior,
   zoomOutBehavior,
+  selectRectangleBehavior,
+  selectLassoBehavior,
 } from '../entities'
 
 /**
@@ -28,6 +30,8 @@ const behaviors: Record<ToolType, ToolBehavior> = {
   eyedropper: eyedropperBehavior as ToolBehavior,
   'zoom-in': zoomInBehavior as ToolBehavior,
   'zoom-out': zoomOutBehavior as ToolBehavior,
+  'select-rectangle': selectRectangleBehavior as ToolBehavior,
+  'select-lasso': selectLassoBehavior as ToolBehavior,
 }
 
 /**

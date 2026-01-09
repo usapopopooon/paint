@@ -45,6 +45,7 @@ import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/e
 import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
+import { useSelection, SelectionToolButton } from './features/selection'
 
 /**
  * ペイントアプリケーションのメインコンポーネント
@@ -89,6 +90,7 @@ function App() {
   const canvasOffset = useCanvasOffset()
   const zoom = useZoom()
   const tool = useTool()
+  const selection = useSelection()
   const exportImage = useExportImage(canvasContainerRef)
   const { t } = useTranslation()
 
@@ -241,6 +243,16 @@ function App() {
     }
   }, [])
 
+  const handleSelectRectangle = useCallback(() => {
+    tool.setToolType('select-rectangle')
+    selection.setToolType('select-rectangle')
+  }, [tool, selection])
+
+  const handleSelectLasso = useCallback(() => {
+    tool.setToolType('select-lasso')
+    selection.setToolType('select-lasso')
+  }, [tool, selection])
+
   // キーボードショートカット
   useKeyboardShortcuts({
     onUndo: canvas.undo,
@@ -251,6 +263,9 @@ function App() {
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
+    onSelectRectangle: handleSelectRectangle,
+    onSelectLasso: handleSelectLasso,
+    onDeselect: selection.deselect,
     onZoomIn: zoom.zoomIn,
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
@@ -283,6 +298,16 @@ function App() {
   const handleSelectEraser = useCallback(() => {
     tool.setToolType('eraser')
   }, [tool])
+
+  /**
+   * 選択開始ハンドラ
+   */
+  const handleStartSelection = useCallback(
+    (point: Point) => {
+      selection.startSelection(point, canvas.activeLayerId)
+    },
+    [selection, canvas.activeLayerId]
+  )
 
   /**
    * 色変更ハンドラ（ペンとブラシの両方に適用）
@@ -525,6 +550,16 @@ function App() {
             onWidthChange={tool.setEraserWidth}
             onOpacityChange={tool.setEraserOpacity}
           />
+          <SelectionToolButton
+            toolType="select-rectangle"
+            isActive={tool.currentType === 'select-rectangle'}
+            onSelect={handleSelectRectangle}
+          />
+          <SelectionToolButton
+            toolType="select-lasso"
+            isActive={tool.currentType === 'select-lasso'}
+            onSelect={handleSelectLasso}
+          />
           <LayerPanel
             layers={canvas.layers}
             activeLayerId={canvas.activeLayerId}
@@ -567,6 +602,13 @@ function App() {
                   zoom={zoom.zoom}
                   viewportSize={viewportSize}
                   onZoomAtPoint={handleZoomAtPoint}
+                  selectionRegion={selection.state.region}
+                  selectionPoints={selection.selectionPoints}
+                  selectionToolType={selection.state.toolConfig.type}
+                  isSelecting={selection.state.phase === 'selecting'}
+                  onStartSelection={handleStartSelection}
+                  onUpdateSelection={selection.updateSelection}
+                  onCommitSelection={selection.commitSelection}
                 />
               </div>
             )}

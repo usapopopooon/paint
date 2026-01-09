@@ -12,6 +12,9 @@ export type KeyboardShortcutsHandlers = {
   readonly onSelectEraser: () => void
   readonly onSelectHand: () => void
   readonly onSelectEyedropper: () => void
+  readonly onSelectRectangle?: () => void
+  readonly onSelectLasso?: () => void
+  readonly onDeselect?: () => void
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
@@ -40,6 +43,9 @@ export type KeyboardShortcutsHandlers = {
  * - E: 消しゴムツール選択
  * - H: ハンドツール選択
  * - I: スポイトツール選択
+ * - M: 矩形選択ツール選択
+ * - L: 自由選択ツール選択
+ * - Escape: 選択解除
  * @param handlers - ショートカットに対応するコールバック関数
  */
 export const useKeyboardShortcuts = ({
@@ -51,6 +57,9 @@ export const useKeyboardShortcuts = ({
   onSelectEraser,
   onSelectHand,
   onSelectEyedropper,
+  onSelectRectangle,
+  onSelectLasso,
+  onDeselect,
   onZoomIn,
   onZoomOut,
   onZoomReset,
@@ -144,6 +153,21 @@ export const useKeyboardShortcuts = ({
           onSelectEyedropper()
           return
         }
+        if ((e.key === 'm' || e.key === 'M') && onSelectRectangle) {
+          e.preventDefault()
+          onSelectRectangle()
+          return
+        }
+        if ((e.key === 'l' || e.key === 'L') && onSelectLasso) {
+          e.preventDefault()
+          onSelectLasso()
+          return
+        }
+        if (e.key === 'Escape' && onDeselect) {
+          e.preventDefault()
+          onDeselect()
+          return
+        }
         // ツールサイズ変更 (] で大きく、[ で小さく)
         if (e.key === ']') {
           e.preventDefault()
@@ -169,6 +193,9 @@ export const useKeyboardShortcuts = ({
     onSelectEraser,
     onSelectHand,
     onSelectEyedropper,
+    onSelectRectangle,
+    onSelectLasso,
+    onDeselect,
     onZoomIn,
     onZoomOut,
     onZoomReset,
