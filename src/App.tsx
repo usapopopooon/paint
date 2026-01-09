@@ -55,9 +55,66 @@ import {
   canvasToDataURL,
   getSelectionBounds,
   fillSelectionRegion,
+  getOrCreateOffscreenCanvas,
+  drawImageDataToContext,
 } from './features/selection'
+import type { SelectionRegion } from './features/selection'
+import type { Layer } from './features/layer'
 import type { ImageDrawable } from './features/drawable'
 import { generateId } from './lib/id'
+
+/**
+ * キャンバス全体をカバーするImageDrawableを作成
+ */
+const createFullCanvasImageDrawable = (
+  dataURL: string,
+  width: number,
+  height: number
+): ImageDrawable => ({
+  id: generateId('drawable'),
+  createdAt: Date.now(),
+  type: 'image',
+  src: dataURL,
+  x: 0,
+  y: 0,
+  width,
+  height,
+  scaleX: 1,
+})
+
+/**
+ * 選択領域のキャッシュされたImageDataをレイヤーに保存
+ * @param region - 選択領域
+ * @param layer - 対象レイヤー
+ * @param canvasWidth - キャンバス幅
+ * @param canvasHeight - キャンバス高さ
+ * @returns 保存用のImageDrawable（保存不要の場合はnull）
+ */
+const saveRegionImageDataToLayer = async (
+  region: SelectionRegion,
+  layer: Layer,
+  canvasWidth: number,
+  canvasHeight: number
+): Promise<ImageDrawable | null> => {
+  if (!region.imageData) return null
+
+  // レイヤーをオフスクリーンCanvasにレンダリング
+  const offscreenCanvas = await getOrCreateOffscreenCanvas(layer, canvasWidth, canvasHeight)
+  const ctx = offscreenCanvas.getContext('2d')!
+
+  // キャッシュされたImageDataを現在位置に描画
+  const bounds = getSelectionBounds(region.shape, { x: 0, y: 0 })
+  drawImageDataToContext(
+    ctx,
+    region.imageData,
+    bounds.x + region.offset.x,
+    bounds.y + region.offset.y
+  )
+
+  // 結果をImageDrawableとして返す
+  const dataURL = canvasToDataURL(offscreenCanvas)
+  return createFullCanvasImageDrawable(dataURL, canvasWidth, canvasHeight)
+}
 
 /**
  * ペイントアプリケーションのメインコンポーネント
@@ -287,53 +344,15 @@ function App() {
     }
 
     // キャッシュされたImageDataがある場合は現在位置に描画
-    if (region.imageData) {
-      const layer = canvas.layers.find((l) => l.id === region.layerId)
-      if (layer) {
-        // レイヤーをオフスクリーンCanvasにレンダリング（drawablesが空でも新規キャンバスを作成）
-        const offscreenCanvas =
-          layer.drawables.length > 0
-            ? await renderLayerToOffscreenCanvas(layer, canvasSize.width, canvasSize.height)
-            : (() => {
-                const c = document.createElement('canvas')
-                c.width = canvasSize.width
-                c.height = canvasSize.height
-                return c
-              })()
-        const ctx = offscreenCanvas.getContext('2d')!
-        ctx.imageSmoothingEnabled = false
-
-        // キャッシュされたImageDataを現在位置に描画
-        // bounds: 現在のshape座標（commitMove後は移動先座標）
-        const bounds = getSelectionBounds(region.shape, { x: 0, y: 0 })
-        const tempCanvas = document.createElement('canvas')
-        // ImageDataのサイズを使用（boundsと異なる可能性があるため）
-        tempCanvas.width = region.imageData.width
-        tempCanvas.height = region.imageData.height
-        const tempCtx = tempCanvas.getContext('2d')!
-        tempCtx.putImageData(region.imageData, 0, 0)
-
-        // 現在の位置（shape + offset）に描画（整数座標でボケ防止）
-        // commitMove後はoffsetは{0,0}、boundsは移動後の座標
-        ctx.drawImage(
-          tempCanvas,
-          Math.round(bounds.x + region.offset.x),
-          Math.round(bounds.y + region.offset.y)
-        )
-
-        // 結果をImageDrawableとして保存
-        const dataURL = canvasToDataURL(offscreenCanvas)
-        const imageDrawable: ImageDrawable = {
-          id: generateId('drawable'),
-          createdAt: Date.now(),
-          type: 'image',
-          src: dataURL,
-          x: 0,
-          y: 0,
-          width: canvasSize.width,
-          height: canvasSize.height,
-          scaleX: 1,
-        }
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (layer && region.imageData) {
+      const imageDrawable = await saveRegionImageDataToLayer(
+        region,
+        layer,
+        canvasSize.width,
+        canvasSize.height
+      )
+      if (imageDrawable) {
         canvas.setDrawablesToLayer([imageDrawable], region.layerId)
       }
     }
@@ -368,20 +387,11 @@ function App() {
     clearSelectionRegion(ctx, region.shape, region.offset)
 
     // 結果をImageDrawableとして作成
-    const dataURL = canvasToDataURL(offscreenCanvas)
-    const imageDrawable: ImageDrawable = {
-      id: generateId('drawable'),
-      createdAt: Date.now(),
-      type: 'image',
-      src: dataURL,
-      x: 0,
-      y: 0,
-      width: canvasSize.width,
-      height: canvasSize.height,
-      scaleX: 1,
-    }
-
-    // レイヤーのdrawablesを置き換え（既存のdrawablesを新しいImageDrawableで置換）
+    const imageDrawable = createFullCanvasImageDrawable(
+      canvasToDataURL(offscreenCanvas),
+      canvasSize.width,
+      canvasSize.height
+    )
     canvas.setDrawablesToLayer([imageDrawable], region.layerId)
 
     // 選択を解除
@@ -444,20 +454,11 @@ function App() {
     clearSelectionRegion(ctx, region.shape, region.offset)
 
     // 結果をImageDrawableとして作成
-    const dataURL = canvasToDataURL(offscreenCanvas)
-    const imageDrawable: ImageDrawable = {
-      id: generateId('drawable'),
-      createdAt: Date.now(),
-      type: 'image',
-      src: dataURL,
-      x: 0,
-      y: 0,
-      width: canvasSize.width,
-      height: canvasSize.height,
-      scaleX: 1,
-    }
-
-    // レイヤーのdrawablesを置き換え（既存のdrawablesを新しいImageDrawableで置換）
+    const imageDrawable = createFullCanvasImageDrawable(
+      canvasToDataURL(offscreenCanvas),
+      canvasSize.width,
+      canvasSize.height
+    )
     canvas.setDrawablesToLayer([imageDrawable], region.layerId)
 
     // clipboardに保存してから選択解除
@@ -528,20 +529,11 @@ function App() {
     fillSelectionRegion(ctx, region.shape, color, region.offset)
 
     // 結果をImageDrawableとして作成
-    const dataURL = canvasToDataURL(offscreenCanvas)
-    const imageDrawable: ImageDrawable = {
-      id: generateId('drawable'),
-      createdAt: Date.now(),
-      type: 'image',
-      src: dataURL,
-      x: 0,
-      y: 0,
-      width: canvasSize.width,
-      height: canvasSize.height,
-      scaleX: 1,
-    }
-
-    // レイヤーのdrawablesを置き換え（既存のdrawablesを新しいImageDrawableで置換）
+    const imageDrawable = createFullCanvasImageDrawable(
+      canvasToDataURL(offscreenCanvas),
+      canvasSize.width,
+      canvasSize.height
+    )
     canvas.setDrawablesToLayer([imageDrawable], region.layerId)
 
     // 選択を解除
@@ -619,47 +611,15 @@ function App() {
       if (region?.imageData) {
         const layer = canvas.layers.find((l) => l.id === region.layerId)
         if (layer) {
-          // レイヤーをオフスクリーンCanvasにレンダリング
-          const offscreenCanvas =
-            layer.drawables.length > 0
-              ? await renderLayerToOffscreenCanvas(layer, canvasSize.width, canvasSize.height)
-              : (() => {
-                  const c = document.createElement('canvas')
-                  c.width = canvasSize.width
-                  c.height = canvasSize.height
-                  return c
-                })()
-          const ctx = offscreenCanvas.getContext('2d')!
-          ctx.imageSmoothingEnabled = false
-
-          // キャッシュされたImageDataを現在位置に描画
-          const bounds = getSelectionBounds(region.shape, { x: 0, y: 0 })
-          const tempCanvas = document.createElement('canvas')
-          tempCanvas.width = region.imageData.width
-          tempCanvas.height = region.imageData.height
-          const tempCtx = tempCanvas.getContext('2d')!
-          tempCtx.putImageData(region.imageData, 0, 0)
-
-          ctx.drawImage(
-            tempCanvas,
-            Math.round(bounds.x + region.offset.x),
-            Math.round(bounds.y + region.offset.y)
+          const imageDrawable = await saveRegionImageDataToLayer(
+            region,
+            layer,
+            canvasSize.width,
+            canvasSize.height
           )
-
-          // 結果をImageDrawableとして保存
-          const dataURL = canvasToDataURL(offscreenCanvas)
-          const imageDrawable: ImageDrawable = {
-            id: generateId('drawable'),
-            createdAt: Date.now(),
-            type: 'image',
-            src: dataURL,
-            x: 0,
-            y: 0,
-            width: canvasSize.width,
-            height: canvasSize.height,
-            scaleX: 1,
+          if (imageDrawable) {
+            canvas.setDrawablesToLayer([imageDrawable], region.layerId)
           }
-          canvas.setDrawablesToLayer([imageDrawable], region.layerId)
         }
       }
 
@@ -708,18 +668,11 @@ function App() {
       clearSelectionRegion(ctx, region.shape, { x: 0, y: 0 })
 
       // クリア後のキャンバスをImageDrawableとして保存
-      const dataURL = canvasToDataURL(offscreenCanvas)
-      const imageDrawable: ImageDrawable = {
-        id: generateId('drawable'),
-        createdAt: Date.now(),
-        type: 'image',
-        src: dataURL,
-        x: 0,
-        y: 0,
-        width: canvasSize.width,
-        height: canvasSize.height,
-        scaleX: 1,
-      }
+      const imageDrawable = createFullCanvasImageDrawable(
+        canvasToDataURL(offscreenCanvas),
+        canvasSize.width,
+        canvasSize.height
+      )
       canvas.setDrawablesToLayer([imageDrawable], region.layerId)
 
       // 移動開始

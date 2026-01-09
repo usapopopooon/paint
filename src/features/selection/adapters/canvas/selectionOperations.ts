@@ -360,3 +360,67 @@ const loadImageElement = (src: string): Promise<HTMLImageElement> => {
 export const canvasToDataURL = (canvas: HTMLCanvasElement): string => {
   return canvas.toDataURL('image/png')
 }
+
+/**
+ * 空のオフスクリーンCanvasを作成
+ * @param width - キャンバス幅
+ * @param height - キャンバス高さ
+ * @returns 空のCanvas
+ */
+export const createEmptyCanvas = (width: number, height: number): HTMLCanvasElement => {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  return canvas
+}
+
+/**
+ * レイヤーまたは空のオフスクリーンCanvasを取得
+ * drawablesが空の場合は新しい空のキャンバスを返す
+ * @param layer - レイヤー
+ * @param width - キャンバス幅
+ * @param height - キャンバス高さ
+ * @returns オフスクリーンCanvas
+ */
+export const getOrCreateOffscreenCanvas = async (
+  layer: Layer,
+  width: number,
+  height: number
+): Promise<HTMLCanvasElement> => {
+  if (layer.drawables.length > 0) {
+    return renderLayerToOffscreenCanvas(layer, width, height)
+  }
+  return createEmptyCanvas(width, height)
+}
+
+/**
+ * ImageDataを一時Canvasに描画
+ * @param imageData - 描画するImageData
+ * @returns 一時Canvas
+ */
+export const imageDataToCanvas = (imageData: ImageData): HTMLCanvasElement => {
+  const canvas = document.createElement('canvas')
+  canvas.width = imageData.width
+  canvas.height = imageData.height
+  const ctx = canvas.getContext('2d')!
+  ctx.putImageData(imageData, 0, 0)
+  return canvas
+}
+
+/**
+ * ImageDataを指定位置にキャンバスに描画（高品質・ボケ防止）
+ * @param ctx - 描画先のコンテキスト
+ * @param imageData - 描画するImageData
+ * @param x - X座標
+ * @param y - Y座標
+ */
+export const drawImageDataToContext = (
+  ctx: CanvasRenderingContext2D,
+  imageData: ImageData,
+  x: number,
+  y: number
+): void => {
+  ctx.imageSmoothingEnabled = false
+  const tempCanvas = imageDataToCanvas(imageData)
+  ctx.drawImage(tempCanvas, Math.round(x), Math.round(y))
+}

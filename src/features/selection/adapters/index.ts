@@ -12,4 +12,8 @@ export {
   imageDataToDataURL,
   renderLayerToOffscreenCanvas,
   canvasToDataURL,
+  createEmptyCanvas,
+  getOrCreateOffscreenCanvas,
+  imageDataToCanvas,
+  drawImageDataToContext,
 } from './canvas'

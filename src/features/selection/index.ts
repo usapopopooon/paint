@@ -46,6 +46,10 @@ export {
   imageDataToDataURL,
   renderLayerToOffscreenCanvas,
   canvasToDataURL,
+  createEmptyCanvas,
+  getOrCreateOffscreenCanvas,
+  imageDataToCanvas,
+  drawImageDataToContext,
 } from './adapters'
 
 // Components
