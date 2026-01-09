@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, within, waitFor } from 'storybook/test'
-import { toast } from 'sonner'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster, showActionToast } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -48,25 +47,19 @@ type Story = StoryObj<typeof meta>
  */
 export const ToastPreview: Story = {
   render: () => {
-    const showToast = () => {
-      toast('新しいバージョンが利用可能です', {
-        description: 'アプリを更新して最新機能をご利用ください。',
-        duration: Infinity,
-        action: {
-          label: '更新',
-          onClick: () => {
-            // トーストを閉じるだけ
-          },
-        },
-        onDismiss: () => {
-          // 閉じた時の処理
+    const handleShowToast = () => {
+      showActionToast({
+        title: '新しいバージョンが利用可能です',
+        actionLabel: '更新',
+        onAction: () => {
+          // トーストを閉じるだけ
         },
       })
     }
 
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <Button onClick={showToast}>トーストを表示</Button>
+        <Button onClick={handleShowToast}>トーストを表示</Button>
       </div>
     )
   },
@@ -82,7 +75,6 @@ export const ToastPreview: Story = {
       expect(canvas.getByText('新しいバージョンが利用可能です')).toBeInTheDocument()
     })
 
-    expect(canvas.getByText('アプリを更新して最新機能をご利用ください。')).toBeInTheDocument()
     expect(canvas.getByRole('button', { name: '更新' })).toBeInTheDocument()
   },
 }

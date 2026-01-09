@@ -5,7 +5,7 @@ import {
   OctagonXIcon,
   TriangleAlertIcon,
 } from 'lucide-react'
-import { Toaster as Sonner, type ToasterProps } from 'sonner'
+import { toast, Toaster as Sonner, type ToasterProps } from 'sonner'
 import { useTheme } from '@/features/theme'
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -35,4 +35,36 @@ const Toaster = ({ ...props }: ToasterProps) => {
   )
 }
 
-export { Toaster }
+type ActionToastOptions = {
+  title: string
+  description?: string
+  actionLabel: string
+  onAction: () => void
+  onDismiss?: () => void
+  duration?: number
+}
+
+/**
+ * アクションボタン付きトースト
+ * PWA更新通知などに使用
+ */
+const showActionToast = ({
+  title,
+  description,
+  actionLabel,
+  onAction,
+  onDismiss,
+  duration = Infinity,
+}: ActionToastOptions) => {
+  toast(title, {
+    description,
+    duration,
+    action: {
+      label: actionLabel,
+      onClick: onAction,
+    },
+    onDismiss,
+  })
+}
+
+export { Toaster, showActionToast }

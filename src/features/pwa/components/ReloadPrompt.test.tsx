@@ -3,10 +3,10 @@ import { render, act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReloadPrompt } from './ReloadPrompt'
 
-// sonnerのモック
-const mockToast = vi.fn()
-vi.mock('sonner', () => ({
-  toast: (message: string, options: unknown) => mockToast(message, options),
+// showActionToastのモック
+const mockShowActionToast = vi.fn()
+vi.mock('@/components/ui/sonner', () => ({
+  showActionToast: (options: unknown) => mockShowActionToast(options),
 }))
 
 // i18nのモック
@@ -39,20 +39,17 @@ describe('ReloadPrompt', () => {
     mockNeedRefresh = false
     render(<ReloadPrompt />)
 
-    expect(mockToast).not.toHaveBeenCalled()
+    expect(mockShowActionToast).not.toHaveBeenCalled()
   })
 
   test('needRefreshがtrueの場合、トーストを表示する', () => {
     mockNeedRefresh = true
     render(<ReloadPrompt />)
 
-    expect(mockToast).toHaveBeenCalledWith(
-      'pwa.newVersionAvailable',
+    expect(mockShowActionToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        duration: Infinity,
-        action: expect.objectContaining({
-          label: 'pwa.reload',
-        }),
+        title: 'pwa.newVersionAvailable',
+        actionLabel: 'pwa.reload',
       })
     )
   })
@@ -61,11 +58,11 @@ describe('ReloadPrompt', () => {
     mockNeedRefresh = true
     render(<ReloadPrompt />)
 
-    // toastに渡されたactionのonClickを取得して実行
-    const toastCall = mockToast.mock.calls[0]
-    const options = toastCall[1] as { action: { onClick: () => void } }
+    // showActionToastに渡されたonActionを取得して実行
+    const toastCall = mockShowActionToast.mock.calls[0]
+    const options = toastCall[0] as { onAction: () => void }
     act(() => {
-      options.action.onClick()
+      options.onAction()
     })
 
     // 確認ダイアログが表示される
@@ -82,10 +79,10 @@ describe('ReloadPrompt', () => {
     render(<ReloadPrompt />)
 
     // トーストのアクションをクリック
-    const toastCall = mockToast.mock.calls[0]
-    const options = toastCall[1] as { action: { onClick: () => void } }
+    const toastCall = mockShowActionToast.mock.calls[0]
+    const options = toastCall[0] as { onAction: () => void }
     act(() => {
-      options.action.onClick()
+      options.onAction()
     })
 
     // 確認ボタンをクリック
@@ -101,10 +98,10 @@ describe('ReloadPrompt', () => {
     render(<ReloadPrompt />)
 
     // トーストのアクションをクリック
-    const toastCall = mockToast.mock.calls[0]
-    const options = toastCall[1] as { action: { onClick: () => void } }
+    const toastCall = mockShowActionToast.mock.calls[0]
+    const options = toastCall[0] as { onAction: () => void }
     act(() => {
-      options.action.onClick()
+      options.onAction()
     })
 
     // キャンセルボタンをクリック
@@ -122,9 +119,9 @@ describe('ReloadPrompt', () => {
     mockNeedRefresh = true
     render(<ReloadPrompt />)
 
-    // toastに渡されたonDismissを取得して実行
-    const toastCall = mockToast.mock.calls[0]
-    const options = toastCall[1] as { onDismiss: () => void }
+    // showActionToastに渡されたonDismissを取得して実行
+    const toastCall = mockShowActionToast.mock.calls[0]
+    const options = toastCall[0] as { onDismiss: () => void }
     act(() => {
       options.onDismiss()
     })

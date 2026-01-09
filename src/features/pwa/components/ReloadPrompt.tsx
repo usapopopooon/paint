@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useTranslation } from '@bf-i18n/react'
-import { toast } from 'sonner'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { showActionToast } from '@/components/ui/sonner'
 
 /**
  * PWA更新通知コンポーネント
@@ -45,12 +45,10 @@ export const ReloadPrompt = () => {
 
   useEffect(() => {
     if (needRefresh) {
-      toast(t('pwa.newVersionAvailable'), {
-        duration: Infinity,
-        action: {
-          label: t('pwa.reload'),
-          onClick: handleReloadClick,
-        },
+      showActionToast({
+        title: t('pwa.newVersionAvailable'),
+        actionLabel: t('pwa.reload'),
+        onAction: handleReloadClick,
         onDismiss: () => setNeedRefresh(false),
       })
     }
