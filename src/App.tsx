@@ -289,25 +289,32 @@ function App() {
     // キャッシュされたImageDataがある場合は現在位置に描画
     if (region.imageData) {
       const layer = canvas.layers.find((l) => l.id === region.layerId)
-      if (layer && layer.drawables.length > 0) {
-        // レイヤーをオフスクリーンCanvasにレンダリング
-        const offscreenCanvas = await renderLayerToOffscreenCanvas(
-          layer,
-          canvasSize.width,
-          canvasSize.height
-        )
+      if (layer) {
+        // レイヤーをオフスクリーンCanvasにレンダリング（drawablesが空でも新規キャンバスを作成）
+        const offscreenCanvas =
+          layer.drawables.length > 0
+            ? await renderLayerToOffscreenCanvas(layer, canvasSize.width, canvasSize.height)
+            : (() => {
+                const c = document.createElement('canvas')
+                c.width = canvasSize.width
+                c.height = canvasSize.height
+                return c
+              })()
         const ctx = offscreenCanvas.getContext('2d')!
         ctx.imageSmoothingEnabled = false
 
         // キャッシュされたImageDataを現在位置に描画
+        // bounds: 現在のshape座標（commitMove後は移動先座標）
         const bounds = getSelectionBounds(region.shape, { x: 0, y: 0 })
         const tempCanvas = document.createElement('canvas')
-        tempCanvas.width = bounds.width
-        tempCanvas.height = bounds.height
+        // ImageDataのサイズを使用（boundsと異なる可能性があるため）
+        tempCanvas.width = region.imageData.width
+        tempCanvas.height = region.imageData.height
         const tempCtx = tempCanvas.getContext('2d')!
         tempCtx.putImageData(region.imageData, 0, 0)
 
         // 現在の位置（shape + offset）に描画（整数座標でボケ防止）
+        // commitMove後はoffsetは{0,0}、boundsは移動後の座標
         ctx.drawImage(
           tempCanvas,
           Math.round(bounds.x + region.offset.x),
@@ -603,12 +610,62 @@ function App() {
 
   /**
    * 選択開始ハンドラ
+   * 既存の選択領域がある場合は先に保存してから新しい選択を開始
    */
   const handleStartSelection = useCallback(
-    (point: Point) => {
+    async (point: Point) => {
+      const region = selection.state.region
+      // 既存の選択領域にImageDataがキャッシュされている場合は先に保存
+      if (region?.imageData) {
+        const layer = canvas.layers.find((l) => l.id === region.layerId)
+        if (layer) {
+          // レイヤーをオフスクリーンCanvasにレンダリング
+          const offscreenCanvas =
+            layer.drawables.length > 0
+              ? await renderLayerToOffscreenCanvas(layer, canvasSize.width, canvasSize.height)
+              : (() => {
+                  const c = document.createElement('canvas')
+                  c.width = canvasSize.width
+                  c.height = canvasSize.height
+                  return c
+                })()
+          const ctx = offscreenCanvas.getContext('2d')!
+          ctx.imageSmoothingEnabled = false
+
+          // キャッシュされたImageDataを現在位置に描画
+          const bounds = getSelectionBounds(region.shape, { x: 0, y: 0 })
+          const tempCanvas = document.createElement('canvas')
+          tempCanvas.width = region.imageData.width
+          tempCanvas.height = region.imageData.height
+          const tempCtx = tempCanvas.getContext('2d')!
+          tempCtx.putImageData(region.imageData, 0, 0)
+
+          ctx.drawImage(
+            tempCanvas,
+            Math.round(bounds.x + region.offset.x),
+            Math.round(bounds.y + region.offset.y)
+          )
+
+          // 結果をImageDrawableとして保存
+          const dataURL = canvasToDataURL(offscreenCanvas)
+          const imageDrawable: ImageDrawable = {
+            id: generateId('drawable'),
+            createdAt: Date.now(),
+            type: 'image',
+            src: dataURL,
+            x: 0,
+            y: 0,
+            width: canvasSize.width,
+            height: canvasSize.height,
+            scaleX: 1,
+          }
+          canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+        }
+      }
+
       selection.startSelection(point, canvas.activeLayerId)
     },
-    [selection, canvas.activeLayerId]
+    [selection, canvas, canvasSize.width, canvasSize.height]
   )
 
   /**
