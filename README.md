@@ -6,14 +6,14 @@
 
 [![version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.2.0) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
-A drawing app built with React and PixiJS 👉 [Try it out](https://usapopopooon.github.io/paint/)
+A drawing app built with React and Canvas 2D 👉 [Try it out](https://usapopopooon.github.io/paint/)
 
 ![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767949360.png)
 
 ## Tech Stack
 
 - **Framework**: React 19, TypeScript
-- **Rendering Engine**: PixiJS
+- **Rendering Engine**: Canvas 2D (PixiJS available as alternative)
 - **Build**: Vite
 - **Styling**: Tailwind CSS v4
 - **UI Components**: Radix UI, shadcn/ui
