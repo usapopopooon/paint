@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { expect, userEvent, within, waitFor } from 'storybook/test'
-import { ReloadPrompt } from './ReloadPrompt'
+import { toast } from 'sonner'
 import { Toaster } from './sonner'
 import { Button } from './button'
 import {
@@ -25,7 +25,6 @@ import {
  */
 const meta = {
   title: 'UI/ReloadPrompt',
-  component: ReloadPrompt,
   parameters: {
     layout: 'fullscreen',
   },
@@ -38,40 +37,61 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ReloadPrompt>
+} satisfies Meta
 
 export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * 通常状態 - 新しいバージョンがない場合は何も表示されません。
+ * トースト通知のプレビュー
+ * ボタンをクリックするとPWA更新通知と同じスタイルのトーストが表示されます。
  */
-export const Default: Story = {}
+export const ToastPreview: Story = {
+  render: () => {
+    const showToast = () => {
+      toast('新しいバージョンが利用可能です', {
+        description: 'アプリを更新して最新機能をご利用ください。',
+        duration: Infinity,
+        action: {
+          label: '更新',
+          onClick: () => {
+            // トーストを閉じるだけ
+          },
+        },
+        onDismiss: () => {
+          // 閉じた時の処理
+        },
+      })
+    }
 
-/**
- * 確認ダイアログ - 更新前の確認ダイアログを単独で表示します。
- * 保存していないデータが失われる警告を表示します。
- */
-export const ConfirmDialog: Story = {
-  render: () => (
-    <div className="flex items-center justify-center min-h-[300px]">
-      <div className="text-center text-muted-foreground">
-        <p>確認ダイアログはトーストの「更新」ボタンをクリックすると表示されます。</p>
-        <p className="mt-2 text-sm">
-          実際の動作は、PWAの新しいバージョンが検出された時に
-          <br />
-          画面右下にトースト通知が表示されます。
-        </p>
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <Button onClick={showToast}>トーストを表示</Button>
       </div>
-    </div>
-  ),
+    )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // ボタンをクリックしてトーストを表示
+    const button = canvas.getByRole('button', { name: 'トーストを表示' })
+    await userEvent.click(button)
+
+    // トーストが表示されることを確認
+    await waitFor(() => {
+      expect(canvas.getByText('新しいバージョンが利用可能です')).toBeInTheDocument()
+    })
+
+    expect(canvas.getByText('アプリを更新して最新機能をご利用ください。')).toBeInTheDocument()
+    expect(canvas.getByRole('button', { name: '更新' })).toBeInTheDocument()
+  },
 }
 
 /**
- * AlertDialogコンポーネントのプレビュー
+ * 確認ダイアログのプレビュー
  * ボタンをクリックしてダイアログを開閉できます。
  */
-export const AlertDialogPreview: Story = {
+export const ConfirmDialogPreview: Story = {
   render: () => (
     <div className="flex items-center justify-center min-h-[300px]">
       <AlertDialog>
