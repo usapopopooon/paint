@@ -71,6 +71,8 @@ type CanvasResizeMenuProps = {
   readonly onWidthChange: (width: number) => void
   readonly onHeightChange: (height: number) => void
   readonly onAnchorChange: (anchor: ResizeAnchor) => void
+  readonly open?: boolean
+  readonly onOpenChange?: (open: boolean) => void
 }
 
 /**
@@ -83,6 +85,8 @@ export const CanvasResizeMenu = ({
   onWidthChange,
   onHeightChange,
   onAnchorChange,
+  open,
+  onOpenChange,
 }: CanvasResizeMenuProps) => {
   const { t } = useTranslation()
 
@@ -157,7 +161,7 @@ export const CanvasResizeMenu = ({
   const heightInputRef = useWheelHandler(height, onHeightChange)
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>

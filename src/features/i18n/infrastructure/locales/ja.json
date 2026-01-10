@@ -163,5 +163,36 @@
       "confirm": "更新する",
       "cancel": "キャンセル"
     }
+  },
+  "menu": {
+    "file": "ファイル",
+    "edit": "編集",
+    "view": "表示",
+    "settings": "設定",
+    "openProject": "プロジェクトを開く",
+    "saveProject": "プロジェクトを保存",
+    "importImage": "画像をインポート",
+    "exportImage": "画像をエクスポート",
+    "undo": "元に戻す",
+    "redo": "やり直す",
+    "clear": "クリア",
+    "flipHorizontal": "左右反転",
+    "canvasSize": "キャンバスサイズ",
+    "selectAll": "すべて選択",
+    "deselect": "選択解除",
+    "cut": "カット",
+    "copy": "コピー",
+    "paste": "ペースト",
+    "delete": "削除",
+    "zoomIn": "拡大",
+    "zoomOut": "縮小",
+    "zoomReset": "100%にリセット",
+    "centerCanvas": "キャンバスを中央に",
+    "language": "言語",
+    "theme": "テーマ",
+    "japanese": "日本語",
+    "english": "English",
+    "light": "ライト",
+    "dark": "ダーク"
   }
 }

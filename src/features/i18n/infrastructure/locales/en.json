@@ -163,5 +163,36 @@
       "confirm": "Update",
       "cancel": "Cancel"
     }
+  },
+  "menu": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "settings": "Settings",
+    "openProject": "Open Project",
+    "saveProject": "Save Project",
+    "importImage": "Import Image",
+    "exportImage": "Export Image",
+    "undo": "Undo",
+    "redo": "Redo",
+    "clear": "Clear",
+    "flipHorizontal": "Flip Horizontal",
+    "canvasSize": "Canvas Size",
+    "selectAll": "Select All",
+    "deselect": "Deselect",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "delete": "Delete",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "zoomReset": "Reset to 100%",
+    "centerCanvas": "Center Canvas",
+    "language": "Language",
+    "theme": "Theme",
+    "japanese": "日本語",
+    "english": "English",
+    "light": "Light",
+    "dark": "Dark"
   }
 }

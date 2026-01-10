@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
-import { ThemeToggle } from './components/ui/ThemeToggle'
+import { AppMenubar } from './features/menubar'
 import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
 import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
-import { SaveButton, SaveImageDialog, useExportImage } from './features/export'
+import { SaveImageDialog, useExportImage } from './features/export'
 import type { ImageFormat } from './features/export'
-import { useTranslation, LocaleToggle } from './features/i18n'
-import { ImportButton, useImportImage } from './features/import'
+import { useTranslation } from './features/i18n'
+import { useImportImage } from './features/import'
 import {
-  SaveProjectButton,
-  OpenProjectButton,
   SaveProjectDialog,
   LoadProjectErrorDialog,
   ConfirmLoadProjectDialog,
@@ -20,18 +18,8 @@ import {
   loadProject,
 } from './features/project'
 import type { LoadProjectError } from './features/project'
-import {
-  Toolbar,
-  UndoButton,
-  RedoButton,
-  ClearButton,
-  ToolbarDivider,
-  HandButton,
-  EyedropperButton,
-  CenterCanvasButton,
-  FlipHorizontalButton,
-} from './features/toolbar'
-import { ZoomInButton, ZoomOutButton, ZoomResetButton, ZoomDisplay, useZoom } from './features/zoom'
+import { Toolbar, ToolbarDivider, HandButton, EyedropperButton } from './features/toolbar'
+import { ZoomInButton, ZoomOutButton, ZoomDisplay, useZoom } from './features/zoom'
 import {
   useTool,
   ToolPanel,
@@ -188,6 +176,8 @@ function App() {
   const [confirmLoadDialogOpen, setConfirmLoadDialogOpen] = useState(false)
   // 画像保存ダイアログの状態
   const [saveImageDialogOpen, setSaveImageDialogOpen] = useState(false)
+  // キャンバスリサイズメニューの状態
+  const [canvasResizeOpen, setCanvasResizeOpen] = useState(false)
 
   // プロジェクト名が変わったらブラウザタイトルを更新
   useEffect(() => {
@@ -888,66 +878,75 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top toolbar */}
-      <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">
-        <Toolbar>
-          <UndoButton disabled={!canvas.canUndo} onClick={canvas.undo} />
-          <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} />
+      {/* Top menubar and toolbar */}
+      <header className="flex items-center justify-between px-2 py-1 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">
+        <div className="flex items-center">
+          <AppMenubar
+            projectInputRef={projectInputRef}
+            onOpenProject={handleOpenProjectFilePicker}
+            onProjectFileChange={handleProjectFileChange}
+            onSaveProject={handleSaveProject}
+            importInputRef={importImage.inputRef}
+            onImport={importImage.openFilePicker}
+            onImportFileChange={importImage.handleFileChange}
+            onExport={handleOpenSaveImageDialog}
+            canUndo={canvas.canUndo}
+            canRedo={canvas.canRedo}
+            onUndo={canvas.undo}
+            onRedo={canvas.redo}
+            onClear={canvas.clear}
+            onFlipHorizontal={() => canvas.flipHorizontal(canvasSize.width)}
+            onCanvasSize={() => setCanvasResizeOpen(true)}
+            hasSelection={selection.state.region !== null}
+            hasClipboard={selection.state.clipboard !== null}
+            onSelectAll={handleSelectAll}
+            onDeselect={handleDeselect}
+            onCut={handleCutSelection}
+            onCopy={handleCopySelection}
+            onPaste={handlePasteSelection}
+            onDelete={handleDeleteSelection}
+            onZoomIn={zoom.zoomIn}
+            onZoomOut={zoom.zoomOut}
+            onZoomReset={zoom.resetZoom}
+            onCenterCanvas={canvasOffset.reset}
+          />
           <ToolbarDivider />
-          <HandButton
-            isActive={tool.currentType === 'hand'}
-            onClick={() => tool.setToolType('hand')}
-          />
-          <CenterCanvasButton onClick={canvasOffset.reset} />
-          <ToolbarDivider />
-          <ZoomInButton
-            isActive={tool.currentType === 'zoom-in'}
-            onClick={() => tool.setToolType('zoom-in')}
-          />
-          <ZoomOutButton
-            isActive={tool.currentType === 'zoom-out'}
-            onClick={() => tool.setToolType('zoom-out')}
-          />
-          <ZoomResetButton onClick={zoom.resetZoom} />
-          <ZoomDisplay zoomPercent={zoom.zoomPercent} onZoomChange={zoom.setZoomLevel} />
-          <ToolbarDivider />
-          <StabilizationSlider
-            stabilization={stabilization.stabilization}
-            onStabilizationChange={stabilization.setStabilization}
-          />
-          <ToolbarDivider />
-          <ClearButton onClick={canvas.clear} />
-          <EyedropperButton
-            isActive={tool.currentType === 'eyedropper'}
-            onClick={() => tool.setToolType('eyedropper')}
-          />
-          <CanvasResizeMenu
-            width={canvasSize.width}
-            height={canvasSize.height}
-            anchor={canvasSize.anchor}
-            onWidthChange={canvasSize.setWidth}
-            onHeightChange={canvasSize.setHeight}
-            onAnchorChange={canvasSize.setAnchor}
-          />
-          <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
-          <ToolbarDivider />
-          <ImportButton
-            inputRef={importImage.inputRef}
-            onOpenFilePicker={importImage.openFilePicker}
-            onFileChange={importImage.handleFileChange}
-          />
-          <SaveButton onSave={handleOpenSaveImageDialog} />
-          <ToolbarDivider />
-          <OpenProjectButton
-            inputRef={projectInputRef}
-            onOpenFilePicker={handleOpenProjectFilePicker}
-            onFileChange={handleProjectFileChange}
-          />
-          <SaveProjectButton onSave={handleSaveProject} />
-        </Toolbar>
-        <div className="flex items-center gap-1">
-          <LocaleToggle />
-          <ThemeToggle />
+          <Toolbar>
+            <HandButton
+              isActive={tool.currentType === 'hand'}
+              onClick={() => tool.setToolType('hand')}
+            />
+            <EyedropperButton
+              isActive={tool.currentType === 'eyedropper'}
+              onClick={() => tool.setToolType('eyedropper')}
+            />
+            <ToolbarDivider />
+            <ZoomInButton
+              isActive={tool.currentType === 'zoom-in'}
+              onClick={() => tool.setToolType('zoom-in')}
+            />
+            <ZoomOutButton
+              isActive={tool.currentType === 'zoom-out'}
+              onClick={() => tool.setToolType('zoom-out')}
+            />
+            <ZoomDisplay zoomPercent={zoom.zoomPercent} onZoomChange={zoom.setZoomLevel} />
+            <ToolbarDivider />
+            <StabilizationSlider
+              stabilization={stabilization.stabilization}
+              onStabilizationChange={stabilization.setStabilization}
+            />
+            <ToolbarDivider />
+            <CanvasResizeMenu
+              width={canvasSize.width}
+              height={canvasSize.height}
+              anchor={canvasSize.anchor}
+              onWidthChange={canvasSize.setWidth}
+              onHeightChange={canvasSize.setHeight}
+              onAnchorChange={canvasSize.setAnchor}
+              open={canvasResizeOpen}
+              onOpenChange={setCanvasResizeOpen}
+            />
+          </Toolbar>
         </div>
       </header>
 
