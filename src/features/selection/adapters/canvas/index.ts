@@ -50,5 +50,6 @@ export {
   applyRotationToTransform,
   isPointInTransformBounds,
   getTransformedCorners,
+  getTransformCursor,
   type HandleInfo,
 } from './transformOperations'

@@ -9,6 +9,9 @@ export type {
   LassoSelectionToolConfig,
   SelectionClipboard,
   SelectionState,
+  TransformMode,
+  TransformHandlePosition,
+  TransformState,
 } from './types'
 
 // Constants
@@ -53,5 +56,15 @@ export {
 } from './adapters'
 
 // Components
-export { SelectionOverlay, SelectionToolButton, SelectionContextMenu } from './components'
+export {
+  SelectionOverlay,
+  SelectionToolButton,
+  SelectionContextMenu,
+  TransformHandles,
+  getTransformCursor,
+} from './components'
 export type { SelectionContextMenuProps } from './components'
+
+// Transform hooks
+export { useTransform } from './hooks/useTransform'
+export type { UseTransformReturn, TransformResult } from './hooks/useTransform'

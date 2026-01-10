@@ -113,7 +113,10 @@ export const cubicKernel = (t: number): number => {
  */
 const cubicInterpolate1D = (v0: number, v1: number, v2: number, v3: number, t: number): number => {
   return (
-    v0 * cubicKernel(t + 1) + v1 * cubicKernel(t) + v2 * cubicKernel(t - 1) + v3 * cubicKernel(t - 2)
+    v0 * cubicKernel(t + 1) +
+    v1 * cubicKernel(t) +
+    v2 * cubicKernel(t - 1) +
+    v3 * cubicKernel(t - 2)
   )
 }
 
@@ -191,18 +194,18 @@ export const calculateInverseTransform = (
     const dx = outX - center.x
     const dy = outY - center.y
 
-    // 逆スケール
-    const sx = dx * invScaleX
-    const sy = dy * invScaleY
+    // 逆回転（順変換がスケール→回転なので、逆は回転→スケール）
+    const rx = dx * cosR - dy * sinR
+    const ry = dx * sinR + dy * cosR
 
-    // 逆回転
-    const rx = sx * cosR - sy * sinR
-    const ry = sx * sinR + sy * cosR
+    // 逆スケール
+    const sx = rx * invScaleX
+    const sy = ry * invScaleY
 
     // 元の座標に戻す
     return {
-      x: rx + center.x,
-      y: ry + center.y,
+      x: sx + center.x,
+      y: sy + center.y,
     }
   }
 }
@@ -210,7 +213,10 @@ export const calculateInverseTransform = (
 /**
  * 変形後のバウンディングボックスを計算
  */
-export const calculateTransformedBounds = (originalBounds: Bounds, transform: TransformState): Bounds => {
+export const calculateTransformedBounds = (
+  originalBounds: Bounds,
+  transform: TransformState
+): Bounds => {
   const { center, scale, rotation } = transform
   const { x, y, width, height } = originalBounds
 

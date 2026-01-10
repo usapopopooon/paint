@@ -15,7 +15,6 @@ import {
   getTransformedCorners,
 } from './transformOperations'
 import type { Bounds } from '@/lib/geometry'
-import type { TransformMode } from '../../types'
 
 describe('transformOperations', () => {
   describe('HANDLE_INFO', () => {
@@ -165,7 +164,13 @@ describe('transformOperations', () => {
     test('右方向にドラッグでX方向に拡大', () => {
       const startPoint = { x: 200, y: 150 }
       const currentPoint = { x: 250, y: 150 }
-      const scale = calculateScaleFromHandle('middle-right', startPoint, currentPoint, bounds, center)
+      const scale = calculateScaleFromHandle(
+        'middle-right',
+        startPoint,
+        currentPoint,
+        bounds,
+        center
+      )
 
       expect(scale.x).toBeGreaterThan(1)
       expect(scale.y).toBe(1)
@@ -174,7 +179,13 @@ describe('transformOperations', () => {
     test('下方向にドラッグでY方向に拡大', () => {
       const startPoint = { x: 150, y: 200 }
       const currentPoint = { x: 150, y: 250 }
-      const scale = calculateScaleFromHandle('bottom-center', startPoint, currentPoint, bounds, center)
+      const scale = calculateScaleFromHandle(
+        'bottom-center',
+        startPoint,
+        currentPoint,
+        bounds,
+        center
+      )
 
       expect(scale.x).toBe(1)
       expect(scale.y).toBeGreaterThan(1)
@@ -183,7 +194,13 @@ describe('transformOperations', () => {
     test('コーナーハンドルで両方向にスケール', () => {
       const startPoint = { x: 200, y: 200 }
       const currentPoint = { x: 250, y: 250 }
-      const scale = calculateScaleFromHandle('bottom-right', startPoint, currentPoint, bounds, center)
+      const scale = calculateScaleFromHandle(
+        'bottom-right',
+        startPoint,
+        currentPoint,
+        bounds,
+        center
+      )
 
       expect(scale.x).toBeGreaterThan(1)
       expect(scale.y).toBeGreaterThan(1)
@@ -192,9 +209,16 @@ describe('transformOperations', () => {
     test('アスペクト比維持オプション', () => {
       const startPoint = { x: 200, y: 200 }
       const currentPoint = { x: 250, y: 220 } // X方向に多くドラッグ
-      const scale = calculateScaleFromHandle('bottom-right', startPoint, currentPoint, bounds, center, {
-        preserveAspectRatio: true,
-      })
+      const scale = calculateScaleFromHandle(
+        'bottom-right',
+        startPoint,
+        currentPoint,
+        bounds,
+        center,
+        {
+          preserveAspectRatio: true,
+        }
+      )
 
       expect(Math.abs(scale.x)).toBe(Math.abs(scale.y))
     })

@@ -38,6 +38,7 @@ import { useKeyboardShortcuts, useBeforeUnload } from './hooks'
 import { ReloadPrompt } from './features/pwa'
 import {
   useSelection,
+  useTransform,
   SelectionToolButton,
   SelectionContextMenu,
   renderLayerToOffscreenCanvas,
@@ -50,7 +51,7 @@ import {
   getOrCreateOffscreenCanvas,
   drawImageDataToContext,
 } from './features/selection'
-import type { SelectionRegion } from './features/selection'
+import type { SelectionRegion, TransformMode } from './features/selection'
 import { createInitialLayerState, type Layer } from './features/layer'
 import type { ImageDrawable } from './features/drawable'
 import { generateId } from './lib/id'
@@ -153,6 +154,7 @@ function App() {
   const zoom = useZoom()
   const tool = useTool()
   const selection = useSelection()
+  const transform = useTransform()
   const exportImage = useExportImage(canvasContainerRef)
   const { t } = useTranslation()
 
@@ -690,6 +692,179 @@ function App() {
     canvasSize.height,
   ])
 
+  /**
+   * 変形を開始するハンドラ
+   * 1. 先に変形状態を開始（プレビュー表示を有効化）
+   * 2. 元レイヤーから選択領域を切り抜いて履歴に記録
+   */
+  const handleStartTransform = useCallback(
+    async (mode: TransformMode) => {
+      // すでに変形中の場合は何もしない
+      if (transform.isTransforming) return
+
+      const region = selection.state.region
+      if (!region) return
+
+      // 対象レイヤーを取得
+      const layer = canvas.layers.find((l) => l.id === region.layerId)
+      if (!layer) return
+
+      // 選択領域のバウンズを取得
+      const bounds = getSelectionBounds(region.shape, region.offset)
+
+      // すでにキャッシュされたImageDataがある場合はそれを使用
+      // なければ先にレイヤーをレンダリングして取得
+      let imageData: ImageData
+      if (region.imageData) {
+        imageData = region.imageData
+      } else {
+        // レイヤーをオフスクリーンCanvasにレンダリング
+        const tempCanvas = await renderLayerToOffscreenCanvas(
+          layer,
+          canvasSize.width,
+          canvasSize.height
+        )
+        const tempCtx = tempCanvas.getContext('2d')!
+        // 選択領域からImageDataを取得
+        imageData = getMaskedImageDataFromSelection(tempCtx, region.shape, { x: 0, y: 0 })
+        // 選択領域のImageDataをキャッシュ
+        selection.setRegionImageData(imageData)
+      }
+
+      // === ここから同期的に処理 ===
+      // 1. まずレイヤーを空にする（履歴に記録 - キャンセル時にUndoで復元可能）
+      //    これにより、プレビュー描画時に元の描画が見えなくなる
+      canvas.replaceLayerDrawables([], region.layerId)
+
+      // 2. 変形状態を開始（プレビュー表示を有効化）
+      transform.startTransform(mode, imageData, bounds)
+
+      // === ここから非同期で処理 ===
+      // 3. 選択領域をクリアしたImageDrawableを作成してレイヤーに設定
+      //    （履歴なし - 上で既に記録済み）
+      const offscreenCanvas = await renderLayerToOffscreenCanvas(
+        layer,
+        canvasSize.width,
+        canvasSize.height
+      )
+      const ctx = offscreenCanvas.getContext('2d')!
+
+      // 選択領域をクリア
+      clearSelectionRegion(ctx, region.shape, { x: 0, y: 0 })
+
+      // クリア後のキャンバスをImageDrawableとして作成
+      const clearedImageDrawable = createFullCanvasImageDrawable(
+        canvasToDataURL(offscreenCanvas),
+        canvasSize.width,
+        canvasSize.height
+      )
+
+      // 履歴なしでレイヤーを更新（履歴は既に記録済み）
+      canvas.setDrawablesToLayer([clearedImageDrawable], region.layerId)
+    },
+    [selection, canvas, transform, canvasSize.width, canvasSize.height]
+  )
+
+  /**
+   * 自由変形ハンドラ
+   */
+  const handleFreeTransform = useCallback(() => {
+    handleStartTransform('free-transform')
+  }, [handleStartTransform])
+
+  /**
+   * 拡大縮小ハンドラ
+   */
+  const handleScaleTransform = useCallback(() => {
+    handleStartTransform('scale')
+  }, [handleStartTransform])
+
+  /**
+   * 回転ハンドラ
+   */
+  const handleRotateTransform = useCallback(() => {
+    handleStartTransform('rotate')
+  }, [handleStartTransform])
+
+  /**
+   * 変形中にCtrl+Tでモード切り替え、または変形開始
+   */
+  const handleTransformShortcut = useCallback(() => {
+    if (transform.isTransforming) {
+      // 変形中はモードをサイクル
+      transform.cycleTransformMode()
+    } else if (selection.state.region) {
+      // 選択領域がある場合は自由変形を開始
+      handleStartTransform('free-transform')
+    }
+  }, [transform, selection.state.region, handleStartTransform])
+
+  /**
+   * 変形を確定するハンドラ
+   * 変形開始時に選択領域はクリア済みなので、変形後の画像を描画するだけ
+   */
+  const handleConfirmTransform = useCallback(async () => {
+    if (!transform.isTransforming) return
+
+    const region = selection.state.region
+    if (!region) {
+      transform.cancelTransform()
+      return
+    }
+
+    // 対象レイヤーを取得
+    const layer = canvas.layers.find((l) => l.id === region.layerId)
+    if (!layer) {
+      transform.cancelTransform()
+      selection.deselect()
+      return
+    }
+
+    // === 非同期処理を先に完了させる（プレビューはまだ表示中） ===
+    // レイヤーをオフスクリーンにレンダリング（選択領域は変形開始時にクリア済み）
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(
+      layer,
+      canvasSize.width,
+      canvasSize.height
+    )
+    const ctx = offscreenCanvas.getContext('2d')!
+
+    // バイキュービック補間で最終結果を生成（変形後のバウンズも取得）
+    const result = transform.commitTransform()
+    if (!result) return
+
+    // 変形後のバウンズを使用して描画
+    drawImageDataToContext(ctx, result.imageData, result.bounds.x, result.bounds.y)
+
+    // 結果をImageDrawableとして保存（履歴なし - 変形開始時に記録済み）
+    const imageDrawable = createFullCanvasImageDrawable(
+      canvasToDataURL(offscreenCanvas),
+      canvasSize.width,
+      canvasSize.height
+    )
+
+    // === ここから同期的に処理（プレビュー終了と同時にレイヤー更新） ===
+    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+
+    // 変形確定後は選択を解除
+    selection.deselect()
+  }, [transform, selection, canvas, canvasSize.width, canvasSize.height])
+
+  /**
+   * 変形をキャンセルするハンドラ
+   * Undoで元のレイヤー状態を復元
+   */
+  const handleCancelTransform = useCallback(() => {
+    if (transform.isTransforming) {
+      transform.cancelTransform()
+      // Undoで元のレイヤー状態を復元（変形開始時に履歴に記録済み）
+      canvas.undo()
+    } else {
+      // 変形中でなければ選択解除
+      handleDeselect()
+    }
+  }, [transform, canvas, handleDeselect])
+
   // キーボードショートカット
   useKeyboardShortcuts({
     onUndo: canvas.undo,
@@ -709,6 +884,9 @@ function App() {
     onCutSelection: handleCutSelection,
     onPasteSelection: handlePasteSelection,
     onFillSelection: handleFillSelection,
+    onTransform: handleTransformShortcut,
+    onConfirmTransform: handleConfirmTransform,
+    onCancelTransform: handleCancelTransform,
     onZoomIn: zoom.zoomIn,
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
@@ -1123,6 +1301,9 @@ function App() {
                   onSelectAll={handleSelectAll}
                   onFillSelection={handleFillSelection}
                   onCropToSelection={handleCropToSelection}
+                  onFreeTransform={handleFreeTransform}
+                  onScaleTransform={handleScaleTransform}
+                  onRotateTransform={handleRotateTransform}
                   showContextMenu={
                     tool.currentType === 'select-rectangle' || tool.currentType === 'select-lasso'
                   }
@@ -1157,6 +1338,12 @@ function App() {
                       isPointInRegion={selection.isPointInRegion}
                       isActiveLayerHidden={isActiveLayerHidden}
                       onHiddenLayerInteraction={handleHiddenLayerInteraction}
+                      transformState={transform.transformState}
+                      previewImageData={transform.previewImageData}
+                      onStartHandleOperation={transform.startHandleOperation}
+                      onUpdateTransform={transform.updateTransform}
+                      onEndHandleOperation={transform.endHandleOperation}
+                      detectHandleAtPoint={transform.detectHandleAtPoint}
                     />
                   </div>
                 </SelectionContextMenu>

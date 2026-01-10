@@ -51,7 +51,12 @@
     "workbox",
     "maskable",
     "precaching",
-    "precached"
+    "precached",
+    "Kalman",
+    "kalman",
+    "Catmull",
+    "bilinear",
+    "bicubic"
   ],
   "ignorePaths": [
     "node_modules",

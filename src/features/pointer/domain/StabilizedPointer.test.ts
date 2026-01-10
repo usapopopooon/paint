@@ -400,7 +400,11 @@ describe('StabilizedPointer', () => {
     test('複数ポイントを一度に追加できる', () => {
       const pointer = new StabilizedPointer()
 
-      const results = pointer.addPoints([createPoint(0, 0), createPoint(10, 10), createPoint(20, 20)])
+      const results = pointer.addPoints([
+        createPoint(0, 0),
+        createPoint(10, 10),
+        createPoint(20, 20),
+      ])
 
       expect(results).toHaveLength(3)
       expect(pointer.getAllPoints()).toHaveLength(3)
@@ -1168,12 +1172,7 @@ describe('StabilizedPointer', () => {
       const highLevel = createStabilizedPointer(50)
 
       // 小さな移動（ノイズ的な動き）を追加
-      const smallMove = [
-        createPoint(0, 0),
-        createPoint(1, 0),
-        createPoint(2, 0),
-        createPoint(3, 0),
-      ]
+      const smallMove = [createPoint(0, 0), createPoint(1, 0), createPoint(2, 0), createPoint(3, 0)]
 
       smallMove.forEach((p) => lowLevel.addPoint(p))
       smallMove.forEach((p) => highLevel.addPoint(p))
@@ -1203,7 +1202,7 @@ describe('StabilizedPointer', () => {
       const highPoints = highLevel.getAllPoints()
 
       // Y座標の分散を計算
-      const variance = (points: PointerPoint[]) => {
+      const variance = (points: readonly PointerPoint[]) => {
         const mean = points.reduce((sum, p) => sum + p.y, 0) / points.length
         return points.reduce((sum, p) => sum + (p.y - mean) ** 2, 0) / points.length
       }
@@ -1296,9 +1295,7 @@ describe('StabilizedPointer', () => {
 
   describe('pressure の補間', () => {
     test('圧力値がフィルタ後も妥当な範囲', () => {
-      const pointer = new StabilizedPointer()
-        .withKalmanFilter(0.1, 0.5)
-        .withGaussianFilter(5, 1.0)
+      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5).withGaussianFilter(5, 1.0)
 
       pointer.addPoint(createPoint(0, 0, 0.2))
       pointer.addPoint(createPoint(10, 10, 0.5))

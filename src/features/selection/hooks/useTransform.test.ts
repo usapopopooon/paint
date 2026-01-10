@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeAll } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTransform } from './useTransform'
+import type { TransformResult } from './useTransform'
 import type { Bounds } from '@/lib/geometry'
 
 /**
@@ -42,7 +43,6 @@ const createTestImageData = (width: number, height: number): ImageData => {
     data[i * 4 + 2] = 200
     data[i * 4 + 3] = 255
   }
-  // @ts-expect-error ポリフィル
   return new ImageData(data, width, height)
 }
 
@@ -264,12 +264,14 @@ describe('useTransform', () => {
         result.current.startTransform('free-transform', imageData, bounds)
       })
 
-      let committedImageData: ImageData | null = null
+      let committedResult: TransformResult | null = null
       act(() => {
-        committedImageData = result.current.commitTransform()
+        committedResult = result.current.commitTransform()
       })
 
-      expect(committedImageData).not.toBeNull()
+      expect(committedResult).not.toBeNull()
+      expect(committedResult!.imageData).toBeDefined()
+      expect(committedResult!.bounds).toBeDefined()
       expect(result.current.transformState).toBeNull()
       expect(result.current.previewImageData).toBeNull()
       expect(result.current.isTransforming).toBe(false)
@@ -278,12 +280,12 @@ describe('useTransform', () => {
     test('変形中でない場合はnullを返す', () => {
       const { result } = renderHook(() => useTransform())
 
-      let committedImageData: ImageData | null = null
+      let committedResult: TransformResult | null = null
       act(() => {
-        committedImageData = result.current.commitTransform()
+        committedResult = result.current.commitTransform()
       })
 
-      expect(committedImageData).toBeNull()
+      expect(committedResult).toBeNull()
     })
   })
 

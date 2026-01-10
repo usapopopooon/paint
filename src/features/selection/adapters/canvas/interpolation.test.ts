@@ -57,7 +57,6 @@ const createTestImageData = (width: number, height: number, fill?: number[]): Im
       data[i * 4 + 3] = fill[3]
     }
   }
-  // @ts-expect-error ポリフィルの可能性
   return new ImageData(data, width, height)
 }
 
@@ -75,7 +74,6 @@ const createGradientImageData = (width: number, height: number): ImageData => {
       data[idx + 3] = 255 // A: 不透明
     }
   }
-  // @ts-expect-error ポリフィルの可能性
   return new ImageData(data, width, height)
 }
 

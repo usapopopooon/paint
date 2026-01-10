@@ -247,7 +247,13 @@ export const calculateScaleFromHandle = (
   }
 
   // アスペクト比維持
-  if (preserveAspectRatio && handle !== 'top-center' && handle !== 'bottom-center' && handle !== 'middle-left' && handle !== 'middle-right') {
+  if (
+    preserveAspectRatio &&
+    handle !== 'top-center' &&
+    handle !== 'bottom-center' &&
+    handle !== 'middle-left' &&
+    handle !== 'middle-right'
+  ) {
     const uniformScale = Math.max(Math.abs(scaleX), Math.abs(scaleY))
     scaleX = scaleX >= 0 ? uniformScale : -uniformScale
     scaleY = scaleY >= 0 ? uniformScale : -uniformScale
@@ -402,4 +408,39 @@ export const getTransformedCorners = (
       y: ry + center.y,
     }
   })
+}
+
+/**
+ * 変形ハンドル用のカーソルを取得
+ */
+export const getTransformCursor = (
+  handle: TransformHandlePosition | null,
+  rotation: number = 0
+): string => {
+  if (!handle) return 'default'
+
+  const info = HANDLE_INFO[handle]
+  if (handle === 'rotation') {
+    return 'grab'
+  }
+
+  // 回転に応じてカーソルを調整
+  // 45度ごとに8方向のカーソルをマッピング
+  const cursorMap: Record<string, string[]> = {
+    'nwse-resize': ['nwse-resize', 'ns-resize', 'nesw-resize', 'ew-resize'],
+    'nesw-resize': ['nesw-resize', 'ew-resize', 'nwse-resize', 'ns-resize'],
+    'ns-resize': ['ns-resize', 'nesw-resize', 'ew-resize', 'nwse-resize'],
+    'ew-resize': ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'],
+  }
+
+  const baseCursor = info.cursor
+  const cursorCycle = cursorMap[baseCursor]
+  if (!cursorCycle) return baseCursor
+
+  // 45度ごとのインデックス
+  const angle = ((rotation * 180) / Math.PI) % 360
+  const normalizedAngle = angle < 0 ? angle + 360 : angle
+  const index = Math.round(normalizedAngle / 45) % 4
+
+  return cursorCycle[index]
 }

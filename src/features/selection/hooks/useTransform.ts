@@ -7,6 +7,7 @@ import {
   calculateScaleFromHandle,
   calculateRotationFromHandle,
   applyTransformToImageData,
+  calculateTransformedBounds,
   detectHandle,
   getAllHandlePositions,
 } from '../adapters/canvas'
@@ -19,6 +20,16 @@ type HandleOperation = {
   readonly startPoint: Point
   readonly startScale: { x: number; y: number }
   readonly startRotation: number
+}
+
+/**
+ * 変形確定時の結果
+ */
+export type TransformResult = {
+  /** 変形後のImageData */
+  readonly imageData: ImageData
+  /** 変形後のバウンズ（キャンバス座標系での位置とサイズ） */
+  readonly bounds: Bounds
 }
 
 /**
@@ -42,7 +53,7 @@ export type UseTransformReturn = {
   /** ハンドル操作を終了 */
   readonly endHandleOperation: () => void
   /** 変形を確定（バイキュービック補間で最終ImageDataを生成） */
-  readonly commitTransform: () => ImageData | null
+  readonly commitTransform: () => TransformResult | null
   /** 変形をキャンセル */
   readonly cancelTransform: () => void
   /** 点がハンドル上にあるかを検出 */
@@ -67,18 +78,12 @@ export const useTransform = (): UseTransformReturn => {
   const [isHandleOperating, setIsHandleOperating] = useState(false)
 
   /**
-   * プレビューを更新（バイリニア補間）
+   * プレビューを更新
+   * プレビューは元画像をそのまま使用し、TransformHandlesでCanvas変換行列を使って描画
    */
   const updatePreview = useCallback((state: TransformState) => {
     if (!state.originalImageData) return
-
-    try {
-      const preview = applyTransformToImageData(state.originalImageData, state, 'bilinear')
-      setPreviewImageData(preview)
-    } catch {
-      // 補間に失敗した場合は元のImageDataを使用
-      setPreviewImageData(state.originalImageData)
-    }
+    setPreviewImageData(state.originalImageData)
   }, [])
 
   /**
@@ -96,15 +101,12 @@ export const useTransform = (): UseTransformReturn => {
   /**
    * 変形モードを設定
    */
-  const setTransformMode = useCallback(
-    (mode: TransformMode) => {
-      setTransformState((prev) => {
-        if (!prev) return null
-        return { ...prev, mode }
-      })
-    },
-    []
-  )
+  const setTransformMode = useCallback((mode: TransformMode) => {
+    setTransformState((prev) => {
+      if (!prev) return null
+      return { ...prev, mode }
+    })
+  }, [])
 
   /**
    * 変形モードをサイクル（Ctrl+T用）
@@ -197,18 +199,21 @@ export const useTransform = (): UseTransformReturn => {
   /**
    * 変形を確定（バイキュービック補間で最終ImageDataを生成）
    */
-  const commitTransform = useCallback((): ImageData | null => {
+  const commitTransform = useCallback((): TransformResult | null => {
     if (!transformState || !transformState.originalImageData) {
       return null
     }
 
     try {
       // バイキュービック補間で高品質な結果を生成
-      const result = applyTransformToImageData(
+      const imageData = applyTransformToImageData(
         transformState.originalImageData,
         transformState,
         'bicubic'
       )
+
+      // 変形後のバウンズを計算
+      const bounds = calculateTransformedBounds(transformState.originalBounds, transformState)
 
       // 状態をリセット
       setTransformState(null)
@@ -216,22 +221,23 @@ export const useTransform = (): UseTransformReturn => {
       handleOperationRef.current = null
       setIsHandleOperating(false)
 
-      return result
+      return { imageData, bounds }
     } catch {
-      // 失敗した場合は元のImageDataを返す
+      // 失敗した場合は元のImageDataと元のバウンズを返す
       const original = transformState.originalImageData
+      const originalBounds = transformState.originalBounds
       setTransformState(null)
       setPreviewImageData(null)
       handleOperationRef.current = null
       setIsHandleOperating(false)
-      return original
+      return { imageData: original, bounds: originalBounds }
     }
   }, [transformState])
 
   /**
    * 変形をキャンセル
    */
-  const cancelTransform = useCallback(() => {
+  const cancelTransform = useCallback((): void => {
     setTransformState(null)
     setPreviewImageData(null)
     handleOperationRef.current = null

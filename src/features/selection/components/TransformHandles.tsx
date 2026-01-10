@@ -1,15 +1,8 @@
 import { useRef, useEffect, useCallback, useMemo } from 'react'
-import type { Point, Bounds } from '@/lib/geometry'
+import type { Point } from '@/lib/geometry'
 import type { TransformMode, TransformHandlePosition, TransformState } from '../types'
-import {
-  getAllHandlePositions,
-  getTransformedCorners,
-  HANDLE_INFO,
-} from '../adapters/canvas'
-import {
-  TRANSFORM_HANDLE_SIZE,
-  TRANSFORM_HANDLE_STROKE_WIDTH,
-} from '../constants'
+import { getAllHandlePositions, getTransformedCorners } from '../adapters/canvas'
+import { TRANSFORM_HANDLE_SIZE, TRANSFORM_HANDLE_STROKE_WIDTH } from '../constants'
 
 type TransformHandlesProps = {
   /** キャンバスの幅 */
@@ -91,12 +84,7 @@ export const TransformHandles = ({
    * ハンドルを描画
    */
   const drawHandle = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      position: Point,
-      isRotation: boolean,
-      handleSize: number
-    ) => {
+    (ctx: CanvasRenderingContext2D, position: Point, isRotation: boolean, handleSize: number) => {
       ctx.save()
 
       if (isRotation) {
@@ -129,6 +117,33 @@ export const TransformHandles = ({
     },
     []
   )
+
+  /**
+   * モードに応じて表示するハンドルを取得
+   */
+  const getVisibleHandles = useCallback((mode: TransformMode): TransformHandlePosition[] => {
+    const scaleHandles: TransformHandlePosition[] = [
+      'top-left',
+      'top-center',
+      'top-right',
+      'middle-left',
+      'middle-right',
+      'bottom-left',
+      'bottom-center',
+      'bottom-right',
+    ]
+
+    switch (mode) {
+      case 'free-transform':
+        return [...scaleHandles, 'rotation']
+      case 'scale':
+        return scaleHandles
+      case 'rotate':
+        return ['rotation']
+      default:
+        return [...scaleHandles, 'rotation']
+    }
+  }, [])
 
   /**
    * 描画処理
@@ -206,34 +221,8 @@ export const TransformHandles = ({
     handlePositions,
     previewImageData,
     drawHandle,
+    getVisibleHandles,
   ])
-
-  /**
-   * モードに応じて表示するハンドルを取得
-   */
-  const getVisibleHandles = (mode: TransformMode): TransformHandlePosition[] => {
-    const scaleHandles: TransformHandlePosition[] = [
-      'top-left',
-      'top-center',
-      'top-right',
-      'middle-left',
-      'middle-right',
-      'bottom-left',
-      'bottom-center',
-      'bottom-right',
-    ]
-
-    switch (mode) {
-      case 'free-transform':
-        return [...scaleHandles, 'rotation']
-      case 'scale':
-        return scaleHandles
-      case 'rotate':
-        return ['rotation']
-      default:
-        return [...scaleHandles, 'rotation']
-    }
-  }
 
   /**
    * キャンバスサイズ変更時の処理
@@ -275,39 +264,4 @@ export const TransformHandles = ({
       }}
     />
   )
-}
-
-/**
- * 変形ハンドル用のカーソルを取得
- */
-export const getTransformCursor = (
-  handle: TransformHandlePosition | null,
-  rotation: number = 0
-): string => {
-  if (!handle) return 'default'
-
-  const info = HANDLE_INFO[handle]
-  if (handle === 'rotation') {
-    return 'grab'
-  }
-
-  // 回転に応じてカーソルを調整
-  // 45度ごとに8方向のカーソルをマッピング
-  const cursorMap: Record<string, string[]> = {
-    'nwse-resize': ['nwse-resize', 'ns-resize', 'nesw-resize', 'ew-resize'],
-    'nesw-resize': ['nesw-resize', 'ew-resize', 'nwse-resize', 'ns-resize'],
-    'ns-resize': ['ns-resize', 'nesw-resize', 'ew-resize', 'nwse-resize'],
-    'ew-resize': ['ew-resize', 'nwse-resize', 'ns-resize', 'nesw-resize'],
-  }
-
-  const baseCursor = info.cursor
-  const cursorCycle = cursorMap[baseCursor]
-  if (!cursorCycle) return baseCursor
-
-  // 45度ごとのインデックス
-  const angle = ((rotation * 180) / Math.PI) % 360
-  const normalizedAngle = angle < 0 ? angle + 360 : angle
-  const index = Math.round(normalizedAngle / 45) % 4
-
-  return cursorCycle[index]
 }

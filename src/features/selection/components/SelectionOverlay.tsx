@@ -1,12 +1,13 @@
 import { useRef, useEffect, useCallback } from 'react'
 import type { Point } from '@/lib/geometry'
-import type { SelectionRegion, SelectionToolType } from '../types'
+import type { SelectionRegion, SelectionToolType, TransformState } from '../types'
 import { MARCHING_ANTS_SPEED } from '../constants'
 import {
   renderSelection2D,
   renderRectanglePreview2D,
   renderLassoPreview2D,
 } from '../adapters/canvas'
+import { TransformHandles } from './TransformHandles'
 
 type SelectionOverlayProps = {
   /** キャンバスの幅 */
@@ -25,6 +26,10 @@ type SelectionOverlayProps = {
   readonly scale?: number
   /** オフセット */
   readonly offset?: Point
+  /** 変形状態（変形中の場合） */
+  readonly transformState?: TransformState | null
+  /** 変形プレビュー用ImageData */
+  readonly previewImageData?: ImageData | null
 }
 
 /**
@@ -40,6 +45,8 @@ export const SelectionOverlay = ({
   isSelecting,
   scale = 1,
   offset = { x: 0, y: 0 },
+  transformState,
+  previewImageData,
 }: SelectionOverlayProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number | null>(null)
@@ -176,6 +183,20 @@ export const SelectionOverlay = ({
 
     render()
   }, [width, height, render])
+
+  // 変形中の場合はTransformHandlesを表示
+  if (transformState) {
+    return (
+      <TransformHandles
+        width={width}
+        height={height}
+        transformState={transformState}
+        scale={scale}
+        offset={offset}
+        previewImageData={previewImageData}
+      />
+    )
+  }
 
   // 選択領域も選択中でもない場合は何も表示しない
   if (!region && !isSelecting) {

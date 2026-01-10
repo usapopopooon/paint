@@ -358,7 +358,9 @@ export class StabilizedPointer {
    * 指定タイプのフィルタ設定を取得
    */
   private getFilter<T extends FilterType>(type: T): Extract<FilterConfig, { type: T }> | undefined {
-    return this.filterPipeline.find((f) => f.type === type) as Extract<FilterConfig, { type: T }> | undefined
+    return this.filterPipeline.find((f) => f.type === type) as
+      | Extract<FilterConfig, { type: T }>
+      | undefined
   }
 
   // ========================================
@@ -373,10 +375,21 @@ export class StabilizedPointer {
    * @param element - 対象のHTML要素
    * @param zoom - ズーム倍率（デフォルト: 1）
    */
-  addPointerEvent(event: React.PointerEvent<HTMLElement>, element: HTMLElement, zoom: number = 1): void {
+  addPointerEvent(
+    event: React.PointerEvent<HTMLElement>,
+    element: HTMLElement,
+    zoom: number = 1
+  ): void {
     const rect = element.getBoundingClientRect()
     const pointerType = getPointerType(event.pointerType)
-    const point = clientToLocal(event.clientX, event.clientY, rect, event.pressure, pointerType, zoom)
+    const point = clientToLocal(
+      event.clientX,
+      event.clientY,
+      rect,
+      event.pressure,
+      pointerType,
+      zoom
+    )
 
     // 補正なし: 完全スルー
     if (!this.hasEnabledFilters()) {
@@ -475,7 +488,11 @@ export class StabilizedPointer {
         }
         case 'kalman': {
           // カルマンフィルタ
-          stabilizedPoint = this.applyKalmanFilter(stabilizedPoint, filter.processNoise, filter.measurementNoise)
+          stabilizedPoint = this.applyKalmanFilter(
+            stabilizedPoint,
+            filter.processNoise,
+            filter.measurementNoise
+          )
           break
         }
         case 'gaussian': {
@@ -485,7 +502,11 @@ export class StabilizedPointer {
             this.rawBuffer.push(point)
           }
           if (filter.size > 1) {
-            stabilizedPoint = this.applyGaussianFilter(this.rawBuffer.length - 1, filter.size, filter.sigma)
+            stabilizedPoint = this.applyGaussianFilter(
+              this.rawBuffer.length - 1,
+              filter.size,
+              filter.sigma
+            )
           }
           break
         }
@@ -636,7 +657,11 @@ export class StabilizedPointer {
    *
    * プロセスノイズ(Q)が小さいほど予測を信頼、観測ノイズ(R)が大きいほど予測を信頼
    */
-  private applyKalmanFilter(point: PointerPoint, processNoise: number, measurementNoise: number): PointerPoint {
+  private applyKalmanFilter(
+    point: PointerPoint,
+    processNoise: number,
+    measurementNoise: number
+  ): PointerPoint {
     const Q = processNoise
     const R = measurementNoise
 

@@ -15,3 +15,6 @@ export * from './components'
 
 // コンテキスト
 export * from './context'
+
+// レンダラー
+export { preloadImage2D, clearImageCache2D } from './renderer'

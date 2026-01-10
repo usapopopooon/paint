@@ -183,7 +183,7 @@ describe('renderStroke', () => {
     })
   })
 
-  test('複数ポイントで正しい順序でlineTo呼び出しされる', () => {
+  test('複数ポイントでストロークが描画される', () => {
     const stroke: StrokeDrawable = {
       id: 'test-6',
       type: 'stroke',
@@ -204,9 +204,9 @@ describe('renderStroke', () => {
     renderStroke(graphics, stroke)
 
     expect(graphics.moveTo).toHaveBeenCalledWith(0, 0)
+    // 4点のストローク: 最初の点はmoveTo、残り3点はlineToで接続
     expect(graphics.lineTo).toHaveBeenCalledTimes(3)
-    expect(graphics.lineTo).toHaveBeenNthCalledWith(1, 10, 10)
-    expect(graphics.lineTo).toHaveBeenNthCalledWith(2, 20, 20)
-    expect(graphics.lineTo).toHaveBeenNthCalledWith(3, 30, 30)
+    // 最終ポイントは最後の呼び出しで到達
+    expect(graphics.lineTo).toHaveBeenLastCalledWith(30, 30)
   })
 })

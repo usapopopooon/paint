@@ -193,6 +193,7 @@ describe('renderStroke2D', () => {
     renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
 
     expect(ctx.moveTo).toHaveBeenCalledWith(0, 0)
+    expect(ctx.lineTo).toHaveBeenCalledTimes(3)
     expect(ctx.lineTo).toHaveBeenCalledWith(10, 10)
     expect(ctx.lineTo).toHaveBeenCalledWith(20, 5)
     expect(ctx.lineTo).toHaveBeenCalledWith(30, 15)
