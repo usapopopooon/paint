@@ -177,7 +177,11 @@ const CanvasResizeDialogContent = memo(function CanvasResizeDialogContent({
           {/* アンカーセレクター */}
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">{t('canvas.anchor')}</span>
-            <AnchorSelector value={localAnchor} onChange={setLocalAnchor} />
+            <div className="flex items-center gap-1">
+              <AnchorSelector value={localAnchor} onChange={setLocalAnchor} />
+              {/* pxラベルと揃えるためのスペーサー */}
+              <span className="text-sm text-muted-foreground invisible">px</span>
+            </div>
           </div>
         </div>
 
