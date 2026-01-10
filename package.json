@@ -1,7 +1,7 @@
 {
   "name": "paint",
   "private": true,
-  "version": "0.2.4",
+  "version": "0.2.4-fix",
   "type": "module",
   "scripts": {
     "dev": "vite",
