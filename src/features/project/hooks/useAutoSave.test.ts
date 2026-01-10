@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAutoSave } from './useAutoSave'
 import * as indexedDB from '@/lib/indexedDB'
+import type { Layer } from '@/features/layer'
 
 // IndexedDBのモック
 vi.mock('@/lib/indexedDB', () => ({
@@ -14,7 +15,7 @@ describe('useAutoSave', () => {
     projectName: 'Test Project',
     canvasWidth: 800,
     canvasHeight: 600,
-    layers: [],
+    layers: [] as Layer[],
     activeLayerId: 'layer-1',
     enabled: true,
   }
@@ -78,10 +79,7 @@ describe('useAutoSave', () => {
   })
 
   test('layersが変更されると遅延保存がトリガーされる', async () => {
-    const { rerender } = renderHook(
-      (props) => useAutoSave(props),
-      { initialProps: defaultOptions }
-    )
+    const { rerender } = renderHook((props) => useAutoSave(props), { initialProps: defaultOptions })
 
     // 最初の遅延保存
     await act(async () => {
@@ -92,7 +90,18 @@ describe('useAutoSave', () => {
     // layersを変更
     rerender({
       ...defaultOptions,
-      layers: [{ id: 'layer-1', name: 'Layer 1', drawables: [], isVisible: true, opacity: 1, blendMode: 'normal' }],
+      layers: [
+        {
+          id: 'layer-1',
+          name: 'Layer 1',
+          drawables: [],
+          isVisible: true,
+          opacity: 1,
+          blendMode: 'normal' as const,
+          type: 'drawing' as const,
+          isLocked: false,
+        },
+      ],
     })
 
     // 再度遅延後に保存
@@ -103,10 +112,7 @@ describe('useAutoSave', () => {
   })
 
   test('連続した変更は最後の変更から3秒後に1回だけ保存される', async () => {
-    const { rerender } = renderHook(
-      (props) => useAutoSave(props),
-      { initialProps: defaultOptions }
-    )
+    const { rerender } = renderHook((props) => useAutoSave(props), { initialProps: defaultOptions })
 
     // 1秒後にlayersを変更
     await act(async () => {
@@ -114,7 +120,18 @@ describe('useAutoSave', () => {
     })
     rerender({
       ...defaultOptions,
-      layers: [{ id: 'layer-1', name: 'Layer 1', drawables: [], isVisible: true, opacity: 1, blendMode: 'normal' }],
+      layers: [
+        {
+          id: 'layer-1',
+          name: 'Layer 1',
+          drawables: [],
+          isVisible: true,
+          opacity: 1,
+          blendMode: 'normal' as const,
+          type: 'drawing' as const,
+          isLocked: false,
+        },
+      ],
     })
 
     // さらに1秒後に変更
@@ -123,7 +140,18 @@ describe('useAutoSave', () => {
     })
     rerender({
       ...defaultOptions,
-      layers: [{ id: 'layer-2', name: 'Layer 2', drawables: [], isVisible: true, opacity: 1, blendMode: 'normal' }],
+      layers: [
+        {
+          id: 'layer-2',
+          name: 'Layer 2',
+          drawables: [],
+          isVisible: true,
+          opacity: 1,
+          blendMode: 'normal' as const,
+          type: 'drawing' as const,
+          isLocked: false,
+        },
+      ],
     })
 
     // 2秒経過時点ではまだ保存されていない

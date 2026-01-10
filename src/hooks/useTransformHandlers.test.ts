@@ -47,8 +47,17 @@ vi.mock('./useSelectionHandlers', () => ({
   }),
 }))
 
+// 書き換え可能なモック型
+type MutableSelectionReturn = {
+  -readonly [K in keyof UseSelectionReturn]: UseSelectionReturn[K]
+}
+
+type MutableTransformReturn = {
+  -readonly [K in keyof UseTransformReturn]: UseTransformReturn[K]
+}
+
 describe('useTransformHandlers', () => {
-  const createMockSelection = (): UseSelectionReturn => ({
+  const createMockSelection = (): MutableSelectionReturn => ({
     state: {
       phase: 'idle',
       region: null,
@@ -65,18 +74,23 @@ describe('useTransformHandlers', () => {
     startMove: vi.fn(),
     updateMove: vi.fn(),
     commitMove: vi.fn(),
+    deleteSelection: vi.fn(),
     copySelection: vi.fn(),
     cutSelection: vi.fn(),
     pasteSelection: vi.fn(),
+    fillSelection: vi.fn(),
     setRegionImageData: vi.fn(),
+    clearRegionImageData: vi.fn(),
     isPointInRegion: vi.fn(),
+    getSelectionBounds: vi.fn(),
   })
 
-  const createMockTransform = (): UseTransformReturn => ({
+  const createMockTransform = (): MutableTransformReturn => ({
     isTransforming: false,
     transformState: null,
     previewImageData: null,
     startTransform: vi.fn(),
+    setTransformMode: vi.fn(),
     updateTransform: vi.fn(),
     commitTransform: vi.fn().mockResolvedValue({
       imageData: createMockImageData(100, 100),
@@ -87,6 +101,8 @@ describe('useTransformHandlers', () => {
     startHandleOperation: vi.fn(),
     endHandleOperation: vi.fn(),
     detectHandleAtPoint: vi.fn(),
+    getHandlePositions: vi.fn(),
+    isHandleOperating: false,
   })
 
   const defaultOptions = {
@@ -160,21 +176,40 @@ describe('useTransformHandlers', () => {
     })
 
     test('選択領域がある場合は自由変形を開始する', async () => {
-      const selectionWithRegion = createMockSelection()
-      selectionWithRegion.state.region = {
-        shape: {
-          type: 'rectangle',
-          bounds: { x: 0, y: 0, width: 100, height: 100 },
+      const selectionWithRegion: MutableSelectionReturn = {
+        ...createMockSelection(),
+        state: {
+          phase: 'idle',
+          region: {
+            id: 'selection-1',
+            shape: {
+              type: 'rectangle',
+              bounds: { x: 0, y: 0, width: 100, height: 100 },
+            },
+            layerId: 'layer-1',
+            offset: { x: 0, y: 0 },
+            imageData: null,
+          },
+          clipboard: null,
+          toolConfig: { type: 'select-rectangle', feather: 0, antiAlias: true },
         },
-        layerId: 'layer-1',
-        offset: { x: 0, y: 0 },
-        imageData: null,
       }
 
       const options = {
         ...defaultOptions,
         selection: selectionWithRegion,
-        layers: [{ id: 'layer-1', drawables: [], isVisible: true, opacity: 1, blendMode: 'normal' as const, name: 'Layer 1', type: 'drawing' as const, isLocked: false }],
+        layers: [
+          {
+            id: 'layer-1',
+            drawables: [],
+            isVisible: true,
+            opacity: 1,
+            blendMode: 'normal' as const,
+            name: 'Layer 1',
+            type: 'drawing' as const,
+            isLocked: false,
+          },
+        ],
       }
 
       const { result } = renderHook(() => useTransformHandlers(options))

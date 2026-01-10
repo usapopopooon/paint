@@ -27,8 +27,13 @@ vi.mock('@/lib/id', () => ({
   generateId: vi.fn().mockReturnValue('test-id'),
 }))
 
+// 書き換え可能なモック型
+type MutableSelectionReturn = {
+  -readonly [K in keyof UseSelectionReturn]: UseSelectionReturn[K]
+}
+
 describe('useSelectionHandlers', () => {
-  const createMockSelection = (): UseSelectionReturn => ({
+  const createMockSelection = (): MutableSelectionReturn => ({
     state: {
       phase: 'idle',
       region: null,
@@ -45,11 +50,15 @@ describe('useSelectionHandlers', () => {
     startMove: vi.fn(),
     updateMove: vi.fn(),
     commitMove: vi.fn(),
+    deleteSelection: vi.fn(),
+    fillSelection: vi.fn(),
     copySelection: vi.fn(),
     cutSelection: vi.fn(),
     pasteSelection: vi.fn(),
     setRegionImageData: vi.fn(),
+    clearRegionImageData: vi.fn(),
     isPointInRegion: vi.fn(),
+    getSelectionBounds: vi.fn(),
   })
 
   const defaultOptions = {
@@ -169,10 +178,17 @@ describe('useSelectionHandlers', () => {
     })
 
     test('クリップボードがある場合はペーストする', () => {
-      const selectionWithClipboard = createMockSelection()
-      selectionWithClipboard.state.clipboard = {
-        imageData: createMockImageData(100, 100) as unknown as ImageData,
-        bounds: { x: 0, y: 0, width: 100, height: 100 },
+      const selectionWithClipboard: MutableSelectionReturn = {
+        ...createMockSelection(),
+        state: {
+          phase: 'idle',
+          region: null,
+          clipboard: {
+            imageData: createMockImageData(100, 100) as unknown as ImageData,
+            bounds: { x: 0, y: 0, width: 100, height: 100 },
+          },
+          toolConfig: { type: 'select-rectangle', feather: 0, antiAlias: true },
+        },
       }
 
       const optionsWithClipboard = {

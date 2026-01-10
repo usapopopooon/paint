@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import type { Layer } from '@/features/layer'
 import type { ImageDrawable } from '@/features/drawable'
-import type { SelectionRegion, TransformMode, UseTransformReturn, UseSelectionReturn } from '@/features/selection'
+import type { TransformMode, UseTransformReturn, UseSelectionReturn } from '@/features/selection'
 import {
   renderLayerToOffscreenCanvas,
   clearSelectionRegion,
@@ -64,11 +64,7 @@ export function useTransformHandlers(options: UseTransformHandlersOptions): Tran
       if (region.imageData) {
         imageData = region.imageData
       } else {
-        const tempCanvas = await renderLayerToOffscreenCanvas(
-          layer,
-          canvasWidth,
-          canvasHeight
-        )
+        const tempCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
         const tempCtx = tempCanvas.getContext('2d')!
         imageData = getMaskedImageDataFromSelection(tempCtx, region.shape, { x: 0, y: 0 })
         selection.setRegionImageData(imageData)
@@ -81,11 +77,7 @@ export function useTransformHandlers(options: UseTransformHandlersOptions): Tran
       transform.startTransform(mode, imageData, bounds)
 
       // 3. 選択領域をクリアしたImageDrawableを作成してレイヤーに設定
-      const offscreenCanvas = await renderLayerToOffscreenCanvas(
-        layer,
-        canvasWidth,
-        canvasHeight
-      )
+      const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
       const ctx = offscreenCanvas.getContext('2d')!
 
       clearSelectionRegion(ctx, region.shape, { x: 0, y: 0 })
@@ -98,7 +90,15 @@ export function useTransformHandlers(options: UseTransformHandlersOptions): Tran
 
       setDrawablesToLayer([clearedImageDrawable], region.layerId)
     },
-    [selection, transform, layers, canvasWidth, canvasHeight, replaceLayerDrawables, setDrawablesToLayer]
+    [
+      selection,
+      transform,
+      layers,
+      canvasWidth,
+      canvasHeight,
+      replaceLayerDrawables,
+      setDrawablesToLayer,
+    ]
   )
 
   const handleFreeTransform = useCallback(() => {
@@ -143,11 +143,7 @@ export function useTransformHandlers(options: UseTransformHandlersOptions): Tran
       return
     }
 
-    const offscreenCanvas = await renderLayerToOffscreenCanvas(
-      layer,
-      canvasWidth,
-      canvasHeight
-    )
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
     const ctx = offscreenCanvas.getContext('2d')!
 
     const result = await transform.commitTransform()

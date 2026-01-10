@@ -1,12 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from '@/features/i18n'
-import {
-  saveProject,
-  loadProject,
-  useAutoSave,
-  useRecovery,
-} from '@/features/project'
+import { saveProject, loadProject, useAutoSave, useRecovery } from '@/features/project'
 import type { LoadProjectError } from '@/features/project'
 import type { Layer } from '@/features/layer'
 import { createInitialLayerState } from '@/features/layer'
@@ -98,6 +93,7 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
   // 復元可能なデータがある場合にダイアログを表示
   useEffect(() => {
     if (!recovery.isLoading && recovery.hasRecoverableData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- リカバリーダイアログの初期表示に必要
       setRecoveryDialogOpen(true)
     }
   }, [recovery.isLoading, recovery.hasRecoverableData])

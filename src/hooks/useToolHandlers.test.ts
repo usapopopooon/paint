@@ -2,13 +2,40 @@ import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useToolHandlers } from './useToolHandlers'
 import type { UseToolReturn } from '@/features/tools'
+import type { ToolType } from '@/features/tools'
+
+// 書き換え可能なモック型
+type MutableToolReturn = {
+  -readonly [K in keyof UseToolReturn]: UseToolReturn[K]
+}
 
 describe('useToolHandlers', () => {
-  const createMockTool = (): UseToolReturn => ({
-    currentType: 'pen',
-    currentConfig: { type: 'pen', width: 5, color: '#000000', opacity: 1, hardness: 1, isBlurEnabled: false },
-    penConfig: { type: 'pen', width: 5, color: '#000000', opacity: 1, hardness: 1, isBlurEnabled: false },
-    brushConfig: { type: 'brush', width: 20, color: '#ff0000', opacity: 1, hardness: 0.5, isBlurEnabled: true },
+  const createMockTool = (overrides: Partial<MutableToolReturn> = {}): MutableToolReturn => ({
+    currentType: 'pen' as ToolType,
+    currentConfig: {
+      type: 'pen',
+      width: 5,
+      color: '#000000',
+      opacity: 1,
+      hardness: 1,
+      isBlurEnabled: false,
+    },
+    penConfig: {
+      type: 'pen',
+      width: 5,
+      color: '#000000',
+      opacity: 1,
+      hardness: 1,
+      isBlurEnabled: false,
+    },
+    brushConfig: {
+      type: 'brush',
+      width: 20,
+      color: '#ff0000',
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
     blurConfig: { type: 'blur', width: 30, opacity: 0.5, hardness: 0.8 },
     eraserConfig: { type: 'eraser', width: 10, opacity: 1, hardness: 1, isBlurEnabled: false },
     cursor: { size: 5, color: '#000000' },
@@ -33,6 +60,7 @@ describe('useToolHandlers', () => {
     setEraserHardness: vi.fn(),
     setEraserBlurEnabled: vi.fn(),
     getCursor: vi.fn(),
+    ...overrides,
   })
 
   beforeEach(() => {

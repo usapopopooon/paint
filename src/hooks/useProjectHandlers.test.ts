@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { useProjectHandlers } from './useProjectHandlers'
 
 // モック
@@ -137,7 +137,7 @@ describe('useProjectHandlers', () => {
   test('setLoadErrorでエラー状態を更新できる', () => {
     const { result } = renderHook(() => useProjectHandlers(defaultOptions))
 
-    const error = { type: 'invalid-format' as const }
+    const error = { type: 'parse_error' as const }
     act(() => {
       result.current.setLoadError(error)
     })

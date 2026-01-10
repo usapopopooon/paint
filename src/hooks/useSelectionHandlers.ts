@@ -135,10 +135,7 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
   }, [setToolType, setSelectionToolType])
 
   const handleSelectAll = useCallback(() => {
-    selection.selectAll(
-      { x: 0, y: 0, width: canvasWidth, height: canvasHeight },
-      activeLayerId
-    )
+    selection.selectAll({ x: 0, y: 0, width: canvasWidth, height: canvasHeight }, activeLayerId)
   }, [selection, canvasWidth, canvasHeight, activeLayerId])
 
   /**
@@ -184,19 +181,19 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
     const offsetX = -Math.round(bounds.x)
     const offsetY = -Math.round(bounds.y)
 
-    recordCanvasResize(
-      canvasWidth,
-      canvasHeight,
-      newWidth,
-      newHeight,
-      offsetX,
-      offsetY
-    )
+    recordCanvasResize(canvasWidth, canvasHeight, newWidth, newHeight, offsetX, offsetY)
 
     translateAllLayers(offsetX, offsetY)
     setSizeDirectly(newWidth, newHeight)
     selection.deselect()
-  }, [selection, canvasWidth, canvasHeight, recordCanvasResize, translateAllLayers, setSizeDirectly])
+  }, [
+    selection,
+    canvasWidth,
+    canvasHeight,
+    recordCanvasResize,
+    translateAllLayers,
+    setSizeDirectly,
+  ])
 
   /**
    * 選択領域を削除するハンドラ
@@ -211,11 +208,7 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
       return
     }
 
-    const offscreenCanvas = await renderLayerToOffscreenCanvas(
-      layer,
-      canvasWidth,
-      canvasHeight
-    )
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
     const ctx = offscreenCanvas.getContext('2d')!
 
     clearSelectionRegion(ctx, region.shape, region.offset)
@@ -240,11 +233,7 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
     const layer = layers.find((l) => l.id === region.layerId)
     if (!layer) return
 
-    const offscreenCanvas = await renderLayerToOffscreenCanvas(
-      layer,
-      canvasWidth,
-      canvasHeight
-    )
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
     const ctx = offscreenCanvas.getContext('2d')!
 
     const imageData = getMaskedImageDataFromSelection(ctx, region.shape, region.offset)
@@ -263,11 +252,7 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
     const layer = layers.find((l) => l.id === region.layerId)
     if (!layer) return
 
-    const offscreenCanvas = await renderLayerToOffscreenCanvas(
-      layer,
-      canvasWidth,
-      canvasHeight
-    )
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
     const ctx = offscreenCanvas.getContext('2d')!
 
     const imageData = getMaskedImageDataFromSelection(ctx, region.shape, region.offset)
@@ -331,11 +316,7 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
 
     const color = currentToolType === 'brush' ? brushColor : penColor
 
-    const offscreenCanvas = await renderLayerToOffscreenCanvas(
-      layer,
-      canvasWidth,
-      canvasHeight
-    )
+    const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
     const ctx = offscreenCanvas.getContext('2d')!
 
     fillSelectionRegion(ctx, region.shape, color, region.offset)
@@ -405,11 +386,7 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
         return
       }
 
-      const offscreenCanvas = await renderLayerToOffscreenCanvas(
-        layer,
-        canvasWidth,
-        canvasHeight
-      )
+      const offscreenCanvas = await renderLayerToOffscreenCanvas(layer, canvasWidth, canvasHeight)
       const ctx = offscreenCanvas.getContext('2d')!
 
       const imageData = getMaskedImageDataFromSelection(ctx, region.shape, { x: 0, y: 0 })
