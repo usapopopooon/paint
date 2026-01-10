@@ -15,7 +15,26 @@ const takeScreenshot = async () => {
   // ページが完全に読み込まれるまで待機
   await page.waitForLoadState('networkidle')
 
-  // ペンツールを選択（デフォルトはハンドツールのため）
+  // 新規キャンバスダイアログを開く（メニューバーのファイル→新規）
+  const fileMenu = page
+    .locator('button', { hasText: 'File' })
+    .or(page.locator('button', { hasText: 'ファイル' }))
+  await fileMenu.click()
+  const newMenuItem = page
+    .locator('[role="menuitem"]', { hasText: 'New' })
+    .or(page.locator('[role="menuitem"]', { hasText: '新規' }))
+  await newMenuItem.click()
+
+  // ダイアログが開くまで待機し、作成ボタンをクリック
+  const createButton = page
+    .locator('button', { hasText: 'Create' })
+    .or(page.locator('button', { hasText: '作成' }))
+  await createButton.click()
+
+  // キャンバスが表示されるまで待機
+  await page.waitForSelector('canvas')
+
+  // ペンツールを選択
   await page.keyboard.press('p')
 
   // 少し描画する（デモ用）
