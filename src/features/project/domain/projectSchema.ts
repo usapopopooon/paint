@@ -19,7 +19,7 @@ const brushTipTypeSchema = z.enum(['solid', 'soft', 'airbrush'])
 /**
  * ブレンドモードスキーマ（ストローク用）
  */
-const strokeBlendModeSchema = z.enum(['normal', 'erase'])
+const strokeBlendModeSchema = z.enum(['normal', 'erase', 'blur'])
 
 /**
  * ブラシチップスキーマ

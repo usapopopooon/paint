@@ -209,4 +209,76 @@ describe('renderStroke', () => {
     // 最終ポイントは最後の呼び出しで到達
     expect(graphics.lineTo).toHaveBeenLastCalledWith(30, 30)
   })
+
+  test('blurブレンドモードの場合はtrueを返す（PixiJSでは描画しない）', () => {
+    const stroke: StrokeDrawable = {
+      id: 'test-blur',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 },
+      ],
+      style: {
+        color: 'transparent',
+        brushTip: {
+          type: 'solid',
+          size: 20,
+          hardness: 0.5,
+          opacity: 1,
+        },
+        blendMode: 'blur',
+      },
+    }
+
+    const result = renderStroke(graphics, stroke)
+
+    // blurモードはPixiJSでレンダリングできないためtrueを返す
+    expect(result).toBe(true)
+    // 何も描画しない
+    expect(graphics.setStrokeStyle).not.toHaveBeenCalled()
+    expect(graphics.stroke).not.toHaveBeenCalled()
+  })
+
+  test('normalブレンドモードの場合はfalseを返す', () => {
+    const stroke: StrokeDrawable = {
+      id: 'test-normal',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 },
+      ],
+      style: {
+        color: '#ff0000',
+        brushTip: createSolidBrushTip(10),
+        blendMode: 'normal',
+      },
+    }
+
+    const result = renderStroke(graphics, stroke)
+
+    expect(result).toBe(false)
+  })
+
+  test('eraseブレンドモードの場合はfalseを返す', () => {
+    const stroke: StrokeDrawable = {
+      id: 'test-erase',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 100, y: 100 },
+      ],
+      style: {
+        color: '#ffffff',
+        brushTip: createSolidBrushTip(10),
+        blendMode: 'erase',
+      },
+    }
+
+    const result = renderStroke(graphics, stroke)
+
+    expect(result).toBe(false)
+  })
 })

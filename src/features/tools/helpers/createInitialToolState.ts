@@ -1,8 +1,14 @@
-import type { PenToolConfig, BrushToolConfig, EraserToolConfig, ToolType } from '../types'
-import { penBehavior, brushBehavior, eraserBehavior } from '../domain'
+import type {
+  PenToolConfig,
+  BrushToolConfig,
+  BlurToolConfig,
+  EraserToolConfig,
+  ToolType,
+} from '../types'
+import { penBehavior, brushBehavior, blurBehavior, eraserBehavior } from '../domain'
 
 /** 描画ツールタイプ */
-export type DrawingToolType = 'pen' | 'brush' | 'eraser'
+export type DrawingToolType = 'pen' | 'brush' | 'blur' | 'eraser'
 
 /**
  * ツール状態の型
@@ -13,6 +19,7 @@ export type ToolState = {
   readonly lastDrawingToolType: DrawingToolType | null
   readonly penConfig: PenToolConfig
   readonly brushConfig: BrushToolConfig
+  readonly blurConfig: BlurToolConfig
   readonly eraserConfig: EraserToolConfig
 }
 
@@ -20,7 +27,7 @@ export type ToolState = {
  * 描画ツールかどうかを判定
  */
 export const isDrawingToolType = (type: ToolType): type is DrawingToolType => {
-  return type === 'pen' || type === 'brush' || type === 'eraser'
+  return type === 'pen' || type === 'brush' || type === 'blur' || type === 'eraser'
 }
 
 /**
@@ -32,5 +39,6 @@ export const createInitialToolState = (): ToolState => ({
   lastDrawingToolType: null,
   penConfig: penBehavior.defaultConfig(),
   brushConfig: brushBehavior.defaultConfig(),
+  blurConfig: blurBehavior.defaultConfig(),
   eraserConfig: eraserBehavior.defaultConfig(),
 })

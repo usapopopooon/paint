@@ -25,12 +25,14 @@ import {
   ToolPanel,
   PenTool,
   BrushTool,
+  BlurTool,
   EraserTool,
   LayerPanel,
   HardnessSlider,
 } from './features/tools'
 import { MIN_PEN_WIDTH, MAX_PEN_WIDTH } from './features/tools/constants/pen'
 import { MIN_BRUSH_WIDTH, MAX_BRUSH_WIDTH } from './features/tools/constants/brush'
+import { MIN_BLUR_WIDTH, MAX_BLUR_WIDTH } from './features/tools/constants/blur'
 import { MIN_ERASER_WIDTH, MAX_ERASER_WIDTH } from './features/tools/constants/eraser'
 import { getNextLogValue } from './lib/getNextLogValue'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
@@ -393,6 +395,12 @@ function App() {
         max: MAX_BRUSH_WIDTH,
         setter: t.setBrushWidth,
       },
+      blur: {
+        width: t.blurConfig.width,
+        min: MIN_BLUR_WIDTH,
+        max: MAX_BLUR_WIDTH,
+        setter: t.setBlurWidth,
+      },
       eraser: {
         width: t.eraserConfig.width,
         min: MIN_ERASER_WIDTH,
@@ -425,6 +433,12 @@ function App() {
         min: MIN_BRUSH_WIDTH,
         max: MAX_BRUSH_WIDTH,
         setter: t.setBrushWidth,
+      },
+      blur: {
+        width: t.blurConfig.width,
+        min: MIN_BLUR_WIDTH,
+        max: MAX_BLUR_WIDTH,
+        setter: t.setBlurWidth,
       },
       eraser: {
         width: t.eraserConfig.width,
@@ -896,6 +910,7 @@ function App() {
     onClear: canvas.clear,
     onSelectPen: () => tool.setToolType('pen'),
     onSelectBrush: () => tool.setToolType('brush'),
+    onSelectBlur: () => tool.setToolType('blur'),
     onSelectEraser: () => tool.setToolType('eraser'),
     onSelectHand: () => tool.setToolType('hand'),
     onSelectEyedropper: () => tool.setToolType('eyedropper'),
@@ -939,6 +954,10 @@ function App() {
 
   const handleSelectBrush = useCallback(() => {
     tool.setToolType('brush')
+  }, [tool])
+
+  const handleSelectBlur = useCallback(() => {
+    tool.setToolType('blur')
   }, [tool])
 
   const handleSelectEraser = useCallback(() => {
@@ -1267,6 +1286,14 @@ function App() {
             onSelect={handleSelectBrush}
             onWidthChange={tool.setBrushWidth}
             onOpacityChange={tool.setBrushOpacity}
+          />
+          <BlurTool
+            isActive={tool.currentType === 'blur'}
+            width={tool.blurConfig.width}
+            opacity={tool.blurConfig.opacity}
+            onSelect={handleSelectBlur}
+            onWidthChange={tool.setBlurWidth}
+            onOpacityChange={tool.setBlurOpacity}
           />
           <EraserTool
             isActive={tool.currentType === 'eraser'}

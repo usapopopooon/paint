@@ -12,6 +12,7 @@ describe('useKeyboardShortcuts', () => {
       onClear: vi.fn(),
       onSelectPen: vi.fn(),
       onSelectBrush: vi.fn(),
+      onSelectBlur: vi.fn(),
       onSelectEraser: vi.fn(),
       onSelectHand: vi.fn(),
       onSelectEyedropper: vi.fn(),
@@ -174,6 +175,26 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('B')
 
       expect(mockHandlers.onSelectBrush).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Uキーでぼかしツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('u')
+
+      expect(mockHandlers.onSelectBlur).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectBrush).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Uでもぼかしツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('U')
+
+      expect(mockHandlers.onSelectBlur).toHaveBeenCalledTimes(1)
       unmount()
     })
 

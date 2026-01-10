@@ -8,7 +8,8 @@
       "Bash(npm test:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run test:storybook:*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(cat:*)"
     ]
   }
 }

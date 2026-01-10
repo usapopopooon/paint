@@ -2,6 +2,7 @@
   "tools": {
     "pen": "Pen",
     "brush": "Brush",
+    "blur": "Blur",
     "eraser": "Eraser",
     "hand": "Hand",
     "eyedropper": "Eyedropper",

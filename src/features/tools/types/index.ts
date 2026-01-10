@@ -5,6 +5,7 @@ export type ToolType =
   | 'none'
   | 'pen'
   | 'brush'
+  | 'blur'
   | 'eraser'
   | 'hand'
   | 'eyedropper'
@@ -54,6 +55,19 @@ export type BrushToolConfig = {
   readonly opacity: number
   readonly hardness: number
   readonly isBlurEnabled: boolean
+}
+
+/**
+ * ぼかしツールの設定
+ * 既存のレイヤーピクセルにぼかし効果を適用するツール
+ */
+export type BlurToolConfig = {
+  readonly type: 'blur'
+  readonly width: number
+  /** ぼかしの強さ（opacity として適用） */
+  readonly opacity: number
+  /** ぼかしの強度（hardness値をぼかし強度として使用） */
+  readonly hardness: number
 }
 
 /**
@@ -120,6 +134,7 @@ export type ToolConfig =
   | NoneToolConfig
   | PenToolConfig
   | BrushToolConfig
+  | BlurToolConfig
   | EraserToolConfig
   | HandToolConfig
   | EyedropperToolConfig

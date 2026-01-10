@@ -9,6 +9,7 @@ export type KeyboardShortcutsHandlers = {
   readonly onClear: () => void
   readonly onSelectPen: () => void
   readonly onSelectBrush: () => void
+  readonly onSelectBlur: () => void
   readonly onSelectEraser: () => void
   readonly onSelectHand: () => void
   readonly onSelectEyedropper: () => void
@@ -74,6 +75,7 @@ export const useKeyboardShortcuts = ({
   onClear,
   onSelectPen,
   onSelectBrush,
+  onSelectBlur,
   onSelectEraser,
   onSelectHand,
   onSelectEyedropper,
@@ -216,6 +218,11 @@ export const useKeyboardShortcuts = ({
           onSelectBrush()
           return
         }
+        if (e.key === 'u' || e.key === 'U') {
+          e.preventDefault()
+          onSelectBlur()
+          return
+        }
         if (e.key === 'e' || e.key === 'E') {
           e.preventDefault()
           onSelectEraser()
@@ -285,6 +292,7 @@ export const useKeyboardShortcuts = ({
     onClear,
     onSelectPen,
     onSelectBrush,
+    onSelectBlur,
     onSelectEraser,
     onSelectHand,
     onSelectEyedropper,

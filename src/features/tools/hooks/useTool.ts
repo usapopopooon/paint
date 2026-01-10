@@ -4,7 +4,7 @@ import { getToolBehavior } from '../domain'
 import { createInitialToolState, isDrawingToolType, type ToolState } from '../helpers'
 import { DEFAULT_HARDNESS } from '../constants/hardness'
 
-type ConfigKey = 'penConfig' | 'brushConfig' | 'eraserConfig'
+type ConfigKey = 'penConfig' | 'brushConfig' | 'blurConfig' | 'eraserConfig'
 
 /**
  * 指定されたツール設定のプロパティを更新するセッターを作成
@@ -70,6 +70,19 @@ export const useTool = () => {
     []
   )
 
+  const setBlurWidth = useMemo(
+    () => createConfigSetter<number>(setState, 'blurConfig', 'width'),
+    []
+  )
+  const setBlurOpacity = useMemo(
+    () => createConfigSetter<number>(setState, 'blurConfig', 'opacity'),
+    []
+  )
+  const setBlurHardness = useMemo(
+    () => createConfigSetter<number>(setState, 'blurConfig', 'hardness'),
+    []
+  )
+
   const setEraserWidth = useMemo(
     () => createConfigSetter<number>(setState, 'eraserConfig', 'width'),
     []
@@ -103,9 +116,11 @@ export const useTool = () => {
       ? state.penConfig
       : state.currentType === 'brush'
         ? state.brushConfig
-        : state.currentType === 'eraser'
-          ? state.eraserConfig
-          : noneConfig
+        : state.currentType === 'blur'
+          ? state.blurConfig
+          : state.currentType === 'eraser'
+            ? state.eraserConfig
+            : noneConfig
 
   /**
    * カーソル設定を取得
@@ -131,23 +146,27 @@ export const useTool = () => {
     const lastType = state.lastDrawingToolType
     if (lastType === 'pen') return state.penConfig.hardness
     if (lastType === 'brush') return state.brushConfig.hardness
+    if (lastType === 'blur') return state.blurConfig.hardness
     if (lastType === 'eraser') return state.eraserConfig.hardness
     return DEFAULT_HARDNESS
   }, [
     state.lastDrawingToolType,
     state.penConfig.hardness,
     state.brushConfig.hardness,
+    state.blurConfig.hardness,
     state.eraserConfig.hardness,
   ])
 
   /**
    * 最後に選択された描画ツールのisBlurEnabled値を取得
    * 非描画ツール選択時にスイッチに表示する値
+   * ぼかしツールは常にぼかし有効なのでtrueを返す
    */
   const lastDrawingToolBlurEnabled = useMemo(() => {
     const lastType = state.lastDrawingToolType
     if (lastType === 'pen') return state.penConfig.isBlurEnabled
     if (lastType === 'brush') return state.brushConfig.isBlurEnabled
+    if (lastType === 'blur') return true
     if (lastType === 'eraser') return state.eraserConfig.isBlurEnabled
     return true
   }, [
@@ -162,6 +181,7 @@ export const useTool = () => {
     currentConfig,
     penConfig: state.penConfig,
     brushConfig: state.brushConfig,
+    blurConfig: state.blurConfig,
     eraserConfig: state.eraserConfig,
     cursor,
     lastDrawingToolHardness,
@@ -177,6 +197,9 @@ export const useTool = () => {
     setBrushOpacity,
     setBrushHardness,
     setBrushBlurEnabled,
+    setBlurWidth,
+    setBlurOpacity,
+    setBlurHardness,
     setEraserWidth,
     setEraserOpacity,
     setEraserHardness,

@@ -56,7 +56,8 @@
     "kalman",
     "Catmull",
     "bilinear",
-    "bicubic"
+    "bicubic",
+    "fakepath"
   ],
   "ignorePaths": [
     "node_modules",
