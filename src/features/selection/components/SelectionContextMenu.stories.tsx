@@ -231,6 +231,38 @@ export const HiddenContextMenu: Story = {
 }
 
 /**
+ * 塗りつぶしメニューあり
+ */
+export const WithFillSelection: Story = {
+  args: {
+    hasSelection: true,
+    onFillSelection: fn(),
+  },
+}
+
+/**
+ * 塗りつぶしをクリック
+ */
+export const ClickFillSelection: Story = {
+  args: {
+    hasSelection: true,
+    onFillSelection: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const trigger = canvas.getByText('Right-click here')
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: trigger })
+
+    const body = within(document.body)
+    const fillItem = body.getByText(i18nEn.t('menu.fillSelection'))
+    await userEvent.click(fillItem)
+
+    await expect(args.onFillSelection).toHaveBeenCalled()
+  },
+}
+
+/**
  * 矩形選択時の切り抜きメニュー
  */
 export const WithCropToSelection: Story = {

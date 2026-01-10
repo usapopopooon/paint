@@ -203,6 +203,7 @@
     "copy": "Copy",
     "paste": "Paste",
     "delete": "Delete",
+    "fillSelection": "Fill Selection",
     "cropToSelection": "Crop to Selection",
     "zoomIn": "Zoom In",
     "zoomOut": "Zoom Out",

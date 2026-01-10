@@ -337,6 +337,90 @@ export const ClickPaste: Story = {
 }
 
 /**
+ * 塗りつぶしメニューあり
+ */
+export const WithFillSelection: Story = {
+  args: {
+    hasSelection: true,
+    onFillSelection: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const editMenu = canvas.getByText(i18nEn.t('menu.edit'))
+
+    await userEvent.click(editMenu)
+
+    const body = within(document.body)
+    await expect(body.getByText(i18nEn.t('menu.fillSelection'))).toBeInTheDocument()
+  },
+}
+
+/**
+ * 塗りつぶしをクリック（選択がある状態）
+ */
+export const ClickFillSelection: Story = {
+  args: {
+    hasSelection: true,
+    onFillSelection: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const editMenu = canvas.getByText(i18nEn.t('menu.edit'))
+
+    await userEvent.click(editMenu)
+
+    const body = within(document.body)
+    const fillItem = body.getByText(i18nEn.t('menu.fillSelection'))
+    await userEvent.click(fillItem)
+
+    await expect(args.onFillSelection).toHaveBeenCalled()
+  },
+}
+
+/**
+ * 切り抜きメニューあり（矩形選択時）
+ */
+export const WithCropToSelection: Story = {
+  args: {
+    hasSelection: true,
+    isRectangleSelection: true,
+    onCropToSelection: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const editMenu = canvas.getByText(i18nEn.t('menu.edit'))
+
+    await userEvent.click(editMenu)
+
+    const body = within(document.body)
+    await expect(body.getByText(i18nEn.t('menu.cropToSelection'))).toBeInTheDocument()
+  },
+}
+
+/**
+ * 切り抜きをクリック（矩形選択時）
+ */
+export const ClickCropToSelection: Story = {
+  args: {
+    hasSelection: true,
+    isRectangleSelection: true,
+    onCropToSelection: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const editMenu = canvas.getByText(i18nEn.t('menu.edit'))
+
+    await userEvent.click(editMenu)
+
+    const body = within(document.body)
+    const cropItem = body.getByText(i18nEn.t('menu.cropToSelection'))
+    await userEvent.click(cropItem)
+
+    await expect(args.onCropToSelection).toHaveBeenCalled()
+  },
+}
+
+/**
  * キャンバス未作成状態（編集・保存系メニューが無効化）
  */
 export const NoCanvasCreated: Story = {

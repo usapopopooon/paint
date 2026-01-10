@@ -522,7 +522,7 @@ function App() {
       canvasSize.width,
       canvasSize.height
     )
-    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+    canvas.replaceLayerDrawables([imageDrawable], region.layerId)
 
     // 選択を解除
     selection.deselect()
@@ -589,7 +589,7 @@ function App() {
       canvasSize.width,
       canvasSize.height
     )
-    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+    canvas.replaceLayerDrawables([imageDrawable], region.layerId)
 
     // clipboardに保存してから選択解除
     selection.cutSelection(imageData, bounds)
@@ -665,7 +665,7 @@ function App() {
       canvasSize.width,
       canvasSize.height
     )
-    canvas.setDrawablesToLayer([imageDrawable], region.layerId)
+    canvas.replaceLayerDrawables([imageDrawable], region.layerId)
 
     // 選択を解除
     selection.deselect()
@@ -992,6 +992,7 @@ function App() {
             onCopy={handleCopySelection}
             onPaste={handlePasteSelection}
             onDelete={handleDeleteSelection}
+            onFillSelection={handleFillSelection}
             onCropToSelection={handleCropToSelection}
             onZoomIn={zoom.zoomIn}
             onZoomOut={zoom.zoomOut}
@@ -1109,10 +1110,10 @@ function App() {
                   onDelete={handleDeleteSelection}
                   onDeselect={handleDeselect}
                   onSelectAll={handleSelectAll}
+                  onFillSelection={handleFillSelection}
                   onCropToSelection={handleCropToSelection}
                   showContextMenu={
-                    tool.currentType === 'select-rectangle' ||
-                    tool.currentType === 'select-lasso'
+                    tool.currentType === 'select-rectangle' || tool.currentType === 'select-lasso'
                   }
                 >
                   <div ref={canvasContainerRef}>

@@ -31,6 +31,8 @@ export type SelectionContextMenuProps = {
   readonly onDeselect: () => void
   /** 全選択コールバック */
   readonly onSelectAll: () => void
+  /** 塗りつぶしコールバック */
+  readonly onFillSelection?: () => void
   /** 切り抜きコールバック（矩形選択時のみ） */
   readonly onCropToSelection?: () => void
   /** 右クリック時のコールバック（スポイト機能用） */
@@ -53,6 +55,7 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
   onDelete,
   onDeselect,
   onSelectAll,
+  onFillSelection,
   onCropToSelection,
   onContextMenu,
   showContextMenu = true,
@@ -62,11 +65,7 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
 
   // コンテキストメニューを表示しない場合は子要素をそのまま返す
   if (!showContextMenu) {
-    return (
-      <div onContextMenu={onContextMenu}>
-        {children}
-      </div>
-    )
+    return <div onContextMenu={onContextMenu}>{children}</div>
   }
 
   return (
@@ -91,6 +90,12 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
           {t('menu.delete')}
           <ContextMenuShortcut>Del</ContextMenuShortcut>
         </ContextMenuItem>
+        {onFillSelection && (
+          <ContextMenuItem onClick={onFillSelection} disabled={!hasSelection}>
+            {t('menu.fillSelection')}
+            <ContextMenuShortcut>Alt+Del</ContextMenuShortcut>
+          </ContextMenuItem>
+        )}
         <ContextMenuSeparator />
         <ContextMenuItem onClick={onSelectAll}>
           {t('menu.selectAll')}

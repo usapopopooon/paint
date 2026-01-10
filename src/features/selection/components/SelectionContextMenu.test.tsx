@@ -14,6 +14,7 @@ vi.mock('@/features/i18n', () => ({
         'menu.delete': 'Delete',
         'menu.selectAll': 'Select All',
         'menu.deselect': 'Deselect',
+        'menu.fillSelection': 'Fill Selection',
         'menu.cropToSelection': 'Crop to Selection',
       }
       return translations[key] || key
@@ -221,6 +222,82 @@ describe('SelectionContextMenu', () => {
       await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
 
       expect(onContextMenu).toHaveBeenCalled()
+    })
+  })
+
+  describe('塗りつぶし機能', () => {
+    it('onFillSelectionがある場合、メニューに表示される', async () => {
+      const user = userEvent.setup()
+      const onFillSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          onFillSelection={onFillSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.getByText('Fill Selection')).toBeInTheDocument()
+    })
+
+    it('onFillSelectionがない場合、メニューに表示されない', async () => {
+      const user = userEvent.setup()
+      render(<SelectionContextMenu {...defaultProps} hasSelection={true} />)
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.queryByText('Fill Selection')).not.toBeInTheDocument()
+    })
+
+    it('選択ありの場合、塗りつぶしが有効', async () => {
+      const user = userEvent.setup()
+      const onFillSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          onFillSelection={onFillSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.getByText('Fill Selection').closest('[data-disabled]')).not.toBeInTheDocument()
+    })
+
+    it('選択がない場合、塗りつぶしが無効', async () => {
+      const user = userEvent.setup()
+      const onFillSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={false}
+          onFillSelection={onFillSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.getByText('Fill Selection').closest('[data-disabled]')).toBeInTheDocument()
+    })
+
+    it('塗りつぶしクリックでコールバックが呼ばれる', async () => {
+      const user = userEvent.setup()
+      const onFillSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          onFillSelection={onFillSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+      await user.click(screen.getByText('Fill Selection'))
+
+      expect(onFillSelection).toHaveBeenCalled()
     })
   })
 

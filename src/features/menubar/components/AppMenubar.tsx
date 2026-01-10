@@ -60,6 +60,8 @@ export type AppMenubarProps = {
   readonly onCopy: () => void
   readonly onPaste: () => void
   readonly onDelete: () => void
+  /** 塗りつぶしコールバック */
+  readonly onFillSelection?: () => void
   /** 切り抜きコールバック（矩形選択時のみ） */
   readonly onCropToSelection?: () => void
   // View menu
@@ -100,6 +102,7 @@ export const AppMenubar = memo(function AppMenubar({
   onCopy,
   onPaste,
   onDelete,
+  onFillSelection,
   onCropToSelection,
   onZoomIn,
   onZoomOut,
@@ -212,14 +215,6 @@ export const AppMenubar = memo(function AppMenubar({
               {t('menu.deselect')}
               <MenubarShortcut>{modifier}+D</MenubarShortcut>
             </MenubarItem>
-            {onCropToSelection && (
-              <MenubarItem
-                disabled={!isCanvasCreated || !hasSelection || !isRectangleSelection}
-                onClick={onCropToSelection}
-              >
-                {t('menu.cropToSelection')}
-              </MenubarItem>
-            )}
             <MenubarSeparator />
             <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onCut}>
               {t('menu.cut')}
@@ -237,6 +232,12 @@ export const AppMenubar = memo(function AppMenubar({
               {t('menu.delete')}
               <MenubarShortcut>Del</MenubarShortcut>
             </MenubarItem>
+            {onFillSelection && (
+              <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onFillSelection}>
+                {t('menu.fillSelection')}
+                <MenubarShortcut>Alt+Del</MenubarShortcut>
+              </MenubarItem>
+            )}
             {onCropToSelection && (
               <>
                 <MenubarSeparator />

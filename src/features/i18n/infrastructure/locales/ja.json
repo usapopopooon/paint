@@ -203,6 +203,7 @@
     "copy": "コピー",
     "paste": "ペースト",
     "delete": "削除",
+    "fillSelection": "選択範囲を塗りつぶし",
     "cropToSelection": "選択範囲で切り抜き",
     "zoomIn": "拡大",
     "zoomOut": "縮小",
