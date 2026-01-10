@@ -1,5 +1,5 @@
 import { useCallback, type RefObject } from 'react'
-import type { ExportOptions } from '../types'
+import type { ExportOptions, ImageFormat } from '../types'
 import { SCALE_VALUES } from '../types'
 
 /**
@@ -9,17 +9,64 @@ const waitForNextFrame = (): Promise<void> =>
   new Promise((resolve) => requestAnimationFrame(() => resolve()))
 
 /**
+ * Blobをファイルとして保存
+ * File System Access APIが利用可能な場合は保存ダイアログを表示
+ * そうでない場合はダウンロードにフォールバック
+ * @returns 保存が成功したかどうか（キャンセルの場合はfalse）
+ */
+const saveBlob = async (blob: Blob, fileName: string, format: ImageFormat): Promise<boolean> => {
+  const extension = format === 'jpg' ? 'jpg' : 'png'
+  const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png'
+
+  // File System Access APIが利用可能な場合
+  if ('showSaveFilePicker' in window && typeof window.showSaveFilePicker === 'function') {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: `${fileName}.${extension}`,
+        types: [
+          {
+            description: format === 'jpg' ? 'JPEG Image' : 'PNG Image',
+            accept: { [mimeType]: [`.${extension}`] },
+          },
+        ],
+      })
+
+      const writable = await handle.createWritable()
+      await writable.write(blob)
+      await writable.close()
+      return true
+    } catch (error) {
+      // ユーザーがキャンセルした場合
+      if (error instanceof Error && error.name === 'AbortError') {
+        return false
+      }
+      throw error
+    }
+  }
+
+  // フォールバック: 従来のダウンロード方式
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.download = `${fileName}.${extension}`
+  link.href = url
+  link.click()
+  URL.revokeObjectURL(url)
+  return true
+}
+
+/**
  * 画像エクスポート用のhook
  * @param containerRef - キャンバスを含むコンテナ要素のref
  */
 export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
   /**
-   * キャンバスを指定オプションでダウンロード
+   * キャンバスを指定オプションで保存
+   * File System Access APIが利用可能な場合は保存ダイアログを表示
    * @param options - エクスポートオプション
    * @param showBackgroundLayer - 背景レイヤーを表示する関数
    * @param hideBackgroundLayer - 背景レイヤーを非表示にする関数
    */
-  const downloadImage = useCallback(
+  const saveImage = useCallback(
     async (
       options: ExportOptions,
       showBackgroundLayer: () => void,
@@ -117,30 +164,33 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
       outputCtx.imageSmoothingQuality = 'high'
       outputCtx.drawImage(fullSizeCanvas, 0, 0, outputWidth, outputHeight)
 
-      // 指定フォーマットに変換してダウンロード
+      // 指定フォーマットに変換してBlobを作成
       const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png'
       // JPGの場合は品質を0-1の範囲に変換（入力は1-100）
       const quality = format === 'jpg' ? jpegQuality / 100 : undefined
-      const dataUrl = outputCanvas.toDataURL(mimeType, quality)
-      const filename = `${fileName}.${format}`
 
-      const link = document.createElement('a')
-      link.download = filename
-      link.href = dataUrl
-      link.click()
+      // canvasをBlobに変換
+      const blob = await new Promise<Blob | null>((resolve) => {
+        outputCanvas.toBlob(resolve, mimeType, quality)
+      })
+
+      if (!blob) return
+
+      // 保存ダイアログを表示して保存
+      await saveBlob(blob, fileName, format)
     },
     [containerRef]
   )
 
   /**
-   * キャンバスをJPGとしてダウンロード（後方互換性のため残す）
-   * @deprecated downloadImageを使用してください
+   * キャンバスをJPGとして保存（後方互換性のため残す）
+   * @deprecated saveImageを使用してください
    */
-  const downloadAsJpg = useCallback(
+  const saveAsJpg = useCallback(
     async (showBackgroundLayer: () => void, hideBackgroundLayer: () => void) => {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
       const fileName = `paint_${timestamp}`
-      await downloadImage(
+      await saveImage(
         {
           fileName,
           format: 'jpg',
@@ -152,11 +202,15 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
         hideBackgroundLayer
       )
     },
-    [downloadImage]
+    [saveImage]
   )
 
   return {
-    downloadImage,
-    downloadAsJpg,
+    saveImage,
+    saveAsJpg,
+    /** @deprecated saveImageを使用してください */
+    downloadImage: saveImage,
+    /** @deprecated saveAsJpgを使用してください */
+    downloadAsJpg: saveAsJpg,
   } as const
 }

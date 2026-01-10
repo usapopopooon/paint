@@ -300,11 +300,7 @@ function App() {
    */
   const handleSaveImage = useCallback(
     async (options: ExportOptions) => {
-      await exportImage.downloadImage(
-        options,
-        canvas.showBackgroundLayer,
-        canvas.hideBackgroundLayer
-      )
+      await exportImage.saveImage(options, canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
     },
     [exportImage, canvas.showBackgroundLayer, canvas.hideBackgroundLayer]
   )

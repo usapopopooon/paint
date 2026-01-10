@@ -1,10 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import {
-  SCALE_VALUES,
-  DEFAULT_JPEG_QUALITY,
-  MIN_JPEG_QUALITY,
-  MAX_JPEG_QUALITY,
-} from './index'
+import { SCALE_VALUES, DEFAULT_JPEG_QUALITY, MIN_JPEG_QUALITY, MAX_JPEG_QUALITY } from './index'
 
 describe('export types', () => {
   describe('SCALE_VALUES', () => {

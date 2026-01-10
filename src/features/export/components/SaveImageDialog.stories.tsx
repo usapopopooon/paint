@@ -37,7 +37,9 @@ export const Default: Story = {
     // スケール選択が表示されることを確認
     await expect(body.getByText(i18nEn.t('export.saveDialog.scale'))).toBeInTheDocument()
     // 背景オプションが表示されることを確認（PNGのため）
-    await expect(body.getByText(i18nEn.t('export.saveDialog.includeBackground'))).toBeInTheDocument()
+    await expect(
+      body.getByText(i18nEn.t('export.saveDialog.includeBackground'))
+    ).toBeInTheDocument()
   },
 }
 

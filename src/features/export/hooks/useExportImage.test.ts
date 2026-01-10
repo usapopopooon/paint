@@ -11,6 +11,7 @@ describe('useExportImage', () => {
   let mockFullSizeContext: CanvasRenderingContext2D
   let mockOutputContext: CanvasRenderingContext2D
   let mockLink: HTMLAnchorElement
+  let mockBlob: Blob
   let originalCreateElement: typeof document.createElement
   let mockShowBackgroundLayer: () => void
   let mockHideBackgroundLayer: () => void
@@ -18,6 +19,9 @@ describe('useExportImage', () => {
 
   beforeEach(() => {
     canvasCreateCount = 0
+
+    // モックのBlob
+    mockBlob = new Blob(['test'], { type: 'image/png' })
 
     // モックのキャンバス要素（WebGLコンテキストなし - フォールバックパス）
     mockCanvas = {
@@ -52,6 +56,7 @@ describe('useExportImage', () => {
       height: 0,
       getContext: vi.fn().mockReturnValue(mockFullSizeContext),
       toDataURL: vi.fn().mockReturnValue('data:image/jpeg;base64,test'),
+      toBlob: vi.fn((callback: BlobCallback) => callback(mockBlob)),
     } as unknown as HTMLCanvasElement
 
     // 出力用キャンバス
@@ -60,6 +65,7 @@ describe('useExportImage', () => {
       height: 0,
       getContext: vi.fn().mockReturnValue(mockOutputContext),
       toDataURL: vi.fn().mockReturnValue('data:image/png;base64,test'),
+      toBlob: vi.fn((callback: BlobCallback) => callback(mockBlob)),
     } as unknown as HTMLCanvasElement
 
     // モックのリンク要素
@@ -72,6 +78,10 @@ describe('useExportImage', () => {
     // 背景レイヤー表示/非表示のモック
     mockShowBackgroundLayer = vi.fn()
     mockHideBackgroundLayer = vi.fn()
+
+    // URL.createObjectURLとrevokeObjectURLをモック
+    vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test-url')
+    vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {})
 
     // document.createElementをモック
     originalCreateElement = document.createElement
@@ -278,7 +288,7 @@ describe('useExportImage', () => {
     })
   })
 
-  describe('downloadImage', () => {
+  describe('saveImage', () => {
     const createOptions = (overrides: Partial<ExportOptions> = {}): ExportOptions => ({
       fileName: 'test-image',
       format: 'png',
@@ -293,7 +303,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions(),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -308,7 +318,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ format: 'png', includeBackground: false }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -324,7 +334,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ format: 'png', includeBackground: true }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -340,7 +350,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ format: 'jpg', includeBackground: false }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -356,7 +366,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ scale: '100' }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -373,7 +383,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ scale: '50' }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -390,7 +400,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ scale: '25' }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
@@ -407,14 +417,14 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ format: 'jpg', jpegQuality: 80 }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
         )
       })
 
-      expect(mockOutputCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 0.8)
+      expect(mockOutputCanvas.toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/jpeg', 0.8)
     })
 
     test('PNGの場合はqualityを指定しない', async () => {
@@ -422,30 +432,37 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ format: 'png' }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
         )
       })
 
-      expect(mockOutputCanvas.toDataURL).toHaveBeenCalledWith('image/png', undefined)
+      expect(mockOutputCanvas.toBlob).toHaveBeenCalledWith(
+        expect.any(Function),
+        'image/png',
+        undefined
+      )
     })
 
-    test('指定したファイル名とフォーマットでダウンロードする', async () => {
+    test('File System Access APIがない場合はダウンロードにフォールバックする', async () => {
       const containerRef = { current: mockContainer }
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ fileName: 'my-artwork', format: 'png' }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
         )
       })
 
+      // フォールバック時はダウンロードリンクを使用
+      expect(URL.createObjectURL).toHaveBeenCalled()
       expect(mockLink.download).toBe('my-artwork.png')
       expect(mockLink.click).toHaveBeenCalled()
+      expect(URL.revokeObjectURL).toHaveBeenCalled()
     })
 
     test('高品質なリサイズ設定が適用される', async () => {
@@ -453,7 +470,7 @@ describe('useExportImage', () => {
       const { result } = renderHook(() => useExportImage(containerRef))
 
       await act(async () => {
-        await result.current.downloadImage(
+        await result.current.saveImage(
           createOptions({ scale: '50' }),
           mockShowBackgroundLayer,
           mockHideBackgroundLayer
