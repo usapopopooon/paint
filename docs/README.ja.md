@@ -18,6 +18,7 @@ ReactとCanvas 2Dで構築したお絵かきアプリ 👉 [実際に触って�
 - **スタイリング**: Tailwind CSS v4
 - **UIコンポーネント**: Radix UI, shadcn/ui
 - **テスト**: Vitest, Playwright, Storybook
+- **PWA**: vite-plugin-pwa（オフライン対応、インストール可能）
 - **CI/CD**: GitHub Actions, GitHub Pages
 
 ## アーキテクチャ

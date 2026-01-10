@@ -18,6 +18,7 @@ A drawing app built with React and Canvas 2D 👉 [Try it out](https://usapopopo
 - **Styling**: Tailwind CSS v4
 - **UI Components**: Radix UI, shadcn/ui
 - **Testing**: Vitest, Playwright, Storybook
+- **PWA**: vite-plugin-pwa (offline support, installable)
 - **CI/CD**: GitHub Actions, GitHub Pages
 
 ## Architecture
