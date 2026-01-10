@@ -202,12 +202,16 @@ export const AppMenubar = memo(function AppMenubar({
               <MenubarSubTrigger>{t('menu.language')}</MenubarSubTrigger>
               <MenubarSubContent>
                 <MenubarItem onClick={() => setLocale('ja')}>
-                  {locale === 'ja' && <Check className="size-4 mr-2" />}
-                  <span className={locale !== 'ja' ? 'ml-6' : ''}>{t('menu.japanese')}</span>
+                  <span className="size-4 mr-2 flex items-center justify-center">
+                    {locale === 'ja' && <Check className="size-4" />}
+                  </span>
+                  {t('menu.japanese')}
                 </MenubarItem>
                 <MenubarItem onClick={() => setLocale('en')}>
-                  {locale === 'en' && <Check className="size-4 mr-2" />}
-                  <span className={locale !== 'en' ? 'ml-6' : ''}>{t('menu.english')}</span>
+                  <span className="size-4 mr-2 flex items-center justify-center">
+                    {locale === 'en' && <Check className="size-4" />}
+                  </span>
+                  {t('menu.english')}
                 </MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
@@ -216,12 +220,16 @@ export const AppMenubar = memo(function AppMenubar({
               <MenubarSubTrigger>{t('menu.theme')}</MenubarSubTrigger>
               <MenubarSubContent>
                 <MenubarItem onClick={() => setTheme('light')}>
-                  {!isDark && <Check className="size-4 mr-2" />}
-                  <span className={isDark ? 'ml-6' : ''}>{t('menu.light')}</span>
+                  <span className="size-4 mr-2 flex items-center justify-center">
+                    {!isDark && <Check className="size-4" />}
+                  </span>
+                  {t('menu.light')}
                 </MenubarItem>
                 <MenubarItem onClick={() => setTheme('dark')}>
-                  {isDark && <Check className="size-4 mr-2" />}
-                  <span className={!isDark ? 'ml-6' : ''}>{t('menu.dark')}</span>
+                  <span className="size-4 mr-2 flex items-center justify-center">
+                    {isDark && <Check className="size-4" />}
+                  </span>
+                  {t('menu.dark')}
                 </MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
