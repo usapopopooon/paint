@@ -128,7 +128,7 @@ describe('useSelectionHandlers', () => {
   })
 
   describe('handleSelectAll', () => {
-    test('全体選択を実行する', () => {
+    test('全体選択を実行して選択ツールに切り替える', () => {
       const { result } = renderHook(() => useSelectionHandlers(defaultOptions))
 
       act(() => {
@@ -139,6 +139,7 @@ describe('useSelectionHandlers', () => {
         { x: 0, y: 0, width: 800, height: 600 },
         'layer-1'
       )
+      expect(defaultOptions.setToolType).toHaveBeenCalledWith('select-rectangle')
     })
   })
 

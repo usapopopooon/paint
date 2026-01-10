@@ -1,6 +1,7 @@
 import type { StorybookConfig } from '@storybook/react-vite'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import pkg from '../package.json' with { type: 'json' }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -41,6 +42,10 @@ const config: StorybookConfig = {
     return {
       ...config,
       plugins,
+      define: {
+        ...config.define,
+        __APP_VERSION__: JSON.stringify(pkg.version),
+      },
       base: process.env.NODE_ENV === 'production' ? '/paint/storybook/' : '/',
       resolve: {
         ...config.resolve,

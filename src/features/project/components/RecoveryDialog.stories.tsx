@@ -46,6 +46,9 @@ export const Default: Story = {
     })
     await expect(restoreButton).toBeEnabled()
 
+    // 復元ボタンがフォーカスされていることを確認（autoFocus）
+    await expect(restoreButton).toHaveFocus()
+
     // 破棄ボタンが表示されていることを確認
     const discardButton = body.getByRole('button', {
       name: i18nEn.t('recovery.discard'),

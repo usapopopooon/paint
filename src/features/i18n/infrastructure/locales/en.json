@@ -180,7 +180,7 @@
     },
     "noUpdate": {
       "title": "You're up to date",
-      "description": "You're using the latest version of this app."
+      "description": "You're using the latest version (v%{version}) of this app."
     }
   },
   "recovery": {

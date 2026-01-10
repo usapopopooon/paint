@@ -136,7 +136,8 @@ export function useSelectionHandlers(options: UseSelectionHandlersOptions): Sele
 
   const handleSelectAll = useCallback(() => {
     selection.selectAll({ x: 0, y: 0, width: canvasWidth, height: canvasHeight }, activeLayerId)
-  }, [selection, canvasWidth, canvasHeight, activeLayerId])
+    setToolType('select-rectangle')
+  }, [selection, canvasWidth, canvasHeight, activeLayerId, setToolType])
 
   /**
    * 選択解除ハンドラ

@@ -180,7 +180,7 @@
     },
     "noUpdate": {
       "title": "最新バージョンです",
-      "description": "お使いのアプリは最新バージョンです。"
+      "description": "お使いのアプリは最新バージョン（v%{version}）です。"
     }
   },
   "recovery": {
