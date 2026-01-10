@@ -21,26 +21,43 @@ export const setPointerMoveCallback = (callback: PointerMoveCallback | null): vo
 }
 
 // ウィンドウレベルでポインター状態を追跡
+// passive: trueでスクロールパフォーマンスを改善
 if (typeof window !== 'undefined') {
-  window.addEventListener('pointerdown', (event) => {
-    if (isPrimaryButton(event.button)) {
-      pointerState.isPrimaryPressing = true
-    }
-  })
+  window.addEventListener(
+    'pointerdown',
+    (event) => {
+      if (isPrimaryButton(event.button)) {
+        pointerState.isPrimaryPressing = true
+      }
+    },
+    { passive: true }
+  )
 
-  window.addEventListener('pointerup', (event) => {
-    if (isPrimaryButton(event.button)) {
+  window.addEventListener(
+    'pointerup',
+    (event) => {
+      if (isPrimaryButton(event.button)) {
+        pointerState.isPrimaryPressing = false
+      }
+    },
+    { passive: true }
+  )
+
+  window.addEventListener(
+    'pointercancel',
+    () => {
       pointerState.isPrimaryPressing = false
-    }
-  })
+    },
+    { passive: true }
+  )
 
-  window.addEventListener('pointercancel', () => {
-    pointerState.isPrimaryPressing = false
-  })
-
-  window.addEventListener('pointermove', (event) => {
-    if (isPrimaryButtonPressed(event.buttons)) {
-      pointerState.onPointerMove?.(event.clientX, event.clientY, event)
-    }
-  })
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      if (isPrimaryButtonPressed(event.buttons)) {
+        pointerState.onPointerMove?.(event.clientX, event.clientY, event)
+      }
+    },
+    { passive: true }
+  )
 }

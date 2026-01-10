@@ -146,6 +146,12 @@ const renderBlurStroke = (ctx: CanvasRenderingContext2D, stroke: StrokeDrawable)
 
   // 結果を元のキャンバスに描画
   ctx.putImageData(originalImageData, x, y)
+
+  // メモリリーク防止: オフスクリーンCanvasを明示的に解放
+  blurCanvas.width = 0
+  blurCanvas.height = 0
+  maskCanvas.width = 0
+  maskCanvas.height = 0
 }
 
 /**

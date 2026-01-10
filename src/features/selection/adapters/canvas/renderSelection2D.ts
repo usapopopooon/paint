@@ -79,6 +79,9 @@ export const renderSelection2D = (
       ctx.imageSmoothingEnabled = false
       ctx.drawImage(tempCanvas, Math.round(bounds.x), Math.round(bounds.y))
     }
+    // メモリリーク防止: 一時キャンバスを明示的に解放
+    tempCanvas.width = 0
+    tempCanvas.height = 0
   }
 
   // パスを描画

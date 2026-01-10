@@ -91,5 +91,9 @@ export const renderLayers2D = async (
     ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
     ctx.drawImage(layerCanvas, 0, 0)
     ctx.restore()
+
+    // メモリリーク防止: 一時キャンバスを明示的に解放
+    layerCanvas.width = 0
+    layerCanvas.height = 0
   }
 }
