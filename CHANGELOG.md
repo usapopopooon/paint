@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.2.5] - 2026-01-10
+
+### Features
+
+- **ヘルプメニューに更新確認機能を追加**
+  - メニューバーに「ヘルプ」メニューを追加
+  - 「更新を確認」メニュー項目で手動でService Worker更新をチェック可能
+  - 更新がある場合、ヘルプメニューに赤いバッジを表示
+  - 一度トーストをキャンセルしても、再度更新確認が可能
+
+### Refactor
+
+- **PWA更新状態をContextで管理**
+  - PwaUpdateContext/PwaUpdateProviderを追加
+  - アプリ全体で更新状態を共有可能に
+  - ReloadPromptを新しいContextを使用するよう変更
+
+### Storybook
+
+- StorybookでPWAモックをサポート
+  - virtual:pwa-register/reactのエイリアスを追加
+  - PwaUpdateProviderをデコレータに追加
+
 ## [0.2.4] - 2026-01-10
 
 ### Features
