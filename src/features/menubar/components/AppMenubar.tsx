@@ -358,7 +358,9 @@ export const AppMenubar = memo(function AppMenubar({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t('pwa.noUpdate.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('pwa.noUpdate.description')}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {t('pwa.noUpdate.description', { version: __APP_VERSION__ })}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction>{t('actions.ok')}</AlertDialogAction>

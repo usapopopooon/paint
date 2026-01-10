@@ -56,7 +56,9 @@ export const RecoveryDialog = memo(function RecoveryDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onDiscard}>{t('recovery.discard')}</AlertDialogCancel>
-          <AlertDialogAction onClick={onRestore}>{t('recovery.restore')}</AlertDialogAction>
+          <AlertDialogAction onClick={onRestore} autoFocus>
+            {t('recovery.restore')}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

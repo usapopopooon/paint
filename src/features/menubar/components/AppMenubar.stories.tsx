@@ -475,6 +475,8 @@ export const ClickCheckForUpdatesNoUpdate: Story = {
 
     // 更新なしダイアログが表示される
     await expect(body.getByText(i18nEn.t('pwa.noUpdate.title'))).toBeInTheDocument()
-    await expect(body.getByText(i18nEn.t('pwa.noUpdate.description'))).toBeInTheDocument()
+    // バージョン番号を含む説明文が表示される
+    const dialog = body.getByRole('alertdialog')
+    await expect(dialog).toHaveTextContent(/latest version/)
   },
 }
