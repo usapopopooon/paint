@@ -35,6 +35,12 @@ export type SelectionContextMenuProps = {
   readonly onFillSelection?: () => void
   /** 切り抜きコールバック（矩形選択時のみ） */
   readonly onCropToSelection?: () => void
+  /** 自由変形コールバック */
+  readonly onFreeTransform?: () => void
+  /** 拡大縮小コールバック */
+  readonly onScaleTransform?: () => void
+  /** 回転コールバック */
+  readonly onRotateTransform?: () => void
   /** 右クリック時のコールバック（スポイト機能用） */
   readonly onContextMenu?: (e: React.MouseEvent) => void
   /** コンテキストメニューを表示するかどうか（選択ツール使用中のみ） */
@@ -57,6 +63,9 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
   onSelectAll,
   onFillSelection,
   onCropToSelection,
+  onFreeTransform,
+  onScaleTransform,
+  onRotateTransform,
   onContextMenu,
   showContextMenu = true,
 }: SelectionContextMenuProps) {
@@ -114,6 +123,27 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
             >
               {t('menu.cropToSelection')}
             </ContextMenuItem>
+          </>
+        )}
+        {(onFreeTransform || onScaleTransform || onRotateTransform) && (
+          <>
+            <ContextMenuSeparator />
+            {onFreeTransform && (
+              <ContextMenuItem onClick={onFreeTransform} disabled={!hasSelection}>
+                {t('menu.freeTransform')}
+                <ContextMenuShortcut>{modifier}+T</ContextMenuShortcut>
+              </ContextMenuItem>
+            )}
+            {onScaleTransform && (
+              <ContextMenuItem onClick={onScaleTransform} disabled={!hasSelection}>
+                {t('menu.scaleTransform')}
+              </ContextMenuItem>
+            )}
+            {onRotateTransform && (
+              <ContextMenuItem onClick={onRotateTransform} disabled={!hasSelection}>
+                {t('menu.rotateTransform')}
+              </ContextMenuItem>
+            )}
           </>
         )}
       </ContextMenuContent>

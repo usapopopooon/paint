@@ -21,6 +21,9 @@ export type KeyboardShortcutsHandlers = {
   readonly onCutSelection?: () => void
   readonly onPasteSelection?: () => void
   readonly onFillSelection?: () => void
+  readonly onTransform?: () => void
+  readonly onConfirmTransform?: () => void
+  readonly onCancelTransform?: () => void
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
@@ -53,7 +56,9 @@ export type KeyboardShortcutsHandlers = {
  * - I: スポイトツール選択
  * - M: 矩形選択ツール選択
  * - L: 自由選択ツール選択
- * - Escape: 選択解除
+ * - Ctrl+T / Cmd+T: 変形開始/モード切り替え
+ * - Enter: 変形確定
+ * - Escape: 選択解除/変形キャンセル
  * - Delete/Backspace: 選択領域を削除
  * - Ctrl+A / Cmd+A: すべて選択
  * - Ctrl+D / Cmd+D: 選択解除
@@ -81,6 +86,9 @@ export const useKeyboardShortcuts = ({
   onCutSelection,
   onPasteSelection,
   onFillSelection,
+  onTransform,
+  onConfirmTransform,
+  onCancelTransform,
   onZoomIn,
   onZoomOut,
   onZoomReset,
@@ -178,6 +186,12 @@ export const useKeyboardShortcuts = ({
         onFillSelection()
         return
       }
+      // 変形開始/モード切り替え (Ctrl/Cmd + T)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 't' || e.key === 'T') && onTransform) {
+        e.preventDefault()
+        onTransform()
+        return
+      }
       // レイヤーを上に移動 (Alt + ])
       if (e.altKey && e.key === ']') {
         e.preventDefault()
@@ -227,9 +241,20 @@ export const useKeyboardShortcuts = ({
           onSelectLasso()
           return
         }
-        if (e.key === 'Escape' && onDeselect) {
+        if (e.key === 'Escape') {
           e.preventDefault()
-          onDeselect()
+          // 変形中はキャンセル、それ以外は選択解除
+          if (onCancelTransform) {
+            onCancelTransform()
+          } else if (onDeselect) {
+            onDeselect()
+          }
+          return
+        }
+        // 変形確定 (Enter)
+        if (e.key === 'Enter' && onConfirmTransform) {
+          e.preventDefault()
+          onConfirmTransform()
           return
         }
         // 選択領域を削除 (Delete/Backspace)
@@ -272,6 +297,9 @@ export const useKeyboardShortcuts = ({
     onCutSelection,
     onPasteSelection,
     onFillSelection,
+    onTransform,
+    onConfirmTransform,
+    onCancelTransform,
     onZoomIn,
     onZoomOut,
     onZoomReset,

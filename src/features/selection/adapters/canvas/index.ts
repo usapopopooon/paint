@@ -20,3 +20,35 @@ export {
   imageDataToCanvas,
   drawImageDataToContext,
 } from './selectionOperations'
+
+export {
+  bilinearInterpolate,
+  bicubicInterpolate,
+  getInterpolator,
+  calculateInverseTransform,
+  calculateTransformedBounds,
+  applyTransformToImageData,
+  applyOffsetToImageData,
+  getPixel,
+  setPixel,
+  cubicKernel,
+  type InterpolationMethod,
+  type RGBA,
+} from './interpolation'
+
+export {
+  HANDLE_INFO,
+  getHandlePosition,
+  getAllHandlePositions,
+  isPointInHandle,
+  detectHandle,
+  calculateScaleFromHandle,
+  calculateRotationFromHandle,
+  createInitialTransformState,
+  getNextTransformMode,
+  applyScaleToTransform,
+  applyRotationToTransform,
+  isPointInTransformBounds,
+  getTransformedCorners,
+  type HandleInfo,
+} from './transformOperations'
