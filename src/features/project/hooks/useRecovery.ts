@@ -72,8 +72,8 @@ export const useRecovery = (): UseRecoveryReturn => {
 
       const parsed = parseProjectFile(JSON.parse(data.projectData))
       if (parsed.success) {
-        // 復元後にデータをクリア（二重復元防止）
-        await clearFromIndexedDB()
+        // 復元後はデータを残す（次の自動保存で上書きされる）
+        // clearFromIndexedDB()を呼ばない
         setState({ hasRecoverableData: false, savedAt: null, isLoading: false })
         return parsed.data
       }
