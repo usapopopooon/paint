@@ -53,4 +53,5 @@ export {
 } from './adapters'
 
 // Components
-export { SelectionOverlay, SelectionToolButton } from './components'
+export { SelectionOverlay, SelectionToolButton, SelectionContextMenu } from './components'
+export type { SelectionContextMenuProps } from './components'

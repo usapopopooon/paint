@@ -39,6 +39,7 @@ import { ReloadPrompt } from './features/pwa'
 import {
   useSelection,
   SelectionToolButton,
+  SelectionContextMenu,
   renderLayerToOffscreenCanvas,
   clearSelectionRegion,
   getMaskedImageDataFromSelection,
@@ -1057,36 +1058,51 @@ function App() {
               onWheelAtPoint={handleWheelAtPoint}
             >
               {(viewportSize) => (
-                <div ref={canvasContainerRef}>
-                  <Canvas
-                    layers={canvas.layers}
-                    onStartStroke={handleStartStroke}
-                    onAddPoint={canvas.addPoint}
-                    onEndStroke={canvas.endStroke}
-                    cursor={tool.cursor}
-                    width={canvasSize.width}
-                    height={canvasSize.height}
-                    toolType={tool.currentType}
-                    offset={canvasOffset.offset}
-                    onPan={canvasOffset.pan}
-                    onPickColor={handleColorChange}
-                    zoom={zoom.zoom}
-                    viewportSize={viewportSize}
-                    onZoomAtPoint={handleZoomAtPoint}
-                    selectionRegion={selection.state.region}
-                    selectionPoints={selection.selectionPoints}
-                    selectionToolType={selection.state.toolConfig.type}
-                    isSelecting={selection.state.phase === 'selecting'}
-                    isMoving={selection.state.phase === 'moving'}
-                    onStartSelection={handleStartSelection}
-                    onUpdateSelection={selection.updateSelection}
-                    onCommitSelection={selection.commitSelection}
-                    onStartMove={handleStartMove}
-                    onUpdateMove={selection.updateMove}
-                    onCommitMove={handleCommitMove}
-                    isPointInRegion={selection.isPointInRegion}
-                  />
-                </div>
+                <SelectionContextMenu
+                  hasSelection={selection.state.region !== null}
+                  hasClipboard={selection.state.clipboard !== null}
+                  onCut={handleCutSelection}
+                  onCopy={handleCopySelection}
+                  onPaste={handlePasteSelection}
+                  onDelete={handleDeleteSelection}
+                  onDeselect={handleDeselect}
+                  onSelectAll={handleSelectAll}
+                  showContextMenu={
+                    tool.currentType === 'select-rectangle' ||
+                    tool.currentType === 'select-lasso'
+                  }
+                >
+                  <div ref={canvasContainerRef}>
+                    <Canvas
+                      layers={canvas.layers}
+                      onStartStroke={handleStartStroke}
+                      onAddPoint={canvas.addPoint}
+                      onEndStroke={canvas.endStroke}
+                      cursor={tool.cursor}
+                      width={canvasSize.width}
+                      height={canvasSize.height}
+                      toolType={tool.currentType}
+                      offset={canvasOffset.offset}
+                      onPan={canvasOffset.pan}
+                      onPickColor={handleColorChange}
+                      zoom={zoom.zoom}
+                      viewportSize={viewportSize}
+                      onZoomAtPoint={handleZoomAtPoint}
+                      selectionRegion={selection.state.region}
+                      selectionPoints={selection.selectionPoints}
+                      selectionToolType={selection.state.toolConfig.type}
+                      isSelecting={selection.state.phase === 'selecting'}
+                      isMoving={selection.state.phase === 'moving'}
+                      onStartSelection={handleStartSelection}
+                      onUpdateSelection={selection.updateSelection}
+                      onCommitSelection={selection.commitSelection}
+                      onStartMove={handleStartMove}
+                      onUpdateMove={selection.updateMove}
+                      onCommitMove={handleCommitMove}
+                      isPointInRegion={selection.isPointInRegion}
+                    />
+                  </div>
+                </SelectionContextMenu>
               )}
             </CanvasViewport>
           ) : null}

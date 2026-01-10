@@ -113,9 +113,13 @@ export const Canvas = ({
 
   /**
    * セカンダリクリック（右クリック等）で色を取得
+   * 選択ツール時はコンテキストメニューを表示するためスキップ
    */
   const handleSecondaryClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      // 選択ツール時はコンテキストメニューを表示するため何もしない
+      if (isSelectionTool) return
+
       if (!onPickColor) return
 
       // コンテキストメニューを防止
@@ -138,7 +142,7 @@ export const Canvas = ({
         onPickColor(color)
       }
     },
-    [onPickColor, zoom]
+    [onPickColor, zoom, isSelectionTool]
   )
 
   /**
