@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { AppMenubar } from './features/menubar'
 import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
-import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
+import { CanvasResizeDialog, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { SaveImageDialog, useExportImage } from './features/export'
@@ -935,17 +935,6 @@ function App() {
               stabilization={stabilization.stabilization}
               onStabilizationChange={stabilization.setStabilization}
             />
-            <ToolbarDivider />
-            <CanvasResizeMenu
-              width={canvasSize.width}
-              height={canvasSize.height}
-              anchor={canvasSize.anchor}
-              onWidthChange={canvasSize.setWidth}
-              onHeightChange={canvasSize.setHeight}
-              onAnchorChange={canvasSize.setAnchor}
-              open={canvasResizeOpen}
-              onOpenChange={setCanvasResizeOpen}
-            />
           </Toolbar>
         </div>
       </header>
@@ -1075,6 +1064,18 @@ function App() {
         open={saveImageDialogOpen}
         onOpenChange={setSaveImageDialogOpen}
         onSave={handleSaveImage}
+      />
+      <CanvasResizeDialog
+        open={canvasResizeOpen}
+        onOpenChange={setCanvasResizeOpen}
+        width={canvasSize.width}
+        height={canvasSize.height}
+        anchor={canvasSize.anchor}
+        onResize={(w, h, a) => {
+          canvasSize.setWidth(w)
+          canvasSize.setHeight(h)
+          canvasSize.setAnchor(a)
+        }}
       />
       <ReloadPrompt />
     </div>
