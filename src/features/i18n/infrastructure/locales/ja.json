@@ -183,6 +183,14 @@
       "description": "お使いのアプリは最新バージョンです。"
     }
   },
+  "recovery": {
+    "title": "作業データの復元",
+    "description": "前回のセッションから復元可能なデータが見つかりました。復元しますか？",
+    "savedAt": "保存日時: %{date}",
+    "restore": "復元する",
+    "discard": "破棄する",
+    "restored": "作業データを復元しました"
+  },
   "menu": {
     "file": "ファイル",
     "edit": "編集",

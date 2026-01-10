@@ -183,6 +183,14 @@
       "description": "You're using the latest version of this app."
     }
   },
+  "recovery": {
+    "title": "Recover Work",
+    "description": "Recoverable data from your previous session was found. Would you like to restore it?",
+    "savedAt": "Saved at: %{date}",
+    "restore": "Restore",
+    "discard": "Discard",
+    "restored": "Work data has been restored"
+  },
   "menu": {
     "file": "File",
     "edit": "Edit",

@@ -14,8 +14,11 @@ import {
   SaveProjectDialog,
   LoadProjectErrorDialog,
   ConfirmLoadProjectDialog,
+  RecoveryDialog,
   saveProject,
   loadProject,
+  useAutoSave,
+  useRecovery,
 } from './features/project'
 import type { LoadProjectError } from './features/project'
 import { Toolbar, ToolbarDivider, HandButton, EyedropperButton } from './features/toolbar'
@@ -128,6 +131,9 @@ function App() {
 
   const stabilization = useStabilization()
 
+  // 自動保存データの復元
+  const recovery = useRecovery()
+
   const canvasOptions = useMemo(
     () => ({
       onCanvasResize: handleCanvasResize,
@@ -212,6 +218,8 @@ function App() {
   const [newCanvasDialogOpen, setNewCanvasDialogOpen] = useState(false)
   // キャンバスが作成されたかどうか（初期状態では未作成）
   const [isCanvasCreated, setIsCanvasCreated] = useState(false)
+  // 復元ダイアログの表示状態
+  const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false)
 
   // アクティブレイヤーが非表示かどうかをチェック
   const isActiveLayerHidden = useMemo(() => {
@@ -235,6 +243,48 @@ function App() {
       document.title = 'Paint'
     }
   }, [projectName, isCanvasCreated, t])
+
+  // 復元可能なデータがある場合にダイアログを表示
+  useEffect(() => {
+    if (!recovery.isLoading && recovery.hasRecoverableData) {
+      setRecoveryDialogOpen(true)
+    }
+  }, [recovery.isLoading, recovery.hasRecoverableData])
+
+  /**
+   * 自動保存データを復元するハンドラ
+   */
+  const handleRecoveryRestore = useCallback(async () => {
+    const project = await recovery.restore()
+    if (project) {
+      canvas.setLayers(project.layers, project.activeLayerId)
+      canvas.clearHistory()
+      canvasSize.setSizeDirectly(project.canvasWidth, project.canvasHeight)
+      setProjectName(project.name)
+      setIsCanvasCreated(true)
+      tool.setToolType('pen')
+      toast.success(t('recovery.restored'))
+    }
+    setRecoveryDialogOpen(false)
+  }, [recovery, canvas, canvasSize, tool, t])
+
+  /**
+   * 自動保存データを破棄するハンドラ
+   */
+  const handleRecoveryDiscard = useCallback(async () => {
+    await recovery.discard()
+    setRecoveryDialogOpen(false)
+  }, [recovery])
+
+  // 自動保存（キャンバスが作成されている場合のみ）
+  useAutoSave({
+    projectName: projectName || '',
+    canvasWidth: canvasSize.width,
+    canvasHeight: canvasSize.height,
+    layers: canvas.layers,
+    activeLayerId: canvas.activeLayerId,
+    enabled: isCanvasCreated,
+  })
 
   // canvas.canUndoをrefで保持（useCallbackの依存配列問題を回避）
   const canUndoRef = useRef(canvas.canUndo)
@@ -1440,6 +1490,12 @@ function App() {
         open={newCanvasDialogOpen}
         onOpenChange={setNewCanvasDialogOpen}
         onCreate={handleCreateNewCanvas}
+      />
+      <RecoveryDialog
+        open={recoveryDialogOpen}
+        savedAt={recovery.savedAt}
+        onRestore={handleRecoveryRestore}
+        onDiscard={handleRecoveryDiscard}
       />
       <ReloadPrompt />
     </div>
