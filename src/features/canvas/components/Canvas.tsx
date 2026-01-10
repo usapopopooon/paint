@@ -255,9 +255,9 @@ export const Canvas = ({
   // 移動中かどうかを追跡するref
   const isMovingRef = useRef(false)
 
-  // 選択ツール時のポインターイベント処理
+  // 選択ツール時のポインターイベント処理（変形中は無効）
   useEffect(() => {
-    if (!isSelectionTool) return
+    if (!isSelectionTool || transformState) return
 
     const container = containerRef.current
     if (!container) return
@@ -336,6 +336,7 @@ export const Canvas = ({
     }
   }, [
     isSelectionTool,
+    transformState,
     zoom,
     selectionRegion,
     isPointInRegion,
