@@ -46,16 +46,16 @@ jobs:
           # Update screenshot filename with timestamp (README.md)
           sed -i "s|screenshot_[0-9]*\.png|screenshot_${TIMESTAMP}.png|g" README.md
 
-          # Update version badge (docs/README.ja.md)
-          sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" docs/README.ja.md
-          sed -i "s|releases/tag/v[0-9.]*|releases/tag/v${VERSION}|g" docs/README.ja.md
+          # Update version badge (docs/README.en.md)
+          sed -i "s|version-[0-9.]*-blue|version-${VERSION}-blue|g" docs/README.en.md
+          sed -i "s|releases/tag/v[0-9.]*|releases/tag/v${VERSION}|g" docs/README.en.md
 
-          # Update screenshot filename with timestamp (docs/README.ja.md)
-          sed -i "s|screenshot_[0-9]*\.png|screenshot_${TIMESTAMP}.png|g" docs/README.ja.md
+          # Update screenshot filename with timestamp (docs/README.en.md)
+          sed -i "s|screenshot_[0-9]*\.png|screenshot_${TIMESTAMP}.png|g" docs/README.en.md
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add package.json README.md docs/README.ja.md
+          git add package.json README.md docs/README.en.md
 
           # Check if there are changes to commit
           if ! git diff --staged --quiet; then

@@ -1,91 +1,91 @@
-# Paint (Tentative Name)
+# Paint（仮名）
 
-> 🚧 **WIP** - This project is under development.
+> 🚧 **WIP** - このプロジェクトは開発中です。
 
-[日本語](docs/README.ja.md)
+[English](docs/README.en.md)
 
 [![version](https://img.shields.io/badge/version-0.2.3-blue)](https://github.com/usapopopooon/paint/releases/tag/v0.2.3) [![CI](https://github.com/usapopopooon/paint/actions/workflows/ci.yml/badge.svg)](https://github.com/usapopopooon/paint/actions/workflows/ci.yml) ![coverage](https://usapopopooon.github.io/paint/coverage-badge.svg) [![Demo](https://img.shields.io/badge/Demo-open-green?logo=github-pages)](https://usapopopooon.github.io/paint/) [![Storybook](https://img.shields.io/badge/Storybook-open-ff4785?logo=storybook&logoColor=white)](https://usapopopooon.github.io/paint/storybook/)
 
-A drawing app built with React and Canvas 2D 👉 [Try it out](https://usapopopooon.github.io/paint/)
+ReactとCanvas 2Dで構築したお絵かきアプリ 👉 [実際に触ってみる](https://usapopopooon.github.io/paint/)
 
 ![Screenshot](https://usapopopooon.github.io/paint/screenshot_1767996430.png)
 
-## Tech Stack
+## 技術スタック
 
-- **Framework**: React 19, TypeScript
-- **Rendering Engine**: Canvas 2D (PixiJS available as alternative)
-- **Build**: Vite
-- **Styling**: Tailwind CSS v4
-- **UI Components**: Radix UI, shadcn/ui
-- **Testing**: Vitest, Playwright, Storybook
-- **PWA**: vite-plugin-pwa (offline support, installable)
+- **フレームワーク**: React 19, TypeScript
+- **描画エンジン**: Canvas 2D（PixiJSも代替として使用可能）
+- **ビルド**: Vite
+- **スタイリング**: Tailwind CSS v4
+- **UIコンポーネント**: Radix UI, shadcn/ui
+- **テスト**: Vitest, Playwright, Storybook
+- **PWA**: vite-plugin-pwa（オフライン対応、インストール可能）
 - **CI/CD**: GitHub Actions, GitHub Pages
 
-## Architecture
+## アーキテクチャ
 
-Adopts **Package by Feature** + **Clean Architecture**.
+**Package by Feature** + **Clean Architecture** を採用しています。
 
-### Design Principles
+### 設計方針
 
-- **Package by Feature**: Organize code by feature
-- **Clean Architecture**: Structure each feature with types / domain / useCases / adapters / infrastructure / helpers / hooks / components layers
-- **One Function Per File**: Follow single responsibility principle, clarify test correspondence
-- **Colocation**: Place tests and stories within each feature
+- **Package by Feature**: 機能単位でコードを整理
+- **Clean Architecture**: 各機能内を types / domain / useCases / adapters / infrastructure / helpers / hooks / components のレイヤーで構成
+- **1ファイル1関数**: 単一責任原則に従い、テストとの対応を明確化
+- **コロケーション**: テスト・ストーリーを各機能内に配置
 
-### Feature Structure (Conceptual Diagram)
+### Feature 構造（概念図）
 
 ![Feature Structure](docs/img/feature-mermaid-chart.svg)
 
-### Directory Structure
+### ディレクトリ構造
 
 ```
 src/
-├── components/ui/       # Shared UI components (Button, Slider, Tooltip, etc.)
-├── constants/           # Global constants (zoom limits, canvas defaults, etc.)
-├── features/            # Feature modules
-│   └── [feature]/       # Each feature (see feature list for details)
-│       ├── types/           # Type definitions only
-│       ├── constants/       # Constants
-│       ├── domain/          # Domain logic
-│       │   ├── entities/    # Entities + factories (one function per file)
-│       │   └── services/    # Domain services
-│       ├── useCases/        # Use cases (one function per file)
-│       ├── adapters/        # External adapters (Canvas API, etc.)
-│       ├── infrastructure/  # External system integration (JSON, API, etc.)
-│       ├── helpers/         # Pure utilities
+├── components/ui/       # 共有UIコンポーネント（Button, Slider, Tooltip等）
+├── constants/           # グローバル定数（ズーム制限、キャンバスデフォルト等）
+├── features/            # 機能モジュール
+│   └── [feature]/       # 各機能（詳細は機能一覧を参照）
+│       ├── types/           # 型定義のみ
+│       ├── constants/       # 定数
+│       ├── domain/          # ドメインロジック
+│       │   ├── entities/    # エンティティ + ファクトリ（1ファイル1関数）
+│       │   └── services/    # ドメインサービス
+│       ├── useCases/        # ユースケース（1ファイル1関数）
+│       ├── adapters/        # 外部アダプター（Canvas API等）
+│       ├── infrastructure/  # 外部システム統合（JSON, API等）
+│       ├── helpers/         # 純粋ユーティリティ
 │       ├── hooks/           # React hooks
-│       ├── components/      # UI components
-│       └── index.ts         # Public API
-├── hooks/               # Global hooks (useKeyboardShortcuts)
-├── lib/                 # Shared utilities (color conversion, storage, etc.)
-├── utils/               # General utility functions (toDisplayValue, etc.)
-└── test/                # Test utilities and mocks
+│       ├── components/      # UIコンポーネント
+│       └── index.ts         # 公開API
+├── hooks/               # グローバルフック（useKeyboardShortcuts）
+├── lib/                 # 共有ユーティリティ（色変換、ストレージ等）
+├── utils/               # 汎用ユーティリティ関数（toDisplayValue等）
+└── test/                # テストユーティリティ・モック
 ```
 
-## Development
+## 開発
 
 ```bash
-# Install dependencies
+# 依存関係のインストール
 npm install
 
-# Start development server
+# 開発サーバー起動
 npm run dev
 
-# Start Storybook
+# Storybook起動
 npm run storybook
 
-# Run tests
+# テスト実行
 npm test
 
-# Run unit tests
+# ユニットテスト実行
 npm run test:unit
 
-# Run tests with coverage
+# カバレッジ付きテスト
 npm run test:coverage
 
-# Lint
+# リント
 npm run lint
 
-# Build
+# ビルド
 npm run build
 ```

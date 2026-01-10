@@ -16,6 +16,7 @@
 ### Docs
 
 - READMEの技術スタックにPWAを追加
+- READMEを日本語に変更、英語版をdocs/README.en.mdに移動
 
 ## [0.2.3] - 2026-01-10
 
