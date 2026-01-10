@@ -255,7 +255,7 @@ describe('useTransform', () => {
   })
 
   describe('commitTransform', () => {
-    test('変形を確定してImageDataを返す', () => {
+    test('変形を確定してImageDataを返す', async () => {
       const { result } = renderHook(() => useTransform())
       const imageData = createTestImageData(100, 100)
       const bounds: Bounds = { x: 0, y: 0, width: 100, height: 100 }
@@ -265,8 +265,8 @@ describe('useTransform', () => {
       })
 
       let committedResult: TransformResult | null = null
-      act(() => {
-        committedResult = result.current.commitTransform()
+      await act(async () => {
+        committedResult = await result.current.commitTransform()
       })
 
       expect(committedResult).not.toBeNull()
@@ -277,12 +277,12 @@ describe('useTransform', () => {
       expect(result.current.isTransforming).toBe(false)
     })
 
-    test('変形中でない場合はnullを返す', () => {
+    test('変形中でない場合はnullを返す', async () => {
       const { result } = renderHook(() => useTransform())
 
       let committedResult: TransformResult | null = null
-      act(() => {
-        committedResult = result.current.commitTransform()
+      await act(async () => {
+        committedResult = await result.current.commitTransform()
       })
 
       expect(committedResult).toBeNull()

@@ -6,11 +6,10 @@ import {
   getNextTransformMode,
   calculateScaleFromHandle,
   calculateRotationFromHandle,
-  applyTransformToImageData,
-  calculateTransformedBounds,
   detectHandle,
   getAllHandlePositions,
 } from '../adapters/canvas'
+import { transformImage } from '../adapters/canvas/transformWorker'
 
 /**
  * ハンドル操作の状態
@@ -52,8 +51,8 @@ export type UseTransformReturn = {
   readonly updateTransform: (point: Point, shiftKey: boolean, altKey: boolean) => void
   /** ハンドル操作を終了 */
   readonly endHandleOperation: () => void
-  /** 変形を確定（バイキュービック補間で最終ImageDataを生成） */
-  readonly commitTransform: () => TransformResult | null
+  /** 変形を確定（バイキュービック補間で最終ImageDataを生成、Web Workerで非同期処理） */
+  readonly commitTransform: () => Promise<TransformResult | null>
   /** 変形をキャンセル */
   readonly cancelTransform: () => void
   /** 点がハンドル上にあるかを検出 */
@@ -197,23 +196,24 @@ export const useTransform = (): UseTransformReturn => {
   }, [])
 
   /**
-   * 変形を確定（バイキュービック補間で最終ImageDataを生成）
+   * 変形を確定（バイキュービック補間で最終ImageDataを生成、Web Workerで非同期処理）
    */
-  const commitTransform = useCallback((): TransformResult | null => {
+  const commitTransform = useCallback(async (): Promise<TransformResult | null> => {
     if (!transformState || !transformState.originalImageData) {
       return null
     }
 
+    // 状態を保存（非同期処理中に変更される可能性があるため）
+    const currentState = transformState
+    const originalImageData = transformState.originalImageData
+
     try {
-      // バイキュービック補間で高品質な結果を生成
-      const imageData = applyTransformToImageData(
-        transformState.originalImageData,
-        transformState,
+      // Web Workerでバイキュービック補間を実行（非同期）
+      const { imageData, bounds } = await transformImage(
+        originalImageData,
+        currentState,
         'bicubic'
       )
-
-      // 変形後のバウンズを計算
-      const bounds = calculateTransformedBounds(transformState.originalBounds, transformState)
 
       // 状態をリセット
       setTransformState(null)
@@ -224,13 +224,12 @@ export const useTransform = (): UseTransformReturn => {
       return { imageData, bounds }
     } catch {
       // 失敗した場合は元のImageDataと元のバウンズを返す
-      const original = transformState.originalImageData
-      const originalBounds = transformState.originalBounds
+      const originalBounds = currentState.originalBounds
       setTransformState(null)
       setPreviewImageData(null)
       handleOperationRef.current = null
       setIsHandleOperating(false)
-      return { imageData: original, bounds: originalBounds }
+      return { imageData: originalImageData, bounds: originalBounds }
     }
   }, [transformState])
 

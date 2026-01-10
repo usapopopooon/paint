@@ -829,8 +829,8 @@ function App() {
     )
     const ctx = offscreenCanvas.getContext('2d')!
 
-    // バイキュービック補間で最終結果を生成（変形後のバウンズも取得）
-    const result = transform.commitTransform()
+    // バイキュービック補間で最終結果を生成（変形後のバウンズも取得、Web Workerで非同期処理）
+    const result = await transform.commitTransform()
     if (!result) return
 
     // 変形後のバウンズを使用して描画

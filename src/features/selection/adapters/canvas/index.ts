@@ -53,3 +53,21 @@ export {
   getTransformCursor,
   type HandleInfo,
 } from './transformOperations'
+
+export {
+  transformImageCore,
+  getPixelFromArray,
+  setPixelToArray,
+  bilinearInterpolateCore,
+  bicubicInterpolateCore,
+  createInverseTransform,
+  type TransformParams,
+  type TransformCoreResult,
+} from './transformCore'
+
+export {
+  transformImage,
+  transformImageAsync,
+  transformImageSync,
+  buildTransformParams,
+} from './transformWorker'
