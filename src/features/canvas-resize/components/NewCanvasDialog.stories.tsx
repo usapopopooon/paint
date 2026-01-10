@@ -135,7 +135,11 @@ export const SubmitWithEmptyProjectName: Story = {
     await userEvent.click(createButton)
 
     // onCreateがnullで呼ばれることを確認
-    await expect(args.onCreate).toHaveBeenCalledWith(DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, null)
+    await expect(args.onCreate).toHaveBeenCalledWith(
+      DEFAULT_CANVAS_WIDTH,
+      DEFAULT_CANVAS_HEIGHT,
+      null
+    )
   },
 }
 
