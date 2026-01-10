@@ -74,6 +74,7 @@ export const Default: Story = {
     await expect(canvas.getByText(i18nEn.t('menu.edit'))).toBeInTheDocument()
     await expect(canvas.getByText(i18nEn.t('menu.view'))).toBeInTheDocument()
     await expect(canvas.getByText(i18nEn.t('menu.settings'))).toBeInTheDocument()
+    await expect(canvas.getByText(i18nEn.t('menu.help'))).toBeInTheDocument()
   },
 }
 
@@ -355,5 +356,21 @@ export const NoCanvasCreated: Story = {
 
     await expect(saveItem).toHaveAttribute('data-disabled')
     await expect(exportItem).toHaveAttribute('data-disabled')
+  },
+}
+
+/**
+ * Helpメニューを開く
+ */
+export const OpenHelpMenu: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const helpMenu = canvas.getByText(i18nEn.t('menu.help'))
+
+    await userEvent.click(helpMenu)
+
+    // メニューアイテムが表示されることを確認
+    const body = within(document.body)
+    await expect(body.getByText(i18nEn.t('menu.checkForUpdates'))).toBeInTheDocument()
   },
 }

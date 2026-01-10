@@ -208,6 +208,9 @@
     "japanese": "日本語",
     "english": "English",
     "light": "ライト",
-    "dark": "ダーク"
+    "dark": "ダーク",
+    "help": "ヘルプ",
+    "checkForUpdates": "更新を確認",
+    "updateAvailable": "更新あり"
   }
 }
