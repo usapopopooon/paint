@@ -51,10 +51,10 @@ export const JpgFormat: Story = {
     const body = within(document.body)
 
     // フォーマットセレクトを開いてJPGを選択
-    const formatTrigger = body.getByRole('combobox', { name: '' })
+    const formatTrigger = document.getElementById('image-format') as HTMLButtonElement
     await userEvent.click(formatTrigger)
 
-    const jpgOption = body.getByText('JPG')
+    const jpgOption = body.getByRole('option', { name: 'JPG' })
     await userEvent.click(jpgOption)
 
     // 品質スライダーが表示されることを確認（JPGのため）
@@ -104,7 +104,7 @@ export const ChangeFileName: Story = {
     const body = within(document.body)
 
     // ファイル名入力欄をクリア＆入力
-    const fileNameInput = body.getByRole('textbox')
+    const fileNameInput = document.getElementById('image-file-name') as HTMLInputElement
     await userEvent.clear(fileNameInput)
     await userEvent.type(fileNameInput, 'my-artwork')
 
@@ -127,12 +127,10 @@ export const ChangeScale: Story = {
     const body = within(document.body)
 
     // スケールセレクトを開いて50%を選択
-    const scaleTriggers = body.getAllByRole('combobox')
-    // 2番目のcomboboxがスケール選択
-    const scaleTrigger = scaleTriggers[1]
+    const scaleTrigger = document.getElementById('image-scale') as HTMLButtonElement
     await userEvent.click(scaleTrigger)
 
-    const scale50Option = body.getByText('50%')
+    const scale50Option = body.getByRole('option', { name: '50%' })
     await userEvent.click(scale50Option)
 
     const saveButton = body.getByText(i18nEn.t('export.saveDialog.save'))
@@ -177,10 +175,10 @@ export const JpgWithQuality: Story = {
     const body = within(document.body)
 
     // フォーマットセレクトを開いてJPGを選択
-    const formatTrigger = body.getByRole('combobox', { name: '' })
+    const formatTrigger = document.getElementById('image-format') as HTMLButtonElement
     await userEvent.click(formatTrigger)
 
-    const jpgOption = body.getByText('JPG')
+    const jpgOption = body.getByRole('option', { name: 'JPG' })
     await userEvent.click(jpgOption)
 
     // 品質スライダーが表示されることを確認
