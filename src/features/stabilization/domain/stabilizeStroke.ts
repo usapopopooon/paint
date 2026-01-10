@@ -20,8 +20,8 @@ const createGaussianKernel = (size: number, sigma: number): number[] => {
 
 /**
  * 手ぶれ補正を適用してストロークのポイントを平滑化する
- * 内部ではガウシアンフィルタ（FIR）を使用
- * 終端から遅れた分だけ後から平滑化される
+ * 双方向ガウシアンフィルタを使用（各ポイントの前後を考慮）
+ * これにより始点・終点のずれを防ぐ
  * @param points - 生のポイント配列
  * @param size - カーネルサイズ
  * @param sigma - 標準偏差
@@ -33,25 +33,24 @@ export const stabilizeStroke = (points: readonly Point[], size: number, sigma: n
   if (size <= 1) return points.map((p) => ({ ...p }))
 
   const kernel = createGaussianKernel(size, sigma)
-  const center = Math.floor(size / 2)
+  const halfSize = Math.floor(size / 2)
 
-  // 始点を複製してパディング（始点付近も滑らかに補正できるように）
-  const padding = Array.from({ length: center }, () => ({ ...points[0] }))
-  const paddedPoints = [...padding, ...points.map((p) => ({ ...p }))]
+  // 両端をパディング（始点・終点付近も滑らかに補正できるように）
+  const startPadding = Array.from({ length: halfSize }, () => ({ ...points[0] }))
+  const endPadding = Array.from({ length: halfSize }, () => ({ ...points[points.length - 1] }))
+  const paddedPoints = [...startPadding, ...points.map((p) => ({ ...p })), ...endPadding]
 
-  // 全ポイントに補正を適用
+  // 全ポイントに双方向補正を適用（各ポイントを中心にカーネルを適用）
   return points.map((_, i) => {
     let sumX = 0
     let sumY = 0
     let weightSum = 0
 
     for (let k = 0; k < size; k++) {
-      const idx = i + k
-      if (idx < paddedPoints.length) {
-        sumX += paddedPoints[idx].x * kernel[k]
-        sumY += paddedPoints[idx].y * kernel[k]
-        weightSum += kernel[k]
-      }
+      const idx = i + k // パディング分のオフセットは不要（startPaddingがhalfSize分ある）
+      sumX += paddedPoints[idx].x * kernel[k]
+      sumY += paddedPoints[idx].y * kernel[k]
+      weightSum += kernel[k]
     }
 
     return {

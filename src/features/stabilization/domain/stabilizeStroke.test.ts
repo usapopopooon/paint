@@ -75,7 +75,7 @@ describe('stabilizeStroke', () => {
     })
   })
 
-  describe('始点パディング', () => {
+  describe('両端パディング', () => {
     test('始点付近も補正が適用される', () => {
       const points: Point[] = [
         { x: 0, y: 0 },
@@ -103,6 +103,35 @@ describe('stabilizeStroke', () => {
       // 後続のポイントにも多少引っ張られる
       expect(result[0].x).toBeGreaterThanOrEqual(0)
       expect(result[0].y).toBeGreaterThanOrEqual(0)
+    })
+
+    test('終点付近も補正が適用される', () => {
+      const points: Point[] = [
+        { x: 0, y: 20 },
+        { x: 10, y: 20 },
+        { x: 20, y: 20 },
+        { x: 30, y: 20 }, // 急な動き
+        { x: 40, y: 0 },
+      ]
+      const result = stabilizeStroke(points, 5, 1.5)
+
+      // 4点目は補正により終点と3点目の間に引っ張られる
+      expect(result[3].y).toBeGreaterThan(0)
+      expect(result[3].y).toBeLessThan(20)
+    })
+
+    test('終点は終点付近のポイントに影響を受ける', () => {
+      const points: Point[] = [
+        { x: 0, y: 0 },
+        { x: 5, y: 5 },
+        { x: 10, y: 10 },
+      ]
+      const result = stabilizeStroke(points, 3, 1)
+
+      // 終点はパディングにより終点自身に強く影響を受けるが、
+      // 先行のポイントにも多少引っ張られる
+      expect(result[2].x).toBeLessThanOrEqual(10)
+      expect(result[2].y).toBeLessThanOrEqual(10)
     })
   })
 
