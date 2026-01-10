@@ -7,7 +7,7 @@ import { CanvasResizeDialog, NewCanvasDialog, useCanvasSize } from './features/c
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { SaveImageDialog, useExportImage } from './features/export'
-import type { ImageFormat } from './features/export'
+import type { ExportOptions } from './features/export'
 import { useTranslation } from './features/i18n'
 import { useImportImage } from './features/import'
 import {
@@ -299,10 +299,9 @@ function App() {
    * 画像保存ダイアログで保存を確定した時のハンドラ
    */
   const handleSaveImage = useCallback(
-    async (fileName: string, format: ImageFormat) => {
+    async (options: ExportOptions) => {
       await exportImage.downloadImage(
-        fileName,
-        format,
+        options,
         canvas.showBackgroundLayer,
         canvas.hideBackgroundLayer
       )

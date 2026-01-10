@@ -1,6 +1,6 @@
 import { useCallback, type RefObject } from 'react'
-import { JPEG_QUALITY } from '../constants'
-import type { ImageFormat } from '../components/SaveImageDialog'
+import type { ExportOptions } from '../types'
+import { SCALE_VALUES } from '../types'
 
 /**
  * 次のアニメーションフレームまで待機
@@ -14,25 +14,25 @@ const waitForNextFrame = (): Promise<void> =>
  */
 export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
   /**
-   * キャンバスを指定フォーマットでダウンロード
-   * JPGの場合は背景レイヤーを表示、PNGの場合は透過でエクスポート
-   * @param fileName - ファイル名（拡張子なし）
-   * @param format - 画像フォーマット（jpg または png）
+   * キャンバスを指定オプションでダウンロード
+   * @param options - エクスポートオプション
    * @param showBackgroundLayer - 背景レイヤーを表示する関数
    * @param hideBackgroundLayer - 背景レイヤーを非表示にする関数
    */
   const downloadImage = useCallback(
     async (
-      fileName: string,
-      format: ImageFormat,
+      options: ExportOptions,
       showBackgroundLayer: () => void,
       hideBackgroundLayer: () => void
     ) => {
       const container = containerRef.current
       if (!container) return
 
-      // JPGの場合のみ背景レイヤーを表示（PNGは透過のまま）
-      if (format === 'jpg') {
+      const { fileName, format, scale, includeBackground, jpegQuality } = options
+
+      // JPGの場合は常に背景表示、PNGの場合はincludeBackgroundに従う
+      const shouldShowBackground = format === 'jpg' || includeBackground
+      if (shouldShowBackground) {
         showBackgroundLayer()
       }
 
@@ -43,7 +43,7 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
       // コンテナ内のキャンバス要素を取得
       const canvas = container.querySelector('canvas') as HTMLCanvasElement | null
       if (!canvas) {
-        if (format === 'jpg') {
+        if (shouldShowBackground) {
           hideBackgroundLayer()
         }
         return
@@ -58,7 +58,7 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
       fullSizeCanvas.height = height
       const fullSizeCtx = fullSizeCanvas.getContext('2d')
       if (!fullSizeCtx) {
-        if (format === 'jpg') {
+        if (shouldShowBackground) {
           hideBackgroundLayer()
         }
         return
@@ -95,15 +95,33 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
         fullSizeCtx.drawImage(canvas, 0, 0)
       }
 
-      // JPGの場合のみ背景レイヤーを非表示に戻す
-      if (format === 'jpg') {
+      // 背景レイヤーを非表示に戻す
+      if (shouldShowBackground) {
         hideBackgroundLayer()
       }
 
+      // スケール適用
+      const scaleValue = SCALE_VALUES[scale]
+      const outputWidth = Math.round(width * scaleValue)
+      const outputHeight = Math.round(height * scaleValue)
+
+      // 出力用キャンバスを作成（スケール適用）
+      const outputCanvas = document.createElement('canvas')
+      outputCanvas.width = outputWidth
+      outputCanvas.height = outputHeight
+      const outputCtx = outputCanvas.getContext('2d')
+      if (!outputCtx) return
+
+      // 高品質なリサイズのための設定
+      outputCtx.imageSmoothingEnabled = true
+      outputCtx.imageSmoothingQuality = 'high'
+      outputCtx.drawImage(fullSizeCanvas, 0, 0, outputWidth, outputHeight)
+
       // 指定フォーマットに変換してダウンロード
       const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png'
-      const quality = format === 'jpg' ? JPEG_QUALITY : undefined
-      const dataUrl = fullSizeCanvas.toDataURL(mimeType, quality)
+      // JPGの場合は品質を0-1の範囲に変換（入力は1-100）
+      const quality = format === 'jpg' ? jpegQuality / 100 : undefined
+      const dataUrl = outputCanvas.toDataURL(mimeType, quality)
       const filename = `${fileName}.${format}`
 
       const link = document.createElement('a')
@@ -122,7 +140,17 @@ export const useExportImage = (containerRef: RefObject<HTMLElement | null>) => {
     async (showBackgroundLayer: () => void, hideBackgroundLayer: () => void) => {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
       const fileName = `paint_${timestamp}`
-      await downloadImage(fileName, 'jpg', showBackgroundLayer, hideBackgroundLayer)
+      await downloadImage(
+        {
+          fileName,
+          format: 'jpg',
+          scale: '100',
+          includeBackground: true,
+          jpegQuality: 92,
+        },
+        showBackgroundLayer,
+        hideBackgroundLayer
+      )
     },
     [downloadImage]
   )

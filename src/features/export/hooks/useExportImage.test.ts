@@ -1,18 +1,24 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useExportImage } from './useExportImage'
+import type { ExportOptions } from '../types'
 
 describe('useExportImage', () => {
   let mockCanvas: HTMLCanvasElement
   let mockContainer: HTMLDivElement
   let mockFullSizeCanvas: HTMLCanvasElement
+  let mockOutputCanvas: HTMLCanvasElement
   let mockFullSizeContext: CanvasRenderingContext2D
+  let mockOutputContext: CanvasRenderingContext2D
   let mockLink: HTMLAnchorElement
   let originalCreateElement: typeof document.createElement
   let mockShowBackgroundLayer: () => void
   let mockHideBackgroundLayer: () => void
+  let canvasCreateCount: number
 
   beforeEach(() => {
+    canvasCreateCount = 0
+
     // モックのキャンバス要素（WebGLコンテキストなし - フォールバックパス）
     mockCanvas = {
       width: 800,
@@ -33,12 +39,27 @@ describe('useExportImage', () => {
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
 
+    // 出力用コンテキスト
+    mockOutputContext = {
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: 'high',
+      drawImage: vi.fn(),
+    } as unknown as CanvasRenderingContext2D
+
     // フルサイズのオフスクリーンキャンバス
     mockFullSizeCanvas = {
       width: 0,
       height: 0,
       getContext: vi.fn().mockReturnValue(mockFullSizeContext),
       toDataURL: vi.fn().mockReturnValue('data:image/jpeg;base64,test'),
+    } as unknown as HTMLCanvasElement
+
+    // 出力用キャンバス
+    mockOutputCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn().mockReturnValue(mockOutputContext),
+      toDataURL: vi.fn().mockReturnValue('data:image/png;base64,test'),
     } as unknown as HTMLCanvasElement
 
     // モックのリンク要素
@@ -56,7 +77,12 @@ describe('useExportImage', () => {
     originalCreateElement = document.createElement
     document.createElement = vi.fn((tagName: string) => {
       if (tagName === 'canvas') {
-        return mockFullSizeCanvas
+        // 1回目はフルサイズキャンバス、2回目は出力用キャンバス
+        canvasCreateCount++
+        if (canvasCreateCount === 1) {
+          return mockFullSizeCanvas
+        }
+        return mockOutputCanvas
       }
       if (tagName === 'a') {
         return mockLink
@@ -249,6 +275,193 @@ describe('useExportImage', () => {
 
       expect(mockFullSizeContext.createImageData).toHaveBeenCalledWith(800, 600)
       expect(mockLink.click).toHaveBeenCalled()
+    })
+  })
+
+  describe('downloadImage', () => {
+    const createOptions = (overrides: Partial<ExportOptions> = {}): ExportOptions => ({
+      fileName: 'test-image',
+      format: 'png',
+      scale: '100',
+      includeBackground: false,
+      jpegQuality: 92,
+      ...overrides,
+    })
+
+    test('コンテナが存在しない場合は何もしない', async () => {
+      const containerRef = { current: null }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions(),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockLink.click).not.toHaveBeenCalled()
+    })
+
+    test('PNGでincludeBackground=falseの場合は背景レイヤーを表示しない', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ format: 'png', includeBackground: false }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockShowBackgroundLayer).not.toHaveBeenCalled()
+      expect(mockHideBackgroundLayer).not.toHaveBeenCalled()
+    })
+
+    test('PNGでincludeBackground=trueの場合は背景レイヤーを表示する', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ format: 'png', includeBackground: true }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockShowBackgroundLayer).toHaveBeenCalled()
+      expect(mockHideBackgroundLayer).toHaveBeenCalled()
+    })
+
+    test('JPGの場合は常に背景レイヤーを表示する', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ format: 'jpg', includeBackground: false }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockShowBackgroundLayer).toHaveBeenCalled()
+      expect(mockHideBackgroundLayer).toHaveBeenCalled()
+    })
+
+    test('scale=100の場合はフルサイズで出力する', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ scale: '100' }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      // 出力キャンバスがフルサイズ（800x600）
+      expect(mockOutputCanvas.width).toBe(800)
+      expect(mockOutputCanvas.height).toBe(600)
+    })
+
+    test('scale=50の場合は50%サイズで出力する', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ scale: '50' }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      // 出力キャンバスが50%サイズ（400x300）
+      expect(mockOutputCanvas.width).toBe(400)
+      expect(mockOutputCanvas.height).toBe(300)
+    })
+
+    test('scale=25の場合は25%サイズで出力する', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ scale: '25' }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      // 出力キャンバスが25%サイズ（200x150）
+      expect(mockOutputCanvas.width).toBe(200)
+      expect(mockOutputCanvas.height).toBe(150)
+    })
+
+    test('JPGの場合はjpegQualityを0-1に変換して使用する', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ format: 'jpg', jpegQuality: 80 }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockOutputCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 0.8)
+    })
+
+    test('PNGの場合はqualityを指定しない', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ format: 'png' }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockOutputCanvas.toDataURL).toHaveBeenCalledWith('image/png', undefined)
+    })
+
+    test('指定したファイル名とフォーマットでダウンロードする', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ fileName: 'my-artwork', format: 'png' }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockLink.download).toBe('my-artwork.png')
+      expect(mockLink.click).toHaveBeenCalled()
+    })
+
+    test('高品質なリサイズ設定が適用される', async () => {
+      const containerRef = { current: mockContainer }
+      const { result } = renderHook(() => useExportImage(containerRef))
+
+      await act(async () => {
+        await result.current.downloadImage(
+          createOptions({ scale: '50' }),
+          mockShowBackgroundLayer,
+          mockHideBackgroundLayer
+        )
+      })
+
+      expect(mockOutputContext.imageSmoothingEnabled).toBe(true)
+      expect(mockOutputContext.imageSmoothingQuality).toBe('high')
     })
   })
 })
