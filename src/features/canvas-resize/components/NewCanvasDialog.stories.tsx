@@ -41,6 +41,10 @@ export const Default: Story = {
     const title = body.getByText(i18nEn.t('canvas.new'))
     await expect(title).toBeVisible()
 
+    // プロジェクト名入力フィールドがデフォルト値で表示されていることを確認
+    const projectNameInput = body.getByDisplayValue(i18nEn.t('app.untitledProject'))
+    await expect(projectNameInput).toBeVisible()
+
     // 幅・高さ入力フィールドがデフォルト値で表示されていることを確認
     const widthInput = body.getByDisplayValue(String(DEFAULT_CANVAS_WIDTH))
     const heightInput = body.getByDisplayValue(String(DEFAULT_CANVAS_HEIGHT))
@@ -56,7 +60,7 @@ export const Default: Story = {
 }
 
 /**
- * サイズを変更して作成ボタンをクリック
+ * サイズを変更して作成ボタンをクリック（デフォルトプロジェクト名）
  */
 export const SubmitWithCustomSize: Story = {
   args: {
@@ -79,8 +83,59 @@ export const SubmitWithCustomSize: Story = {
     const createButton = body.getByRole('button', { name: i18nEn.t('canvas.create') })
     await userEvent.click(createButton)
 
-    // onCreateが正しい値で呼ばれることを確認
-    await expect(args.onCreate).toHaveBeenCalledWith(1024, 768)
+    // onCreateがデフォルトプロジェクト名で呼ばれることを確認
+    await expect(args.onCreate).toHaveBeenCalledWith(1024, 768, i18nEn.t('app.untitledProject'))
+  },
+}
+
+/**
+ * カスタムプロジェクト名で作成
+ */
+export const SubmitWithCustomProjectName: Story = {
+  args: {
+    onCreate: fn(),
+  },
+  play: async ({ args }) => {
+    const body = within(document.body)
+
+    // プロジェクト名を変更
+    const projectNameInput = body.getByDisplayValue(i18nEn.t('app.untitledProject'))
+    await userEvent.clear(projectNameInput)
+    await userEvent.type(projectNameInput, 'My Artwork')
+
+    // 作成ボタンをクリック
+    const createButton = body.getByRole('button', { name: i18nEn.t('canvas.create') })
+    await userEvent.click(createButton)
+
+    // onCreateがカスタムプロジェクト名で呼ばれることを確認
+    await expect(args.onCreate).toHaveBeenCalledWith(
+      DEFAULT_CANVAS_WIDTH,
+      DEFAULT_CANVAS_HEIGHT,
+      'My Artwork'
+    )
+  },
+}
+
+/**
+ * 空のプロジェクト名で作成（nullになる）
+ */
+export const SubmitWithEmptyProjectName: Story = {
+  args: {
+    onCreate: fn(),
+  },
+  play: async ({ args }) => {
+    const body = within(document.body)
+
+    // プロジェクト名を空にする
+    const projectNameInput = body.getByDisplayValue(i18nEn.t('app.untitledProject'))
+    await userEvent.clear(projectNameInput)
+
+    // 作成ボタンをクリック
+    const createButton = body.getByRole('button', { name: i18nEn.t('canvas.create') })
+    await userEvent.click(createButton)
+
+    // onCreateがnullで呼ばれることを確認
+    await expect(args.onCreate).toHaveBeenCalledWith(DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, null)
   },
 }
 

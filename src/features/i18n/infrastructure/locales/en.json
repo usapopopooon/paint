@@ -90,6 +90,9 @@
       "description": "Blend modes may cause heavy browser load and could potentially crash. Apply anyway?"
     }
   },
+  "app": {
+    "untitledProject": "untitled"
+  },
   "canvas": {
     "width": "Width:",
     "height": "Height:",
@@ -98,6 +101,7 @@
     "resizeDescription": "Set the canvas size and anchor point",
     "new": "New Canvas",
     "newDescription": "Set the canvas size for the new canvas",
+    "projectName": "Project name:",
     "create": "Create",
     "anchor": "Anchor:",
     "flipHorizontal": "Flip horizontal",
@@ -124,6 +128,7 @@
       "title": "Save Image",
       "description": "Choose a file name and format to save",
       "fileName": "File name",
+      "defaultFileName": "untitled",
       "format": "Format",
       "scale": "Scale",
       "includeBackground": "Background",
@@ -139,6 +144,7 @@
       "title": "Save Project",
       "description": "Enter a file name to save the project",
       "fileName": "File name",
+      "defaultFileName": "untitled",
       "save": "Save",
       "fileNameRequired": "Please enter a file name",
       "fileNameTooLong": "File name must be %{max} characters or less",

@@ -18,7 +18,7 @@ import {
 } from '../constants'
 
 type NewCanvasDialogContentProps = {
-  readonly onCreate: (width: number, height: number) => void
+  readonly onCreate: (width: number, height: number, projectName: string | null) => void
   readonly onCancel: () => void
 }
 
@@ -30,8 +30,10 @@ const NewCanvasDialogContent = memo(function NewCanvasDialogContent({
   onCancel,
 }: NewCanvasDialogContentProps) {
   const { t } = useTranslation()
+  const defaultProjectName = t('app.untitledProject')
 
   // ローカルステート（ダイアログ内での編集用）
+  const [localProjectName, setLocalProjectName] = useState(defaultProjectName)
   const [localWidth, setLocalWidth] = useState(String(DEFAULT_CANVAS_WIDTH))
   const [localHeight, setLocalHeight] = useState(String(DEFAULT_CANVAS_HEIGHT))
   const [widthError, setWidthError] = useState<string | null>(null)
@@ -89,6 +91,10 @@ const NewCanvasDialogContent = memo(function NewCanvasDialogContent({
     [validateHeight]
   )
 
+  const handleProjectNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalProjectName(e.target.value)
+  }, [])
+
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
@@ -109,10 +115,13 @@ const NewCanvasDialogContent = memo(function NewCanvasDialogContent({
 
       const newWidth = parseInt(localWidth, 10)
       const newHeight = parseInt(localHeight, 10)
+      // 空文字またはデフォルト名と同じならnullを返す
+      const trimmedName = localProjectName.trim()
+      const projectName = trimmedName === '' ? null : trimmedName
 
-      onCreate(newWidth, newHeight)
+      onCreate(newWidth, newHeight, projectName)
     },
-    [localWidth, localHeight, validateWidth, validateHeight, onCreate]
+    [localWidth, localHeight, localProjectName, validateWidth, validateHeight, onCreate]
   )
 
   const isValid = !widthError && !heightError && localWidth !== '' && localHeight !== ''
@@ -125,6 +134,20 @@ const NewCanvasDialogContent = memo(function NewCanvasDialogContent({
       </DialogHeader>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4">
+          {/* プロジェクト名入力 */}
+          <div className="flex items-center justify-between gap-2">
+            <label htmlFor="new-canvas-project-name" className="text-sm text-muted-foreground">
+              {t('canvas.projectName')}
+            </label>
+            <input
+              id="new-canvas-project-name"
+              type="text"
+              value={localProjectName}
+              onChange={handleProjectNameChange}
+              className="w-36 px-2 py-1.5 rounded border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
+
           {/* サイズ入力 */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
@@ -187,7 +210,7 @@ const NewCanvasDialogContent = memo(function NewCanvasDialogContent({
 type NewCanvasDialogProps = {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
-  readonly onCreate: (width: number, height: number) => void
+  readonly onCreate: (width: number, height: number, projectName: string | null) => void
 }
 
 /**
@@ -199,8 +222,8 @@ export const NewCanvasDialog = memo(function NewCanvasDialog({
   onCreate,
 }: NewCanvasDialogProps) {
   const handleCreate = useCallback(
-    (w: number, h: number) => {
-      onCreate(w, h)
+    (w: number, h: number, projectName: string | null) => {
+      onCreate(w, h, projectName)
       onOpenChange(false)
     },
     [onCreate, onOpenChange]

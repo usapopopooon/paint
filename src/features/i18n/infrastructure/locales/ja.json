@@ -90,6 +90,9 @@
       "description": "合成モードはブラウザに大きな負荷がかかり、クラッシュする可能性があります。適用しますか？"
     }
   },
+  "app": {
+    "untitledProject": "名称未設定"
+  },
   "canvas": {
     "width": "幅:",
     "height": "高さ:",
@@ -98,6 +101,7 @@
     "resizeDescription": "キャンバスのサイズと基準点を設定してください",
     "new": "新規キャンバス",
     "newDescription": "新規キャンバスのサイズを設定してください",
+    "projectName": "プロジェクト名:",
     "create": "作成",
     "anchor": "基準点:",
     "flipHorizontal": "左右反転",
@@ -124,6 +128,7 @@
       "title": "画像を保存",
       "description": "保存するファイル名と形式を選択してください",
       "fileName": "ファイル名",
+      "defaultFileName": "名称未設定",
       "format": "形式",
       "scale": "サイズ",
       "includeBackground": "背景",
@@ -139,6 +144,7 @@
       "title": "プロジェクトを保存",
       "description": "プロジェクトを保存するファイル名を入力してください",
       "fileName": "ファイル名",
+      "defaultFileName": "名称未設定",
       "save": "保存",
       "fileNameRequired": "ファイル名を入力してください",
       "fileNameTooLong": "ファイル名は%{max}文字以内で入力してください",

@@ -184,10 +184,17 @@ function App() {
   // キャンバスが作成されたかどうか（初期状態では未作成）
   const [isCanvasCreated, setIsCanvasCreated] = useState(false)
 
-  // プロジェクト名が変わったらブラウザタイトルを更新
+  // プロジェクト名やキャンバス状態が変わったらブラウザタイトルを更新
   useEffect(() => {
-    document.title = projectName ? `${projectName} - Paint` : 'untitled - Paint'
-  }, [projectName])
+    if (projectName) {
+      document.title = `${projectName} - Paint`
+    } else if (isCanvasCreated) {
+      const untitledName = t('app.untitledProject')
+      document.title = `${untitledName} - Paint`
+    } else {
+      document.title = 'Paint'
+    }
+  }, [projectName, isCanvasCreated, t])
 
   // canvas.canUndoをrefで保持（useCallbackの依存配列問題を回避）
   const canUndoRef = useRef(canvas.canUndo)
@@ -277,7 +284,7 @@ function App() {
    * キャンバスをリセットしてペンツールを選択
    */
   const handleCreateNewCanvas = useCallback(
-    (width: number, height: number) => {
+    (width: number, height: number, newProjectName: string | null) => {
       // キャンバスサイズを設定
       canvasSize.setSizeDirectly(width, height)
       // レイヤーを初期状態にリセット
@@ -285,8 +292,8 @@ function App() {
       canvas.setLayers(initialState.layers, initialState.activeLayerId)
       // 履歴をクリア
       canvas.clearHistory()
-      // プロジェクト名をリセット
-      setProjectName(null)
+      // プロジェクト名を設定
+      setProjectName(newProjectName)
       // ペンツールを選択
       tool.setToolType('pen')
       // キャンバス作成済みフラグを設定

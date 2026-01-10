@@ -36,6 +36,7 @@ export const SaveProjectDialog = memo(function SaveProjectDialog({
   onSave,
 }: SaveProjectDialogProps) {
   const { t } = useTranslation()
+  const defaultFileName = t('project.saveDialog.defaultFileName')
 
   const {
     register,
@@ -45,7 +46,7 @@ export const SaveProjectDialog = memo(function SaveProjectDialog({
     setFocus,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { fileName: 'untitled' },
+    defaultValues: { fileName: defaultFileName },
     mode: 'onChange',
   })
 
@@ -57,9 +58,9 @@ export const SaveProjectDialog = memo(function SaveProjectDialog({
       }, 50)
       return () => clearTimeout(timer)
     } else {
-      reset({ fileName: 'untitled' })
+      reset({ fileName: defaultFileName })
     }
-  }, [open, setFocus, reset])
+  }, [open, setFocus, reset, defaultFileName])
 
   const onSubmit = useCallback(
     (data: FormData) => {

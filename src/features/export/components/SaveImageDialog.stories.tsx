@@ -73,7 +73,7 @@ export const ClickSave: Story = {
     await userEvent.click(saveButton)
 
     await expect(args.onSave).toHaveBeenCalledWith({
-      fileName: 'untitled',
+      fileName: i18nEn.t('export.saveDialog.defaultFileName'),
       format: 'png',
       scale: '100',
       includeBackground: false,

@@ -58,6 +58,7 @@ export const SaveImageDialog = memo(function SaveImageDialog({
   onSave,
 }: SaveImageDialogProps) {
   const { t } = useTranslation()
+  const defaultFileName = t('export.saveDialog.defaultFileName')
 
   const {
     register,
@@ -70,7 +71,7 @@ export const SaveImageDialog = memo(function SaveImageDialog({
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fileName: 'untitled',
+      fileName: defaultFileName,
       format: 'png',
       scale: '100',
       includeBackground: false,
@@ -93,14 +94,14 @@ export const SaveImageDialog = memo(function SaveImageDialog({
       return () => clearTimeout(timer)
     } else {
       reset({
-        fileName: 'untitled',
+        fileName: defaultFileName,
         format: 'png',
         scale: '100',
         includeBackground: false,
         jpegQuality: DEFAULT_JPEG_QUALITY,
       })
     }
-  }, [open, setFocus, reset])
+  }, [open, setFocus, reset, defaultFileName])
 
   const onSubmit = useCallback(
     (data: FormData) => {
