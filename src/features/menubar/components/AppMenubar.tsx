@@ -51,6 +51,8 @@ export type AppMenubarProps = {
   readonly onCanvasSize: () => void
   // Selection
   readonly hasSelection: boolean
+  /** 矩形選択かどうか（切り抜き機能用） */
+  readonly isRectangleSelection?: boolean
   readonly hasClipboard: boolean
   readonly onSelectAll: () => void
   readonly onDeselect: () => void
@@ -58,6 +60,8 @@ export type AppMenubarProps = {
   readonly onCopy: () => void
   readonly onPaste: () => void
   readonly onDelete: () => void
+  /** 切り抜きコールバック（矩形選択時のみ） */
+  readonly onCropToSelection?: () => void
   // View menu
   readonly onZoomIn: () => void
   readonly onZoomOut: () => void
@@ -88,6 +92,7 @@ export const AppMenubar = memo(function AppMenubar({
   onFlipVertical,
   onCanvasSize,
   hasSelection,
+  isRectangleSelection = false,
   hasClipboard,
   onSelectAll,
   onDeselect,
@@ -95,6 +100,7 @@ export const AppMenubar = memo(function AppMenubar({
   onCopy,
   onPaste,
   onDelete,
+  onCropToSelection,
   onZoomIn,
   onZoomOut,
   onZoomReset,
@@ -206,6 +212,14 @@ export const AppMenubar = memo(function AppMenubar({
               {t('menu.deselect')}
               <MenubarShortcut>{modifier}+D</MenubarShortcut>
             </MenubarItem>
+            {onCropToSelection && (
+              <MenubarItem
+                disabled={!isCanvasCreated || !hasSelection || !isRectangleSelection}
+                onClick={onCropToSelection}
+              >
+                {t('menu.cropToSelection')}
+              </MenubarItem>
+            )}
             <MenubarSeparator />
             <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onCut}>
               {t('menu.cut')}
@@ -223,6 +237,17 @@ export const AppMenubar = memo(function AppMenubar({
               {t('menu.delete')}
               <MenubarShortcut>Del</MenubarShortcut>
             </MenubarItem>
+            {onCropToSelection && (
+              <>
+                <MenubarSeparator />
+                <MenubarItem
+                  disabled={!isCanvasCreated || !hasSelection || !isRectangleSelection}
+                  onClick={onCropToSelection}
+                >
+                  {t('menu.cropToSelection')}
+                </MenubarItem>
+              </>
+            )}
           </MenubarContent>
         </MenubarMenu>
 

@@ -229,3 +229,48 @@ export const HiddenContextMenu: Story = {
     showContextMenu: false,
   },
 }
+
+/**
+ * 矩形選択時の切り抜きメニュー
+ */
+export const WithCropToSelection: Story = {
+  args: {
+    hasSelection: true,
+    isRectangleSelection: true,
+    onCropToSelection: fn(),
+  },
+}
+
+/**
+ * 切り抜きをクリック（矩形選択あり）
+ */
+export const ClickCropToSelection: Story = {
+  args: {
+    hasSelection: true,
+    isRectangleSelection: true,
+    onCropToSelection: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const trigger = canvas.getByText('Right-click here')
+
+    await userEvent.pointer({ keys: '[MouseRight]', target: trigger })
+
+    const body = within(document.body)
+    const cropItem = body.getByText(i18nEn.t('menu.cropToSelection'))
+    await userEvent.click(cropItem)
+
+    await expect(args.onCropToSelection).toHaveBeenCalled()
+  },
+}
+
+/**
+ * Lasso選択時は切り抜きが無効
+ */
+export const CropDisabledForLasso: Story = {
+  args: {
+    hasSelection: true,
+    isRectangleSelection: false,
+    onCropToSelection: fn(),
+  },
+}

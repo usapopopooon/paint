@@ -15,6 +15,8 @@ export type SelectionContextMenuProps = {
   readonly children: ReactNode
   /** 選択領域があるかどうか */
   readonly hasSelection: boolean
+  /** 矩形選択かどうか（切り抜き機能用） */
+  readonly isRectangleSelection?: boolean
   /** クリップボードにデータがあるかどうか */
   readonly hasClipboard: boolean
   /** 切り取りコールバック */
@@ -29,6 +31,8 @@ export type SelectionContextMenuProps = {
   readonly onDeselect: () => void
   /** 全選択コールバック */
   readonly onSelectAll: () => void
+  /** 切り抜きコールバック（矩形選択時のみ） */
+  readonly onCropToSelection?: () => void
   /** 右クリック時のコールバック（スポイト機能用） */
   readonly onContextMenu?: (e: React.MouseEvent) => void
   /** コンテキストメニューを表示するかどうか（選択ツール使用中のみ） */
@@ -41,6 +45,7 @@ export type SelectionContextMenuProps = {
 export const SelectionContextMenu = memo(function SelectionContextMenu({
   children,
   hasSelection,
+  isRectangleSelection = false,
   hasClipboard,
   onCut,
   onCopy,
@@ -48,6 +53,7 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
   onDelete,
   onDeselect,
   onSelectAll,
+  onCropToSelection,
   onContextMenu,
   showContextMenu = true,
 }: SelectionContextMenuProps) {
@@ -94,6 +100,17 @@ export const SelectionContextMenu = memo(function SelectionContextMenu({
           {t('menu.deselect')}
           <ContextMenuShortcut>{modifier}+D</ContextMenuShortcut>
         </ContextMenuItem>
+        {onCropToSelection && (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem
+              onClick={onCropToSelection}
+              disabled={!hasSelection || !isRectangleSelection}
+            >
+              {t('menu.cropToSelection')}
+            </ContextMenuItem>
+          </>
+        )}
       </ContextMenuContent>
     </ContextMenu>
   )

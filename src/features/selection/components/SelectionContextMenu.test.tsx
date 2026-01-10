@@ -14,6 +14,7 @@ vi.mock('@/features/i18n', () => ({
         'menu.delete': 'Delete',
         'menu.selectAll': 'Select All',
         'menu.deselect': 'Deselect',
+        'menu.cropToSelection': 'Crop to Selection',
       }
       return translations[key] || key
     },
@@ -220,6 +221,105 @@ describe('SelectionContextMenu', () => {
       await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
 
       expect(onContextMenu).toHaveBeenCalled()
+    })
+  })
+
+  describe('切り抜き機能', () => {
+    it('onCropToSelectionがある場合、メニューに表示される', async () => {
+      const user = userEvent.setup()
+      const onCropToSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          isRectangleSelection={true}
+          onCropToSelection={onCropToSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.getByText('Crop to Selection')).toBeInTheDocument()
+    })
+
+    it('onCropToSelectionがない場合、メニューに表示されない', async () => {
+      const user = userEvent.setup()
+      render(<SelectionContextMenu {...defaultProps} hasSelection={true} />)
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.queryByText('Crop to Selection')).not.toBeInTheDocument()
+    })
+
+    it('矩形選択+選択ありの場合、切り抜きが有効', async () => {
+      const user = userEvent.setup()
+      const onCropToSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          isRectangleSelection={true}
+          onCropToSelection={onCropToSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(
+        screen.getByText('Crop to Selection').closest('[data-disabled]')
+      ).not.toBeInTheDocument()
+    })
+
+    it('矩形選択でない場合、切り抜きが無効', async () => {
+      const user = userEvent.setup()
+      const onCropToSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          isRectangleSelection={false}
+          onCropToSelection={onCropToSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.getByText('Crop to Selection').closest('[data-disabled]')).toBeInTheDocument()
+    })
+
+    it('選択がない場合、切り抜きが無効', async () => {
+      const user = userEvent.setup()
+      const onCropToSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={false}
+          isRectangleSelection={true}
+          onCropToSelection={onCropToSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+
+      expect(screen.getByText('Crop to Selection').closest('[data-disabled]')).toBeInTheDocument()
+    })
+
+    it('切り抜きクリックでコールバックが呼ばれる', async () => {
+      const user = userEvent.setup()
+      const onCropToSelection = vi.fn()
+      render(
+        <SelectionContextMenu
+          {...defaultProps}
+          hasSelection={true}
+          isRectangleSelection={true}
+          onCropToSelection={onCropToSelection}
+        />
+      )
+
+      await user.pointer({ keys: '[MouseRight]', target: screen.getByText('Test Content') })
+      await user.click(screen.getByText('Crop to Selection'))
+
+      expect(onCropToSelection).toHaveBeenCalled()
     })
   })
 })

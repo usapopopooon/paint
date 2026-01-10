@@ -452,6 +452,45 @@ function App() {
   }, [selection, canvas, canvasSize.width, canvasSize.height])
 
   /**
+   * 選択領域でキャンバスを切り抜くハンドラ（矩形選択時のみ）
+   * キャンバスサイズを選択領域に合わせ、描画要素を移動
+   */
+  const handleCropToSelection = useCallback(async () => {
+    const region = selection.state.region
+    if (!region) return
+
+    // 矩形選択のみ対応
+    if (region.shape.type !== 'rectangle') return
+
+    const bounds = region.shape.bounds
+    const newWidth = Math.round(bounds.width)
+    const newHeight = Math.round(bounds.height)
+
+    // 選択領域の左上へのオフセット（負の値 = 左上に移動）
+    const offsetX = -Math.round(bounds.x)
+    const offsetY = -Math.round(bounds.y)
+
+    // 履歴に記録
+    canvas.recordCanvasResize(
+      canvasSize.width,
+      canvasSize.height,
+      newWidth,
+      newHeight,
+      offsetX,
+      offsetY
+    )
+
+    // 描画要素を移動
+    canvas.translateAllLayers(offsetX, offsetY)
+
+    // キャンバスサイズを変更
+    canvasSize.setSizeDirectly(newWidth, newHeight)
+
+    // 選択解除
+    selection.deselect()
+  }, [selection, canvas, canvasSize])
+
+  /**
    * 選択領域を削除するハンドラ
    * レイヤーをオフスクリーンCanvasにレンダリング → 選択領域をクリア → ImageDrawableとして保存
    */
@@ -945,6 +984,7 @@ function App() {
             onFlipVertical={() => canvas.flipVertical(canvasSize.height)}
             onCanvasSize={() => setCanvasResizeOpen(true)}
             hasSelection={selection.state.region !== null}
+            isRectangleSelection={selection.state.region?.shape.type === 'rectangle'}
             hasClipboard={selection.state.clipboard !== null}
             onSelectAll={handleSelectAll}
             onDeselect={handleDeselect}
@@ -952,6 +992,7 @@ function App() {
             onCopy={handleCopySelection}
             onPaste={handlePasteSelection}
             onDelete={handleDeleteSelection}
+            onCropToSelection={handleCropToSelection}
             onZoomIn={zoom.zoomIn}
             onZoomOut={zoom.zoomOut}
             onZoomReset={zoom.resetZoom}
@@ -1060,6 +1101,7 @@ function App() {
               {(viewportSize) => (
                 <SelectionContextMenu
                   hasSelection={selection.state.region !== null}
+                  isRectangleSelection={selection.state.region?.shape.type === 'rectangle'}
                   hasClipboard={selection.state.clipboard !== null}
                   onCut={handleCutSelection}
                   onCopy={handleCopySelection}
@@ -1067,6 +1109,7 @@ function App() {
                   onDelete={handleDeleteSelection}
                   onDeselect={handleDeselect}
                   onSelectAll={handleSelectAll}
+                  onCropToSelection={handleCropToSelection}
                   showContextMenu={
                     tool.currentType === 'select-rectangle' ||
                     tool.currentType === 'select-lasso'
