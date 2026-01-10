@@ -184,8 +184,9 @@ describe('useExportImage', () => {
       await result.current.downloadAsJpg(mockShowBackgroundLayer, mockHideBackgroundLayer)
     })
 
-    expect(mockFullSizeCanvas.toDataURL).toHaveBeenCalledWith('image/jpeg', 1.0)
-    expect(mockLink.href).toBe('data:image/jpeg;base64,test')
+    // saveImage経由でtoBlobを使用（jpegQuality=92 → 0.92）
+    expect(mockOutputCanvas.toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/jpeg', 0.92)
+    expect(mockLink.href).toBe('blob:test-url')
     expect(mockLink.download).toMatch(/^paint_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.jpg$/)
     expect(mockLink.click).toHaveBeenCalled()
   })
