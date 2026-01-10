@@ -5,6 +5,7 @@ import {
   isPrimaryButton,
   isPrimaryButtonPressed,
   extractPointerPoint,
+  extractCoalescedPoints,
 } from '../helpers'
 import { colorWheelState } from '@/features/color/hooks/colorWheelState'
 
@@ -135,20 +136,32 @@ export const usePointerInput = ({
 
   /**
    * ポインター移動時のハンドラ
+   * getCoalescedEvents()を使用して、高速な動きでも全ポイントを取得
    * @param event - ポインターイベント
    */
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
       const element = event.currentTarget
-      const point = extractPointerPoint(event, element, zoom)
-      onPointerPositionChangeRef.current?.(point.x, point.y)
 
       // アクティブなポインターのムーブイベントのみ処理
       if (activePointerIdRef.current !== event.pointerId) {
+        // 描画中でなくてもカーソル位置は更新
+        const point = extractPointerPoint(event, element, zoom)
+        onPointerPositionChangeRef.current?.(point.x, point.y)
         return
       }
 
-      onMove(point)
+      // coalescedイベントから全ポイントを取得してより滑らかな描画を実現
+      const points = extractCoalescedPoints(event, element, zoom)
+
+      // 全ポイントをonMoveに送信
+      for (const point of points) {
+        onMove(point)
+      }
+
+      // カーソル位置は最後のポイントで更新
+      const lastPoint = points[points.length - 1]
+      onPointerPositionChangeRef.current?.(lastPoint.x, lastPoint.y)
     },
     [onMove, zoom]
   )
