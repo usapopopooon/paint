@@ -158,11 +158,35 @@ function App() {
   const exportImage = useExportImage(canvasContainerRef)
   const { t } = useTranslation()
 
+  /**
+   * 画像インポート時のハンドラ
+   * 新しいレイヤーを作成し、画像を追加して画像範囲を選択する
+   */
+  const handleImportImage = useCallback(
+    (drawable: ImageDrawable) => {
+      // 新しいレイヤーを作成（自動的にアクティブになる）
+      const { layerId } = canvas.addLayer()
+      // 新しいレイヤーに画像を追加
+      canvas.addDrawable(drawable)
+      // 画像範囲を選択
+      selection.selectAll(
+        {
+          x: drawable.x,
+          y: drawable.y,
+          width: drawable.width,
+          height: drawable.height,
+        },
+        layerId
+      )
+    },
+    [canvas, selection]
+  )
+
   // 画像インポート
   const importImage = useImportImage({
     canvasWidth: canvasSize.width,
     canvasHeight: canvasSize.height,
-    onImport: canvas.addDrawable,
+    onImport: handleImportImage,
     onError: () => {
       toast.error(t('import.invalidFileType'))
     },

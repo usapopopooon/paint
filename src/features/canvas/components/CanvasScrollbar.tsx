@@ -155,6 +155,7 @@ export const CanvasScrollbar = ({
         }`}
         style={{
           position: 'absolute',
+          borderRadius: 4,
           ...(isHorizontal
             ? {
                 left: thumbPosition,
