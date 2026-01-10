@@ -26,7 +26,7 @@ export default defineConfig([
     rules: {
       // Allow exporting components with non-component exports (e.g., Provider + hook pattern)
       'react-refresh/only-export-components': [
-        'warn',
+        'error',
         { allowConstantExport: true, allowExportNames: ['buttonVariants'] },
       ],
     },

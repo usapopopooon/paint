@@ -1,1 +1,2 @@
-export { PwaUpdateProvider, usePwaUpdate } from './PwaUpdateContext'
+export { PwaUpdateProvider } from './PwaUpdateContext'
+export { usePwaUpdate } from './usePwaUpdate'

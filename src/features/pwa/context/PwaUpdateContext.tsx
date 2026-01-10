@@ -1,23 +1,11 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { useState, useCallback, type ReactNode } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { PwaUpdateContext } from './pwaUpdateTypes'
 
 type CheckForUpdateResult = {
   /** 更新が利用可能かどうか */
   updateAvailable: boolean
 }
-
-type PwaUpdateContextValue = {
-  /** 新しいバージョンが利用可能かどうか */
-  needRefresh: boolean
-  /** 更新を適用する */
-  updateApp: () => void
-  /** 更新を確認する（Service Workerを再チェック）。結果を返す */
-  checkForUpdate: () => Promise<CheckForUpdateResult>
-  /** 更新通知を非表示にする（キャンセル時） */
-  dismissUpdate: () => void
-}
-
-const PwaUpdateContext = createContext<PwaUpdateContextValue | null>(null)
 
 type PwaUpdateProviderProps = {
   children: ReactNode
@@ -76,15 +64,4 @@ export const PwaUpdateProvider = ({ children }: PwaUpdateProviderProps) => {
       {children}
     </PwaUpdateContext.Provider>
   )
-}
-
-/**
- * PWA更新状態を取得するフック
- */
-export const usePwaUpdate = (): PwaUpdateContextValue => {
-  const context = useContext(PwaUpdateContext)
-  if (!context) {
-    throw new Error('usePwaUpdate must be used within a PwaUpdateProvider')
-  }
-  return context
 }
