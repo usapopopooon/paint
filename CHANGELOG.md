@@ -32,6 +32,7 @@
 ### CI
 
 - StorybookビルドステップをCIワークフローに追加
+- test:fullコマンドにunitテストとStorybookテストの両方を追加
 
 ### Docs
 
