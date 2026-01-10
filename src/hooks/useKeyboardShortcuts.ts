@@ -108,7 +108,7 @@ export const useKeyboardShortcuts = ({
         return
       }
 
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
         e.preventDefault()
         if (e.shiftKey) {
           onRedo()
