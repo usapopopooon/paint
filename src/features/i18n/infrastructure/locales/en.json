@@ -175,6 +175,10 @@
       "description": "Unsaved work will be lost. Please save your project before updating.",
       "confirm": "Update",
       "cancel": "Cancel"
+    },
+    "noUpdate": {
+      "title": "You're up to date",
+      "description": "You're using the latest version of this app."
     }
   },
   "menu": {

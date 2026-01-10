@@ -28,3 +28,6 @@ storybook-static
 
 # Coverage
 coverage
+
+# Deploy artifacts
+deploy/

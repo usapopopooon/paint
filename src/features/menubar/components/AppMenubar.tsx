@@ -1,4 +1,4 @@
-import { memo, type RefObject } from 'react'
+import { memo, useState, type RefObject } from 'react'
 import { Check, Circle } from 'lucide-react'
 import {
   Menubar,
@@ -12,6 +12,16 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from '@/components/ui/menubar'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useTranslation, useLocale } from '@/features/i18n'
 import { useTheme } from '@/features/theme'
 import { usePwaUpdate } from '@/features/pwa'
@@ -93,8 +103,26 @@ export const AppMenubar = memo(function AppMenubar({
   const { t } = useTranslation()
   const { locale, setLocale } = useLocale()
   const { isDark, setTheme } = useTheme()
-  const { needRefresh, checkForUpdate } = usePwaUpdate()
+  const { needRefresh, checkForUpdate, updateApp } = usePwaUpdate()
   const modifier = getModifierKey()
+
+  // ダイアログ状態
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false)
+  const [showNoUpdateDialog, setShowNoUpdateDialog] = useState(false)
+
+  const handleCheckForUpdate = async () => {
+    const result = await checkForUpdate()
+    if (result.updateAvailable) {
+      setShowUpdateDialog(true)
+    } else {
+      setShowNoUpdateDialog(true)
+    }
+  }
+
+  const handleConfirmUpdate = () => {
+    setShowUpdateDialog(false)
+    updateApp()
+  }
 
   return (
     <>
@@ -273,7 +301,7 @@ export const AppMenubar = memo(function AppMenubar({
             )}
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarItem onClick={checkForUpdate}>
+            <MenubarItem onClick={handleCheckForUpdate}>
               {t('menu.checkForUpdates')}
               {needRefresh && (
                 <span className="ml-2 text-xs text-red-500">({t('menu.updateAvailable')})</span>
@@ -282,6 +310,35 @@ export const AppMenubar = memo(function AppMenubar({
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
+
+      {/* 更新確認ダイアログ */}
+      <AlertDialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('pwa.confirmReload.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('pwa.confirmReload.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('pwa.confirmReload.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmUpdate}>
+              {t('pwa.confirmReload.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 更新なしダイアログ */}
+      <AlertDialog open={showNoUpdateDialog} onOpenChange={setShowNoUpdateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('pwa.noUpdate.title')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('pwa.noUpdate.description')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>{t('actions.ok')}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 })

@@ -374,3 +374,23 @@ export const OpenHelpMenu: Story = {
     await expect(body.getByText(i18nEn.t('menu.checkForUpdates'))).toBeInTheDocument()
   },
 }
+
+/**
+ * 更新を確認をクリック（更新なしダイアログ表示）
+ */
+export const ClickCheckForUpdatesNoUpdate: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const helpMenu = canvas.getByText(i18nEn.t('menu.help'))
+
+    await userEvent.click(helpMenu)
+
+    const body = within(document.body)
+    const checkForUpdatesItem = body.getByText(i18nEn.t('menu.checkForUpdates'))
+    await userEvent.click(checkForUpdatesItem)
+
+    // 更新なしダイアログが表示される
+    await expect(body.getByText(i18nEn.t('pwa.noUpdate.title'))).toBeInTheDocument()
+    await expect(body.getByText(i18nEn.t('pwa.noUpdate.description'))).toBeInTheDocument()
+  },
+}

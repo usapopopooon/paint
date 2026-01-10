@@ -1,13 +1,18 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 
+type CheckForUpdateResult = {
+  /** 更新が利用可能かどうか */
+  updateAvailable: boolean
+}
+
 type PwaUpdateContextValue = {
   /** 新しいバージョンが利用可能かどうか */
   needRefresh: boolean
   /** 更新を適用する */
   updateApp: () => void
-  /** 更新を確認する（Service Workerを再チェック） */
-  checkForUpdate: () => Promise<void>
+  /** 更新を確認する（Service Workerを再チェック）。結果を返す */
+  checkForUpdate: () => Promise<CheckForUpdateResult>
   /** 更新通知を非表示にする（キャンセル時） */
   dismissUpdate: () => void
 }
@@ -41,7 +46,7 @@ export const PwaUpdateProvider = ({ children }: PwaUpdateProviderProps) => {
     updateServiceWorker(true)
   }, [updateServiceWorker])
 
-  const checkForUpdate = useCallback(async () => {
+  const checkForUpdate = useCallback(async (): Promise<CheckForUpdateResult> => {
     // Service Workerの更新をチェック
     if ('serviceWorker' in navigator) {
       const registration = await navigator.serviceWorker.getRegistration()
@@ -51,7 +56,9 @@ export const PwaUpdateProvider = ({ children }: PwaUpdateProviderProps) => {
     }
     // 一度キャンセルした後も再度表示できるようにする
     setDismissed(false)
-  }, [])
+    // 現在の更新状態を返す（needRefreshInternalの最新値）
+    return { updateAvailable: needRefreshInternal }
+  }, [needRefreshInternal])
 
   const dismissUpdate = useCallback(() => {
     setDismissed(true)
