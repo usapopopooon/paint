@@ -12,6 +12,7 @@ describe('useKeyboardShortcuts', () => {
       onClear: vi.fn(),
       onSelectPen: vi.fn(),
       onSelectBrush: vi.fn(),
+      onSelectBlur: vi.fn(),
       onSelectEraser: vi.fn(),
       onSelectHand: vi.fn(),
       onSelectEyedropper: vi.fn(),
@@ -83,6 +84,26 @@ describe('useKeyboardShortcuts', () => {
       const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
 
       dispatchKeyDown('z', { metaKey: true, shiftKey: true })
+
+      expect(mockHandlers.onRedo).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('大文字Z（実際のブラウザでShift押下時）でもredo', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      // 実際のブラウザではShift+Zで e.key が 'Z'（大文字）になる
+      dispatchKeyDown('Z', { ctrlKey: true, shiftKey: true })
+
+      expect(mockHandlers.onRedo).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onUndo).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Z + Cmd (Mac)でもredo', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('Z', { metaKey: true, shiftKey: true })
 
       expect(mockHandlers.onRedo).toHaveBeenCalledTimes(1)
       unmount()
@@ -174,6 +195,26 @@ describe('useKeyboardShortcuts', () => {
       dispatchKeyDown('B')
 
       expect(mockHandlers.onSelectBrush).toHaveBeenCalledTimes(1)
+      unmount()
+    })
+
+    test('Uキーでぼかしツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('u')
+
+      expect(mockHandlers.onSelectBlur).toHaveBeenCalledTimes(1)
+      expect(mockHandlers.onSelectPen).not.toHaveBeenCalled()
+      expect(mockHandlers.onSelectBrush).not.toHaveBeenCalled()
+      unmount()
+    })
+
+    test('大文字Uでもぼかしツール選択', () => {
+      const { unmount } = renderHook(() => useKeyboardShortcuts(mockHandlers))
+
+      dispatchKeyDown('U')
+
+      expect(mockHandlers.onSelectBlur).toHaveBeenCalledTimes(1)
       unmount()
     })
 

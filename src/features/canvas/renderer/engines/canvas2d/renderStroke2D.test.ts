@@ -11,6 +11,16 @@ const createMockContext = () => ({
   stroke: vi.fn(),
   save: vi.fn(),
   restore: vi.fn(),
+  getImageData: vi.fn().mockReturnValue({
+    data: new Uint8ClampedArray(400), // 10x10 pixels
+    width: 10,
+    height: 10,
+  }),
+  putImageData: vi.fn(),
+  canvas: {
+    width: 100,
+    height: 100,
+  },
   lineWidth: 0,
   strokeStyle: '',
   lineCap: 'butt' as CanvasLineCap,
@@ -193,8 +203,61 @@ describe('renderStroke2D', () => {
     renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
 
     expect(ctx.moveTo).toHaveBeenCalledWith(0, 0)
+    expect(ctx.lineTo).toHaveBeenCalledTimes(3)
     expect(ctx.lineTo).toHaveBeenCalledWith(10, 10)
     expect(ctx.lineTo).toHaveBeenCalledWith(20, 5)
     expect(ctx.lineTo).toHaveBeenCalledWith(30, 15)
+  })
+
+  test('blurモードでhardness=0の場合は何もしない', () => {
+    const stroke: StrokeDrawable = {
+      id: 'blur-no-hardness',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 10, y: 10 },
+        { x: 50, y: 50 },
+      ],
+      style: {
+        color: 'transparent',
+        brushTip: {
+          type: 'solid',
+          size: 20,
+          hardness: 0, // hardness=0ではblurStrengthが0になる
+          opacity: 1,
+        },
+        blendMode: 'blur',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // blurStrength=0のため、何も描画されない
+    expect(ctx.getImageData).not.toHaveBeenCalled()
+    expect(ctx.putImageData).not.toHaveBeenCalled()
+  })
+
+  test('blurモードでポイントが2つ未満の場合は何もしない', () => {
+    const stroke: StrokeDrawable = {
+      id: 'blur-single-point',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [{ x: 10, y: 10 }],
+      style: {
+        color: 'transparent',
+        brushTip: {
+          type: 'solid',
+          size: 20,
+          hardness: 0.5,
+          opacity: 1,
+        },
+        blendMode: 'blur',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    expect(ctx.getImageData).not.toHaveBeenCalled()
+    expect(ctx.putImageData).not.toHaveBeenCalled()
   })
 })

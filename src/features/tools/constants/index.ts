@@ -1,5 +1,6 @@
 export * from './pen'
 export * from './brush'
+export * from './blur'
 export * from './eraser'
 export * from './opacity'
 export * from './hardness'

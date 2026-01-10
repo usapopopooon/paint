@@ -1,6 +1,7 @@
 export * from './noneBehavior'
 export * from './penBehavior'
 export * from './brushBehavior'
+export * from './blurBehavior'
 export * from './eraserBehavior'
 export * from './handBehavior'
 export * from './eyedropperBehavior'

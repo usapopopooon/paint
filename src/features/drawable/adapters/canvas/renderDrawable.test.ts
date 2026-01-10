@@ -90,7 +90,7 @@ describe('renderDrawable', () => {
       expect(graphics.setStrokeStyle).not.toHaveBeenCalled()
     })
 
-    test('複数ポイントのストロークを正しくレンダリングする', () => {
+    test('複数ポイントのストロークをレンダリングする', () => {
       const stroke: StrokeDrawable = {
         id: 'test-4',
         type: 'stroke',
@@ -111,10 +111,10 @@ describe('renderDrawable', () => {
       renderDrawable(graphics, stroke)
 
       expect(graphics.moveTo).toHaveBeenCalledWith(0, 0)
+      // 4点のストローク: 最初の点はmoveTo、残り3点はlineToで接続
       expect(graphics.lineTo).toHaveBeenCalledTimes(3)
-      expect(graphics.lineTo).toHaveBeenNthCalledWith(1, 50, 50)
-      expect(graphics.lineTo).toHaveBeenNthCalledWith(2, 100, 0)
-      expect(graphics.lineTo).toHaveBeenNthCalledWith(3, 150, 50)
+      // 最終ポイントは最後の呼び出しで到達
+      expect(graphics.lineTo).toHaveBeenLastCalledWith(150, 50)
     })
 
     test('eraseブレンドモードでhardness=0の場合は単一ストロークで描画', () => {

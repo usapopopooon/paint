@@ -1,2 +1,6 @@
 export { SelectionOverlay } from './SelectionOverlay'
 export { SelectionToolButton } from './SelectionToolButton'
+export { SelectionContextMenu } from './SelectionContextMenu'
+export type { SelectionContextMenuProps } from './SelectionContextMenu'
+export { TransformHandles } from './TransformHandles'
+export { getTransformCursor } from '../adapters/canvas'

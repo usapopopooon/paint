@@ -2,6 +2,7 @@
   "tools": {
     "pen": "Pen",
     "brush": "Brush",
+    "blur": "Blur",
     "eraser": "Eraser",
     "hand": "Hand",
     "eyedropper": "Eyedropper",
@@ -39,7 +40,8 @@
   },
   "messages": {
     "noUndoHistory": "No undo history",
-    "noRedoHistory": "No redo history"
+    "noRedoHistory": "No redo history",
+    "hiddenLayerCannotOperate": "Cannot perform this operation on a hidden layer"
   },
   "color": {
     "copy": "Copy",
@@ -181,6 +183,14 @@
       "description": "You're using the latest version of this app."
     }
   },
+  "recovery": {
+    "title": "Recover Work",
+    "description": "Recoverable data from your previous session was found. Would you like to restore it?",
+    "savedAt": "Saved at: %{date}",
+    "restore": "Restore",
+    "discard": "Discard",
+    "restored": "Work data has been restored"
+  },
   "menu": {
     "file": "File",
     "edit": "Edit",
@@ -203,6 +213,11 @@
     "copy": "Copy",
     "paste": "Paste",
     "delete": "Delete",
+    "fillSelection": "Fill Selection",
+    "cropToSelection": "Crop to Selection",
+    "freeTransform": "Free Transform",
+    "scaleTransform": "Scale",
+    "rotateTransform": "Rotate",
     "zoomIn": "Zoom In",
     "zoomOut": "Zoom Out",
     "zoomReset": "Reset to 100%",

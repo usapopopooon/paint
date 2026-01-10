@@ -4,7 +4,12 @@
       "Bash(npm run spell:*)",
       "Bash(npm run build:*)",
       "Bash(npx shadcn@latest add menubar -y)",
-      "Bash(npm run test:full:*)"
+      "Bash(npm run test:full:*)",
+      "Bash(npm test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run test:storybook:*)",
+      "Bash(npx vitest:*)",
+      "Bash(cat:*)"
     ]
   }
 }

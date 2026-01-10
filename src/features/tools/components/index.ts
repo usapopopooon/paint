@@ -1,6 +1,7 @@
 export * from './ToolPanel'
 export * from './PenTool'
 export * from './BrushTool'
+export * from './BlurTool'
 export * from './EraserTool'
 export * from './LayerPanel'
 export * from './OpacityPopover'

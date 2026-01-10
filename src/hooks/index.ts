@@ -1,2 +1,6 @@
 export * from './useKeyboardShortcuts'
 export * from './useBeforeUnload'
+export * from './useProjectHandlers'
+export * from './useSelectionHandlers'
+export * from './useTransformHandlers'
+export * from './useToolHandlers'

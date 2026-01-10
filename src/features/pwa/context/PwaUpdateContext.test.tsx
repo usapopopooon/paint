@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { PwaUpdateProvider, usePwaUpdate } from './PwaUpdateContext'
+import { PwaUpdateProvider } from './PwaUpdateContext'
+import { usePwaUpdate } from './usePwaUpdate'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 
 vi.mock('virtual:pwa-register/react')

@@ -14,6 +14,47 @@ export type SelectionPhase =
   | 'selecting' // 選択範囲を描画中
   | 'selected' // 選択済み（操作待ち）
   | 'moving' // 選択領域を移動中
+  | 'transforming' // 変形中
+
+/**
+ * 変形モードの種類
+ */
+export type TransformMode =
+  | 'free-transform' // 自由変形（スケール+回転）
+  | 'scale' // 拡大縮小のみ
+  | 'rotate' // 回転のみ
+
+/**
+ * 変形ハンドルの位置
+ */
+export type TransformHandlePosition =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'middle-left'
+  | 'middle-right'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right'
+  | 'rotation' // 回転ハンドル（上部中央の上）
+
+/**
+ * 変形状態
+ */
+export type TransformState = {
+  /** 変形モード */
+  readonly mode: TransformMode
+  /** 変形の中心点 */
+  readonly center: Point
+  /** スケール（X/Y） */
+  readonly scale: { readonly x: number; readonly y: number }
+  /** 回転角度（ラジアン） */
+  readonly rotation: number
+  /** 元のバウンディングボックス */
+  readonly originalBounds: Bounds
+  /** 元のImageData */
+  readonly originalImageData: ImageData | null
+}
 
 /**
  * 選択領域の形状

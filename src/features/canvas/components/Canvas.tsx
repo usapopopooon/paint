@@ -3,8 +3,13 @@ import type { Drawable, Point } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import type { CursorConfig, ToolType } from '@/features/tools/types'
 import type { CanvasOffset } from '../hooks/useCanvasOffset'
-import type { SelectionRegion, SelectionToolType } from '@/features/selection'
-import { SelectionOverlay } from '@/features/selection'
+import type {
+  SelectionRegion,
+  SelectionToolType,
+  TransformState,
+  TransformHandlePosition,
+} from '@/features/selection'
+import { SelectionOverlay, getTransformCursor } from '@/features/selection'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
 import { getPixelColor, EYEDROPPER_CURSOR } from '@/features/eyedropper'
@@ -63,6 +68,25 @@ type CanvasProps = {
   readonly onCommitMove?: () => void
   /** 点が選択領域内かどうか判定 */
   readonly isPointInRegion?: (point: Point) => boolean
+  /** アクティブレイヤーが非表示かどうか */
+  readonly isActiveLayerHidden?: boolean
+  /** 非表示レイヤーでポインターイベントが発生した時のコールバック */
+  readonly onHiddenLayerInteraction?: () => void
+  /** 変形状態 */
+  readonly transformState?: TransformState | null
+  /** 変形プレビュー用ImageData */
+  readonly previewImageData?: ImageData | null
+  /** ハンドル操作開始コールバック */
+  readonly onStartHandleOperation?: (handle: TransformHandlePosition, point: Point) => void
+  /** 変形更新コールバック */
+  readonly onUpdateTransform?: (point: Point, shiftKey: boolean, altKey: boolean) => void
+  /** ハンドル操作終了コールバック */
+  readonly onEndHandleOperation?: () => void
+  /** 点がハンドル上にあるか検出 */
+  readonly detectHandleAtPoint?: (
+    point: Point,
+    handleSize: number
+  ) => TransformHandlePosition | null
 }
 
 /**
@@ -98,6 +122,14 @@ export const Canvas = ({
   onUpdateMove,
   onCommitMove,
   isPointInRegion,
+  isActiveLayerHidden = false,
+  onHiddenLayerInteraction,
+  transformState,
+  previewImageData,
+  onStartHandleOperation,
+  onUpdateTransform,
+  onEndHandleOperation,
+  detectHandleAtPoint,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
@@ -113,9 +145,13 @@ export const Canvas = ({
 
   /**
    * セカンダリクリック（右クリック等）で色を取得
+   * 選択ツール時はコンテキストメニューを表示するためスキップ
    */
   const handleSecondaryClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      // 選択ツール時はコンテキストメニューを表示するため何もしない
+      if (isSelectionTool) return
+
       if (!onPickColor) return
 
       // コンテキストメニューを防止
@@ -138,7 +174,7 @@ export const Canvas = ({
         onPickColor(color)
       }
     },
-    [onPickColor, zoom]
+    [onPickColor, zoom, isSelectionTool]
   )
 
   /**
@@ -219,9 +255,9 @@ export const Canvas = ({
   // 移動中かどうかを追跡するref
   const isMovingRef = useRef(false)
 
-  // 選択ツール時のポインターイベント処理
+  // 選択ツール時のポインターイベント処理（変形中は無効）
   useEffect(() => {
-    if (!isSelectionTool) return
+    if (!isSelectionTool || transformState) return
 
     const container = containerRef.current
     if (!container) return
@@ -238,6 +274,13 @@ export const Canvas = ({
 
     const handlePointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return
+
+      // 非表示レイヤーの場合は操作をブロックしてコールバックを呼ぶ
+      if (isActiveLayerHidden) {
+        onHiddenLayerInteraction?.()
+        return
+      }
+
       isDraggingRef.current = true
       setIsDragging(true)
       container.setPointerCapture(e.pointerId)
@@ -293,6 +336,7 @@ export const Canvas = ({
     }
   }, [
     isSelectionTool,
+    transformState,
     zoom,
     selectionRegion,
     isPointInRegion,
@@ -302,10 +346,101 @@ export const Canvas = ({
     onStartMove,
     onUpdateMove,
     onCommitMove,
+    isActiveLayerHidden,
+    onHiddenLayerInteraction,
+  ])
+
+  // 変形操作中のハンドル位置を追跡
+  const activeHandleRef = useRef<TransformHandlePosition | null>(null)
+  const isTransformingRef = useRef(false)
+  const [hoveredHandle, setHoveredHandle] = useState<TransformHandlePosition | null>(null)
+
+  // ハンドルサイズ（ズームに依存しない）
+  const HANDLE_SIZE = 8 / zoom
+
+  // 変形中のポインターイベント処理
+  useEffect(() => {
+    if (!transformState || !isSelectionTool) return
+
+    const container = containerRef.current
+    if (!container) return
+
+    const getCanvasPoint = (e: PointerEvent): Point => {
+      const canvas = container.querySelector('canvas')
+      if (!canvas) return { x: 0, y: 0 }
+      const rect = canvas.getBoundingClientRect()
+      return {
+        x: (e.clientX - rect.left) / zoom,
+        y: (e.clientY - rect.top) / zoom,
+      }
+    }
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return
+
+      const point = getCanvasPoint(e)
+      const handle = detectHandleAtPoint?.(point, HANDLE_SIZE)
+
+      if (handle) {
+        activeHandleRef.current = handle
+        isTransformingRef.current = true
+        isDraggingRef.current = true
+        setIsDragging(true)
+        container.setPointerCapture(e.pointerId)
+        onStartHandleOperation?.(handle, point)
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const point = getCanvasPoint(e)
+
+      if (isTransformingRef.current && isDraggingRef.current) {
+        onUpdateTransform?.(point, e.shiftKey, e.altKey)
+      } else {
+        // ホバー中のハンドルを検出してカーソルを更新
+        const handle = detectHandleAtPoint?.(point, HANDLE_SIZE) ?? null
+        setHoveredHandle(handle)
+      }
+    }
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (!isDraggingRef.current || !isTransformingRef.current) return
+
+      isDraggingRef.current = false
+      isTransformingRef.current = false
+      setIsDragging(false)
+      container.releasePointerCapture(e.pointerId)
+      activeHandleRef.current = null
+      onEndHandleOperation?.()
+    }
+
+    container.addEventListener('pointerdown', handlePointerDown)
+    container.addEventListener('pointermove', handlePointerMove)
+    container.addEventListener('pointerup', handlePointerUp)
+    container.addEventListener('pointercancel', handlePointerUp)
+
+    return () => {
+      container.removeEventListener('pointerdown', handlePointerDown)
+      container.removeEventListener('pointermove', handlePointerMove)
+      container.removeEventListener('pointerup', handlePointerUp)
+      container.removeEventListener('pointercancel', handlePointerUp)
+    }
+  }, [
+    transformState,
+    isSelectionTool,
+    zoom,
+    HANDLE_SIZE,
+    detectHandleAtPoint,
+    onStartHandleOperation,
+    onUpdateTransform,
+    onEndHandleOperation,
   ])
 
   // ツールに応じたカーソルスタイルを計算（描画ツール以外）
   const cursorStyle = useMemo(() => {
+    // ハンドツール、スポイト、ズームツールは非表示レイヤーでも使用可能
     if (isHandTool) {
       return isDragging ? 'grabbing' : 'grab'
     }
@@ -318,7 +453,16 @@ export const Canvas = ({
     if (isZoomOutTool) {
       return 'zoom-out'
     }
+    // 描画ツールと選択ツールは非表示レイヤー時にnot-allowedカーソル
+    if (isActiveLayerHidden) {
+      return 'not-allowed'
+    }
     if (isSelectionTool) {
+      // 変形中はハンドルに応じたカーソル
+      if (transformState) {
+        const rotation = transformState.rotation
+        return getTransformCursor(hoveredHandle, rotation)
+      }
       // 移動中はmoveカーソル
       if (isMoving) {
         return 'move'
@@ -334,7 +478,22 @@ export const Canvas = ({
     isSelectionTool,
     isDragging,
     isMoving,
+    isActiveLayerHidden,
+    transformState,
+    hoveredHandle,
   ])
+
+  // 描画ツール用のstrokeハンドラをラップして非表示レイヤーチェックを追加
+  const handleStartStroke = useCallback(
+    (point: Point) => {
+      if (isActiveLayerHidden) {
+        onHiddenLayerInteraction?.()
+        return
+      }
+      onStartStroke(point)
+    },
+    [isActiveLayerHidden, onHiddenLayerInteraction, onStartStroke]
+  )
 
   // クリックハンドラを統合
   const handleClick = useCallback(
@@ -364,10 +523,10 @@ export const Canvas = ({
       onContextMenu={handleSecondaryClick}
     >
       <PointerInputLayer
-        onStart={onStartStroke}
+        onStart={handleStartStroke}
         onMove={onAddPoint}
         onEnd={onEndStroke}
-        cursor={cursor}
+        cursor={isActiveLayerHidden ? undefined : cursor}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
         zoom={zoom}
         disabled={!isDrawingTool}
@@ -388,6 +547,8 @@ export const Canvas = ({
         toolType={selectionToolType}
         isSelecting={isSelecting}
         scale={zoom}
+        transformState={transformState}
+        previewImageData={previewImageData}
       />
     </div>
   )

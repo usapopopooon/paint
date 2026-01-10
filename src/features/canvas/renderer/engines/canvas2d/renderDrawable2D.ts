@@ -68,3 +68,10 @@ export const renderDrawable2D = async (
 export const clearImageCache2D = (): void => {
   imageCache.clear()
 }
+
+/**
+ * 画像を事前に読み込む（レンダリング前に呼び出すことで即座に描画可能にする）
+ */
+export const preloadImage2D = async (src: string): Promise<void> => {
+  await loadImage(src)
+}

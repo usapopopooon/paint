@@ -6,7 +6,7 @@ export type BrushTipType = 'solid' | 'soft' | 'airbrush'
 /**
  * ブレンドモード - ストロークが既存コンテンツとどう合成されるかを決定
  */
-export type BlendMode = 'normal' | 'erase'
+export type BlendMode = 'normal' | 'erase' | 'blur'
 
 /**
  * ブラシチップ設定

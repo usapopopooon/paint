@@ -1,4 +1,5 @@
 export * from './button'
+export * from './context-menu'
 export * from './popover'
 export * from './slider'
 export * from './tooltip'

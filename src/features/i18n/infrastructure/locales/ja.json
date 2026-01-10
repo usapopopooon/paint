@@ -2,6 +2,7 @@
   "tools": {
     "pen": "ペン",
     "brush": "ブラシ",
+    "blur": "ぼかし",
     "eraser": "消しゴム",
     "hand": "ハンドツール",
     "eyedropper": "スポイト",
@@ -39,7 +40,8 @@
   },
   "messages": {
     "noUndoHistory": "履歴がありません",
-    "noRedoHistory": "履歴がありません"
+    "noRedoHistory": "履歴がありません",
+    "hiddenLayerCannotOperate": "非表示のレイヤーではこの操作を行えません"
   },
   "color": {
     "copy": "コピー",
@@ -181,6 +183,14 @@
       "description": "お使いのアプリは最新バージョンです。"
     }
   },
+  "recovery": {
+    "title": "作業データの復元",
+    "description": "前回のセッションから復元可能なデータが見つかりました。復元しますか？",
+    "savedAt": "保存日時: %{date}",
+    "restore": "復元する",
+    "discard": "破棄する",
+    "restored": "作業データを復元しました"
+  },
   "menu": {
     "file": "ファイル",
     "edit": "編集",
@@ -203,6 +213,11 @@
     "copy": "コピー",
     "paste": "ペースト",
     "delete": "削除",
+    "fillSelection": "選択範囲を塗りつぶし",
+    "cropToSelection": "選択範囲で切り抜き",
+    "freeTransform": "自由変形",
+    "scaleTransform": "拡大縮小",
+    "rotateTransform": "回転",
     "zoomIn": "拡大",
     "zoomOut": "縮小",
     "zoomReset": "100%にリセット",

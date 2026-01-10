@@ -421,6 +421,24 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     [layerManager, history]
   )
 
+  /**
+   * レイヤーのdrawablesを置き換え + 履歴に記録
+   * 選択範囲の削除・塗りつぶしなど、レイヤー全体を置き換える操作に使用
+   * @param newDrawables - 新しいdrawables
+   * @param layerId - 対象レイヤーID
+   */
+  const replaceLayerDrawables = useCallback(
+    (newDrawables: readonly Drawable[], layerId: string) => {
+      const layer = layerManager.layers.find((l) => l.id === layerId)
+      if (!layer) return
+
+      const previousDrawables = layer.drawables
+      layerManager.setDrawablesToLayer(newDrawables, layerId)
+      history.recordClear(previousDrawables, layerId)
+    },
+    [layerManager, history]
+  )
+
   return {
     drawables: allDrawables,
     layers: allLayers,
@@ -451,6 +469,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     showBackgroundLayer,
     hideBackgroundLayer,
     addDrawable,
+    replaceLayerDrawables,
     setDrawablesToLayer: layerManager.setDrawablesToLayer,
     setLayers: layerManager.setLayers,
     clearHistory: history.clear,

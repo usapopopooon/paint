@@ -248,6 +248,28 @@ describe('useSelection', () => {
         })
       }
     })
+
+    test('任意の位置とサイズで選択できる（画像インポート用）', () => {
+      const { result } = renderHook(() => useSelection())
+
+      // 画像が中央に配置される場合をシミュレート
+      act(() => {
+        result.current.selectAll({ x: 100, y: 50, width: 200, height: 150 }, mockLayerId)
+      })
+
+      expect(result.current.state.phase).toBe('selected')
+      expect(result.current.state.region?.shape.type).toBe('rectangle')
+      expect(result.current.state.region?.layerId).toBe(mockLayerId)
+
+      if (result.current.state.region?.shape.type === 'rectangle') {
+        expect(result.current.state.region.shape.bounds).toEqual({
+          x: 100,
+          y: 50,
+          width: 200,
+          height: 150,
+        })
+      }
+    })
   })
 
   describe('移動', () => {

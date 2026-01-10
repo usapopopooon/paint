@@ -65,20 +65,28 @@ const renderSoftEdge = (
  * ストローク描画要素をPixiJS Graphicsにレンダリング
  * @param graphics - 描画先のPixiJS Graphics
  * @param stroke - レンダリングするストローク描画要素
+ * @returns ぼかしモードの場合はtrueを返す（別途処理が必要）
  */
-export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void => {
-  if (!hasMinimumPoints(stroke.points.length)) return
+export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): boolean => {
+  if (!hasMinimumPoints(stroke.points.length)) return false
 
   const { style } = stroke
   const isEraser = style.blendMode === 'erase'
+  const isBlur = style.blendMode === 'blur'
   const hardness = style.brushTip.hardness
   const color = isEraser ? 0xffffff : hexToNumber(style.color)
   const colorAlpha = isEraser ? 1 : hexToAlpha(style.color)
 
+  // ぼかしモードはPixiJSでは直接レンダリングできない
+  // 呼び出し元で別途Canvas2Dを使用してレンダリングする
+  if (isBlur) {
+    return true
+  }
+
   // ぼかしありの場合はソフトエッジレンダリング
   if (hardness > 0) {
     renderSoftEdge(graphics, stroke, color, colorAlpha)
-    return
+    return false
   }
 
   // ぼかしなしの場合は通常レンダリング
@@ -92,4 +100,5 @@ export const renderStroke = (graphics: Graphics, stroke: StrokeDrawable): void =
 
   drawStrokePath(graphics, stroke)
   graphics.stroke()
+  return false
 }

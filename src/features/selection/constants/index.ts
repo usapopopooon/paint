@@ -15,3 +15,12 @@ export const DEFAULT_FEATHER = 0
 
 /** デフォルトのアンチエイリアス設定 */
 export const DEFAULT_ANTI_ALIAS = true
+
+/** 変形ハンドルのサイズ（ピクセル） */
+export const TRANSFORM_HANDLE_SIZE = 8
+
+/** 変形ハンドルの境界線幅 */
+export const TRANSFORM_HANDLE_STROKE_WIDTH = 1
+
+/** 回転ハンドルのオフセット（バウンズ上端からの距離） */
+export const ROTATION_HANDLE_OFFSET = 20

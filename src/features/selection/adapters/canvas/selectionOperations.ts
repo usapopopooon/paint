@@ -157,12 +157,13 @@ export const fillSelectionRegion = (
 }
 
 /**
- * Lasso選択用: 選択領域外を透明化したImageDataを取得
+ * Lasso選択用: 選択領域外を透明化したImageDataを取得（同期版）
  * （矩形以外の選択では、バウンディングボックス内でも選択外のピクセルは透明にする必要がある）
  * @param ctx - ソースとなるCanvasコンテキスト
  * @param shape - 選択領域の形状
  * @param offset - 選択領域のオフセット
  * @returns マスク適用済みのImageData
+ * @deprecated 大きな選択領域ではgetMaskedImageDataFromSelectionAsyncを使用してください
  */
 export const getMaskedImageDataFromSelection = (
   ctx: CanvasRenderingContext2D,
@@ -196,6 +197,39 @@ export const getMaskedImageDataFromSelection = (
   }
 
   return imageData
+}
+
+/**
+ * Lasso選択用: 選択領域外を透明化したImageDataを取得（非同期版、Web Worker使用）
+ * （矩形以外の選択では、バウンディングボックス内でも選択外のピクセルは透明にする必要がある）
+ * @param ctx - ソースとなるCanvasコンテキスト
+ * @param shape - 選択領域の形状
+ * @param offset - 選択領域のオフセット
+ * @returns マスク適用済みのImageData
+ */
+export const getMaskedImageDataFromSelectionAsync = async (
+  ctx: CanvasRenderingContext2D,
+  shape: SelectionShape,
+  offset: Point = { x: 0, y: 0 }
+): Promise<ImageData> => {
+  const bounds = getSelectionBounds(shape, offset)
+  const imageData = ctx.getImageData(bounds.x, bounds.y, bounds.width, bounds.height)
+
+  // 矩形選択の場合はマスク不要
+  if (shape.type === 'rectangle') {
+    return imageData
+  }
+
+  // Lasso選択: Web Workerでマスク処理
+  const { applyLassoMask } = await import('./selectionWorker')
+
+  return applyLassoMask({
+    sourceImageData: imageData,
+    boundsX: bounds.x,
+    boundsY: bounds.y,
+    offset,
+    points: shape.points,
+  })
 }
 
 /**
