@@ -39,7 +39,8 @@
   },
   "messages": {
     "noUndoHistory": "履歴がありません",
-    "noRedoHistory": "履歴がありません"
+    "noRedoHistory": "履歴がありません",
+    "hiddenLayerCannotOperate": "非表示のレイヤーではこの操作を行えません"
   },
   "color": {
     "copy": "コピー",

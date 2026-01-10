@@ -197,3 +197,55 @@ export const MinimumSize: Story = {
     await expect(canvas).toHaveAttribute('height', '100')
   },
 }
+
+/**
+ * 非表示レイヤー時のカーソル表示（not-allowed）
+ */
+export const HiddenLayerCursor: Story = {
+  args: {
+    drawables: [],
+    isActiveLayerHidden: true,
+    onHiddenLayerInteraction: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = await waitForCanvas(canvasElement)
+    await expect(canvas).toBeInTheDocument()
+
+    // 親要素のカーソルスタイルがnot-allowedであることを確認
+    const container = canvas?.parentElement?.parentElement
+    await expect(container).toHaveStyle({ cursor: 'not-allowed' })
+  },
+}
+
+/**
+ * 非表示レイヤーで描画しようとするとコールバックが呼ばれる
+ */
+export const HiddenLayerInteraction: Story = {
+  args: {
+    drawables: [],
+    isActiveLayerHidden: true,
+    onHiddenLayerInteraction: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = await waitForCanvas(canvasElement)
+    await expect(canvas).toBeInTheDocument()
+
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect()
+
+      // Simulate pointer down on hidden layer
+      const pointerDownEvent = new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: rect.left + 100,
+        clientY: rect.top + 100,
+        pointerId: 1,
+        pointerType: 'mouse',
+      })
+      canvas.dispatchEvent(pointerDownEvent)
+
+      // onHiddenLayerInteractionが呼ばれ、onStartStrokeは呼ばれない
+      await expect(args.onHiddenLayerInteraction).toHaveBeenCalled()
+      await expect(args.onStartStroke).not.toHaveBeenCalled()
+    }
+  },
+}

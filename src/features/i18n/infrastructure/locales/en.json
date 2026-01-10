@@ -39,7 +39,8 @@
   },
   "messages": {
     "noUndoHistory": "No undo history",
-    "noRedoHistory": "No redo history"
+    "noRedoHistory": "No redo history",
+    "hiddenLayerCannotOperate": "Cannot perform this operation on a hidden layer"
   },
   "color": {
     "copy": "Copy",

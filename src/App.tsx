@@ -185,6 +185,17 @@ function App() {
   // キャンバスが作成されたかどうか（初期状態では未作成）
   const [isCanvasCreated, setIsCanvasCreated] = useState(false)
 
+  // アクティブレイヤーが非表示かどうかをチェック
+  const isActiveLayerHidden = useMemo(() => {
+    const activeLayer = canvas.layers.find((l) => l.id === canvas.activeLayerId)
+    return activeLayer ? !activeLayer.isVisible : false
+  }, [canvas.layers, canvas.activeLayerId])
+
+  // 非表示レイヤーで操作しようとした時のトースト表示
+  const handleHiddenLayerInteraction = useCallback(() => {
+    toast.warning(t('messages.hiddenLayerCannotOperate'))
+  }, [t])
+
   // プロジェクト名やキャンバス状態が変わったらブラウザタイトルを更新
   useEffect(() => {
     if (projectName) {
@@ -1144,6 +1155,8 @@ function App() {
                       onUpdateMove={selection.updateMove}
                       onCommitMove={handleCommitMove}
                       isPointInRegion={selection.isPointInRegion}
+                      isActiveLayerHidden={isActiveLayerHidden}
+                      onHiddenLayerInteraction={handleHiddenLayerInteraction}
                     />
                   </div>
                 </SelectionContextMenu>

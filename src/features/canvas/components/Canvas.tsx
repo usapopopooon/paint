@@ -63,6 +63,10 @@ type CanvasProps = {
   readonly onCommitMove?: () => void
   /** 点が選択領域内かどうか判定 */
   readonly isPointInRegion?: (point: Point) => boolean
+  /** アクティブレイヤーが非表示かどうか */
+  readonly isActiveLayerHidden?: boolean
+  /** 非表示レイヤーでポインターイベントが発生した時のコールバック */
+  readonly onHiddenLayerInteraction?: () => void
 }
 
 /**
@@ -98,6 +102,8 @@ export const Canvas = ({
   onUpdateMove,
   onCommitMove,
   isPointInRegion,
+  isActiveLayerHidden = false,
+  onHiddenLayerInteraction,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
@@ -242,6 +248,13 @@ export const Canvas = ({
 
     const handlePointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return
+
+      // 非表示レイヤーの場合は操作をブロックしてコールバックを呼ぶ
+      if (isActiveLayerHidden) {
+        onHiddenLayerInteraction?.()
+        return
+      }
+
       isDraggingRef.current = true
       setIsDragging(true)
       container.setPointerCapture(e.pointerId)
@@ -306,10 +319,13 @@ export const Canvas = ({
     onStartMove,
     onUpdateMove,
     onCommitMove,
+    isActiveLayerHidden,
+    onHiddenLayerInteraction,
   ])
 
   // ツールに応じたカーソルスタイルを計算（描画ツール以外）
   const cursorStyle = useMemo(() => {
+    // ハンドツール、スポイト、ズームツールは非表示レイヤーでも使用可能
     if (isHandTool) {
       return isDragging ? 'grabbing' : 'grab'
     }
@@ -321,6 +337,10 @@ export const Canvas = ({
     }
     if (isZoomOutTool) {
       return 'zoom-out'
+    }
+    // 描画ツールと選択ツールは非表示レイヤー時にnot-allowedカーソル
+    if (isActiveLayerHidden) {
+      return 'not-allowed'
     }
     if (isSelectionTool) {
       // 移動中はmoveカーソル
@@ -338,7 +358,20 @@ export const Canvas = ({
     isSelectionTool,
     isDragging,
     isMoving,
+    isActiveLayerHidden,
   ])
+
+  // 描画ツール用のstrokeハンドラをラップして非表示レイヤーチェックを追加
+  const handleStartStroke = useCallback(
+    (point: Point) => {
+      if (isActiveLayerHidden) {
+        onHiddenLayerInteraction?.()
+        return
+      }
+      onStartStroke(point)
+    },
+    [isActiveLayerHidden, onHiddenLayerInteraction, onStartStroke]
+  )
 
   // クリックハンドラを統合
   const handleClick = useCallback(
@@ -368,10 +401,10 @@ export const Canvas = ({
       onContextMenu={handleSecondaryClick}
     >
       <PointerInputLayer
-        onStart={onStartStroke}
+        onStart={handleStartStroke}
         onMove={onAddPoint}
         onEnd={onEndStroke}
-        cursor={cursor}
+        cursor={isActiveLayerHidden ? undefined : cursor}
         className={fillContainer ? 'w-full h-full' : 'inline-block'}
         zoom={zoom}
         disabled={!isDrawingTool}
