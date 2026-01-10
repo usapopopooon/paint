@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { AppMenubar } from './features/menubar'
 import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
-import { CanvasResizeDialog, useCanvasSize } from './features/canvas-resize'
+import { CanvasResizeDialog, NewCanvasDialog, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { SaveImageDialog, useExportImage } from './features/export'
@@ -50,7 +50,7 @@ import {
   drawImageDataToContext,
 } from './features/selection'
 import type { SelectionRegion } from './features/selection'
-import type { Layer } from './features/layer'
+import { createInitialLayerState, type Layer } from './features/layer'
 import type { ImageDrawable } from './features/drawable'
 import { generateId } from './lib/id'
 
@@ -179,6 +179,10 @@ function App() {
   const [saveImageDialogOpen, setSaveImageDialogOpen] = useState(false)
   // キャンバスリサイズメニューの状態
   const [canvasResizeOpen, setCanvasResizeOpen] = useState(false)
+  // 新規キャンバスダイアログの状態
+  const [newCanvasDialogOpen, setNewCanvasDialogOpen] = useState(false)
+  // キャンバスが作成されたかどうか（初期状態では未作成）
+  const [isCanvasCreated, setIsCanvasCreated] = useState(false)
 
   // プロジェクト名が変わったらブラウザタイトルを更新
   useEffect(() => {
@@ -220,9 +224,13 @@ function App() {
       canvas.clearHistory()
       canvasSize.setSizeDirectly(project.canvasWidth, project.canvasHeight)
       setProjectName(project.name)
+      // キャンバス作成済みフラグを設定
+      setIsCanvasCreated(true)
+      // ペンツールを選択
+      tool.setToolType('pen')
       toast.success(t('project.loaded'))
     },
-    [canvas, canvasSize, t]
+    [canvas, canvasSize, tool, t]
   )
 
   const handleProjectFileChange = useCallback(
@@ -256,6 +264,36 @@ function App() {
   const handleOpenSaveImageDialog = useCallback(() => {
     setSaveImageDialogOpen(true)
   }, [])
+
+  /**
+   * 新規キャンバスダイアログを開くハンドラ
+   */
+  const handleOpenNewCanvasDialog = useCallback(() => {
+    setNewCanvasDialogOpen(true)
+  }, [])
+
+  /**
+   * 新規キャンバス作成ハンドラ
+   * キャンバスをリセットしてペンツールを選択
+   */
+  const handleCreateNewCanvas = useCallback(
+    (width: number, height: number) => {
+      // キャンバスサイズを設定
+      canvasSize.setSizeDirectly(width, height)
+      // レイヤーを初期状態にリセット
+      const initialState = createInitialLayerState(t('layers.defaultName', { number: 1 }))
+      canvas.setLayers(initialState.layers, initialState.activeLayerId)
+      // 履歴をクリア
+      canvas.clearHistory()
+      // プロジェクト名をリセット
+      setProjectName(null)
+      // ペンツールを選択
+      tool.setToolType('pen')
+      // キャンバス作成済みフラグを設定
+      setIsCanvasCreated(true)
+    },
+    [canvasSize, canvas, tool, t]
+  )
 
   /**
    * 画像保存ダイアログで保存を確定した時のハンドラ
@@ -885,6 +923,7 @@ function App() {
       <header className="flex items-center justify-between px-2 py-1 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">
         <div className="flex items-center">
           <AppMenubar
+            onNewCanvas={handleOpenNewCanvasDialog}
             projectInputRef={projectInputRef}
             onOpenProject={handleOpenProjectFilePicker}
             onProjectFileChange={handleProjectFileChange}
@@ -893,6 +932,7 @@ function App() {
             onImport={importImage.openFilePicker}
             onImportFileChange={importImage.handleFileChange}
             onExport={handleOpenSaveImageDialog}
+            isCanvasCreated={isCanvasCreated}
             canUndo={canvas.canUndo}
             canRedo={canvas.canRedo}
             onUndo={canvas.undo}
@@ -1005,47 +1045,49 @@ function App() {
 
         {/* Canvas area */}
         <main className="flex-1 overflow-hidden bg-[rgb(220,220,220)] dark:bg-muted/30">
-          <CanvasViewport
-            canvasWidth={canvasSize.width}
-            canvasHeight={canvasSize.height}
-            offset={canvasOffset.offset}
-            onOffsetChange={canvasOffset.setPosition}
-            zoom={zoom.zoom}
-            onWheelAtPoint={handleWheelAtPoint}
-          >
-            {(viewportSize) => (
-              <div ref={canvasContainerRef}>
-                <Canvas
-                  layers={canvas.layers}
-                  onStartStroke={handleStartStroke}
-                  onAddPoint={canvas.addPoint}
-                  onEndStroke={canvas.endStroke}
-                  cursor={tool.cursor}
-                  width={canvasSize.width}
-                  height={canvasSize.height}
-                  toolType={tool.currentType}
-                  offset={canvasOffset.offset}
-                  onPan={canvasOffset.pan}
-                  onPickColor={handleColorChange}
-                  zoom={zoom.zoom}
-                  viewportSize={viewportSize}
-                  onZoomAtPoint={handleZoomAtPoint}
-                  selectionRegion={selection.state.region}
-                  selectionPoints={selection.selectionPoints}
-                  selectionToolType={selection.state.toolConfig.type}
-                  isSelecting={selection.state.phase === 'selecting'}
-                  isMoving={selection.state.phase === 'moving'}
-                  onStartSelection={handleStartSelection}
-                  onUpdateSelection={selection.updateSelection}
-                  onCommitSelection={selection.commitSelection}
-                  onStartMove={handleStartMove}
-                  onUpdateMove={selection.updateMove}
-                  onCommitMove={handleCommitMove}
-                  isPointInRegion={selection.isPointInRegion}
-                />
-              </div>
-            )}
-          </CanvasViewport>
+          {isCanvasCreated ? (
+            <CanvasViewport
+              canvasWidth={canvasSize.width}
+              canvasHeight={canvasSize.height}
+              offset={canvasOffset.offset}
+              onOffsetChange={canvasOffset.setPosition}
+              zoom={zoom.zoom}
+              onWheelAtPoint={handleWheelAtPoint}
+            >
+              {(viewportSize) => (
+                <div ref={canvasContainerRef}>
+                  <Canvas
+                    layers={canvas.layers}
+                    onStartStroke={handleStartStroke}
+                    onAddPoint={canvas.addPoint}
+                    onEndStroke={canvas.endStroke}
+                    cursor={tool.cursor}
+                    width={canvasSize.width}
+                    height={canvasSize.height}
+                    toolType={tool.currentType}
+                    offset={canvasOffset.offset}
+                    onPan={canvasOffset.pan}
+                    onPickColor={handleColorChange}
+                    zoom={zoom.zoom}
+                    viewportSize={viewportSize}
+                    onZoomAtPoint={handleZoomAtPoint}
+                    selectionRegion={selection.state.region}
+                    selectionPoints={selection.selectionPoints}
+                    selectionToolType={selection.state.toolConfig.type}
+                    isSelecting={selection.state.phase === 'selecting'}
+                    isMoving={selection.state.phase === 'moving'}
+                    onStartSelection={handleStartSelection}
+                    onUpdateSelection={selection.updateSelection}
+                    onCommitSelection={selection.commitSelection}
+                    onStartMove={handleStartMove}
+                    onUpdateMove={selection.updateMove}
+                    onCommitMove={handleCommitMove}
+                    isPointInRegion={selection.isPointInRegion}
+                  />
+                </div>
+              )}
+            </CanvasViewport>
+          ) : null}
         </main>
       </div>
       <Toaster />
@@ -1080,6 +1122,11 @@ function App() {
           canvasSize.setHeight(h)
           canvasSize.setAnchor(a)
         }}
+      />
+      <NewCanvasDialog
+        open={newCanvasDialogOpen}
+        onOpenChange={setNewCanvasDialogOpen}
+        onCreate={handleCreateNewCanvas}
       />
       <ReloadPrompt />
     </div>

@@ -2,6 +2,7 @@
  * ツールの種類
  */
 export type ToolType =
+  | 'none'
   | 'pen'
   | 'brush'
   | 'eraser'
@@ -11,6 +12,13 @@ export type ToolType =
   | 'zoom-out'
   | 'select-rectangle'
   | 'select-lasso'
+
+/**
+ * 未選択ツールの設定
+ */
+export type NoneToolConfig = {
+  readonly type: 'none'
+}
 
 /**
  * カーソル設定
@@ -109,6 +117,7 @@ export type SelectLassoToolConfig = {
  * ツール設定の判別ユニオン型
  */
 export type ToolConfig =
+  | NoneToolConfig
   | PenToolConfig
   | BrushToolConfig
   | EraserToolConfig

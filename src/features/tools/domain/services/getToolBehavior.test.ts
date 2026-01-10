@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { getToolBehavior } from './getToolBehavior'
-import { penBehavior, eraserBehavior, handBehavior } from '../entities'
+import { penBehavior, eraserBehavior, handBehavior, noneBehavior } from '../entities'
 
 describe('getToolBehavior', () => {
   test('penタイプに対してpenビヘイビアを返す', () => {
@@ -42,6 +42,19 @@ describe('getToolBehavior', () => {
   test('レジストリ経由でhandのカーソル設定を取得する', () => {
     const behavior = getToolBehavior('hand')
     const cursor = behavior.getCursor({ type: 'hand' })
+    expect(cursor.size).toBe(0)
+    expect(cursor.color).toBe('transparent')
+  })
+
+  test('noneタイプに対してnoneビヘイビアを返す', () => {
+    const behavior = getToolBehavior('none')
+    expect(behavior.type).toBe('none')
+    expect(behavior.createStroke).toBe(noneBehavior.createStroke)
+  })
+
+  test('レジストリ経由でnoneのカーソル設定を取得する', () => {
+    const behavior = getToolBehavior('none')
+    const cursor = behavior.getCursor({ type: 'none' })
     expect(cursor.size).toBe(0)
     expect(cursor.color).toBe('transparent')
   })

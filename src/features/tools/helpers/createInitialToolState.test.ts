@@ -3,10 +3,10 @@ import { createInitialToolState, isDrawingToolType } from './createInitialToolSt
 import { penBehavior, eraserBehavior } from '../domain'
 
 describe('createInitialToolState', () => {
-  test('デフォルトでハンドツールの初期状態を作成する', () => {
+  test('デフォルトで未選択状態の初期状態を作成する', () => {
     const state = createInitialToolState()
 
-    expect(state.currentType).toBe('hand')
+    expect(state.currentType).toBe('none')
   })
 
   test('lastDrawingToolTypeは初期状態でnullである', () => {
@@ -56,5 +56,9 @@ describe('isDrawingToolType', () => {
 
   test('eyedropperに対してfalseを返す', () => {
     expect(isDrawingToolType('eyedropper')).toBe(false)
+  })
+
+  test('noneに対してfalseを返す', () => {
+    expect(isDrawingToolType('none')).toBe(false)
   })
 })

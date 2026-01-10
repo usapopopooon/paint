@@ -28,8 +28,8 @@ export const isDrawingToolType = (type: ToolType): type is DrawingToolType => {
  * @returns 初期ToolState
  */
 export const createInitialToolState = (): ToolState => ({
-  currentType: 'pen',
-  lastDrawingToolType: 'pen',
+  currentType: 'none',
+  lastDrawingToolType: null,
   penConfig: penBehavior.defaultConfig(),
   brushConfig: brushBehavior.defaultConfig(),
   eraserConfig: eraserBehavior.defaultConfig(),

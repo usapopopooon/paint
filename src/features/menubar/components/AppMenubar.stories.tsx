@@ -26,12 +26,14 @@ const meta = {
   tags: ['autodocs'],
   args: {
     // File menu
+    onNewCanvas: fn(),
     onOpenProject: fn(),
     onProjectFileChange: fn(),
     onSaveProject: fn(),
     onImport: fn(),
     onImportFileChange: fn(),
     onExport: fn(),
+    isCanvasCreated: true,
     // Edit menu
     canUndo: false,
     canRedo: false,
@@ -87,10 +89,29 @@ export const OpenFileMenu: Story = {
 
     // メニューアイテムが表示されることを確認
     const body = within(document.body)
+    await expect(body.getByText(i18nEn.t('menu.newCanvas'))).toBeInTheDocument()
     await expect(body.getByText(i18nEn.t('menu.openProject'))).toBeInTheDocument()
     await expect(body.getByText(i18nEn.t('menu.saveProject'))).toBeInTheDocument()
     await expect(body.getByText(i18nEn.t('menu.importImage'))).toBeInTheDocument()
     await expect(body.getByText(i18nEn.t('menu.exportImage'))).toBeInTheDocument()
+  },
+}
+
+/**
+ * 新規キャンバスをクリック
+ */
+export const ClickNewCanvas: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const fileMenu = canvas.getByText(i18nEn.t('menu.file'))
+
+    await userEvent.click(fileMenu)
+
+    const body = within(document.body)
+    const newCanvasItem = body.getByText(i18nEn.t('menu.newCanvas'))
+    await userEvent.click(newCanvasItem)
+
+    await expect(args.onNewCanvas).toHaveBeenCalled()
   },
 }
 
@@ -311,5 +332,28 @@ export const ClickPaste: Story = {
     await userEvent.click(pasteItem)
 
     await expect(args.onPaste).toHaveBeenCalled()
+  },
+}
+
+/**
+ * キャンバス未作成状態（編集・保存系メニューが無効化）
+ */
+export const NoCanvasCreated: Story = {
+  args: {
+    isCanvasCreated: false,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // Fileメニューを開いて保存・エクスポートが無効化されていることを確認
+    const fileMenu = canvas.getByText(i18nEn.t('menu.file'))
+    await userEvent.click(fileMenu)
+
+    const body = within(document.body)
+    const saveItem = body.getByText(i18nEn.t('menu.saveProject'))
+    const exportItem = body.getByText(i18nEn.t('menu.exportImage'))
+
+    await expect(saveItem).toHaveAttribute('data-disabled')
+    await expect(exportItem).toHaveAttribute('data-disabled')
   },
 }

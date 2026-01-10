@@ -18,6 +18,7 @@ import { getModifierKey } from '@/lib/platform'
 
 export type AppMenubarProps = {
   // File menu
+  readonly onNewCanvas: () => void
   readonly projectInputRef: RefObject<HTMLInputElement | null>
   readonly onOpenProject: () => void
   readonly onProjectFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -26,6 +27,8 @@ export type AppMenubarProps = {
   readonly onImport: () => void
   readonly onImportFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   readonly onExport: () => void
+  /** キャンバスが作成されているかどうか（未作成の場合は編集・保存系メニューを無効化） */
+  readonly isCanvasCreated: boolean
   // Edit menu
   readonly canUndo: boolean
   readonly canRedo: boolean
@@ -55,6 +58,7 @@ export type AppMenubarProps = {
  * アプリケーションのメニューバーコンポーネント
  */
 export const AppMenubar = memo(function AppMenubar({
+  onNewCanvas,
   projectInputRef,
   onOpenProject,
   onProjectFileChange,
@@ -63,6 +67,7 @@ export const AppMenubar = memo(function AppMenubar({
   onImport,
   onImportFileChange,
   onExport,
+  isCanvasCreated,
   canUndo,
   canRedo,
   onUndo,
@@ -114,11 +119,22 @@ export const AppMenubar = memo(function AppMenubar({
         <MenubarMenu>
           <MenubarTrigger>{t('menu.file')}</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem onClick={onOpenProject}>{t('menu.openProject')}</MenubarItem>
-            <MenubarItem onClick={onSaveProject}>{t('menu.saveProject')}</MenubarItem>
+            <MenubarItem onClick={onNewCanvas}>
+              {t('menu.newCanvas')}
+              <MenubarShortcut>{modifier}+N</MenubarShortcut>
+            </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={onImport}>{t('menu.importImage')}</MenubarItem>
-            <MenubarItem onClick={onExport}>{t('menu.exportImage')}</MenubarItem>
+            <MenubarItem onClick={onOpenProject}>{t('menu.openProject')}</MenubarItem>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onSaveProject}>
+              {t('menu.saveProject')}
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem disabled={!isCanvasCreated} onClick={onImport}>
+              {t('menu.importImage')}
+            </MenubarItem>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onExport}>
+              {t('menu.exportImage')}
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 
@@ -126,52 +142,54 @@ export const AppMenubar = memo(function AppMenubar({
         <MenubarMenu>
           <MenubarTrigger>{t('menu.edit')}</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem disabled={!canUndo} onClick={onUndo}>
+            <MenubarItem disabled={!isCanvasCreated || !canUndo} onClick={onUndo}>
               {t('menu.undo')}
               <MenubarShortcut>{modifier}+Z</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem disabled={!canRedo} onClick={onRedo}>
+            <MenubarItem disabled={!isCanvasCreated || !canRedo} onClick={onRedo}>
               {t('menu.redo')}
               <MenubarShortcut>{modifier}+Shift+Z</MenubarShortcut>
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={onClear}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onClear}>
               {t('menu.clear')}
               <MenubarShortcut>{modifier}+Del</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem onClick={onFlipHorizontal}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onFlipHorizontal}>
               {t('menu.flipHorizontal')}
               <MenubarShortcut>{modifier}+H</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem onClick={onFlipVertical}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onFlipVertical}>
               {t('menu.flipVertical')}
               <MenubarShortcut>{modifier}+Shift+H</MenubarShortcut>
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={onCanvasSize}>{t('menu.canvasSize')}</MenubarItem>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onCanvasSize}>
+              {t('menu.canvasSize')}
+            </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={onSelectAll}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onSelectAll}>
               {t('menu.selectAll')}
               <MenubarShortcut>{modifier}+A</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem disabled={!hasSelection} onClick={onDeselect}>
+            <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onDeselect}>
               {t('menu.deselect')}
               <MenubarShortcut>{modifier}+D</MenubarShortcut>
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem disabled={!hasSelection} onClick={onCut}>
+            <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onCut}>
               {t('menu.cut')}
               <MenubarShortcut>{modifier}+X</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem disabled={!hasSelection} onClick={onCopy}>
+            <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onCopy}>
               {t('menu.copy')}
               <MenubarShortcut>{modifier}+C</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem disabled={!hasClipboard} onClick={onPaste}>
+            <MenubarItem disabled={!isCanvasCreated || !hasClipboard} onClick={onPaste}>
               {t('menu.paste')}
               <MenubarShortcut>{modifier}+V</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem disabled={!hasSelection} onClick={onDelete}>
+            <MenubarItem disabled={!isCanvasCreated || !hasSelection} onClick={onDelete}>
               {t('menu.delete')}
               <MenubarShortcut>Del</MenubarShortcut>
             </MenubarItem>
@@ -182,20 +200,22 @@ export const AppMenubar = memo(function AppMenubar({
         <MenubarMenu>
           <MenubarTrigger>{t('menu.view')}</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem onClick={onZoomIn}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onZoomIn}>
               {t('menu.zoomIn')}
               <MenubarShortcut>{modifier}++</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem onClick={onZoomOut}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onZoomOut}>
               {t('menu.zoomOut')}
               <MenubarShortcut>{modifier}+-</MenubarShortcut>
             </MenubarItem>
-            <MenubarItem onClick={onZoomReset}>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onZoomReset}>
               {t('menu.zoomReset')}
               <MenubarShortcut>{modifier}+0</MenubarShortcut>
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem onClick={onCenterCanvas}>{t('menu.centerCanvas')}</MenubarItem>
+            <MenubarItem disabled={!isCanvasCreated} onClick={onCenterCanvas}>
+              {t('menu.centerCanvas')}
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 

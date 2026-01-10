@@ -1,3 +1,4 @@
+export * from './noneBehavior'
 export * from './penBehavior'
 export * from './brushBehavior'
 export * from './eraserBehavior'
