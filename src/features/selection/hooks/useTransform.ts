@@ -209,11 +209,7 @@ export const useTransform = (): UseTransformReturn => {
 
     try {
       // Web Workerでバイキュービック補間を実行（非同期）
-      const { imageData, bounds } = await transformImage(
-        originalImageData,
-        currentState,
-        'bicubic'
-      )
+      const { imageData, bounds } = await transformImage(originalImageData, currentState, 'bicubic')
 
       // 状態をリセット
       setTransformState(null)

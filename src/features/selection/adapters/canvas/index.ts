@@ -12,6 +12,7 @@ export {
   putImageDataAt,
   fillSelectionRegion,
   getMaskedImageDataFromSelection,
+  getMaskedImageDataFromSelectionAsync,
   imageDataToDataURL,
   renderLayerToOffscreenCanvas,
   canvasToDataURL,
@@ -20,6 +21,24 @@ export {
   imageDataToCanvas,
   drawImageDataToContext,
 } from './selectionOperations'
+
+export {
+  isPointInPolygonCore,
+  applyLassoMaskCore,
+  pointsToFloat64Array,
+  calculatePolygonBoundsCore,
+  type PointData,
+  type BoundsData,
+  type MaskParams,
+  type MaskResult,
+} from './selectionCore'
+
+export {
+  applyLassoMask,
+  applyLassoMaskAsync,
+  applyLassoMaskSync,
+  type LassoMaskOptions,
+} from './selectionWorker'
 
 export {
   bilinearInterpolate,

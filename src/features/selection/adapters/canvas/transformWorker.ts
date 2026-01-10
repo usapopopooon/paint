@@ -112,11 +112,7 @@ export const transformImageSync = (
   const params = buildTransformParams(source, transform, method)
   const result = transformImageCore(params)
   // Uint8ClampedArrayからImageDataを作成
-  const imageData = new ImageData(
-    new Uint8ClampedArray(result.data),
-    result.width,
-    result.height
-  )
+  const imageData = new ImageData(new Uint8ClampedArray(result.data), result.width, result.height)
   const bounds = calculateTransformedBounds(transform.originalBounds, transform)
 
   return { imageData, bounds }

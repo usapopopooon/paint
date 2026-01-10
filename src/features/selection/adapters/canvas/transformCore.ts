@@ -207,13 +207,7 @@ export const bicubicInterpolateCore = (
  */
 export const getInterpolatorCore = (
   method: InterpolationMethod
-): ((
-  data: Uint8ClampedArray,
-  width: number,
-  height: number,
-  x: number,
-  y: number
-) => RGBA) => {
+): ((data: Uint8ClampedArray, width: number, height: number, x: number, y: number) => RGBA) => {
   return method === 'bilinear' ? bilinearInterpolateCore : bicubicInterpolateCore
 }
 
@@ -298,12 +292,7 @@ export const transformImageCore = (params: TransformParams): TransformCoreResult
       const srcY = inputPoint.y - srcBoundsY
 
       // ソース範囲内の場合のみ補間
-      if (
-        srcX >= -0.5 &&
-        srcX < sourceWidth + 0.5 &&
-        srcY >= -0.5 &&
-        srcY < sourceHeight + 0.5
-      ) {
+      if (srcX >= -0.5 && srcX < sourceWidth + 0.5 && srcY >= -0.5 && srcY < sourceHeight + 0.5) {
         const color = interpolate(sourceData, sourceWidth, sourceHeight, srcX, srcY)
         setPixelToArray(outputData, outputWidth, outputHeight, outX, outY, color)
       }

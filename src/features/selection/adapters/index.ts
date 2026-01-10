@@ -9,6 +9,7 @@ export {
   putImageDataAt,
   fillSelectionRegion,
   getMaskedImageDataFromSelection,
+  getMaskedImageDataFromSelectionAsync,
   imageDataToDataURL,
   renderLayerToOffscreenCanvas,
   canvasToDataURL,
