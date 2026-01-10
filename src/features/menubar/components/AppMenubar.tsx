@@ -33,6 +33,7 @@ export type AppMenubarProps = {
   readonly onRedo: () => void
   readonly onClear: () => void
   readonly onFlipHorizontal: () => void
+  readonly onFlipVertical: () => void
   readonly onCanvasSize: () => void
   // Selection
   readonly hasSelection: boolean
@@ -68,6 +69,7 @@ export const AppMenubar = memo(function AppMenubar({
   onRedo,
   onClear,
   onFlipHorizontal,
+  onFlipVertical,
   onCanvasSize,
   hasSelection,
   hasClipboard,
@@ -140,6 +142,9 @@ export const AppMenubar = memo(function AppMenubar({
             <MenubarItem onClick={onFlipHorizontal}>
               {t('menu.flipHorizontal')}
               <MenubarShortcut>{modifier}+H</MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem onClick={onFlipVertical}>
+              {t('menu.flipVertical')}
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={onCanvasSize}>{t('menu.canvasSize')}</MenubarItem>

@@ -94,8 +94,8 @@ export type CanvasResizedAction = ActionMetadata & {
 
 export type CanvasFlippedAction = ActionMetadata & {
   readonly type: 'canvas:flipped'
-  readonly direction: 'horizontal'
-  readonly canvasWidth: number
+  readonly direction: 'horizontal' | 'vertical'
+  readonly canvasSize: number // canvasWidth for horizontal, canvasHeight for vertical
   readonly layerSnapshots: readonly {
     readonly layerId: LayerId
     readonly previousDrawables: readonly Drawable[]

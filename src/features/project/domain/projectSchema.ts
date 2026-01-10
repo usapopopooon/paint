@@ -71,6 +71,7 @@ const imageDrawableSchema = z
     width: z.number(),
     height: z.number(),
     scaleX: z.number(),
+    scaleY: z.number(),
   })
   .readonly()
 

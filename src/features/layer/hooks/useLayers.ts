@@ -2,7 +2,11 @@ import { useState, useCallback, useMemo, useRef } from 'react'
 import type { Layer, LayerState, LayerId, LayerBlendMode } from '../types'
 import { createInitialLayerState, createDrawingLayer } from '../domain'
 import type { Drawable } from '@/features/drawable'
-import { translateDrawables, flipDrawablesHorizontal } from '@/features/drawable'
+import {
+  translateDrawables,
+  flipDrawablesHorizontal,
+  flipDrawablesVertical,
+} from '@/features/drawable'
 import { BACKGROUND_LAYER_ID } from '../constants'
 import { generateId } from '@/lib/id'
 import { useTranslation } from '@/features/i18n'
@@ -29,6 +33,7 @@ export type UseLayersReturn = {
   readonly moveLayerDown: (id: LayerId) => boolean
   readonly translateAllLayers: (offsetX: number, offsetY: number) => void
   readonly flipAllLayersHorizontal: (canvasWidth: number) => void
+  readonly flipAllLayersVertical: (canvasHeight: number) => void
   readonly addLayer: () => { layerId: LayerId; name: string; index: number }
   readonly deleteLayer: (id: LayerId) => { layer: Layer; index: number } | null
   readonly restoreLayer: (layer: Layer, index: number) => void
@@ -337,6 +342,20 @@ export const useLayers = (): UseLayersReturn => {
   }, [])
 
   /**
+   * 全レイヤーの描画要素を垂直方向に反転
+   * @param canvasHeight - キャンバスの高さ
+   */
+  const flipAllLayersVertical = useCallback((canvasHeight: number) => {
+    setState((prev) => ({
+      ...prev,
+      layers: prev.layers.map((layer) => ({
+        ...layer,
+        drawables: flipDrawablesVertical(layer.drawables, canvasHeight),
+      })),
+    }))
+  }, [])
+
+  /**
    * 新しいレイヤーを追加
    * @returns 追加されたレイヤーの情報
    */
@@ -484,6 +503,7 @@ export const useLayers = (): UseLayersReturn => {
     moveLayerDown,
     translateAllLayers,
     flipAllLayersHorizontal,
+    flipAllLayersVertical,
     addLayer,
     deleteLayer,
     restoreLayer,

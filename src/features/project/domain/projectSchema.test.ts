@@ -88,6 +88,7 @@ describe('projectFileSchema', () => {
                 width: 100,
                 height: 100,
                 scaleX: 1,
+                scaleY: 1,
               },
             ],
           },

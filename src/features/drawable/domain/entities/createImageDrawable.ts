@@ -8,6 +8,7 @@ export type CreateImageDrawableParams = {
   width: number
   height: number
   scaleX?: number
+  scaleY?: number
 }
 
 /**
@@ -29,4 +30,5 @@ export const createImageDrawable = (
   width: params.width,
   height: params.height,
   scaleX: params.scaleX ?? 1,
+  scaleY: params.scaleY ?? 1,
 })

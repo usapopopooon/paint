@@ -177,6 +177,7 @@
     "redo": "やり直す",
     "clear": "クリア",
     "flipHorizontal": "左右反転",
+    "flipVertical": "上下反転",
     "canvasSize": "キャンバスサイズ",
     "selectAll": "すべて選択",
     "deselect": "選択解除",

@@ -39,6 +39,7 @@ const meta = {
     onRedo: fn(),
     onClear: fn(),
     onFlipHorizontal: fn(),
+    onFlipVertical: fn(),
     onCanvasSize: fn(),
     // Selection
     hasSelection: false,

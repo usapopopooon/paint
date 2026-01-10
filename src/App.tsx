@@ -71,6 +71,7 @@ const createFullCanvasImageDrawable = (
   width,
   height,
   scaleX: 1,
+  scaleY: 1,
 })
 
 /**
@@ -540,6 +541,7 @@ function App() {
       width: clipboard.bounds.width,
       height: clipboard.bounds.height,
       scaleX: 1,
+      scaleY: 1,
     }
     canvas.addDrawable(imageDrawable)
 
@@ -896,6 +898,7 @@ function App() {
             onRedo={canvas.redo}
             onClear={canvas.clear}
             onFlipHorizontal={() => canvas.flipHorizontal(canvasSize.width)}
+            onFlipVertical={() => canvas.flipVertical(canvasSize.height)}
             onCanvasSize={() => setCanvasResizeOpen(true)}
             hasSelection={selection.state.region !== null}
             hasClipboard={selection.state.clipboard !== null}

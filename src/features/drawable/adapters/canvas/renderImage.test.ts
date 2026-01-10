@@ -30,6 +30,7 @@ describe('renderImage', () => {
     width: 300,
     height: 150,
     scaleX: 1,
+    scaleY: 1,
     ...overrides,
   })
 
@@ -64,6 +65,39 @@ describe('renderImage', () => {
     expect(sprite.anchor.x).toBe(1)
     expect(sprite.scale.x).toBe(-1)
     expect(sprite.x).toBe(100)
+  })
+
+  test('scaleYが正の場合、通常の位置に配置される', async () => {
+    const drawable = createTestImageDrawable({ scaleY: 1 })
+
+    const sprite = await renderImage(drawable)
+
+    expect(sprite.y).toBe(200)
+    expect(sprite.anchor.y).toBe(0)
+    expect(sprite.height).toBe(150)
+  })
+
+  test('scaleYが負の場合、画像が上下反転される', async () => {
+    const drawable = createTestImageDrawable({ scaleY: -1 })
+
+    const sprite = await renderImage(drawable)
+
+    expect(sprite.anchor.y).toBe(1)
+    expect(sprite.scale.y).toBe(-1)
+    expect(sprite.y).toBe(200)
+  })
+
+  test('scaleXとscaleYが両方負の場合、画像が両方向に反転される', async () => {
+    const drawable = createTestImageDrawable({ scaleX: -1, scaleY: -1 })
+
+    const sprite = await renderImage(drawable)
+
+    expect(sprite.anchor.x).toBe(1)
+    expect(sprite.anchor.y).toBe(1)
+    expect(sprite.scale.x).toBe(-1)
+    expect(sprite.scale.y).toBe(-1)
+    expect(sprite.x).toBe(100)
+    expect(sprite.y).toBe(200)
   })
 
   test('テクスチャがキャッシュされる', async () => {

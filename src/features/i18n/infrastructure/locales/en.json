@@ -177,6 +177,7 @@
     "redo": "Redo",
     "clear": "Clear",
     "flipHorizontal": "Flip Horizontal",
+    "flipVertical": "Flip Vertical",
     "canvasSize": "Canvas Size",
     "selectAll": "Select All",
     "deselect": "Deselect",
