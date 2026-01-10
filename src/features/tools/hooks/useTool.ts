@@ -207,3 +207,5 @@ export const useTool = () => {
     getCursor,
   } as const
 }
+
+export type UseToolReturn = ReturnType<typeof useTool>
