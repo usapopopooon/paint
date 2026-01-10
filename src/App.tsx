@@ -622,6 +622,7 @@ function App() {
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
+    onFlipVertical: () => canvas.flipVertical(canvasSize.height),
     onMoveLayerUp: () => canvas.moveLayerUp(canvas.activeLayerId),
     onMoveLayerDown: () => canvas.moveLayerDown(canvas.activeLayerId),
     onIncreaseToolSize: handleIncreaseToolSize,

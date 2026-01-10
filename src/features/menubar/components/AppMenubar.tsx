@@ -145,6 +145,7 @@ export const AppMenubar = memo(function AppMenubar({
             </MenubarItem>
             <MenubarItem onClick={onFlipVertical}>
               {t('menu.flipVertical')}
+              <MenubarShortcut>{modifier}+Shift+H</MenubarShortcut>
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem onClick={onCanvasSize}>{t('menu.canvasSize')}</MenubarItem>

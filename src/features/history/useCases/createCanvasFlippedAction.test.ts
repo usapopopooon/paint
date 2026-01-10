@@ -13,7 +13,7 @@ describe('createCanvasFlippedAction', () => {
           points: [{ x: 100, y: 100 }],
           style: {
             color: '#000000',
-            brushTip: { type: 'solid' as const, diameter: 3 },
+            brushTip: { type: 'solid' as const, size: 3, hardness: 1, opacity: 1 },
             blendMode: 'normal' as const,
           },
         },
