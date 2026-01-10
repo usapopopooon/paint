@@ -6,6 +6,3 @@ export * from './constants'
 
 // フック & プロバイダー
 export * from './hooks'
-
-// コンポーネント
-export * from './components/LocaleToggle'

@@ -285,16 +285,16 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   /**
    * キャンバス反転を履歴に記録
    * @param direction - 反転方向
-   * @param canvasWidth - キャンバスの幅
+   * @param canvasSize - キャンバスのサイズ（水平反転なら幅、垂直反転なら高さ）
    * @param layerSnapshots - 各レイヤーの反転前のドローアブル
    */
   const recordCanvasFlip = useCallback(
     async (
-      direction: 'horizontal',
-      canvasWidth: number,
+      direction: 'horizontal' | 'vertical',
+      canvasSize: number,
       layerSnapshots: readonly { layerId: LayerId; previousDrawables: readonly Drawable[] }[]
     ) => {
-      const action = createCanvasFlippedAction(direction, canvasWidth, layerSnapshots)
+      const action = createCanvasFlippedAction(direction, canvasSize, layerSnapshots)
       await getStorage().push(action)
       await updateStackInfo()
     },

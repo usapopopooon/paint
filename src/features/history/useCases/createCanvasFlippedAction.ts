@@ -11,19 +11,19 @@ type LayerSnapshot = {
 /**
  * キャンバス反転アクションを作成
  * @param direction - 反転方向
- * @param canvasWidth - キャンバスの幅
+ * @param canvasSize - キャンバスのサイズ（水平反転なら幅、垂直反転なら高さ）
  * @param layerSnapshots - 各レイヤーの反転前のドローアブル
  * @returns CanvasFlippedActionオブジェクト
  */
 export const createCanvasFlippedAction = (
-  direction: 'horizontal',
-  canvasWidth: number,
+  direction: 'horizontal' | 'vertical',
+  canvasSize: number,
   layerSnapshots: readonly LayerSnapshot[]
 ): CanvasFlippedAction => ({
   id: generateId('action'),
   timestamp: Date.now(),
   type: 'canvas:flipped',
   direction,
-  canvasWidth,
+  canvasSize,
   layerSnapshots,
 })

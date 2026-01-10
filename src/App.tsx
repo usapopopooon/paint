@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
-import { ThemeToggle } from './components/ui/ThemeToggle'
+import { AppMenubar } from './features/menubar'
 import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
-import { CanvasResizeMenu, useCanvasSize } from './features/canvas-resize'
+import { CanvasResizeDialog, NewCanvasDialog, useCanvasSize } from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
-import { SaveButton, SaveImageDialog, useExportImage } from './features/export'
-import type { ImageFormat } from './features/export'
-import { useTranslation, LocaleToggle } from './features/i18n'
-import { ImportButton, useImportImage } from './features/import'
+import { SaveImageDialog, useExportImage } from './features/export'
+import type { ExportOptions } from './features/export'
+import { useTranslation } from './features/i18n'
+import { useImportImage } from './features/import'
 import {
-  SaveProjectButton,
-  OpenProjectButton,
   SaveProjectDialog,
   LoadProjectErrorDialog,
   ConfirmLoadProjectDialog,
@@ -20,18 +18,8 @@ import {
   loadProject,
 } from './features/project'
 import type { LoadProjectError } from './features/project'
-import {
-  Toolbar,
-  UndoButton,
-  RedoButton,
-  ClearButton,
-  ToolbarDivider,
-  HandButton,
-  EyedropperButton,
-  CenterCanvasButton,
-  FlipHorizontalButton,
-} from './features/toolbar'
-import { ZoomInButton, ZoomOutButton, ZoomResetButton, ZoomDisplay, useZoom } from './features/zoom'
+import { Toolbar, ToolbarDivider, HandButton, EyedropperButton } from './features/toolbar'
+import { ZoomInButton, ZoomOutButton, ZoomDisplay, useZoom } from './features/zoom'
 import {
   useTool,
   ToolPanel,
@@ -62,7 +50,7 @@ import {
   drawImageDataToContext,
 } from './features/selection'
 import type { SelectionRegion } from './features/selection'
-import type { Layer } from './features/layer'
+import { createInitialLayerState, type Layer } from './features/layer'
 import type { ImageDrawable } from './features/drawable'
 import { generateId } from './lib/id'
 
@@ -83,6 +71,7 @@ const createFullCanvasImageDrawable = (
   width,
   height,
   scaleX: 1,
+  scaleY: 1,
 })
 
 /**
@@ -188,11 +177,24 @@ function App() {
   const [confirmLoadDialogOpen, setConfirmLoadDialogOpen] = useState(false)
   // 画像保存ダイアログの状態
   const [saveImageDialogOpen, setSaveImageDialogOpen] = useState(false)
+  // キャンバスリサイズメニューの状態
+  const [canvasResizeOpen, setCanvasResizeOpen] = useState(false)
+  // 新規キャンバスダイアログの状態
+  const [newCanvasDialogOpen, setNewCanvasDialogOpen] = useState(false)
+  // キャンバスが作成されたかどうか（初期状態では未作成）
+  const [isCanvasCreated, setIsCanvasCreated] = useState(false)
 
-  // プロジェクト名が変わったらブラウザタイトルを更新
+  // プロジェクト名やキャンバス状態が変わったらブラウザタイトルを更新
   useEffect(() => {
-    document.title = projectName ? `${projectName} - Paint` : 'untitled - Paint'
-  }, [projectName])
+    if (projectName) {
+      document.title = `${projectName} - Paint`
+    } else if (isCanvasCreated) {
+      const untitledName = t('app.untitledProject')
+      document.title = `${untitledName} - Paint`
+    } else {
+      document.title = 'Paint'
+    }
+  }, [projectName, isCanvasCreated, t])
 
   // canvas.canUndoをrefで保持（useCallbackの依存配列問題を回避）
   const canUndoRef = useRef(canvas.canUndo)
@@ -229,9 +231,13 @@ function App() {
       canvas.clearHistory()
       canvasSize.setSizeDirectly(project.canvasWidth, project.canvasHeight)
       setProjectName(project.name)
+      // キャンバス作成済みフラグを設定
+      setIsCanvasCreated(true)
+      // ペンツールを選択
+      tool.setToolType('pen')
       toast.success(t('project.loaded'))
     },
-    [canvas, canvasSize, t]
+    [canvas, canvasSize, tool, t]
   )
 
   const handleProjectFileChange = useCallback(
@@ -267,16 +273,41 @@ function App() {
   }, [])
 
   /**
+   * 新規キャンバスダイアログを開くハンドラ
+   */
+  const handleOpenNewCanvasDialog = useCallback(() => {
+    setNewCanvasDialogOpen(true)
+  }, [])
+
+  /**
+   * 新規キャンバス作成ハンドラ
+   * キャンバスをリセットしてペンツールを選択
+   */
+  const handleCreateNewCanvas = useCallback(
+    (width: number, height: number, newProjectName: string | null) => {
+      // キャンバスサイズを設定
+      canvasSize.setSizeDirectly(width, height)
+      // レイヤーを初期状態にリセット
+      const initialState = createInitialLayerState(t('layers.defaultName', { number: 1 }))
+      canvas.setLayers(initialState.layers, initialState.activeLayerId)
+      // 履歴をクリア
+      canvas.clearHistory()
+      // プロジェクト名を設定
+      setProjectName(newProjectName)
+      // ペンツールを選択
+      tool.setToolType('pen')
+      // キャンバス作成済みフラグを設定
+      setIsCanvasCreated(true)
+    },
+    [canvasSize, canvas, tool, t]
+  )
+
+  /**
    * 画像保存ダイアログで保存を確定した時のハンドラ
    */
   const handleSaveImage = useCallback(
-    async (fileName: string, format: ImageFormat) => {
-      await exportImage.downloadImage(
-        fileName,
-        format,
-        canvas.showBackgroundLayer,
-        canvas.hideBackgroundLayer
-      )
+    async (options: ExportOptions) => {
+      await exportImage.saveImage(options, canvas.showBackgroundLayer, canvas.hideBackgroundLayer)
     },
     [exportImage, canvas.showBackgroundLayer, canvas.hideBackgroundLayer]
   )
@@ -550,6 +581,7 @@ function App() {
       width: clipboard.bounds.width,
       height: clipboard.bounds.height,
       scaleX: 1,
+      scaleY: 1,
     }
     canvas.addDrawable(imageDrawable)
 
@@ -630,6 +662,7 @@ function App() {
     onZoomOut: zoom.zoomOut,
     onZoomReset: zoom.resetZoom,
     onFlipHorizontal: () => canvas.flipHorizontal(canvasSize.width),
+    onFlipVertical: () => canvas.flipVertical(canvasSize.height),
     onMoveLayerUp: () => canvas.moveLayerUp(canvas.activeLayerId),
     onMoveLayerDown: () => canvas.moveLayerDown(canvas.activeLayerId),
     onIncreaseToolSize: handleIncreaseToolSize,
@@ -888,66 +921,67 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Top toolbar */}
-      <header className="flex items-center justify-between px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">
-        <Toolbar>
-          <UndoButton disabled={!canvas.canUndo} onClick={canvas.undo} />
-          <RedoButton disabled={!canvas.canRedo} onClick={canvas.redo} />
+      {/* Top menubar and toolbar */}
+      <header className="flex items-center justify-between px-2 py-1 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100">
+        <div className="flex items-center">
+          <AppMenubar
+            onNewCanvas={handleOpenNewCanvasDialog}
+            projectInputRef={projectInputRef}
+            onOpenProject={handleOpenProjectFilePicker}
+            onProjectFileChange={handleProjectFileChange}
+            onSaveProject={handleSaveProject}
+            importInputRef={importImage.inputRef}
+            onImport={importImage.openFilePicker}
+            onImportFileChange={importImage.handleFileChange}
+            onExport={handleOpenSaveImageDialog}
+            isCanvasCreated={isCanvasCreated}
+            canUndo={canvas.canUndo}
+            canRedo={canvas.canRedo}
+            onUndo={canvas.undo}
+            onRedo={canvas.redo}
+            onClear={canvas.clear}
+            onFlipHorizontal={() => canvas.flipHorizontal(canvasSize.width)}
+            onFlipVertical={() => canvas.flipVertical(canvasSize.height)}
+            onCanvasSize={() => setCanvasResizeOpen(true)}
+            hasSelection={selection.state.region !== null}
+            hasClipboard={selection.state.clipboard !== null}
+            onSelectAll={handleSelectAll}
+            onDeselect={handleDeselect}
+            onCut={handleCutSelection}
+            onCopy={handleCopySelection}
+            onPaste={handlePasteSelection}
+            onDelete={handleDeleteSelection}
+            onZoomIn={zoom.zoomIn}
+            onZoomOut={zoom.zoomOut}
+            onZoomReset={zoom.resetZoom}
+            onCenterCanvas={canvasOffset.reset}
+          />
           <ToolbarDivider />
-          <HandButton
-            isActive={tool.currentType === 'hand'}
-            onClick={() => tool.setToolType('hand')}
-          />
-          <CenterCanvasButton onClick={canvasOffset.reset} />
-          <ToolbarDivider />
-          <ZoomInButton
-            isActive={tool.currentType === 'zoom-in'}
-            onClick={() => tool.setToolType('zoom-in')}
-          />
-          <ZoomOutButton
-            isActive={tool.currentType === 'zoom-out'}
-            onClick={() => tool.setToolType('zoom-out')}
-          />
-          <ZoomResetButton onClick={zoom.resetZoom} />
-          <ZoomDisplay zoomPercent={zoom.zoomPercent} onZoomChange={zoom.setZoomLevel} />
-          <ToolbarDivider />
-          <StabilizationSlider
-            stabilization={stabilization.stabilization}
-            onStabilizationChange={stabilization.setStabilization}
-          />
-          <ToolbarDivider />
-          <ClearButton onClick={canvas.clear} />
-          <EyedropperButton
-            isActive={tool.currentType === 'eyedropper'}
-            onClick={() => tool.setToolType('eyedropper')}
-          />
-          <CanvasResizeMenu
-            width={canvasSize.width}
-            height={canvasSize.height}
-            anchor={canvasSize.anchor}
-            onWidthChange={canvasSize.setWidth}
-            onHeightChange={canvasSize.setHeight}
-            onAnchorChange={canvasSize.setAnchor}
-          />
-          <FlipHorizontalButton onClick={() => canvas.flipHorizontal(canvasSize.width)} />
-          <ToolbarDivider />
-          <ImportButton
-            inputRef={importImage.inputRef}
-            onOpenFilePicker={importImage.openFilePicker}
-            onFileChange={importImage.handleFileChange}
-          />
-          <SaveButton onSave={handleOpenSaveImageDialog} />
-          <ToolbarDivider />
-          <OpenProjectButton
-            inputRef={projectInputRef}
-            onOpenFilePicker={handleOpenProjectFilePicker}
-            onFileChange={handleProjectFileChange}
-          />
-          <SaveProjectButton onSave={handleSaveProject} />
-        </Toolbar>
-        <div className="flex items-center gap-1">
-          <LocaleToggle />
-          <ThemeToggle />
+          <Toolbar>
+            <HandButton
+              isActive={tool.currentType === 'hand'}
+              onClick={() => tool.setToolType('hand')}
+            />
+            <EyedropperButton
+              isActive={tool.currentType === 'eyedropper'}
+              onClick={() => tool.setToolType('eyedropper')}
+            />
+            <ToolbarDivider />
+            <ZoomInButton
+              isActive={tool.currentType === 'zoom-in'}
+              onClick={() => tool.setToolType('zoom-in')}
+            />
+            <ZoomOutButton
+              isActive={tool.currentType === 'zoom-out'}
+              onClick={() => tool.setToolType('zoom-out')}
+            />
+            <ZoomDisplay zoomPercent={zoom.zoomPercent} onZoomChange={zoom.setZoomLevel} />
+            <ToolbarDivider />
+            <StabilizationSlider
+              stabilization={stabilization.stabilization}
+              onStabilizationChange={stabilization.setStabilization}
+            />
+          </Toolbar>
         </div>
       </header>
 
@@ -1013,47 +1047,49 @@ function App() {
 
         {/* Canvas area */}
         <main className="flex-1 overflow-hidden bg-[rgb(220,220,220)] dark:bg-muted/30">
-          <CanvasViewport
-            canvasWidth={canvasSize.width}
-            canvasHeight={canvasSize.height}
-            offset={canvasOffset.offset}
-            onOffsetChange={canvasOffset.setPosition}
-            zoom={zoom.zoom}
-            onWheelAtPoint={handleWheelAtPoint}
-          >
-            {(viewportSize) => (
-              <div ref={canvasContainerRef}>
-                <Canvas
-                  layers={canvas.layers}
-                  onStartStroke={handleStartStroke}
-                  onAddPoint={canvas.addPoint}
-                  onEndStroke={canvas.endStroke}
-                  cursor={tool.cursor}
-                  width={canvasSize.width}
-                  height={canvasSize.height}
-                  toolType={tool.currentType}
-                  offset={canvasOffset.offset}
-                  onPan={canvasOffset.pan}
-                  onPickColor={handleColorChange}
-                  zoom={zoom.zoom}
-                  viewportSize={viewportSize}
-                  onZoomAtPoint={handleZoomAtPoint}
-                  selectionRegion={selection.state.region}
-                  selectionPoints={selection.selectionPoints}
-                  selectionToolType={selection.state.toolConfig.type}
-                  isSelecting={selection.state.phase === 'selecting'}
-                  isMoving={selection.state.phase === 'moving'}
-                  onStartSelection={handleStartSelection}
-                  onUpdateSelection={selection.updateSelection}
-                  onCommitSelection={selection.commitSelection}
-                  onStartMove={handleStartMove}
-                  onUpdateMove={selection.updateMove}
-                  onCommitMove={handleCommitMove}
-                  isPointInRegion={selection.isPointInRegion}
-                />
-              </div>
-            )}
-          </CanvasViewport>
+          {isCanvasCreated ? (
+            <CanvasViewport
+              canvasWidth={canvasSize.width}
+              canvasHeight={canvasSize.height}
+              offset={canvasOffset.offset}
+              onOffsetChange={canvasOffset.setPosition}
+              zoom={zoom.zoom}
+              onWheelAtPoint={handleWheelAtPoint}
+            >
+              {(viewportSize) => (
+                <div ref={canvasContainerRef}>
+                  <Canvas
+                    layers={canvas.layers}
+                    onStartStroke={handleStartStroke}
+                    onAddPoint={canvas.addPoint}
+                    onEndStroke={canvas.endStroke}
+                    cursor={tool.cursor}
+                    width={canvasSize.width}
+                    height={canvasSize.height}
+                    toolType={tool.currentType}
+                    offset={canvasOffset.offset}
+                    onPan={canvasOffset.pan}
+                    onPickColor={handleColorChange}
+                    zoom={zoom.zoom}
+                    viewportSize={viewportSize}
+                    onZoomAtPoint={handleZoomAtPoint}
+                    selectionRegion={selection.state.region}
+                    selectionPoints={selection.selectionPoints}
+                    selectionToolType={selection.state.toolConfig.type}
+                    isSelecting={selection.state.phase === 'selecting'}
+                    isMoving={selection.state.phase === 'moving'}
+                    onStartSelection={handleStartSelection}
+                    onUpdateSelection={selection.updateSelection}
+                    onCommitSelection={selection.commitSelection}
+                    onStartMove={handleStartMove}
+                    onUpdateMove={selection.updateMove}
+                    onCommitMove={handleCommitMove}
+                    isPointInRegion={selection.isPointInRegion}
+                  />
+                </div>
+              )}
+            </CanvasViewport>
+          ) : null}
         </main>
       </div>
       <Toaster />
@@ -1076,6 +1112,23 @@ function App() {
         open={saveImageDialogOpen}
         onOpenChange={setSaveImageDialogOpen}
         onSave={handleSaveImage}
+      />
+      <CanvasResizeDialog
+        open={canvasResizeOpen}
+        onOpenChange={setCanvasResizeOpen}
+        width={canvasSize.width}
+        height={canvasSize.height}
+        anchor={canvasSize.anchor}
+        onResize={(w, h, a) => {
+          canvasSize.setWidth(w)
+          canvasSize.setHeight(h)
+          canvasSize.setAnchor(a)
+        }}
+      />
+      <NewCanvasDialog
+        open={newCanvasDialogOpen}
+        onOpenChange={setNewCanvasDialogOpen}
+        onCreate={handleCreateNewCanvas}
       />
       <ReloadPrompt />
     </div>

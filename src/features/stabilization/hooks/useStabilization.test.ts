@@ -14,30 +14,30 @@ describe('useStabilization', () => {
     const { result } = renderHook(() => useStabilization())
 
     act(() => {
-      result.current.setStabilization(0.5)
+      result.current.setStabilization(0.1)
     })
 
-    expect(result.current.stabilization).toBe(0.5)
+    expect(result.current.stabilization).toBe(0.1)
   })
 
   test('0未満の値は0にクランプされる', () => {
     const { result } = renderHook(() => useStabilization())
 
     act(() => {
-      result.current.setStabilization(-0.5)
+      result.current.setStabilization(-0.1)
     })
 
     expect(result.current.stabilization).toBe(0)
   })
 
-  test('1より大きい値は1にクランプされる', () => {
+  test('0.2より大きい値は0.2にクランプされる', () => {
     const { result } = renderHook(() => useStabilization())
 
     act(() => {
-      result.current.setStabilization(1.5)
+      result.current.setStabilization(0.5)
     })
 
-    expect(result.current.stabilization).toBe(1)
+    expect(result.current.stabilization).toBe(0.2)
   })
 
   test('境界値を正しく設定できる', () => {
@@ -49,8 +49,8 @@ describe('useStabilization', () => {
     expect(result.current.stabilization).toBe(0)
 
     act(() => {
-      result.current.setStabilization(1)
+      result.current.setStabilization(0.2)
     })
-    expect(result.current.stabilization).toBe(1)
+    expect(result.current.stabilization).toBe(0.2)
   })
 })

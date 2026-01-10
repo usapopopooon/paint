@@ -38,7 +38,7 @@ export const Default: Story = {
     // ファイル名入力フィールドが表示されていることを確認
     const input = body.getByRole('textbox')
     await expect(input).toBeVisible()
-    await expect(input).toHaveValue('untitled')
+    await expect(input).toHaveValue(i18nEn.t('project.saveDialog.defaultFileName'))
 
     // 拡張子が表示されていることを確認
     const extension = body.getByText('.usapo')

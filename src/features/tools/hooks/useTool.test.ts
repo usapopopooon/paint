@@ -7,10 +7,10 @@ import { DEFAULT_HARDNESS } from '../constants/hardness'
 
 describe('useTool', () => {
   describe('初期状態', () => {
-    test('ハンドツールがデフォルトで選択される', () => {
+    test('noneツールがデフォルトで選択される', () => {
       const { result } = renderHook(() => useTool())
 
-      expect(result.current.currentType).toBe('hand')
+      expect(result.current.currentType).toBe('none')
     })
 
     test('デフォルトのペン設定を持つ', () => {

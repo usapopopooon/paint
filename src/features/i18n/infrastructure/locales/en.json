@@ -90,11 +90,19 @@
       "description": "Blend modes may cause heavy browser load and could potentially crash. Apply anyway?"
     }
   },
+  "app": {
+    "untitledProject": "untitled"
+  },
   "canvas": {
     "width": "Width:",
     "height": "Height:",
     "center": "Center canvas",
     "resize": "Resize canvas",
+    "resizeDescription": "Set the canvas size and anchor point",
+    "new": "New Canvas",
+    "newDescription": "Set the canvas size for the new canvas",
+    "projectName": "Project name:",
+    "create": "Create",
     "anchor": "Anchor:",
     "flipHorizontal": "Flip horizontal",
     "sizeTooSmall": "Canvas size must be at least %{min}px",
@@ -120,7 +128,11 @@
       "title": "Save Image",
       "description": "Choose a file name and format to save",
       "fileName": "File name",
+      "defaultFileName": "untitled",
       "format": "Format",
+      "scale": "Scale",
+      "includeBackground": "Background",
+      "quality": "Quality",
       "save": "Save",
       "fileNameRequired": "Please enter a file name",
       "fileNameTooLong": "File name must be %{max} characters or less",
@@ -132,6 +144,7 @@
       "title": "Save Project",
       "description": "Enter a file name to save the project",
       "fileName": "File name",
+      "defaultFileName": "untitled",
       "save": "Save",
       "fileNameRequired": "Please enter a file name",
       "fileNameTooLong": "File name must be %{max} characters or less",
@@ -163,5 +176,38 @@
       "confirm": "Update",
       "cancel": "Cancel"
     }
+  },
+  "menu": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "settings": "Settings",
+    "newCanvas": "New Canvas",
+    "openProject": "Open Project",
+    "saveProject": "Save Project",
+    "importImage": "Import Image",
+    "exportImage": "Export Image",
+    "undo": "Undo",
+    "redo": "Redo",
+    "clear": "Clear",
+    "flipHorizontal": "Flip Horizontal",
+    "flipVertical": "Flip Vertical",
+    "canvasSize": "Canvas Size",
+    "selectAll": "Select All",
+    "deselect": "Deselect",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "delete": "Delete",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "zoomReset": "Reset to 100%",
+    "centerCanvas": "Center Canvas",
+    "language": "Language",
+    "theme": "Theme",
+    "japanese": "日本語",
+    "english": "English",
+    "light": "Light",
+    "dark": "Dark"
   }
 }

@@ -40,14 +40,16 @@ export const StabilizationSlider = memo(function StabilizationSlider({
 }: StabilizationSliderProps) {
   const { t } = useTranslation()
 
-  const displayPercent = Math.round(stabilization * 100)
+  // 内部値(0-0.2)をUI表示用(0-100%)に変換
+  const displayPercent = Math.round((stabilization / MAX_STABILIZATION) * 100)
   const isActive = stabilization > 0
 
   const handleSliderChange = useCallback(
     (values: number[]) => {
       const sliderValue = values[0]
       if (sliderValue !== undefined) {
-        const newStabilization = sliderValue / 100
+        // UI値(0-100%)を内部値(0-0.2)に変換
+        const newStabilization = (sliderValue / 100) * MAX_STABILIZATION
         const clampedStabilization = Math.max(
           MIN_STABILIZATION,
           Math.min(MAX_STABILIZATION, newStabilization)

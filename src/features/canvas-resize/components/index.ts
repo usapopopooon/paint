@@ -1,2 +1,3 @@
 export { AnchorSelector } from './AnchorSelector'
-export { CanvasResizeMenu } from './CanvasResizeMenu'
+export { CanvasResizeDialog } from './CanvasResizeDialog'
+export { NewCanvasDialog } from './NewCanvasDialog'

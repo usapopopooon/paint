@@ -1,6 +1,7 @@
 import type { ToolType, ToolConfig, CursorConfig } from '../../types'
 import type { Point, StrokeDrawable } from '@/features/drawable'
 import {
+  noneBehavior,
   penBehavior,
   brushBehavior,
   eraserBehavior,
@@ -23,6 +24,7 @@ export type ToolBehavior = {
 
 /** ツールタイプとビヘイビアのマッピング */
 const behaviors: Record<ToolType, ToolBehavior> = {
+  none: noneBehavior as ToolBehavior,
   pen: penBehavior as ToolBehavior,
   brush: brushBehavior as ToolBehavior,
   eraser: eraserBehavior as ToolBehavior,

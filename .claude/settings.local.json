@@ -1,5 +1,10 @@
 {
   "permissions": {
-    "allow": ["Bash(npm run spell:*)", "Bash(npm run build:*)"]
+    "allow": [
+      "Bash(npm run spell:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx shadcn@latest add menubar -y)",
+      "Bash(npm run test:full:*)"
+    ]
   }
 }

@@ -211,7 +211,11 @@ export const useCanvas = (options?: UseCanvasOptions) => {
         onCanvasResize?.(action.newWidth, action.newHeight, action.offsetX, action.offsetY)
       } else if (action.type === 'canvas:flipped') {
         // 反転を再適用
-        layerManager.flipAllLayersHorizontal(action.canvasWidth)
+        if (action.direction === 'horizontal') {
+          layerManager.flipAllLayersHorizontal(action.canvasSize)
+        } else {
+          layerManager.flipAllLayersVertical(action.canvasSize)
+        }
       } else if (action.type === 'layer:created' && targetLayerId) {
         // レイヤー作成を再実行
         const layer = {
@@ -331,6 +335,27 @@ export const useCanvas = (options?: UseCanvasOptions) => {
   )
 
   /**
+   * キャンバスを垂直方向に反転 + 履歴に記録
+   * @param canvasHeight - キャンバスの高さ
+   */
+  const flipVertical = useCallback(
+    (canvasHeight: number) => {
+      // 各レイヤーの反転前のdrawablesを保存
+      const layerSnapshots = layerManager.layers.map((layer) => ({
+        layerId: layer.id,
+        previousDrawables: layer.drawables,
+      }))
+
+      // 全レイヤーを反転
+      layerManager.flipAllLayersVertical(canvasHeight)
+
+      // 履歴に記録
+      history.recordCanvasFlip('vertical', canvasHeight, layerSnapshots)
+    },
+    [layerManager, history]
+  )
+
+  /**
    * レイヤーを追加 + 履歴に記録
    * @returns 追加されたレイヤー情報
    */
@@ -422,6 +447,7 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
     flipHorizontal,
+    flipVertical,
     showBackgroundLayer,
     hideBackgroundLayer,
     addDrawable,

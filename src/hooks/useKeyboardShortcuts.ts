@@ -25,6 +25,7 @@ export type KeyboardShortcutsHandlers = {
   readonly onZoomOut: () => void
   readonly onZoomReset: () => void
   readonly onFlipHorizontal: () => void
+  readonly onFlipVertical: () => void
   readonly onMoveLayerUp: () => void
   readonly onMoveLayerDown: () => void
   readonly onIncreaseToolSize: () => void
@@ -40,6 +41,7 @@ export type KeyboardShortcutsHandlers = {
  * - Ctrl+- / Cmd+-: ズームアウト
  * - Ctrl+0 / Cmd+0: ズームリセット
  * - Ctrl+H / Cmd+H: 左右反転
+ * - Ctrl+Shift+H / Cmd+Shift+H: 上下反転
  * - Alt+]: レイヤーを上に移動
  * - Alt+[: レイヤーを下に移動
  * - ]: ツールサイズを大きく
@@ -83,6 +85,7 @@ export const useKeyboardShortcuts = ({
   onZoomOut,
   onZoomReset,
   onFlipHorizontal,
+  onFlipVertical,
   onMoveLayerUp,
   onMoveLayerDown,
   onIncreaseToolSize,
@@ -125,6 +128,12 @@ export const useKeyboardShortcuts = ({
       if ((e.ctrlKey || e.metaKey) && e.key === '0') {
         e.preventDefault()
         onZoomReset()
+        return
+      }
+      // 上下反転 (Ctrl/Cmd + Shift + H)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'h' || e.key === 'H')) {
+        e.preventDefault()
+        onFlipVertical()
         return
       }
       // 左右反転 (Ctrl/Cmd + H)
@@ -267,6 +276,7 @@ export const useKeyboardShortcuts = ({
     onZoomOut,
     onZoomReset,
     onFlipHorizontal,
+    onFlipVertical,
     onMoveLayerUp,
     onMoveLayerDown,
     onIncreaseToolSize,

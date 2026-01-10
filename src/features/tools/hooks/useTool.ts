@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import type { ToolType, ToolConfig, HandToolConfig, CursorConfig } from '../types'
+import type { ToolType, ToolConfig, NoneToolConfig, CursorConfig } from '../types'
 import { getToolBehavior } from '../domain'
 import { createInitialToolState, isDrawingToolType, type ToolState } from '../helpers'
 import { DEFAULT_HARDNESS } from '../constants/hardness'
@@ -96,7 +96,7 @@ export const useTool = () => {
     []
   )
 
-  const handConfig: HandToolConfig = { type: 'hand' }
+  const noneConfig: NoneToolConfig = { type: 'none' }
 
   const currentConfig: ToolConfig =
     state.currentType === 'pen'
@@ -105,7 +105,7 @@ export const useTool = () => {
         ? state.brushConfig
         : state.currentType === 'eraser'
           ? state.eraserConfig
-          : handConfig
+          : noneConfig
 
   /**
    * カーソル設定を取得

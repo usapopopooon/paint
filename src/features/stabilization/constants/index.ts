@@ -1,8 +1,8 @@
 /** 最小補正強度（0 = 補正なし） */
 export const MIN_STABILIZATION = 0
 
-/** 最大補正強度 */
-export const MAX_STABILIZATION = 1
+/** 最大補正強度（内部値、UI上は100%として表示） */
+export const MAX_STABILIZATION = 0.2
 
 /** デフォルト補正強度（0 = 補正なし） */
 export const DEFAULT_STABILIZATION = 0
