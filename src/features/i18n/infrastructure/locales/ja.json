@@ -95,6 +95,7 @@
     "height": "高さ:",
     "center": "キャンバスを中央に",
     "resize": "キャンバスサイズ変更",
+    "resizeDescription": "キャンバスのサイズと基準点を設定してください",
     "anchor": "基準点:",
     "flipHorizontal": "左右反転",
     "sizeTooSmall": "キャンバスサイズは%{min}px以上にしてください",

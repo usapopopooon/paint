@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { expect, fn, userEvent, within } from 'storybook/test'
+import { expect, fn, userEvent, within, fireEvent } from 'storybook/test'
 import { CanvasResizeDialog } from './CanvasResizeDialog'
 import { i18nEn } from '@/test/i18n'
+import { MIN_CANVAS_SIZE, MAX_CANVAS_SIZE } from '../constants'
 
 const meta = {
   title: 'Features/CanvasResize/CanvasResizeDialog',
@@ -136,7 +137,9 @@ export const ValidationErrorTooSmall: Story = {
     await userEvent.type(widthInput, '10')
 
     // エラーメッセージが表示されることを確認
-    const errorMessage = await body.findByText(i18nEn.t('canvas.sizeTooSmall', { min: 50 }))
+    const errorMessage = await body.findByText(
+      i18nEn.t('canvas.sizeTooSmall', { min: MIN_CANVAS_SIZE })
+    )
     await expect(errorMessage).toBeVisible()
 
     // OKボタンが無効になることを確認
@@ -152,13 +155,14 @@ export const ValidationErrorTooLarge: Story = {
   play: async () => {
     const body = within(document.body)
 
-    // 高さを最大値超過に変更
-    const heightInput = body.getByDisplayValue('600')
-    await userEvent.clear(heightInput)
-    await userEvent.type(heightInput, '9999')
+    // 幅を最大値超過に変更（fireEventを使用してonChangeを確実に発火）
+    const widthInput = body.getByDisplayValue('800') as HTMLInputElement
+    fireEvent.change(widthInput, { target: { value: '5000' } })
 
     // エラーメッセージが表示されることを確認
-    const errorMessage = await body.findByText(i18nEn.t('canvas.sizeTooLarge', { max: 4096 }))
+    const errorMessage = await body.findByText(
+      i18nEn.t('canvas.sizeTooLarge', { max: MAX_CANVAS_SIZE })
+    )
     await expect(errorMessage).toBeVisible()
 
     // OKボタンが無効になることを確認

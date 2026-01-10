@@ -125,7 +125,7 @@ const CanvasResizeDialogContent = memo(function CanvasResizeDialogContent({
     <>
       <DialogHeader>
         <DialogTitle>{t('canvas.resize')}</DialogTitle>
-        <DialogDescription className="sr-only">{t('canvas.resize')}</DialogDescription>
+        <DialogDescription className="sr-only">{t('canvas.resizeDescription')}</DialogDescription>
       </DialogHeader>
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4">

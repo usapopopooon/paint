@@ -95,6 +95,7 @@
     "height": "Height:",
     "center": "Center canvas",
     "resize": "Resize canvas",
+    "resizeDescription": "Set the canvas size and anchor point",
     "anchor": "Anchor:",
     "flipHorizontal": "Flip horizontal",
     "sizeTooSmall": "Canvas size must be at least %{min}px",

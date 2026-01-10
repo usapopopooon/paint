@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -60,15 +60,15 @@ export const SaveImageDialog = memo(function SaveImageDialog({
     formState: { errors, isValid },
     reset,
     setFocus,
-    watch,
     setValue,
+    control,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { fileName: 'untitled', format: 'jpg' },
     mode: 'onChange',
   })
 
-  const format = watch('format')
+  const format = useWatch({ control, name: 'format' })
 
   // ダイアログが開いたときにinputにフォーカス
   useEffect(() => {
