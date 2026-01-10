@@ -24,14 +24,14 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe('StabilizationSlider', () => {
   test('ボタンを表示する', () => {
-    renderWithProviders(<StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
 
     expect(screen.getByRole('button')).toBeInTheDocument()
   })
 
   test('ボタンクリックでポップオーバーが開きスライダーが表示される', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
 
     const button = screen.getByRole('button')
     await user.click(button)
@@ -48,18 +48,18 @@ describe('StabilizationSlider', () => {
     expect(slider).toHaveAttribute('aria-valuenow', '0')
   })
 
-  test('stabilization=1の場合、ポップオーバー内のスライダー値は100になる', async () => {
+  test('stabilization=0.2（内部最大値）の場合、ポップオーバー内のスライダー値は100になる', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={1} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.2} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '100')
   })
 
-  test('stabilization=0.5の場合、ポップオーバー内のスライダー値は50になる', async () => {
+  test('stabilization=0.1の場合、ポップオーバー内のスライダー値は50になる', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
     const slider = screen.getByRole('slider')
@@ -68,7 +68,7 @@ describe('StabilizationSlider', () => {
 
   test('disabled=trueの場合、ボタンは無効', () => {
     renderWithProviders(
-      <StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} disabled={true} />
+      <StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} disabled={true} />
     )
 
     const button = screen.getByRole('button')
@@ -77,7 +77,7 @@ describe('StabilizationSlider', () => {
 
   test('disabled=falseの場合、ボタンは有効', () => {
     renderWithProviders(
-      <StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} disabled={false} />
+      <StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} disabled={false} />
     )
 
     const button = screen.getByRole('button')
@@ -85,7 +85,7 @@ describe('StabilizationSlider', () => {
   })
 
   test('stabilization>0の場合、アイコンがアクティブ色になる', () => {
-    renderWithProviders(<StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
 
     const button = screen.getByRole('button')
     const icon = button.querySelector('svg')
@@ -102,7 +102,7 @@ describe('StabilizationSlider', () => {
 
   test('ポップオーバー内にラベルが表示される', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
     // スライダーが表示されたらポップオーバーが開いている
@@ -112,10 +112,10 @@ describe('StabilizationSlider', () => {
 
   test('ポップオーバー内にパーセント表示がある', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.5} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
-    // スライダーが50%の値を持つことを確認
+    // 内部値0.1はUI上50%として表示される
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '50')
   })

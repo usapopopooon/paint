@@ -25,24 +25,24 @@ export const Default: Story = {
   },
 }
 
-/** 補正あり（50%） - アイコンはアクティブ色 */
+/** 補正あり（50%）- 内部値0.1 - アイコンはアクティブ色 */
 export const HalfStabilization: Story = {
   args: {
-    stabilization: 0.5,
+    stabilization: 0.1,
   },
 }
 
-/** 最大補正（100%） - アイコンはアクティブ色 */
+/** 最大補正（100%）- 内部値0.2 - アイコンはアクティブ色 */
 export const MaxStabilization: Story = {
   args: {
-    stabilization: 1,
+    stabilization: 0.2,
   },
 }
 
 /** 無効状態 */
 export const Disabled: Story = {
   args: {
-    stabilization: 0.5,
+    stabilization: 0.1,
     disabled: true,
   },
 }
@@ -50,7 +50,7 @@ export const Disabled: Story = {
 /** ボタンクリックでポップオーバーが開く */
 export const OpenPopover: Story = {
   args: {
-    stabilization: 0.5,
+    stabilization: 0.1,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -64,10 +64,10 @@ export const OpenPopover: Story = {
   },
 }
 
-/** スライダーの値が正しく表示される */
+/** スライダーの値が正しく表示される（内部値0.15→UI上75%） */
 export const VerifySliderValue: Story = {
   args: {
-    stabilization: 0.75,
+    stabilization: 0.15,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -82,17 +82,17 @@ export const VerifySliderValue: Story = {
   },
 }
 
-/** 低い補正値（25%） */
+/** 低い補正値（25%）- 内部値0.05 */
 export const LowStabilization: Story = {
   args: {
-    stabilization: 0.25,
+    stabilization: 0.05,
   },
 }
 
 /** アイコンがアクティブ色になることを確認 */
 export const ActiveIconColor: Story = {
   args: {
-    stabilization: 0.5,
+    stabilization: 0.1,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
