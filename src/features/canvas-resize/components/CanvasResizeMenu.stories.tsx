@@ -19,6 +19,7 @@ const meta = {
     onWidthChange: fn(),
     onHeightChange: fn(),
     onAnchorChange: fn(),
+    onOpenChange: fn(),
   },
 } satisfies Meta<typeof CanvasResizeMenu>
 
@@ -206,5 +207,35 @@ export const TooLargeValueShowsError: Story = {
     await expect(args.onWidthChange).not.toHaveBeenCalled()
     // 元の値に戻る
     await expect(body.getByDisplayValue('800')).toBeInTheDocument()
+  },
+}
+
+/**
+ * Controlled stateで開いた状態
+ */
+export const ControlledOpen: Story = {
+  args: {
+    open: true,
+  },
+  play: async () => {
+    // ポップオーバーが開いていることを確認
+    const body = within(document.body)
+    const widthInput = await body.findByDisplayValue('800')
+    await expect(widthInput).toBeInTheDocument()
+  },
+}
+
+/**
+ * Controlled stateでonOpenChangeが呼ばれることを確認
+ */
+export const ControlledOpenChange: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement)
+    const menuButton = canvas.getByRole('button')
+
+    await userEvent.click(menuButton)
+
+    // onOpenChangeがtrueで呼ばれることを確認
+    await expect(args.onOpenChange).toHaveBeenCalledWith(true)
   },
 }

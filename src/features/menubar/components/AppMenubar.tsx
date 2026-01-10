@@ -16,7 +16,7 @@ import { useTranslation, useLocale } from '@/features/i18n'
 import { useTheme } from '@/features/theme'
 import { getModifierKey } from '@/lib/platform'
 
-type AppMenubarProps = {
+export type AppMenubarProps = {
   // File menu
   readonly projectInputRef: RefObject<HTMLInputElement | null>
   readonly onOpenProject: () => void
