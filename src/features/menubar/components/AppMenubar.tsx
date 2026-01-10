@@ -1,5 +1,5 @@
 import { memo, type RefObject } from 'react'
-import { Check } from 'lucide-react'
+import { Check, Circle } from 'lucide-react'
 import {
   Menubar,
   MenubarContent,
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/menubar'
 import { useTranslation, useLocale } from '@/features/i18n'
 import { useTheme } from '@/features/theme'
+import { usePwaUpdate } from '@/features/pwa'
 import { getModifierKey } from '@/lib/platform'
 
 export type AppMenubarProps = {
@@ -92,6 +93,7 @@ export const AppMenubar = memo(function AppMenubar({
   const { t } = useTranslation()
   const { locale, setLocale } = useLocale()
   const { isDark, setTheme } = useTheme()
+  const { needRefresh, checkForUpdate } = usePwaUpdate()
   const modifier = getModifierKey()
 
   return (
@@ -259,6 +261,24 @@ export const AppMenubar = memo(function AppMenubar({
                 </MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
+          </MenubarContent>
+        </MenubarMenu>
+
+        {/* Help Menu */}
+        <MenubarMenu>
+          <MenubarTrigger className="relative">
+            {t('menu.help')}
+            {needRefresh && (
+              <Circle className="size-2 fill-red-500 text-red-500 absolute -top-0.5 -right-0.5" />
+            )}
+          </MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={checkForUpdate}>
+              {t('menu.checkForUpdates')}
+              {needRefresh && (
+                <span className="ml-2 text-xs text-red-500">({t('menu.updateAvailable')})</span>
+              )}
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
       </Menubar>

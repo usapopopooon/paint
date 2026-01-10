@@ -208,6 +208,9 @@
     "japanese": "日本語",
     "english": "English",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "help": "Help",
+    "checkForUpdates": "Check for Updates",
+    "updateAvailable": "Update available"
   }
 }

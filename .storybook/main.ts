@@ -1,4 +1,8 @@
 import type { StorybookConfig } from '@storybook/react-vite'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
@@ -38,6 +42,16 @@ const config: StorybookConfig = {
       ...config,
       plugins,
       base: process.env.NODE_ENV === 'production' ? '/paint/storybook/' : '/',
+      resolve: {
+        ...config.resolve,
+        alias: {
+          ...config.resolve?.alias,
+          'virtual:pwa-register/react': path.resolve(
+            __dirname,
+            '../src/test/mocks/pwa-register.ts'
+          ),
+        },
+      },
       optimizeDeps: {
         ...config.optimizeDeps,
         include: [

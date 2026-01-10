@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useTranslation } from '@bf-i18n/react'
 import {
   AlertDialog,
@@ -12,6 +11,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { showActionToast } from '@/components/ui/sonner'
+import { usePwaUpdate } from '../context'
 
 /**
  * PWA更新通知コンポーネント
@@ -21,14 +21,7 @@ import { showActionToast } from '@/components/ui/sonner'
 export const ReloadPrompt = () => {
   const { t } = useTranslation()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const {
-    needRefresh: [needRefresh, setNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegisterError(error) {
-      console.error('SW registration error:', error)
-    },
-  })
+  const { needRefresh, updateApp, dismissUpdate } = usePwaUpdate()
 
   const handleReloadClick = () => {
     setShowConfirmDialog(true)
@@ -36,7 +29,7 @@ export const ReloadPrompt = () => {
 
   const handleConfirmReload = () => {
     setShowConfirmDialog(false)
-    updateServiceWorker(true)
+    updateApp()
   }
 
   const handleCancelReload = () => {
@@ -49,10 +42,10 @@ export const ReloadPrompt = () => {
         title: t('pwa.newVersionAvailable'),
         actionLabel: t('pwa.reload'),
         onAction: handleReloadClick,
-        onDismiss: () => setNeedRefresh(false),
+        onDismiss: dismissUpdate,
       })
     }
-  }, [needRefresh, t, setNeedRefresh])
+  }, [needRefresh, t, dismissUpdate])
 
   return (
     <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>

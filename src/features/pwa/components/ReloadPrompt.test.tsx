@@ -16,16 +16,17 @@ vi.mock('@bf-i18n/react', () => ({
   }),
 }))
 
-// useRegisterSWのモック状態
+// usePwaUpdateのモック状態
 let mockNeedRefresh = false
-const mockSetNeedRefresh = vi.fn()
-const mockUpdateServiceWorker = vi.fn()
+const mockUpdateApp = vi.fn()
+const mockDismissUpdate = vi.fn()
 
-vi.mock('virtual:pwa-register/react', () => ({
-  useRegisterSW: () => ({
-    needRefresh: [mockNeedRefresh, mockSetNeedRefresh],
-    offlineReady: [false, vi.fn()],
-    updateServiceWorker: mockUpdateServiceWorker,
+vi.mock('../context', () => ({
+  usePwaUpdate: () => ({
+    needRefresh: mockNeedRefresh,
+    updateApp: mockUpdateApp,
+    checkForUpdate: vi.fn(),
+    dismissUpdate: mockDismissUpdate,
   }),
 }))
 
@@ -69,11 +70,11 @@ describe('ReloadPrompt', () => {
     expect(screen.getByText('pwa.confirmReload.title')).toBeInTheDocument()
     expect(screen.getByText('pwa.confirmReload.description')).toBeInTheDocument()
 
-    // updateServiceWorkerはまだ呼ばれていない
-    expect(mockUpdateServiceWorker).not.toHaveBeenCalled()
+    // updateAppはまだ呼ばれていない
+    expect(mockUpdateApp).not.toHaveBeenCalled()
   })
 
-  test('確認ダイアログで「更新する」をクリックするとupdateServiceWorkerが呼ばれる', async () => {
+  test('確認ダイアログで「更新する」をクリックするとupdateAppが呼ばれる', async () => {
     const user = userEvent.setup()
     mockNeedRefresh = true
     render(<ReloadPrompt />)
@@ -89,10 +90,10 @@ describe('ReloadPrompt', () => {
     const confirmButton = screen.getByText('pwa.confirmReload.confirm')
     await user.click(confirmButton)
 
-    expect(mockUpdateServiceWorker).toHaveBeenCalledWith(true)
+    expect(mockUpdateApp).toHaveBeenCalled()
   })
 
-  test('確認ダイアログで「キャンセル」をクリックするとダイアログが閉じてupdateServiceWorkerは呼ばれない', async () => {
+  test('確認ダイアログで「キャンセル」をクリックするとダイアログが閉じてupdateAppは呼ばれない', async () => {
     const user = userEvent.setup()
     mockNeedRefresh = true
     render(<ReloadPrompt />)
@@ -111,11 +112,11 @@ describe('ReloadPrompt', () => {
     // ダイアログが閉じる（タイトルが表示されなくなる）
     expect(screen.queryByText('pwa.confirmReload.title')).not.toBeInTheDocument()
 
-    // updateServiceWorkerは呼ばれていない
-    expect(mockUpdateServiceWorker).not.toHaveBeenCalled()
+    // updateAppは呼ばれていない
+    expect(mockUpdateApp).not.toHaveBeenCalled()
   })
 
-  test('トーストを閉じるとsetNeedRefreshがfalseで呼ばれる', () => {
+  test('トーストを閉じるとdismissUpdateが呼ばれる', () => {
     mockNeedRefresh = true
     render(<ReloadPrompt />)
 
@@ -126,6 +127,6 @@ describe('ReloadPrompt', () => {
       options.onDismiss()
     })
 
-    expect(mockSetNeedRefresh).toHaveBeenCalledWith(false)
+    expect(mockDismissUpdate).toHaveBeenCalled()
   })
 })
