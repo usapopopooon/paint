@@ -9,8 +9,8 @@ const takeScreenshot = async () => {
     colorScheme: 'dark',
   })
 
-  // ビルド済みのアプリを開く
-  await page.goto('http://localhost:4173')
+  // ビルド済みのアプリを開く（GitHub Pages用のベースパスを考慮）
+  await page.goto('http://localhost:4173/paint/')
 
   // ページが完全に読み込まれるまで待機
   await page.waitForLoadState('networkidle')
