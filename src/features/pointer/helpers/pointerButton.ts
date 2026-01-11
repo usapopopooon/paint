@@ -1,6 +1,9 @@
 /** プライマリボタン（左クリック）のボタン値 */
 const PRIMARY_BUTTON = 0
 
+/** セカンダリボタン（右クリック）のボタン値 */
+const SECONDARY_BUTTON = 2
+
 /** プライマリボタンのビットマスク */
 const PRIMARY_BUTTON_MASK = 1
 
@@ -16,3 +19,9 @@ export const isPrimaryButton = (button: number): boolean => button === PRIMARY_B
  */
 export const isPrimaryButtonPressed = (buttons: number): boolean =>
   (buttons & PRIMARY_BUTTON_MASK) !== 0
+
+/**
+ * pointerdown/pointerup時にセカンダリボタン（右クリック/バレルボタン）が押されたかを判定
+ * @param button - PointerEvent.button
+ */
+export const isSecondaryButton = (button: number): boolean => button === SECONDARY_BUTTON
