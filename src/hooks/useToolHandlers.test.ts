@@ -169,6 +169,18 @@ describe('useToolHandlers', () => {
 
       expect(tool.setEraserHardness).toHaveBeenCalledWith(0.8)
     })
+
+    test('ぼかしツール選択時はぼかしのhardnessを変更する', () => {
+      const tool = createMockTool()
+      tool.currentType = 'blur'
+      const { result } = renderHook(() => useToolHandlers({ tool }))
+
+      act(() => {
+        result.current.handleHardnessChange(0.6)
+      })
+
+      expect(tool.setBlurHardness).toHaveBeenCalledWith(0.6)
+    })
   })
 
   describe('handleBlurEnabledChange', () => {
@@ -220,6 +232,14 @@ describe('useToolHandlers', () => {
       expect(result.current.currentHardness).toBe(0.5)
     })
 
+    test('ぼかしツール選択時はぼかしのhardnessを返す', () => {
+      const tool = createMockTool()
+      tool.currentType = 'blur'
+      const { result } = renderHook(() => useToolHandlers({ tool }))
+
+      expect(result.current.currentHardness).toBe(0.8)
+    })
+
     test('描画ツール以外の場合はlastDrawingToolHardnessを返す', () => {
       const tool = createMockTool()
       tool.currentType = 'hand'
@@ -234,6 +254,30 @@ describe('useToolHandlers', () => {
     test('ペン選択時はfalse', () => {
       const tool = createMockTool()
       tool.currentType = 'pen'
+      const { result } = renderHook(() => useToolHandlers({ tool }))
+
+      expect(result.current.isHardnessDisabled).toBe(false)
+    })
+
+    test('ブラシ選択時はfalse', () => {
+      const tool = createMockTool()
+      tool.currentType = 'brush'
+      const { result } = renderHook(() => useToolHandlers({ tool }))
+
+      expect(result.current.isHardnessDisabled).toBe(false)
+    })
+
+    test('ぼかしツール選択時はfalse', () => {
+      const tool = createMockTool()
+      tool.currentType = 'blur'
+      const { result } = renderHook(() => useToolHandlers({ tool }))
+
+      expect(result.current.isHardnessDisabled).toBe(false)
+    })
+
+    test('消しゴム選択時はfalse', () => {
+      const tool = createMockTool()
+      tool.currentType = 'eraser'
       const { result } = renderHook(() => useToolHandlers({ tool }))
 
       expect(result.current.isHardnessDisabled).toBe(false)
