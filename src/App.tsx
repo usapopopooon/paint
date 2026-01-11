@@ -15,6 +15,7 @@ import {
   LoadProjectErrorDialog,
   ConfirmLoadProjectDialog,
   RecoveryDialog,
+  LoadToolStateDialog,
   useRecovery,
 } from './features/project'
 import type { ImageDrawable } from './features/drawable'
@@ -111,10 +112,14 @@ function App() {
     layers: canvas.layers,
     activeLayerId: canvas.activeLayerId,
     canUndo: canvas.canUndo,
+    toolState: tool.toolState,
+    stabilization: stabilization.stabilization,
     setLayers: canvas.setLayers,
     clearHistory: canvas.clearHistory,
     setSizeDirectly: canvasSize.setSizeDirectly,
     setToolType: tool.setToolType,
+    setFullToolState: tool.setFullState,
+    setStabilization: stabilization.setStabilization,
   })
 
   // ツール関連のハンドラ
@@ -591,8 +596,14 @@ function App() {
       <RecoveryDialog
         open={projectHandlers.recoveryDialogOpen}
         savedAt={recovery.savedAt}
+        hasToolState={recovery.hasToolState}
         onRestore={projectHandlers.handleRecoveryRestore}
         onDiscard={projectHandlers.handleRecoveryDiscard}
+      />
+      <LoadToolStateDialog
+        open={projectHandlers.loadToolStateDialogOpen}
+        onConfirm={projectHandlers.handleLoadToolStateRestore}
+        onSkip={projectHandlers.handleLoadToolStateSkip}
       />
       <ReloadPrompt />
     </div>

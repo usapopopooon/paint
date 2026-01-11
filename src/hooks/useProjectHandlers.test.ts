@@ -35,16 +35,54 @@ vi.mock('sonner', () => ({
 }))
 
 describe('useProjectHandlers', () => {
+  const defaultToolState = {
+    currentType: 'pen' as const,
+    lastDrawingToolType: 'pen' as const,
+    penConfig: {
+      type: 'pen' as const,
+      width: 2,
+      color: '#000000',
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+    brushConfig: {
+      type: 'brush' as const,
+      width: 20,
+      color: '#000000',
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+    blurConfig: {
+      type: 'blur' as const,
+      width: 20,
+      opacity: 1,
+      hardness: 0.5,
+    },
+    eraserConfig: {
+      type: 'eraser' as const,
+      width: 50,
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+  }
+
   const defaultOptions = {
     canvasWidth: 800,
     canvasHeight: 600,
     layers: [],
     activeLayerId: 'layer-1',
     canUndo: false,
+    toolState: defaultToolState,
+    stabilization: 0.5,
     setLayers: vi.fn(),
     clearHistory: vi.fn(),
     setSizeDirectly: vi.fn(),
     setToolType: vi.fn(),
+    setFullToolState: vi.fn(),
+    setStabilization: vi.fn(),
   }
 
   beforeEach(() => {
@@ -166,5 +204,40 @@ describe('useProjectHandlers', () => {
       result.current.handleConfirmLoad()
     })
     expect(result.current.confirmLoadDialogOpen).toBe(false)
+  })
+
+  describe('ツール設定の保存と読み込み', () => {
+    test('loadToolStateDialogOpenの初期値はfalse', () => {
+      const { result } = renderHook(() => useProjectHandlers(defaultOptions))
+
+      expect(result.current.loadToolStateDialogOpen).toBe(false)
+    })
+
+    test('loadedProjectHasToolStateの初期値はfalse', () => {
+      const { result } = renderHook(() => useProjectHandlers(defaultOptions))
+
+      expect(result.current.loadedProjectHasToolState).toBe(false)
+    })
+
+    test('handleLoadToolStateRestoreがtrueで呼ばれた場合はツール設定を復元', () => {
+      const { result } = renderHook(() => useProjectHandlers(defaultOptions))
+
+      // ダイアログを閉じるだけ（loadedProjectがnullなのでapplyProjectは呼ばれない）
+      act(() => {
+        result.current.handleLoadToolStateRestore(true)
+      })
+
+      expect(result.current.loadToolStateDialogOpen).toBe(false)
+    })
+
+    test('handleLoadToolStateSkipでダイアログを閉じる', () => {
+      const { result } = renderHook(() => useProjectHandlers(defaultOptions))
+
+      act(() => {
+        result.current.handleLoadToolStateSkip()
+      })
+
+      expect(result.current.loadToolStateDialogOpen).toBe(false)
+    })
   })
 })

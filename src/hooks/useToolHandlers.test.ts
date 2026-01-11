@@ -10,6 +10,40 @@ type MutableToolReturn = {
 }
 
 describe('useToolHandlers', () => {
+  const defaultToolState = {
+    currentType: 'pen' as const,
+    lastDrawingToolType: 'pen' as const,
+    penConfig: {
+      type: 'pen' as const,
+      width: 5,
+      color: '#000000',
+      opacity: 1,
+      hardness: 1,
+      isBlurEnabled: false,
+    },
+    brushConfig: {
+      type: 'brush' as const,
+      width: 20,
+      color: '#ff0000',
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+    blurConfig: {
+      type: 'blur' as const,
+      width: 30,
+      opacity: 0.5,
+      hardness: 0.8,
+    },
+    eraserConfig: {
+      type: 'eraser' as const,
+      width: 10,
+      opacity: 1,
+      hardness: 1,
+      isBlurEnabled: false,
+    },
+  }
+
   const createMockTool = (overrides: Partial<MutableToolReturn> = {}): MutableToolReturn => ({
     currentType: 'pen' as ToolType,
     currentConfig: {
@@ -41,6 +75,7 @@ describe('useToolHandlers', () => {
     cursor: { size: 5, color: '#000000' },
     lastDrawingToolHardness: 1,
     lastDrawingToolBlurEnabled: false,
+    toolState: defaultToolState,
     setToolType: vi.fn(),
     setPenWidth: vi.fn(),
     setPenColor: vi.fn(),
@@ -59,6 +94,7 @@ describe('useToolHandlers', () => {
     setEraserOpacity: vi.fn(),
     setEraserHardness: vi.fn(),
     setEraserBlurEnabled: vi.fn(),
+    setFullState: vi.fn(),
     getCursor: vi.fn(),
     ...overrides,
   })

@@ -1,5 +1,5 @@
 import type { Layer } from '@/features/layer'
-import type { ProjectFile } from '../domain'
+import type { ProjectFile, ProjectToolState } from '../domain'
 import { PROJECT_FILE_VERSION, PROJECT_FILE_EXTENSION, PROJECT_MIME_TYPE } from '../constants'
 
 export type SaveProjectOptions = {
@@ -8,6 +8,7 @@ export type SaveProjectOptions = {
   readonly canvasHeight: number
   readonly layers: readonly Layer[]
   readonly activeLayerId: string
+  readonly toolState?: ProjectToolState
 }
 
 /**
@@ -24,6 +25,7 @@ export const createProjectFile = (options: SaveProjectOptions): ProjectFile => {
     activeLayerId: options.activeLayerId,
     createdAt: now,
     updatedAt: now,
+    toolState: options.toolState,
   }
 }
 

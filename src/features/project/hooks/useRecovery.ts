@@ -5,6 +5,8 @@ import { parseProjectFile, type ProjectFile } from '../domain'
 type RecoveryState = {
   /** 復元可能なデータがあるか */
   readonly hasRecoverableData: boolean
+  /** ツール状態が含まれているか */
+  readonly hasToolState: boolean
   /** 復元データの保存日時 */
   readonly savedAt: number | null
   /** 復元処理中か */
@@ -26,6 +28,7 @@ type UseRecoveryReturn = RecoveryState & {
 export const useRecovery = (): UseRecoveryReturn => {
   const [state, setState] = useState<RecoveryState>({
     hasRecoverableData: false,
+    hasToolState: false,
     savedAt: null,
     isLoading: true,
   })
@@ -34,7 +37,12 @@ export const useRecovery = (): UseRecoveryReturn => {
   useEffect(() => {
     const checkRecovery = async () => {
       if (!isIndexedDBAvailable()) {
-        setState({ hasRecoverableData: false, savedAt: null, isLoading: false })
+        setState({
+          hasRecoverableData: false,
+          hasToolState: false,
+          savedAt: null,
+          isLoading: false,
+        })
         return
       }
 
@@ -46,6 +54,7 @@ export const useRecovery = (): UseRecoveryReturn => {
           if (parsed.success) {
             setState({
               hasRecoverableData: true,
+              hasToolState: parsed.data.toolState !== undefined,
               savedAt: data.savedAt,
               isLoading: false,
             })
@@ -56,7 +65,7 @@ export const useRecovery = (): UseRecoveryReturn => {
         // パースエラーは無視
       }
 
-      setState({ hasRecoverableData: false, savedAt: null, isLoading: false })
+      setState({ hasRecoverableData: false, hasToolState: false, savedAt: null, isLoading: false })
     }
 
     checkRecovery()
@@ -74,7 +83,12 @@ export const useRecovery = (): UseRecoveryReturn => {
       if (parsed.success) {
         // 復元後はデータを残す（次の自動保存で上書きされる）
         // clearFromIndexedDB()を呼ばない
-        setState({ hasRecoverableData: false, savedAt: null, isLoading: false })
+        setState({
+          hasRecoverableData: false,
+          hasToolState: false,
+          savedAt: null,
+          isLoading: false,
+        })
         return parsed.data
       }
     } catch {
@@ -89,7 +103,7 @@ export const useRecovery = (): UseRecoveryReturn => {
     if (isIndexedDBAvailable()) {
       await clearFromIndexedDB()
     }
-    setState({ hasRecoverableData: false, savedAt: null, isLoading: false })
+    setState({ hasRecoverableData: false, hasToolState: false, savedAt: null, isLoading: false })
   }, [])
 
   // 復元確認を完了（ダイアログを閉じる）

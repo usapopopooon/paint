@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import type { Layer } from '@/features/layer'
+import type { ToolState } from '@/features/tools'
 import { saveToIndexedDB, isIndexedDBAvailable } from '@/lib/indexedDB'
 import { createProjectFile } from '../utils/saveProject'
 
@@ -20,6 +21,10 @@ type UseAutoSaveOptions = {
   readonly layers: readonly Layer[]
   /** アクティブレイヤーID */
   readonly activeLayerId: string
+  /** ツール状態 */
+  readonly toolState: ToolState
+  /** 手ブレ補正の強度 */
+  readonly stabilization: number
   /** 自動保存を有効にするか */
   readonly enabled?: boolean
 }
@@ -35,6 +40,8 @@ export const useAutoSave = ({
   canvasHeight,
   layers,
   activeLayerId,
+  toolState,
+  stabilization,
   enabled = true,
 }: UseAutoSaveOptions) => {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -53,6 +60,7 @@ export const useAutoSave = ({
         canvasHeight,
         layers,
         activeLayerId,
+        toolState: { ...toolState, stabilization },
       })
       const content = JSON.stringify(projectFile)
       await saveToIndexedDB(content)
@@ -62,7 +70,7 @@ export const useAutoSave = ({
     } finally {
       isSavingRef.current = false
     }
-  }, [projectName, canvasWidth, canvasHeight, layers, activeLayerId])
+  }, [projectName, canvasWidth, canvasHeight, layers, activeLayerId, toolState, stabilization])
 
   // 遅延保存をスケジュール
   const scheduleSave = useCallback(() => {
@@ -119,6 +127,7 @@ export const useAutoSave = ({
           canvasHeight,
           layers,
           activeLayerId,
+          toolState: { ...toolState, stabilization },
         })
         const content = JSON.stringify(projectFile)
         // 非同期だがawaitしない（アンマウント中なので）

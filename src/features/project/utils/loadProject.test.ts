@@ -209,4 +209,100 @@ describe('loadProject', () => {
       expect(result.success).toBe(true)
     })
   })
+
+  describe('ツール設定', () => {
+    const validToolState = {
+      currentType: 'pen',
+      lastDrawingToolType: 'pen',
+      penConfig: {
+        type: 'pen',
+        width: 5,
+        color: '#ff0000',
+        opacity: 0.8,
+        hardness: 0.6,
+        isBlurEnabled: true,
+      },
+      brushConfig: {
+        type: 'brush',
+        width: 20,
+        color: '#00ff00',
+        opacity: 1,
+        hardness: 0.5,
+        isBlurEnabled: true,
+      },
+      blurConfig: {
+        type: 'blur',
+        width: 30,
+        opacity: 0.7,
+        hardness: 0.4,
+      },
+      eraserConfig: {
+        type: 'eraser',
+        width: 50,
+        opacity: 1,
+        hardness: 0.5,
+        isBlurEnabled: true,
+      },
+    }
+
+    test('toolStateを含むプロジェクトを読み込む', async () => {
+      const projectWithToolState = {
+        ...validProjectData,
+        toolState: validToolState,
+      }
+      const file = createFile(JSON.stringify(projectWithToolState))
+      const result = await loadProject(file)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.project.toolState).toBeDefined()
+        expect(result.project.toolState?.currentType).toBe('pen')
+        expect(result.project.toolState?.penConfig.width).toBe(5)
+        expect(result.project.toolState?.penConfig.color).toBe('#ff0000')
+      }
+    })
+
+    test('toolStateにstabilizationを含むプロジェクトを読み込む', async () => {
+      const projectWithStabilization = {
+        ...validProjectData,
+        toolState: {
+          ...validToolState,
+          stabilization: 0.7,
+        },
+      }
+      const file = createFile(JSON.stringify(projectWithStabilization))
+      const result = await loadProject(file)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.project.toolState?.stabilization).toBe(0.7)
+      }
+    })
+
+    test('toolStateがなくても読み込める（後方互換性）', async () => {
+      const file = createFile(JSON.stringify(validProjectData))
+      const result = await loadProject(file)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.project.toolState).toBeUndefined()
+      }
+    })
+
+    test('無効なtoolStateの場合はinvalid_formatを返す', async () => {
+      const projectWithInvalidToolState = {
+        ...validProjectData,
+        toolState: {
+          currentType: 'invalid-tool',
+        },
+      }
+      const file = createFile(JSON.stringify(projectWithInvalidToolState))
+      const result = await loadProject(file)
+
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(result.error.type).toBe('invalid_format')
+      }
+    })
+  })
 })

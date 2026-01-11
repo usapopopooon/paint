@@ -276,4 +276,170 @@ describe('projectFileSchema', () => {
       }
     })
   })
+
+  describe('toolState', () => {
+    const validToolState = {
+      currentType: 'pen',
+      lastDrawingToolType: 'pen',
+      penConfig: {
+        type: 'pen',
+        width: 2,
+        color: '#000000',
+        opacity: 1,
+        hardness: 0.5,
+        isBlurEnabled: true,
+      },
+      brushConfig: {
+        type: 'brush',
+        width: 20,
+        color: '#000000',
+        opacity: 1,
+        hardness: 0.5,
+        isBlurEnabled: true,
+      },
+      blurConfig: {
+        type: 'blur',
+        width: 20,
+        opacity: 1,
+        hardness: 0.5,
+      },
+      eraserConfig: {
+        type: 'eraser',
+        width: 50,
+        opacity: 1,
+        hardness: 0.5,
+        isBlurEnabled: true,
+      },
+    }
+
+    test('toolStateを含むプロジェクトをパースする', () => {
+      const projectWithToolState = {
+        ...validProject,
+        toolState: validToolState,
+      }
+
+      const result = parseProjectFile(projectWithToolState)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.toolState).toBeDefined()
+        expect(result.data.toolState?.currentType).toBe('pen')
+        expect(result.data.toolState?.penConfig.width).toBe(2)
+      }
+    })
+
+    test('toolStateがなくてもパースできる（後方互換性）', () => {
+      const result = parseProjectFile(validProject)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.toolState).toBeUndefined()
+      }
+    })
+
+    test('stabilizationを含むtoolStateをパースする', () => {
+      const projectWithStabilization = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          stabilization: 0.7,
+        },
+      }
+
+      const result = parseProjectFile(projectWithStabilization)
+
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.toolState?.stabilization).toBe(0.7)
+      }
+    })
+
+    test('無効なツールタイプの場合は失敗する', () => {
+      const projectWithInvalidToolType = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          currentType: 'invalid-tool',
+        },
+      }
+
+      const result = parseProjectFile(projectWithInvalidToolType)
+      expect(result.success).toBe(false)
+    })
+
+    test('無効な描画ツールタイプの場合は失敗する', () => {
+      const projectWithInvalidDrawingToolType = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          lastDrawingToolType: 'hand', // handは描画ツールではない
+        },
+      }
+
+      const result = parseProjectFile(projectWithInvalidDrawingToolType)
+      expect(result.success).toBe(false)
+    })
+
+    test('opacityが範囲外の場合は失敗する', () => {
+      const projectWithInvalidOpacity = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          penConfig: {
+            ...validToolState.penConfig,
+            opacity: 1.5,
+          },
+        },
+      }
+
+      const result = parseProjectFile(projectWithInvalidOpacity)
+      expect(result.success).toBe(false)
+    })
+
+    test('hardnessが範囲外の場合は失敗する', () => {
+      const projectWithInvalidHardness = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          penConfig: {
+            ...validToolState.penConfig,
+            hardness: -0.1,
+          },
+        },
+      }
+
+      const result = parseProjectFile(projectWithInvalidHardness)
+      expect(result.success).toBe(false)
+    })
+
+    test('stabilizationが範囲外の場合は失敗する', () => {
+      const projectWithInvalidStabilization = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          stabilization: 1.5,
+        },
+      }
+
+      const result = parseProjectFile(projectWithInvalidStabilization)
+      expect(result.success).toBe(false)
+    })
+
+    test('lastDrawingToolTypeがnullでもパースできる', () => {
+      const projectWithNullLastTool = {
+        ...validProject,
+        toolState: {
+          ...validToolState,
+          currentType: 'none',
+          lastDrawingToolType: null,
+        },
+      }
+
+      const result = parseProjectFile(projectWithNullLastTool)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data.toolState?.lastDrawingToolType).toBeNull()
+      }
+    })
+  })
 })

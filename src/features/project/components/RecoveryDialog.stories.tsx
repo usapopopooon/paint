@@ -22,6 +22,7 @@ export const Default: Story = {
   args: {
     open: true,
     savedAt: Date.now() - 1000 * 60 * 5, // 5分前
+    hasToolState: false,
     onRestore: onRestoreFn,
     onDiscard: onDiscardFn,
   },
@@ -61,6 +62,7 @@ export const WithSavedAtDate: Story = {
   args: {
     open: true,
     savedAt: new Date('2024-01-15T10:30:00').getTime(),
+    hasToolState: false,
     onRestore: onRestoreFn,
     onDiscard: onDiscardFn,
   },
@@ -77,6 +79,7 @@ export const RestoreClick: Story = {
   args: {
     open: true,
     savedAt: Date.now(),
+    hasToolState: false,
     onRestore: onRestoreFn,
     onDiscard: onDiscardFn,
   },
@@ -89,8 +92,8 @@ export const RestoreClick: Story = {
     })
     await userEvent.click(restoreButton)
 
-    // onRestoreが呼ばれたことを確認
-    await expect(onRestoreFn).toHaveBeenCalled()
+    // onRestoreがfalseで呼ばれたことを確認（hasToolStateがfalseなので）
+    await expect(onRestoreFn).toHaveBeenCalledWith(false)
   },
 }
 
@@ -98,6 +101,7 @@ export const DiscardClick: Story = {
   args: {
     open: true,
     savedAt: Date.now(),
+    hasToolState: false,
     onRestore: onRestoreFn,
     onDiscard: onDiscardFn,
   },
@@ -119,6 +123,7 @@ export const WithoutSavedAt: Story = {
   args: {
     open: true,
     savedAt: null,
+    hasToolState: false,
     onRestore: onRestoreFn,
     onDiscard: onDiscardFn,
   },
@@ -135,7 +140,87 @@ export const Closed: Story = {
   args: {
     open: false,
     savedAt: null,
+    hasToolState: false,
     onRestore: onRestoreFn,
     onDiscard: onDiscardFn,
+  },
+}
+
+export const WithToolState: Story = {
+  args: {
+    open: true,
+    savedAt: Date.now() - 1000 * 60 * 5,
+    hasToolState: true,
+    onRestore: onRestoreFn,
+    onDiscard: onDiscardFn,
+  },
+  play: async () => {
+    const body = within(document.body)
+
+    // ダイアログが表示されていることを確認
+    const dialog = body.getByRole('alertdialog')
+    await expect(dialog).toBeVisible()
+
+    // ツール設定復元のスイッチが表示されていることを確認
+    const switchElement = body.getByRole('switch')
+    await expect(switchElement).toBeVisible()
+
+    // スイッチがデフォルトでオンになっていることを確認
+    await expect(switchElement).toBeChecked()
+
+    // ラベルが表示されていることを確認
+    const label = body.getByText(i18nEn.t('recovery.restoreToolSettings'))
+    await expect(label).toBeVisible()
+  },
+}
+
+export const WithToolStateRestoreEnabled: Story = {
+  args: {
+    open: true,
+    savedAt: Date.now(),
+    hasToolState: true,
+    onRestore: onRestoreFn,
+    onDiscard: onDiscardFn,
+  },
+  play: async () => {
+    const body = within(document.body)
+
+    // 復元ボタンをクリック（スイッチはデフォルトでオン）
+    const restoreButton = body.getByRole('button', {
+      name: i18nEn.t('recovery.restore'),
+    })
+    await userEvent.click(restoreButton)
+
+    // onRestoreがtrueで呼ばれたことを確認
+    await expect(onRestoreFn).toHaveBeenCalledWith(true)
+  },
+}
+
+export const WithToolStateRestoreDisabled: Story = {
+  args: {
+    open: true,
+    savedAt: Date.now(),
+    hasToolState: true,
+    onRestore: onRestoreFn,
+    onDiscard: onDiscardFn,
+  },
+  play: async () => {
+    const body = within(document.body)
+
+    // スイッチをオフにする
+    const switchElement = body.getByRole('switch')
+    await userEvent.click(switchElement)
+
+    // スイッチがオフになっていることを確認
+    await expect(switchElement).not.toBeChecked()
+
+    // 復元ボタンをクリック
+    const restoreButton = body.getByRole('button', {
+      name: i18nEn.t('recovery.restore'),
+    })
+    await userEvent.click(restoreButton)
+
+    // onRestoreがfalseで呼ばれたことを確認
+    await expect(onRestoreFn).toHaveBeenCalledWith(false)
   },
 }
