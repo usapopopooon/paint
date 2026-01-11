@@ -38,11 +38,7 @@ const createCheckerboardPattern = (ctx: CanvasRenderingContext2D): CanvasPattern
 /**
  * チェッカーボードパターン（透明を表す背景）を描画
  */
-const drawCheckerboard = (
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number
-): void => {
+const drawCheckerboard = (ctx: CanvasRenderingContext2D, width: number, height: number): void => {
   const pattern = createCheckerboardPattern(ctx)
   if (pattern) {
     ctx.fillStyle = pattern

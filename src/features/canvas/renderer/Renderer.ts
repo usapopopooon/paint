@@ -1,6 +1,7 @@
 import type { Drawable } from '@/features/drawable'
 import type { Layer } from '@/features/layer'
 import type { IRenderer, RenderEngine, RendererEngine, RendererOptions } from './types'
+import { invalidatePixelColorCache } from '@/features/eyedropper'
 
 /**
  * エンジン種類に応じたエンジンインスタンスを動的に作成
@@ -73,6 +74,8 @@ export class Renderer implements IRenderer {
       throw new Error('Renderer is not initialized')
     }
     await this.engine.renderDrawables(drawables)
+    // レンダリング後にスポイト用キャッシュを無効化
+    invalidatePixelColorCache(this.engine.getCanvas())
   }
 
   async renderLayers(layers: readonly Layer[]): Promise<void> {
@@ -80,6 +83,8 @@ export class Renderer implements IRenderer {
       throw new Error('Renderer is not initialized')
     }
     await this.engine.renderLayers(layers)
+    // レンダリング後にスポイト用キャッシュを無効化
+    invalidatePixelColorCache(this.engine.getCanvas())
   }
 
   clear(): void {

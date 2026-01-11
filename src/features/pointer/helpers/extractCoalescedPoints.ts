@@ -43,7 +43,14 @@ export const extractCoalescedPoints = (
 
     for (const e of coalescedEvents) {
       const pointerType = getPointerType(e.pointerType)
-      const currentPoint = getPointerPoint(e.clientX, e.clientY, rect, e.pressure, pointerType, zoom)
+      const currentPoint = getPointerPoint(
+        e.clientX,
+        e.clientY,
+        rect,
+        e.pressure,
+        pointerType,
+        zoom
+      )
 
       // 最初のポイントか、十分な距離がある場合のみ追加
       if (!lastPoint || distance(lastPoint, currentPoint) >= MIN_POINT_DISTANCE) {
