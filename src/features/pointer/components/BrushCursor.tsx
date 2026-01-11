@@ -1,4 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { MousePointer2 } from 'lucide-react'
 
 /**
  * BrushCursorコンポーネントのプロパティ
@@ -64,17 +65,18 @@ export const BrushCursor = forwardRef<BrushCursorHandle, BrushCursorProps>(
           display: 'none',
         }}
       >
-        <div
+        <MousePointer2
+          size={12}
+          strokeWidth={2}
           style={{
             position: 'absolute',
             left: '50%',
             top: '50%',
-            width: 2,
-            height: 2,
-            marginLeft: -1,
-            marginTop: -1,
-            borderRadius: '50%',
-            backgroundColor: color,
+            marginLeft: -6,
+            marginTop: -6,
+            color: 'white',
+            filter:
+              'drop-shadow(1px 0 0 rgba(0,0,0,0.5))',
           }}
         />
       </div>

@@ -51,6 +51,6 @@ export const penBehavior = {
    */
   getCursor: (config: PenToolConfig): CursorConfig => ({
     size: config.width,
-    color: config.color,
+    color: 'rgba(0,0,0,0.4)',
   }),
 }

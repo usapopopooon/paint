@@ -81,3 +81,41 @@ export const Eraser: Story = {
     color: '#888888',
   },
 }
+
+/**
+ * 明るい背景での表示確認
+ */
+export const OnLightBackground: Story = {
+  args: {
+    x: 100,
+    y: 100,
+    size: 40,
+    color: 'rgba(0,0,0,0.4)',
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ position: 'relative', width: 200, height: 200, backgroundColor: '#fff' }}>
+        <Story />
+      </div>
+    ),
+  ],
+}
+
+/**
+ * 暗い背景での表示確認
+ */
+export const OnDarkBackground: Story = {
+  args: {
+    x: 100,
+    y: 100,
+    size: 40,
+    color: 'rgba(0,0,0,0.4)',
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ position: 'relative', width: 200, height: 200, backgroundColor: '#1a1a1a' }}>
+        <Story />
+      </div>
+    ),
+  ],
+}
