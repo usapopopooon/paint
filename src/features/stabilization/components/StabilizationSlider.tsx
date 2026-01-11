@@ -1,31 +1,11 @@
 import { memo, useCallback } from 'react'
+import { PenLine } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslation } from '@/features/i18n'
 import { MIN_STABILIZATION, MAX_STABILIZATION } from '../constants'
-
-/** ペンが線を引いているアイコン（手ぶれ補正用） */
-const PenDrawingIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    {/* ペン本体（斜め） */}
-    <path d="M17 3l4 4L7.5 20.5 2 22l1.5-5.5z" />
-    {/* ペン先の区切り線 */}
-    <path d="M15 5l4 4" />
-    {/* ペンの下の線（アイコン全幅） */}
-    <line x1="0" y1="24" x2="24" y2="24" />
-  </svg>
-)
 
 type StabilizationSliderProps = {
   readonly stabilization: number
@@ -66,7 +46,7 @@ export const StabilizationSlider = memo(function StabilizationSlider({
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <Button variant="secondary" size="icon" disabled={disabled}>
-              <PenDrawingIcon className={`h-4 w-4 ${isActive ? 'text-primary' : ''}`} />
+              <PenLine className={`h-4 w-4 ${isActive ? 'text-primary' : ''}`} />
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
