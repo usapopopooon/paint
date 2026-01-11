@@ -164,4 +164,64 @@ describe('extractCoalescedPoints', () => {
     expect(result[0].pointerType).toBe('mouse')
     expect(result[0].pressure).toBe(0)
   })
+
+  test('近すぎるポイントはフィルタリングされる（MIN_POINT_DISTANCE = 1.5px）', () => {
+    const rect = { left: 0, top: 0 } as DOMRect
+    const element = createMockElement(rect)
+    // 0.5pxずつ移動するポイント群（1.5px未満なのでフィルタリングされるべき）
+    const coalescedEvents = [
+      createCoalescedEvent(10, 10, 0.5, 'pen'),
+      createCoalescedEvent(10.5, 10, 0.5, 'pen'), // 0.5px - フィルタ
+      createCoalescedEvent(11, 10, 0.5, 'pen'), // 1px累積 - フィルタ
+      createCoalescedEvent(11.5, 10, 0.5, 'pen'), // 1.5px累積 - 含む
+      createCoalescedEvent(12, 10, 0.5, 'pen'), // 0.5px - フィルタ
+    ]
+    const event = createMockEvent(12, 10, 0.5, 'pen', coalescedEvents)
+
+    const result = extractCoalescedPoints(event, element)
+
+    // 最初のポイント + 距離1.5px以上のポイント + 最後のポイント
+    expect(result.length).toBeGreaterThanOrEqual(2)
+    expect(result[0].x).toBe(10)
+    // 最後のポイントは常に含まれる
+    expect(result[result.length - 1].x).toBe(12)
+  })
+
+  test('十分な距離があるポイントは全て含まれる', () => {
+    const rect = { left: 0, top: 0 } as DOMRect
+    const element = createMockElement(rect)
+    // 10pxずつ移動（1.5px以上なので全て含まれる）
+    const coalescedEvents = [
+      createCoalescedEvent(10, 10, 0.5, 'pen'),
+      createCoalescedEvent(20, 10, 0.5, 'pen'),
+      createCoalescedEvent(30, 10, 0.5, 'pen'),
+      createCoalescedEvent(40, 10, 0.5, 'pen'),
+    ]
+    const event = createMockEvent(40, 10, 0.5, 'pen', coalescedEvents)
+
+    const result = extractCoalescedPoints(event, element)
+
+    expect(result).toHaveLength(4)
+    expect(result[0].x).toBe(10)
+    expect(result[1].x).toBe(20)
+    expect(result[2].x).toBe(30)
+    expect(result[3].x).toBe(40)
+  })
+
+  test('最後のポイントは常に含まれる（ストローク終端の精度）', () => {
+    const rect = { left: 0, top: 0 } as DOMRect
+    const element = createMockElement(rect)
+    // 最後のポイントが近すぎても含まれることを確認
+    const coalescedEvents = [
+      createCoalescedEvent(10, 10, 0.5, 'pen'),
+      createCoalescedEvent(20, 10, 0.5, 'pen'),
+      createCoalescedEvent(20.5, 10, 0.5, 'pen'), // 0.5pxしか離れていない
+    ]
+    const event = createMockEvent(20.5, 10, 0.5, 'pen', coalescedEvents)
+
+    const result = extractCoalescedPoints(event, element)
+
+    // 最後のポイントは近すぎても含まれる
+    expect(result[result.length - 1].x).toBe(20.5)
+  })
 })
