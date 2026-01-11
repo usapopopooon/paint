@@ -110,7 +110,12 @@
     "flipHorizontal": "Flip horizontal",
     "sizeTooSmall": "Canvas size must be at least %{min}px",
     "sizeTooLarge": "Canvas size must be at most %{max}px",
-    "invalidSize": "Please enter a valid number"
+    "invalidSize": "Please enter a valid number",
+    "confirmNew": {
+      "title": "Discard changes",
+      "description": "Your current changes have not been saved. Creating a new canvas will discard all changes. Do you want to continue?",
+      "confirm": "Create"
+    }
   },
   "zoom": {
     "in": "Zoom in",

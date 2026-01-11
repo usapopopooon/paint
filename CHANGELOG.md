@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.4] - 2026-01-11
+
+### Features
+
+- **新規キャンバス作成時の確認ダイアログ**
+  - 未保存の編集がある状態で新規キャンバスを作成しようとした場合、確認ダイアログを表示
+  - 編集内容を破棄するか、キャンセルするかを選択可能
+
+### Tests
+
+- **ツールビヘイビアのテストカバレッジを向上**
+  - blurBehavior, eyedropperBehavior, zoomInBehavior, zoomOutBehaviorのテストを追加
+  - rectangleSelectionBehavior, lassoSelectionBehaviorのcreateShapeメソッドのテストを追加
+  - すべてのbehaviorファイルが100%カバレッジに
+
 ## [0.3.3] - 2026-01-11
 
 ### Features

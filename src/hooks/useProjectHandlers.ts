@@ -35,6 +35,8 @@ export interface ProjectHandlers {
   setConfirmLoadDialogOpen: (open: boolean) => void
   newCanvasDialogOpen: boolean
   setNewCanvasDialogOpen: (open: boolean) => void
+  confirmNewCanvasDialogOpen: boolean
+  setConfirmNewCanvasDialogOpen: (open: boolean) => void
   recoveryDialogOpen: boolean
   loadToolStateDialogOpen: boolean
   loadedProjectHasToolState: boolean
@@ -45,6 +47,7 @@ export interface ProjectHandlers {
   handleSaveProject: () => void
   handleSaveProjectConfirm: (fileName: string) => Promise<void>
   handleOpenNewCanvasDialog: () => void
+  handleConfirmNewCanvas: () => void
   handleCreateNewCanvas: (width: number, height: number, newProjectName: string | null) => void
   handleRecoveryRestore: (restoreToolState: boolean) => Promise<void>
   handleRecoveryDiscard: () => Promise<void>
@@ -81,6 +84,7 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
   const [loadError, setLoadError] = useState<LoadProjectError | null>(null)
   const [confirmLoadDialogOpen, setConfirmLoadDialogOpen] = useState(false)
   const [newCanvasDialogOpen, setNewCanvasDialogOpen] = useState(false)
+  const [confirmNewCanvasDialogOpen, setConfirmNewCanvasDialogOpen] = useState(false)
   const [isCanvasCreated, setIsCanvasCreated] = useState(false)
   const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false)
   const [loadToolStateDialogOpen, setLoadToolStateDialogOpen] = useState(false)
@@ -309,8 +313,21 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
 
   /**
    * 新規キャンバスダイアログを開くハンドラ
+   * 未保存の編集がある場合は確認ダイアログを表示
    */
   const handleOpenNewCanvasDialog = useCallback(() => {
+    if (canUndoRef.current) {
+      setConfirmNewCanvasDialogOpen(true)
+      return
+    }
+    setNewCanvasDialogOpen(true)
+  }, [])
+
+  /**
+   * 確認ダイアログでOKを押した時の処理（新規キャンバスダイアログを開く）
+   */
+  const handleConfirmNewCanvas = useCallback(() => {
+    setConfirmNewCanvasDialogOpen(false)
     setNewCanvasDialogOpen(true)
   }, [])
 
@@ -349,6 +366,8 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     setConfirmLoadDialogOpen,
     newCanvasDialogOpen,
     setNewCanvasDialogOpen,
+    confirmNewCanvasDialogOpen,
+    setConfirmNewCanvasDialogOpen,
     recoveryDialogOpen,
     loadToolStateDialogOpen,
     loadedProjectHasToolState: loadedProject?.toolState !== undefined,
@@ -359,6 +378,7 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     handleSaveProject,
     handleSaveProjectConfirm,
     handleOpenNewCanvasDialog,
+    handleConfirmNewCanvas,
     handleCreateNewCanvas,
     handleRecoveryRestore,
     handleRecoveryDiscard,
