@@ -108,6 +108,47 @@ describe('useProjectHandlers', () => {
     expect(result.current.newCanvasDialogOpen).toBe(true)
   })
 
+  test('handleOpenNewCanvasDialogで未保存の変更がある場合は確認ダイアログを表示', () => {
+    const { result } = renderHook(() =>
+      useProjectHandlers({
+        ...defaultOptions,
+        canUndo: true,
+      })
+    )
+
+    expect(result.current.confirmNewCanvasDialogOpen).toBe(false)
+    expect(result.current.newCanvasDialogOpen).toBe(false)
+
+    act(() => {
+      result.current.handleOpenNewCanvasDialog()
+    })
+
+    expect(result.current.confirmNewCanvasDialogOpen).toBe(true)
+    expect(result.current.newCanvasDialogOpen).toBe(false)
+  })
+
+  test('handleConfirmNewCanvasで確認ダイアログを閉じて新規キャンバスダイアログを開く', () => {
+    const { result } = renderHook(() =>
+      useProjectHandlers({
+        ...defaultOptions,
+        canUndo: true,
+      })
+    )
+
+    act(() => {
+      result.current.handleOpenNewCanvasDialog()
+    })
+
+    expect(result.current.confirmNewCanvasDialogOpen).toBe(true)
+
+    act(() => {
+      result.current.handleConfirmNewCanvas()
+    })
+
+    expect(result.current.confirmNewCanvasDialogOpen).toBe(false)
+    expect(result.current.newCanvasDialogOpen).toBe(true)
+  })
+
   test('handleCreateNewCanvasでキャンバスが作成される', () => {
     const { result } = renderHook(() => useProjectHandlers(defaultOptions))
 

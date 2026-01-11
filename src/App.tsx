@@ -3,7 +3,12 @@ import { toast } from 'sonner'
 import { Toaster } from './components/ui/sonner'
 import { AppMenubar } from './features/menubar'
 import { Canvas, CanvasViewport, useCanvas, useCanvasOffset } from './features/canvas'
-import { CanvasResizeDialog, NewCanvasDialog, useCanvasSize } from './features/canvas-resize'
+import {
+  CanvasResizeDialog,
+  ConfirmNewCanvasDialog,
+  NewCanvasDialog,
+  useCanvasSize,
+} from './features/canvas-resize'
 import { ColorWheel } from './features/color'
 import type { Point } from './features/drawable'
 import { SaveImageDialog, useExportImage } from './features/export'
@@ -570,6 +575,11 @@ function App() {
         open={projectHandlers.confirmLoadDialogOpen}
         onOpenChange={projectHandlers.setConfirmLoadDialogOpen}
         onConfirm={projectHandlers.handleConfirmLoad}
+      />
+      <ConfirmNewCanvasDialog
+        open={projectHandlers.confirmNewCanvasDialogOpen}
+        onOpenChange={projectHandlers.setConfirmNewCanvasDialogOpen}
+        onConfirm={projectHandlers.handleConfirmNewCanvas}
       />
       <SaveImageDialog
         open={saveImageDialogOpen}

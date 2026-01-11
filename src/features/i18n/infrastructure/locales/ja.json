@@ -110,7 +110,12 @@
     "flipHorizontal": "左右反転",
     "sizeTooSmall": "キャンバスサイズは%{min}px以上にしてください",
     "sizeTooLarge": "キャンバスサイズは%{max}px以下にしてください",
-    "invalidSize": "有効な数値を入力してください"
+    "invalidSize": "有効な数値を入力してください",
+    "confirmNew": {
+      "title": "編集内容の破棄",
+      "description": "現在の編集内容は保存されていません。新しいキャンバスを作成すると、編集内容が失われます。続行しますか？",
+      "confirm": "作成する"
+    }
   },
   "zoom": {
     "in": "拡大",
