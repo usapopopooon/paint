@@ -13,6 +13,7 @@ import { SelectionOverlay, getTransformCursor } from '@/features/selection'
 import { DrawingCanvas } from './DrawingCanvas'
 import { PointerInputLayer } from '../../pointer'
 import { getPixelColor, EYEDROPPER_CURSOR } from '@/features/eyedropper'
+import { isSecondaryButton } from '@/features/pointer/helpers/pointerButton'
 
 /**
  * Canvasコンポーネントのプロパティ
@@ -137,13 +138,34 @@ export const Canvas = ({
   onConfirmTransform,
   onCancelTransform,
 }: CanvasProps) => {
-  const isHandTool = toolType === 'hand'
-  const isEyedropperTool = toolType === 'eyedropper'
-  const isZoomInTool = toolType === 'zoom-in'
-  const isZoomOutTool = toolType === 'zoom-out'
-  const isSelectionTool = toolType === 'select-rectangle' || toolType === 'select-lasso'
-  const isDrawingTool =
-    !isHandTool && !isEyedropperTool && !isZoomInTool && !isZoomOutTool && !isSelectionTool
+  // ツールフラグをメモ化（useEffect依存配列の安定化）
+  const toolFlags = useMemo(() => {
+    const isHandTool = toolType === 'hand'
+    const isEyedropperTool = toolType === 'eyedropper'
+    const isZoomInTool = toolType === 'zoom-in'
+    const isZoomOutTool = toolType === 'zoom-out'
+    const isSelectionTool = toolType === 'select-rectangle' || toolType === 'select-lasso'
+    const isDrawingTool =
+      !isHandTool && !isEyedropperTool && !isZoomInTool && !isZoomOutTool && !isSelectionTool
+    return {
+      isHandTool,
+      isEyedropperTool,
+      isZoomInTool,
+      isZoomOutTool,
+      isSelectionTool,
+      isDrawingTool,
+    }
+  }, [toolType])
+
+  const {
+    isHandTool,
+    isEyedropperTool,
+    isZoomInTool,
+    isZoomOutTool,
+    isSelectionTool,
+    isDrawingTool,
+  } = toolFlags
+
   const containerRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const lastClientPosRef = useRef<{ x: number; y: number } | null>(null)
@@ -212,6 +234,40 @@ export const Canvas = ({
     },
     [onZoomAtPoint, isZoomInTool, isZoomOutTool, viewportSize]
   )
+
+  // ペンタブのバレルボタン（セカンダリボタン）でスポイト
+  // contextmenuイベントはペンタブで発火しないため、pointerdownでbutton=2を検出
+  useEffect(() => {
+    if (isSelectionTool) return // 選択ツール時はコンテキストメニュー用にスキップ
+    if (!onPickColor) return
+
+    const container = containerRef.current
+    if (!container) return
+
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!isSecondaryButton(e.button)) return
+
+      e.preventDefault()
+      e.stopPropagation()
+
+      const canvas = container.querySelector('canvas')
+      if (!canvas) return
+
+      const rect = canvas.getBoundingClientRect()
+      const x = (e.clientX - rect.left) / zoom
+      const y = (e.clientY - rect.top) / zoom
+
+      const color = getPixelColor(canvas, x, y)
+      if (color) {
+        onPickColor(color)
+      }
+    }
+
+    container.addEventListener('pointerdown', handlePointerDown)
+    return () => {
+      container.removeEventListener('pointerdown', handlePointerDown)
+    }
+  }, [isSelectionTool, onPickColor, zoom])
 
   // ハンドツール時はネイティブポインターイベントでパン処理
   // clientX/clientYを使うことでtransformの影響を受けずに正確に計算できる

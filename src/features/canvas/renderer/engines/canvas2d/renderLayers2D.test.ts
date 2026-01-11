@@ -7,6 +7,9 @@ vi.mock('./renderDrawable2D', () => ({
   renderDrawable2D: vi.fn(),
 }))
 
+// チェッカーボードパターンのモック
+const mockPattern = {} as CanvasPattern
+
 // jsdom環境でgetContextがnullを返す場合があるため、モックを設定
 const mockLayerContext = {
   clearRect: vi.fn(),
@@ -14,7 +17,8 @@ const mockLayerContext = {
   drawImage: vi.fn(),
   save: vi.fn(),
   restore: vi.fn(),
-  fillStyle: '',
+  createPattern: vi.fn().mockReturnValue(mockPattern),
+  fillStyle: '' as string | CanvasPattern,
   globalAlpha: 1,
   globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
 } as unknown as CanvasRenderingContext2D
@@ -43,7 +47,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -62,7 +67,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -80,7 +86,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -128,7 +135,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -162,7 +170,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -184,5 +193,209 @@ describe('renderLayers2D', () => {
 
     // 空のレイヤーはdrawImageされない
     expect(mockCtx.drawImage).not.toHaveBeenCalled()
+  })
+
+  test('チェッカーボードパターンを描画する', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    await renderLayers2D(mockCtx, [], 800, 600)
+
+    // createPatternが呼ばれてパターンが作成される
+    expect(mockCtx.createPattern).toHaveBeenCalled()
+    // パターンがfillStyleに設定される
+    expect(mockCtx.fillStyle).toBe(mockPattern)
+    // チェッカーボードがキャンバス全体に描画される
+    expect(mockCtx.fillRect).toHaveBeenCalledWith(0, 0, 800, 600)
+  })
+
+  test('チェッカーボードパターンはキャッシュされる', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    // 2回レンダリング
+    await renderLayers2D(mockCtx, [], 800, 600)
+    await renderLayers2D(mockCtx, [], 800, 600)
+
+    // createPatternは1回だけ呼ばれる（キャッシュされる）
+    expect(mockCtx.createPattern).toHaveBeenCalledTimes(1)
+  })
+
+  test('normalブレンドモードかつ不透明度100%のレイヤーは直接描画される', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+    const { renderDrawable2D } = await import('./renderDrawable2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Layer 1',
+        type: 'drawing',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: { type: 'solid', size: 3, opacity: 1, hardness: 0 },
+              blendMode: 'normal',
+            },
+          },
+        ],
+        isVisible: true,
+        isLocked: false,
+        opacity: 1, // 100%
+        blendMode: 'normal', // normalブレンドモード
+      },
+    ]
+
+    await renderLayers2D(mockCtx, layers, 800, 600)
+
+    // renderDrawable2Dが直接呼ばれる（メインコンテキストに）
+    expect(renderDrawable2D).toHaveBeenCalled()
+    // 中間キャンバスを使わないのでdrawImageは呼ばれない
+    expect(mockCtx.drawImage).not.toHaveBeenCalled()
+  })
+
+  test('ブレンドモードがある場合は中間キャンバスを使用する', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+    const { renderDrawable2D } = await import('./renderDrawable2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Layer 1',
+        type: 'drawing',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: { type: 'solid', size: 3, opacity: 1, hardness: 0 },
+              blendMode: 'normal',
+            },
+          },
+        ],
+        isVisible: true,
+        isLocked: false,
+        opacity: 1,
+        blendMode: 'multiply', // 乗算ブレンドモード
+      },
+    ]
+
+    await renderLayers2D(mockCtx, layers, 800, 600)
+
+    // 中間キャンバスにレンダリングされる
+    expect(renderDrawable2D).toHaveBeenCalled()
+    // drawImageで合成される
+    expect(mockCtx.drawImage).toHaveBeenCalled()
+  })
+
+  test('不透明度が100%未満の場合は中間キャンバスを使用する', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+    const { renderDrawable2D } = await import('./renderDrawable2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Layer 1',
+        type: 'drawing',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: { type: 'solid', size: 3, opacity: 1, hardness: 0 },
+              blendMode: 'normal',
+            },
+          },
+        ],
+        isVisible: true,
+        isLocked: false,
+        opacity: 0.5, // 50%
+        blendMode: 'normal',
+      },
+    ]
+
+    await renderLayers2D(mockCtx, layers, 800, 600)
+
+    // 中間キャンバスにレンダリングされる
+    expect(renderDrawable2D).toHaveBeenCalled()
+    // drawImageで合成される
+    expect(mockCtx.drawImage).toHaveBeenCalled()
   })
 })

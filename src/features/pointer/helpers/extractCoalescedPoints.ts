@@ -37,27 +37,44 @@ export const extractCoalescedPoints = (
   const coalescedEvents = nativeEvent.getCoalescedEvents?.() ?? []
 
   if (coalescedEvents.length > 0) {
-    const allPoints = coalescedEvents.map((e) => {
+    // 最適化: mapとフィルタを1パスで実行し、一時配列の生成を削減
+    const filteredPoints: PointerPoint[] = []
+    let lastPoint: PointerPoint | null = null
+
+    for (const e of coalescedEvents) {
       const pointerType = getPointerType(e.pointerType)
-      return getPointerPoint(e.clientX, e.clientY, rect, e.pressure, pointerType, zoom)
-    })
+      const currentPoint = getPointerPoint(
+        e.clientX,
+        e.clientY,
+        rect,
+        e.pressure,
+        pointerType,
+        zoom
+      )
 
-    // 近すぎるポイントをフィルタリング（ノイズ除去）
-    const filteredPoints: PointerPoint[] = [allPoints[0]]
-    for (let i = 1; i < allPoints.length; i++) {
-      const lastPoint = filteredPoints[filteredPoints.length - 1]
-      const currentPoint = allPoints[i]
-
-      if (distance(lastPoint, currentPoint) >= MIN_POINT_DISTANCE) {
+      // 最初のポイントか、十分な距離がある場合のみ追加
+      if (!lastPoint || distance(lastPoint, currentPoint) >= MIN_POINT_DISTANCE) {
         filteredPoints.push(currentPoint)
+        lastPoint = currentPoint
       }
     }
 
     // 最後のポイントは常に含める（ストロークの終端位置を正確に）
-    const lastAllPoint = allPoints[allPoints.length - 1]
-    const lastFilteredPoint = filteredPoints[filteredPoints.length - 1]
-    if (lastAllPoint !== lastFilteredPoint && distance(lastFilteredPoint, lastAllPoint) > 0) {
-      filteredPoints.push(lastAllPoint)
+    if (coalescedEvents.length > 0) {
+      const lastEvent = coalescedEvents[coalescedEvents.length - 1]
+      const pointerType = getPointerType(lastEvent.pointerType)
+      const lastAllPoint = getPointerPoint(
+        lastEvent.clientX,
+        lastEvent.clientY,
+        rect,
+        lastEvent.pressure,
+        pointerType,
+        zoom
+      )
+      const lastFilteredPoint = filteredPoints[filteredPoints.length - 1]
+      if (lastFilteredPoint !== lastAllPoint && distance(lastFilteredPoint, lastAllPoint) > 0) {
+        filteredPoints.push(lastAllPoint)
+      }
     }
 
     return filteredPoints
