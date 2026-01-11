@@ -25,6 +25,7 @@ import {
 import { useTranslation, useLocale } from '@/features/i18n'
 import { useTheme } from '@/features/theme'
 import { usePwaUpdate } from '@/features/pwa'
+import { PROJECT_FILE_EXTENSION } from '@/features/project'
 import { getModifierKey } from '@/lib/platform'
 
 export type AppMenubarProps = {
@@ -139,7 +140,7 @@ export const AppMenubar = memo(function AppMenubar({
       <input
         ref={projectInputRef}
         type="file"
-        accept=".paint"
+        accept={PROJECT_FILE_EXTENSION}
         onChange={onProjectFileChange}
         className="hidden"
         aria-hidden="true"
