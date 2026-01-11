@@ -80,6 +80,14 @@ export type LayerBlendModeChangedAction = ActionMetadata & {
   readonly newValue: LayerBlendMode
 }
 
+export type LayerMergedDownAction = ActionMetadata & {
+  readonly type: 'layer:merged-down'
+  readonly upperLayerSnapshot: LayerSnapshot
+  readonly upperLayerIndex: number
+  readonly lowerLayerSnapshot: LayerSnapshot
+  readonly lowerLayerIndex: number
+}
+
 // === キャンバスアクション ===
 
 export type CanvasResizedAction = ActionMetadata & {
@@ -122,6 +130,7 @@ export type LayerAction =
   | LayerOpacityChangedAction
   | LayerRenamedAction
   | LayerBlendModeChangedAction
+  | LayerMergedDownAction
 
 export type CanvasAction = CanvasResizedAction | CanvasFlippedAction
 

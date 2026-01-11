@@ -11,6 +11,14 @@ import { BACKGROUND_LAYER_ID } from '../constants'
 import { generateId } from '@/lib/id'
 import { useTranslation } from '@/features/i18n'
 
+export type MergeLayerDownResult = {
+  readonly upperLayer: Layer
+  readonly upperLayerIndex: number
+  readonly lowerLayer: Layer
+  readonly lowerLayerIndex: number
+  readonly mergedDrawables: readonly Drawable[]
+} | null
+
 export type UseLayersReturn = {
   readonly layers: readonly Layer[]
   readonly activeLayer: Layer
@@ -41,6 +49,18 @@ export type UseLayersReturn = {
   readonly getLayerIndex: (id: LayerId) => number
   readonly drawingLayerCount: number
   readonly setLayers: (layers: readonly Layer[], activeLayerId: LayerId) => void
+  readonly mergeLayerDown: (id: LayerId) => MergeLayerDownResult
+  readonly mergeLayerDownWithDrawables: (
+    id: LayerId,
+    mergedDrawables: readonly Drawable[]
+  ) => MergeLayerDownResult
+  readonly canMergeLayerDown: (id: LayerId) => boolean
+  readonly restoreMergedLayers: (
+    upperLayer: Layer,
+    upperLayerIndex: number,
+    lowerLayerDrawables: readonly Drawable[],
+    lowerLayerId: LayerId
+  ) => void
 }
 
 /**
@@ -481,6 +501,151 @@ export const useLayers = (): UseLayersReturn => {
     })
   }, [])
 
+  /**
+   * 指定レイヤーを下のレイヤーと結合できるか判定
+   * @param id - 結合元レイヤーのID
+   * @returns 結合可能な場合はtrue
+   */
+  const canMergeLayerDown = useCallback(
+    (id: LayerId): boolean => {
+      // 背景レイヤーは結合不可
+      if (id === BACKGROUND_LAYER_ID) return false
+
+      const currentIndex = state.layers.findIndex((l) => l.id === id)
+      if (currentIndex === -1) return false
+
+      // 背景レイヤーのインデックスを取得
+      const backgroundIndex = state.layers.findIndex((l) => l.id === BACKGROUND_LAYER_ID)
+
+      // 下のレイヤーが存在し、背景レイヤーではないことを確認
+      const lowerIndex = currentIndex - 1
+      if (lowerIndex < 0) return false
+      if (lowerIndex === backgroundIndex) return false
+
+      return true
+    },
+    [state.layers]
+  )
+
+  /**
+   * 指定レイヤーを下のレイヤーと結合
+   * @param id - 結合元（上）レイヤーのID
+   * @returns 結合結果、結合できない場合はnull
+   */
+  const mergeLayerDown = useCallback(
+    (id: LayerId): MergeLayerDownResult => {
+      if (!canMergeLayerDown(id)) return null
+
+      const upperLayerIndex = state.layers.findIndex((l) => l.id === id)
+      const upperLayer = state.layers[upperLayerIndex]
+      const lowerLayerIndex = upperLayerIndex - 1
+      const lowerLayer = state.layers[lowerLayerIndex]
+
+      // 下のレイヤーのDrawablesに上のレイヤーのDrawablesを追加
+      const mergedDrawables = [...lowerLayer.drawables, ...upperLayer.drawables]
+
+      // 状態を更新: 上のレイヤーを削除し、下のレイヤーにDrawablesを統合
+      setState((prev) => {
+        const newLayers = prev.layers
+          .filter((l) => l.id !== id) // 上のレイヤーを削除
+          .map((layer) =>
+            layer.id === lowerLayer.id ? { ...layer, drawables: mergedDrawables } : layer
+          )
+
+        return {
+          ...prev,
+          layers: newLayers,
+          activeLayerId: lowerLayer.id, // 結合先をアクティブに
+        }
+      })
+
+      return {
+        upperLayer,
+        upperLayerIndex,
+        lowerLayer,
+        lowerLayerIndex,
+        mergedDrawables,
+      }
+    },
+    [state.layers, canMergeLayerDown]
+  )
+
+  /**
+   * 指定レイヤーを下のレイヤーと結合（外部からDrawablesを指定）
+   * ブレンドモードや不透明度を考慮した結合に使用
+   * @param id - 結合元（上）レイヤーのID
+   * @param mergedDrawables - 結合後のDrawables（Canvasでレンダリング済み）
+   * @returns 結合結果、結合できない場合はnull
+   */
+  const mergeLayerDownWithDrawables = useCallback(
+    (id: LayerId, mergedDrawables: readonly Drawable[]): MergeLayerDownResult => {
+      if (!canMergeLayerDown(id)) return null
+
+      const upperLayerIndex = state.layers.findIndex((l) => l.id === id)
+      const upperLayer = state.layers[upperLayerIndex]
+      const lowerLayerIndex = upperLayerIndex - 1
+      const lowerLayer = state.layers[lowerLayerIndex]
+
+      // 状態を更新: 上のレイヤーを削除し、下のレイヤーに指定されたDrawablesを設定
+      setState((prev) => {
+        const newLayers = prev.layers
+          .filter((l) => l.id !== id) // 上のレイヤーを削除
+          .map((layer) =>
+            layer.id === lowerLayer.id ? { ...layer, drawables: mergedDrawables } : layer
+          )
+
+        return {
+          ...prev,
+          layers: newLayers,
+          activeLayerId: lowerLayer.id, // 結合先をアクティブに
+        }
+      })
+
+      return {
+        upperLayer,
+        upperLayerIndex,
+        lowerLayer,
+        lowerLayerIndex,
+        mergedDrawables,
+      }
+    },
+    [state.layers, canMergeLayerDown]
+  )
+
+  /**
+   * 結合されたレイヤーを復元（Undo用）
+   * @param upperLayer - 上のレイヤー（復元する）
+   * @param upperLayerIndex - 上のレイヤーの位置
+   * @param lowerLayerDrawables - 下のレイヤーの元のDrawables
+   * @param lowerLayerId - 下のレイヤーのID
+   */
+  const restoreMergedLayers = useCallback(
+    (
+      upperLayer: Layer,
+      upperLayerIndex: number,
+      lowerLayerDrawables: readonly Drawable[],
+      lowerLayerId: LayerId
+    ) => {
+      setState((prev) => {
+        // 下のレイヤーのDrawablesを元に戻す
+        const restoredLayers = prev.layers.map((layer) =>
+          layer.id === lowerLayerId ? { ...layer, drawables: lowerLayerDrawables } : layer
+        )
+
+        // 上のレイヤーを元の位置に挿入
+        const newLayers = [...restoredLayers]
+        newLayers.splice(upperLayerIndex, 0, upperLayer)
+
+        return {
+          ...prev,
+          layers: newLayers,
+          activeLayerId: upperLayer.id,
+        }
+      })
+    },
+    []
+  )
+
   return {
     layers: state.layers,
     activeLayer,
@@ -511,5 +676,9 @@ export const useLayers = (): UseLayersReturn => {
     getLayerIndex,
     drawingLayerCount,
     setLayers,
+    mergeLayerDown,
+    mergeLayerDownWithDrawables,
+    canMergeLayerDown,
+    restoreMergedLayers,
   }
 }
