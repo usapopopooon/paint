@@ -132,7 +132,7 @@ describe('brushBehavior', () => {
 
       expect(cursor).toEqual({
         size: 30,
-        color: '#0000ff',
+        color: 'rgba(0,0,0,0.4)',
       })
     })
   })

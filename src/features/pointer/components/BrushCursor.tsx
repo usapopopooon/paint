@@ -75,8 +75,7 @@ export const BrushCursor = forwardRef<BrushCursorHandle, BrushCursorProps>(
             marginLeft: -6,
             marginTop: -6,
             color: 'white',
-            filter:
-              'drop-shadow(1px 0 0 rgba(0,0,0,0.5))',
+            filter: 'drop-shadow(1px 0 0 rgba(0,0,0,0.5))',
           }}
         />
       </div>

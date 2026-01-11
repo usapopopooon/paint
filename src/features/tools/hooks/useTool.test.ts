@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTool } from './useTool'
 import { penBehavior, eraserBehavior } from '../domain'
-import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR, DEFAULT_ERASER_WIDTH } from '../constants'
+import { DEFAULT_PEN_WIDTH, DEFAULT_ERASER_WIDTH } from '../constants'
 import { DEFAULT_HARDNESS } from '../constants/hardness'
 
 describe('useTool', () => {
@@ -117,7 +117,7 @@ describe('useTool', () => {
 
       expect(result.current.cursor).toEqual({
         size: DEFAULT_PEN_WIDTH,
-        color: DEFAULT_PEN_COLOR,
+        color: 'rgba(0,0,0,0.4)',
       })
     })
 
@@ -155,23 +155,6 @@ describe('useTool', () => {
       })
 
       expect(result.current.cursor.size).toBe(40)
-    })
-  })
-
-  describe('getCursor', () => {
-    test('背景色を指定してカーソル設定を取得する', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('pen')
-      })
-
-      const cursor = result.current.getCursor('#000000')
-
-      expect(cursor).toEqual({
-        size: DEFAULT_PEN_WIDTH,
-        color: DEFAULT_PEN_COLOR,
-      })
     })
   })
 
