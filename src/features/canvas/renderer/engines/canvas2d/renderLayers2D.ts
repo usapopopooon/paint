@@ -2,23 +2,51 @@ import type { Layer } from '@/features/layer'
 import { blendModeToCompositeOp, BACKGROUND_COLOR, BACKGROUND_LAYER_ID } from '@/features/layer'
 import { renderDrawable2D } from './renderDrawable2D'
 
+/** チェッカーボードのタイルサイズ */
+const CHECKERBOARD_TILE_SIZE = 10
+
+/** キャッシュされたチェッカーボードパターン */
+let cachedCheckerboardPattern: CanvasPattern | null = null
+
+/**
+ * チェッカーボードパターンを作成（2x2タイルの最小単位）
+ */
+const createCheckerboardPattern = (ctx: CanvasRenderingContext2D): CanvasPattern | null => {
+  if (cachedCheckerboardPattern) {
+    return cachedCheckerboardPattern
+  }
+
+  const tileSize = CHECKERBOARD_TILE_SIZE
+  const patternCanvas = document.createElement('canvas')
+  patternCanvas.width = tileSize * 2
+  patternCanvas.height = tileSize * 2
+  const patternCtx = patternCanvas.getContext('2d')
+  if (!patternCtx) return null
+
+  // 2x2のチェッカーボードパターンを描画
+  patternCtx.fillStyle = '#ffffff'
+  patternCtx.fillRect(0, 0, tileSize, tileSize)
+  patternCtx.fillRect(tileSize, tileSize, tileSize, tileSize)
+  patternCtx.fillStyle = '#cccccc'
+  patternCtx.fillRect(tileSize, 0, tileSize, tileSize)
+  patternCtx.fillRect(0, tileSize, tileSize, tileSize)
+
+  cachedCheckerboardPattern = ctx.createPattern(patternCanvas, 'repeat')
+  return cachedCheckerboardPattern
+}
+
 /**
  * チェッカーボードパターン（透明を表す背景）を描画
  */
 const drawCheckerboard = (
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number,
-  tileSize: number = 10
+  height: number
 ): void => {
-  const cols = Math.ceil(width / tileSize)
-  const rows = Math.ceil(height / tileSize)
-
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      ctx.fillStyle = (row + col) % 2 === 0 ? '#ffffff' : '#cccccc'
-      ctx.fillRect(col * tileSize, row * tileSize, tileSize, tileSize)
-    }
+  const pattern = createCheckerboardPattern(ctx)
+  if (pattern) {
+    ctx.fillStyle = pattern
+    ctx.fillRect(0, 0, width, height)
   }
 }
 

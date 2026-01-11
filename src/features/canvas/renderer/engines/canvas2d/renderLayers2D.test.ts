@@ -7,6 +7,9 @@ vi.mock('./renderDrawable2D', () => ({
   renderDrawable2D: vi.fn(),
 }))
 
+// チェッカーボードパターンのモック
+const mockPattern = {} as CanvasPattern
+
 // jsdom環境でgetContextがnullを返す場合があるため、モックを設定
 const mockLayerContext = {
   clearRect: vi.fn(),
@@ -14,7 +17,8 @@ const mockLayerContext = {
   drawImage: vi.fn(),
   save: vi.fn(),
   restore: vi.fn(),
-  fillStyle: '',
+  createPattern: vi.fn().mockReturnValue(mockPattern),
+  fillStyle: '' as string | CanvasPattern,
   globalAlpha: 1,
   globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
 } as unknown as CanvasRenderingContext2D
@@ -43,7 +47,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -62,7 +67,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -80,7 +86,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -128,7 +135,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -162,7 +170,8 @@ describe('renderLayers2D', () => {
       drawImage: vi.fn(),
       save: vi.fn(),
       restore: vi.fn(),
-      fillStyle: '',
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
       globalAlpha: 1,
       globalCompositeOperation: 'source-over',
     } as unknown as CanvasRenderingContext2D
@@ -184,5 +193,53 @@ describe('renderLayers2D', () => {
 
     // 空のレイヤーはdrawImageされない
     expect(mockCtx.drawImage).not.toHaveBeenCalled()
+  })
+
+  test('チェッカーボードパターンを描画する', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    await renderLayers2D(mockCtx, [], 800, 600)
+
+    // createPatternが呼ばれてパターンが作成される
+    expect(mockCtx.createPattern).toHaveBeenCalled()
+    // パターンがfillStyleに設定される
+    expect(mockCtx.fillStyle).toBe(mockPattern)
+    // チェッカーボードがキャンバス全体に描画される
+    expect(mockCtx.fillRect).toHaveBeenCalledWith(0, 0, 800, 600)
+  })
+
+  test('チェッカーボードパターンはキャッシュされる', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    // 2回レンダリング
+    await renderLayers2D(mockCtx, [], 800, 600)
+    await renderLayers2D(mockCtx, [], 800, 600)
+
+    // createPatternは1回だけ呼ばれる（キャッシュされる）
+    expect(mockCtx.createPattern).toHaveBeenCalledTimes(1)
   })
 })
