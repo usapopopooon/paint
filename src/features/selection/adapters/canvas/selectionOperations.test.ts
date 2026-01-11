@@ -9,6 +9,10 @@ import type { SelectionShape } from '../../types'
  * getMaskedImageDataFromSelection, imageDataToDataURL, renderLayerToOffscreenCanvas
  * などのCanvas API依存関数はJSDOM環境ではテストできないため、
  * E2Eテストまたはブラウザ環境でのテストで検証する。
+ *
+ * renderLayerToOffscreenCanvasは以下のぼかし処理をサポート:
+ * - hardness > 0 のストローク: Canvas 2D filter blur() を適用
+ * - blendMode: 'blur' のぼかしツール: 既存ピクセルにぼかし効果を適用
  */
 describe('selectionOperations', () => {
   describe('getSelectionBounds', () => {

@@ -1,6 +1,7 @@
 import type { Point, Bounds } from '@/lib/geometry'
 import type { Layer } from '@/features/layer'
 import type { Drawable } from '@/features/drawable'
+import { calculateBlurStrength } from '@/features/drawable'
 import type { SelectionShape } from '../../types'
 
 /**
@@ -272,6 +273,146 @@ export const imageDataToDataURL = (imageData: ImageData): string => {
 }
 
 /**
+ * ストロークのバウンディングボックスを計算
+ */
+const getStrokeBounds = (
+  points: readonly Point[],
+  brushSize: number
+): { x: number; y: number; width: number; height: number } => {
+  const halfSize = brushSize / 2
+
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+
+  for (const point of points) {
+    minX = Math.min(minX, point.x - halfSize)
+    minY = Math.min(minY, point.y - halfSize)
+    maxX = Math.max(maxX, point.x + halfSize)
+    maxY = Math.max(maxY, point.y + halfSize)
+  }
+
+  return {
+    x: Math.floor(minX),
+    y: Math.floor(minY),
+    width: Math.ceil(maxX - minX),
+    height: Math.ceil(maxY - minY),
+  }
+}
+
+/**
+ * ぼかしツールのストロークをレンダリング
+ * ストローク領域の既存ピクセルにぼかし効果を適用
+ */
+const renderBlurStroke = (
+  ctx: CanvasRenderingContext2D,
+  stroke: {
+    points: readonly Point[]
+    style: {
+      brushTip: { size: number; hardness?: number; opacity: number }
+    }
+  }
+): void => {
+  const { points, style } = stroke
+  const brushSize = style.brushTip.size
+  const opacity = style.brushTip.opacity
+  const hardness = style.brushTip.hardness ?? 0
+
+  // ぼかし強度を計算
+  const blurStrength = calculateBlurStrength(hardness, brushSize)
+  if (blurStrength <= 0) return
+
+  // バウンディングボックスを取得（ぼかし用のマージンを追加）
+  const margin = Math.ceil(blurStrength * 2)
+  const bounds = getStrokeBounds(points, brushSize)
+  const x = Math.max(0, bounds.x - margin)
+  const y = Math.max(0, bounds.y - margin)
+  const width = bounds.width + margin * 2
+  const height = bounds.height + margin * 2
+
+  if (width <= 0 || height <= 0) return
+
+  // 現在の画像データを取得
+  const canvas = ctx.canvas
+  const safeWidth = Math.min(width, canvas.width - x)
+  const safeHeight = Math.min(height, canvas.height - y)
+
+  if (safeWidth <= 0 || safeHeight <= 0) return
+
+  // 元の領域のImageDataを取得
+  const originalImageData = ctx.getImageData(x, y, safeWidth, safeHeight)
+
+  // ぼかした画像を作成
+  const blurCanvas = document.createElement('canvas')
+  blurCanvas.width = safeWidth
+  blurCanvas.height = safeHeight
+  const blurCtx = blurCanvas.getContext('2d')
+  if (!blurCtx) return
+
+  // 元の領域をコピーしてぼかしを適用
+  blurCtx.putImageData(originalImageData, 0, 0)
+  blurCtx.filter = `blur(${blurStrength}px)`
+  blurCtx.globalCompositeOperation = 'copy'
+  blurCtx.drawImage(blurCanvas, 0, 0)
+  blurCtx.filter = 'none'
+  blurCtx.globalCompositeOperation = 'source-over'
+
+  // ぼかし画像のImageDataを取得
+  const blurredImageData = blurCtx.getImageData(0, 0, safeWidth, safeHeight)
+
+  // マスクを作成（ストローク領域）
+  const maskCanvas = document.createElement('canvas')
+  maskCanvas.width = safeWidth
+  maskCanvas.height = safeHeight
+  const maskCtx = maskCanvas.getContext('2d')
+  if (!maskCtx) return
+
+  maskCtx.translate(-x, -y)
+  maskCtx.lineWidth = brushSize
+  maskCtx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+  maskCtx.lineCap = 'round'
+  maskCtx.lineJoin = 'round'
+  maskCtx.beginPath()
+  maskCtx.moveTo(points[0].x, points[0].y)
+  for (let i = 1; i < points.length; i++) {
+    maskCtx.lineTo(points[i].x, points[i].y)
+  }
+  maskCtx.stroke()
+
+  // マスクのImageDataを取得
+  const maskImageData = maskCtx.getImageData(0, 0, safeWidth, safeHeight)
+
+  // ピクセル単位でブレンド
+  // マスクのアルファ値に基づいて元画像とぼかし画像を線形補間
+  const originalData = originalImageData.data
+  const blurredData = blurredImageData.data
+  const maskData = maskImageData.data
+
+  for (let i = 0; i < originalData.length; i += 4) {
+    // マスクのアルファ値を0-1の範囲に正規化
+    const maskAlpha = maskData[i + 3] / 255
+
+    if (maskAlpha > 0) {
+      // 線形補間: result = original * (1 - maskAlpha) + blurred * maskAlpha
+      originalData[i] = originalData[i] * (1 - maskAlpha) + blurredData[i] * maskAlpha // R
+      originalData[i + 1] = originalData[i + 1] * (1 - maskAlpha) + blurredData[i + 1] * maskAlpha // G
+      originalData[i + 2] = originalData[i + 2] * (1 - maskAlpha) + blurredData[i + 2] * maskAlpha // B
+      originalData[i + 3] = originalData[i + 3] * (1 - maskAlpha) + blurredData[i + 3] * maskAlpha // A
+    }
+  }
+
+  // 結果を元のキャンバスに描画
+  ctx.putImageData(originalImageData, x, y)
+
+  // メモリリーク防止: オフスクリーンCanvasを明示的に解放
+  blurCanvas.width = 0
+  blurCanvas.height = 0
+  maskCanvas.width = 0
+  maskCanvas.height = 0
+}
+
+/**
  * レイヤーのdrawablesを一時Canvasにレンダリングして返す
  * @param layer - レンダリングするレイヤー
  * @param width - キャンバス幅
@@ -343,34 +484,82 @@ const renderDrawableToContext = async (
       points: readonly Point[]
       style: {
         color: string
-        brushTip: { type: string; size: number; hardness?: number; isBlurEnabled?: boolean }
+        brushTip: {
+          type: string
+          size: number
+          hardness?: number
+          isBlurEnabled?: boolean
+          opacity: number
+        }
         alpha: number
+        blendMode?: string
       }
-    }
-
-    if (helpers.isEraserStroke(drawable)) {
-      ctx.globalCompositeOperation = 'destination-out'
     }
 
     const { points, style } = strokeDrawable
     if (points.length === 0) return
 
-    ctx.save()
-    ctx.strokeStyle = style.color
-    ctx.lineWidth = style.brushTip.size
-    ctx.lineCap = 'round'
-    ctx.lineJoin = 'round'
-    ctx.globalAlpha = style.alpha
+    const isEraser = helpers.isEraserStroke(drawable)
+    const isBlurTool = style.blendMode === 'blur'
+    const hardness = helpers.getHardness(drawable)
 
-    ctx.beginPath()
-    ctx.moveTo(points[0].x, points[0].y)
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(points[i].x, points[i].y)
+    // ぼかしツールの場合は専用のレンダリング
+    if (isBlurTool) {
+      renderBlurStroke(ctx, strokeDrawable)
+      return
     }
-    ctx.stroke()
-    ctx.restore()
 
-    if (helpers.isEraserStroke(drawable)) {
+    if (isEraser) {
+      ctx.globalCompositeOperation = 'destination-out'
+    }
+
+    // hardnessに基づいてブラーを適用（消しゴムには適用しない）
+    const shouldApplyBlur = hardness > 0 && !isEraser
+
+    if (shouldApplyBlur) {
+      // 一時キャンバスにストロークを描画してからブラーを適用
+      const tempCanvas = document.createElement('canvas')
+      tempCanvas.width = ctx.canvas.width
+      tempCanvas.height = ctx.canvas.height
+      const tempCtx = tempCanvas.getContext('2d')!
+
+      tempCtx.strokeStyle = style.color
+      tempCtx.lineWidth = style.brushTip.size
+      tempCtx.lineCap = 'round'
+      tempCtx.lineJoin = 'round'
+      tempCtx.globalAlpha = style.alpha
+
+      tempCtx.beginPath()
+      tempCtx.moveTo(points[0].x, points[0].y)
+      for (let i = 1; i < points.length; i++) {
+        tempCtx.lineTo(points[i].x, points[i].y)
+      }
+      tempCtx.stroke()
+
+      // ブラーを適用してメインキャンバスに描画
+      const blurStrength = calculateBlurStrength(hardness, style.brushTip.size)
+      ctx.save()
+      ctx.filter = `blur(${blurStrength}px)`
+      ctx.drawImage(tempCanvas, 0, 0)
+      ctx.restore()
+    } else {
+      ctx.save()
+      ctx.strokeStyle = style.color
+      ctx.lineWidth = style.brushTip.size
+      ctx.lineCap = 'round'
+      ctx.lineJoin = 'round'
+      ctx.globalAlpha = style.alpha
+
+      ctx.beginPath()
+      ctx.moveTo(points[0].x, points[0].y)
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y)
+      }
+      ctx.stroke()
+      ctx.restore()
+    }
+
+    if (isEraser) {
       ctx.globalCompositeOperation = 'source-over'
     }
   }
