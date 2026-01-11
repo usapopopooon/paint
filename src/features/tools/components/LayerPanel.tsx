@@ -2,7 +2,7 @@ import { memo, useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Plus, Trash2, GripVertical } from 'lucide-react'
+import { Eye, EyeOff, Plus, Trash2, GripVertical, Layers } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -31,6 +31,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
 import { useTranslation } from '@/features/i18n'
 import type { Layer, LayerId, LayerBlendMode } from '@/features/layer'
 import { BACKGROUND_LAYER_ID, layerNameSchema, MAX_LAYER_NAME_LENGTH } from '@/features/layer'
@@ -69,6 +77,8 @@ type LayerPanelProps = {
   readonly onLayerBlendModeChange: (id: LayerId, blendMode: LayerBlendMode) => void
   readonly onLayerOpacityChange: (id: LayerId, opacity: number) => void
   readonly onLayerMove?: (id: LayerId, newIndex: number) => void
+  readonly onLayerMergeDown?: (id: LayerId) => void
+  readonly canMergeLayerDown?: (id: LayerId) => boolean
 }
 
 export const LayerPanel = memo(function LayerPanel({
@@ -83,6 +93,8 @@ export const LayerPanel = memo(function LayerPanel({
   onLayerBlendModeChange,
   onLayerOpacityChange,
   onLayerMove,
+  onLayerMergeDown,
+  canMergeLayerDown,
 }: LayerPanelProps) {
   const { t } = useTranslation()
   const isPixiEngine = useIsPixiEngine()
@@ -312,92 +324,123 @@ export const LayerPanel = memo(function LayerPanel({
       )}
       <div className="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto mt-2">
         {[...visibleLayers].reverse().map((layer) => (
-          <div
-            key={layer.id}
-            draggable={!!onLayerMove}
-            onDragStart={(e) => handleDragStart(e, layer.id)}
-            onDragOver={(e) => handleDragOver(e, layer.id)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, layer.id)}
-            onDragEnd={handleDragEnd}
-            className={`flex flex-col gap-0.5 px-1 py-1 rounded cursor-pointer ${
-              activeLayerId === layer.id
-                ? 'bg-control text-control-foreground'
-                : 'hover:bg-secondary/80 dark:hover:bg-white/10'
-            } ${draggedLayerId === layer.id ? 'opacity-50' : ''} ${
-              dragOverLayerId === layer.id ? 'ring-2 ring-primary' : ''
-            }`}
-            onClick={() => onLayerSelect(layer.id)}
-          >
-            {/* 1段目: 表示切替・合成モード・透明度・削除 */}
-            <div className="flex items-center gap-1">
-              {onLayerMove && (
-                <GripVertical className="size-4 cursor-grab text-muted-foreground flex-shrink-0" />
-              )}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="size-5 p-0"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onLayerVisibilityChange(layer.id, !layer.isVisible)
-                    }}
-                    aria-label={layer.isVisible ? t('layers.hide') : t('layers.show')}
-                  >
-                    {layer.isVisible ? (
-                      <Eye
-                        className={`size-3.5 ${activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
-                      />
-                    ) : (
-                      <EyeOff className="size-3.5 text-muted-foreground" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  {layer.isVisible ? t('layers.hide') : t('layers.show')}
-                </TooltipContent>
-              </Tooltip>
-              <span className="text-xs text-muted-foreground truncate flex-1">
-                {getBlendModeLabel(layer.blendMode)}
-              </span>
-              <span className="text-xs text-muted-foreground flex-shrink-0">
-                {Math.round(layer.opacity * 100)}%
-              </span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="size-5 p-0"
-                      onClick={(e) => handleDeleteClick(e, layer.id)}
-                      disabled={!canDeleteLayer}
-                      aria-label={t('layers.delete')}
-                    >
-                      <Trash2
-                        className={`size-3.5 ${!canDeleteLayer ? 'text-muted-foreground' : activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
-                      />
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  {canDeleteLayer ? t('layers.delete') : t('layers.cannotDelete')}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-            {/* 2段目: レイヤー名 */}
-            <div className="flex items-center pl-5">
-              <span
-                className="text-sm flex-1 truncate cursor-text"
-                onDoubleClick={(e) => handleNameDoubleClick(e, layer)}
-                title={layer.name}
+          <ContextMenu key={layer.id}>
+            <ContextMenuTrigger asChild>
+              <div
+                draggable={!!onLayerMove}
+                onDragStart={(e) => handleDragStart(e, layer.id)}
+                onDragOver={(e) => handleDragOver(e, layer.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, layer.id)}
+                onDragEnd={handleDragEnd}
+                className={`flex flex-col gap-0.5 px-1 py-1 rounded cursor-pointer ${
+                  activeLayerId === layer.id
+                    ? 'bg-control text-control-foreground'
+                    : 'hover:bg-secondary/80 dark:hover:bg-white/10'
+                } ${draggedLayerId === layer.id ? 'opacity-50' : ''} ${
+                  dragOverLayerId === layer.id ? 'ring-2 ring-primary' : ''
+                }`}
+                onClick={() => onLayerSelect(layer.id)}
               >
-                {layer.name}
-              </span>
-            </div>
-          </div>
+                {/* 1段目: 表示切替・合成モード・透明度・削除 */}
+                <div className="flex items-center gap-1">
+                  {onLayerMove && (
+                    <GripVertical className="size-4 cursor-grab text-muted-foreground flex-shrink-0" />
+                  )}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="size-5 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onLayerVisibilityChange(layer.id, !layer.isVisible)
+                        }}
+                        aria-label={layer.isVisible ? t('layers.hide') : t('layers.show')}
+                      >
+                        {layer.isVisible ? (
+                          <Eye
+                            className={`size-3.5 ${activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
+                          />
+                        ) : (
+                          <EyeOff className="size-3.5 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      {layer.isVisible ? t('layers.hide') : t('layers.show')}
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="text-xs text-muted-foreground truncate flex-1">
+                    {getBlendModeLabel(layer.blendMode)}
+                  </span>
+                  <span className="text-xs text-muted-foreground flex-shrink-0">
+                    {Math.round(layer.opacity * 100)}%
+                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="size-5 p-0"
+                          onClick={(e) => handleDeleteClick(e, layer.id)}
+                          disabled={!canDeleteLayer}
+                          aria-label={t('layers.delete')}
+                        >
+                          <Trash2
+                            className={`size-3.5 ${!canDeleteLayer ? 'text-muted-foreground' : activeLayerId === layer.id ? 'text-control-foreground' : ''}`}
+                          />
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      {canDeleteLayer ? t('layers.delete') : t('layers.cannotDelete')}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                {/* 2段目: レイヤー名 */}
+                <div className="flex items-center pl-5">
+                  <span
+                    className="text-sm flex-1 truncate cursor-text"
+                    onDoubleClick={(e) => handleNameDoubleClick(e, layer)}
+                    title={layer.name}
+                  >
+                    {layer.name}
+                  </span>
+                </div>
+              </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem
+                onClick={() => {
+                  setEditingLayerId(layer.id)
+                  reset({ name: layer.name })
+                }}
+              >
+                {t('layers.rename')}
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                onClick={() => onLayerMergeDown?.(layer.id)}
+                disabled={!canMergeLayerDown?.(layer.id)}
+              >
+                <Layers className="size-4" />
+                {t('layers.mergeDown')}
+                <ContextMenuShortcut>Ctrl+E</ContextMenuShortcut>
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem
+                onClick={() => canDeleteLayer && setDeleteTargetId(layer.id)}
+                disabled={!canDeleteLayer}
+                variant="destructive"
+              >
+                <Trash2 className="size-4" />
+                {t('layers.delete')}
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         ))}
       </div>
 

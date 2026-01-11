@@ -12,6 +12,7 @@ import {
   createLayerOpacityChangedAction,
   createLayerRenamedAction,
   createLayerBlendModeChangedAction,
+  createLayerMergedDownAction,
   createCanvasResizedAction,
   createCanvasFlippedAction,
 } from '@/features/history'
@@ -303,6 +304,36 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
   )
 
   /**
+   * レイヤー結合（下のレイヤーと結合）を履歴に記録
+   * @param lowerLayerId - 結合先（下）レイヤーのID
+   * @param upperLayerSnapshot - 上のレイヤーの状態スナップショット
+   * @param upperLayerIndex - 上のレイヤーの位置
+   * @param lowerLayerSnapshot - 下のレイヤーの状態スナップショット
+   * @param lowerLayerIndex - 下のレイヤーの位置
+   */
+  const recordLayerMergedDown = useCallback(
+    async (
+      lowerLayerId: LayerId,
+      upperLayerSnapshot: LayerSnapshot,
+      upperLayerIndex: number,
+      lowerLayerSnapshot: LayerSnapshot,
+      lowerLayerIndex: number
+    ) => {
+      const action = createLayerMergedDownAction(
+        lowerLayerId,
+        upperLayerSnapshot,
+        upperLayerIndex,
+        lowerLayerSnapshot,
+        lowerLayerIndex
+      )
+      await getStorage().push(action)
+      await updateStackInfo()
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [updateStackInfo]
+  )
+
+  /**
    * 履歴をクリア（プロジェクト読み込み時などに使用）
    */
   const clear = useCallback(async () => {
@@ -337,6 +368,7 @@ export const useCanvasHistory = (options?: UseCanvasHistoryOptions) => {
     recordLayerBlendModeChange,
     recordLayerCreated,
     recordLayerDeleted,
+    recordLayerMergedDown,
     recordCanvasResize,
     recordCanvasFlip,
     clear,

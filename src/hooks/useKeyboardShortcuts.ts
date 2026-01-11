@@ -32,6 +32,7 @@ export type KeyboardShortcutsHandlers = {
   readonly onFlipVertical: () => void
   readonly onMoveLayerUp: () => void
   readonly onMoveLayerDown: () => void
+  readonly onMergeLayerDown?: () => void
   readonly onIncreaseToolSize: () => void
   readonly onDecreaseToolSize: () => void
 }
@@ -98,6 +99,7 @@ export const useKeyboardShortcuts = ({
   onFlipVertical,
   onMoveLayerUp,
   onMoveLayerDown,
+  onMergeLayerDown,
   onIncreaseToolSize,
   onDecreaseToolSize,
 }: KeyboardShortcutsHandlers) => {
@@ -204,6 +206,12 @@ export const useKeyboardShortcuts = ({
       if (e.altKey && e.key === '[') {
         e.preventDefault()
         onMoveLayerDown()
+        return
+      }
+      // 下のレイヤーと結合 (Ctrl/Cmd + E)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'e' || e.key === 'E') && onMergeLayerDown) {
+        e.preventDefault()
+        onMergeLayerDown()
         return
       }
       // 修飾キーなしの単一キー
@@ -315,6 +323,7 @@ export const useKeyboardShortcuts = ({
     onFlipVertical,
     onMoveLayerUp,
     onMoveLayerDown,
+    onMergeLayerDown,
     onIncreaseToolSize,
     onDecreaseToolSize,
   ])

@@ -153,9 +153,11 @@ export function useToolHandlers(options: UseToolHandlersOptions): ToolHandlers {
       ? tool.penConfig.hardness
       : tool.currentType === 'brush'
         ? tool.brushConfig.hardness
-        : tool.currentType === 'eraser'
-          ? tool.eraserConfig.hardness
-          : tool.lastDrawingToolHardness
+        : tool.currentType === 'blur'
+          ? tool.blurConfig.hardness
+          : tool.currentType === 'eraser'
+            ? tool.eraserConfig.hardness
+            : tool.lastDrawingToolHardness
 
   /**
    * 現在選択中のツールのisBlurEnabledを取得
@@ -177,6 +179,7 @@ export function useToolHandlers(options: UseToolHandlersOptions): ToolHandlers {
       const setters = {
         pen: tool.setPenHardness,
         brush: tool.setBrushHardness,
+        blur: tool.setBlurHardness,
         eraser: tool.setEraserHardness,
       }
       const setter = setters[tool.currentType as keyof typeof setters]
@@ -202,9 +205,9 @@ export function useToolHandlers(options: UseToolHandlersOptions): ToolHandlers {
   )
 
   /**
-   * hardnessスライダーが無効かどうか（ペン、ブラシ、消しゴム以外）
+   * hardnessスライダーが無効かどうか（ペン、ブラシ、ぼかし、消しゴム以外）
    */
-  const isHardnessDisabled = !['pen', 'brush', 'eraser'].includes(tool.currentType)
+  const isHardnessDisabled = !['pen', 'brush', 'blur', 'eraser'].includes(tool.currentType)
 
   return {
     handleSelectPen,

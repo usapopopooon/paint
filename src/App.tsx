@@ -258,6 +258,8 @@ function App() {
     onFlipVertical: () => canvas.flipVertical(canvasSize.height),
     onMoveLayerUp: () => canvas.moveLayerUp(canvas.activeLayerId),
     onMoveLayerDown: () => canvas.moveLayerDown(canvas.activeLayerId),
+    onMergeLayerDown: () =>
+      canvas.mergeLayerDown(canvas.activeLayerId, canvasSize.width, canvasSize.height),
     onIncreaseToolSize: toolHandlers.handleIncreaseToolSize,
     onDecreaseToolSize: toolHandlers.handleDecreaseToolSize,
   })
@@ -464,6 +466,10 @@ function App() {
             onLayerBlendModeChange={canvas.setLayerBlendMode}
             onLayerOpacityChange={canvas.setLayerOpacity}
             onLayerMove={canvas.moveLayer}
+            onLayerMergeDown={(id) =>
+              canvas.mergeLayerDown(id, canvasSize.width, canvasSize.height)
+            }
+            canMergeLayerDown={canvas.canMergeLayerDown}
           />
         </ToolPanel>
 
@@ -534,6 +540,8 @@ function App() {
                       onUpdateTransform={transform.updateTransform}
                       onEndHandleOperation={transform.endHandleOperation}
                       detectHandleAtPoint={transform.detectHandleAtPoint}
+                      onConfirmTransform={transformHandlers.handleConfirmTransform}
+                      onCancelTransform={transformHandlers.handleCancelTransform}
                     />
                   </div>
                 </SelectionContextMenu>

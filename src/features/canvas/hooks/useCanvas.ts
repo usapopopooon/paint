@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import type { ToolConfig } from '../../tools/types'
 import type { Layer, LayerBlendMode } from '@/features/layer'
 import type { Drawable, Point } from '@/features/drawable'
-import { useLayers, BACKGROUND_LAYER_ID } from '@/features/layer'
+import { useLayers, BACKGROUND_LAYER_ID, mergeLayerToImage } from '@/features/layer'
 import { stabilizeStroke, stabilizationToParams } from '@/features/stabilization'
 import { useCanvasHistory } from './useCanvasHistory'
 import { useDrawing } from './useDrawing'
@@ -170,6 +170,25 @@ export const useCanvas = (options?: UseCanvasOptions) => {
           drawables: snapshot.drawables,
         }
         layerManager.restoreLayer(layer, action.index)
+      } else if (action.type === 'layer:merged-down') {
+        // レイヤー結合を取り消す（上のレイヤーを復元、下のレイヤーのDrawablesを元に戻す）
+        const upperSnapshot = action.upperLayerSnapshot
+        const upperLayer = {
+          id: upperSnapshot.id,
+          name: upperSnapshot.name,
+          type: 'drawing' as const,
+          isVisible: upperSnapshot.isVisible,
+          isLocked: upperSnapshot.isLocked,
+          opacity: upperSnapshot.opacity,
+          blendMode: upperSnapshot.blendMode,
+          drawables: upperSnapshot.drawables,
+        }
+        layerManager.restoreMergedLayers(
+          upperLayer,
+          action.upperLayerIndex,
+          action.lowerLayerSnapshot.drawables,
+          action.lowerLayerSnapshot.id
+        )
       }
       await history.undo()
     }
@@ -232,6 +251,9 @@ export const useCanvas = (options?: UseCanvasOptions) => {
       } else if (action.type === 'layer:deleted' && targetLayerId) {
         // レイヤー削除を再実行
         layerManager.deleteLayer(targetLayerId)
+      } else if (action.type === 'layer:merged-down') {
+        // レイヤー結合を再実行
+        layerManager.mergeLayerDown(action.upperLayerSnapshot.id)
       }
       await history.redo()
     }
@@ -395,6 +417,69 @@ export const useCanvas = (options?: UseCanvasOptions) => {
   )
 
   /**
+   * レイヤーを下のレイヤーと結合 + 履歴に記録
+   * ブレンドモードや不透明度を正しく適用してCanvasでレンダリングする
+   * @param layerId - 結合するレイヤーID
+   * @param canvasWidth - キャンバスの幅
+   * @param canvasHeight - キャンバスの高さ
+   * @returns 成功した場合true
+   */
+  const mergeLayerDown = useCallback(
+    async (layerId: string, canvasWidth: number, canvasHeight: number): Promise<boolean> => {
+      if (!layerManager.canMergeLayerDown(layerId)) return false
+
+      // 結合するレイヤーを取得
+      const upperLayerIndex = layerManager.layers.findIndex((l) => l.id === layerId)
+      const upperLayer = layerManager.layers[upperLayerIndex]
+      const lowerLayerIndex = upperLayerIndex - 1
+      const lowerLayer = layerManager.layers[lowerLayerIndex]
+
+      // 結合前の状態をスナップショットとして記録
+      const upperLayerSnapshot = {
+        id: upperLayer.id,
+        name: upperLayer.name,
+        isVisible: upperLayer.isVisible,
+        isLocked: upperLayer.isLocked,
+        opacity: upperLayer.opacity,
+        blendMode: upperLayer.blendMode,
+        drawables: upperLayer.drawables,
+      }
+      const lowerLayerSnapshot = {
+        id: lowerLayer.id,
+        name: lowerLayer.name,
+        isVisible: lowerLayer.isVisible,
+        isLocked: lowerLayer.isLocked,
+        opacity: lowerLayer.opacity,
+        blendMode: lowerLayer.blendMode,
+        drawables: lowerLayer.drawables,
+      }
+
+      // Canvasでレンダリングして結合（ブレンドモードと不透明度を適用）
+      const mergedDrawables = await mergeLayerToImage(
+        upperLayer,
+        lowerLayer,
+        canvasWidth,
+        canvasHeight
+      )
+
+      // レイヤーを結合
+      const result = layerManager.mergeLayerDownWithDrawables(layerId, mergedDrawables)
+      if (!result) return false
+
+      history.recordLayerMergedDown(
+        lowerLayer.id,
+        upperLayerSnapshot,
+        upperLayerIndex,
+        lowerLayerSnapshot,
+        lowerLayerIndex
+      )
+
+      return true
+    },
+    [layerManager, history]
+  )
+
+  /**
    * 背景レイヤーを表示（エクスポート時に使用）
    */
   const showBackgroundLayer = useCallback(() => {
@@ -462,6 +547,8 @@ export const useCanvas = (options?: UseCanvasOptions) => {
     moveLayerDown: layerManager.moveLayerDown,
     addLayer,
     deleteLayer,
+    mergeLayerDown,
+    canMergeLayerDown: layerManager.canMergeLayerDown,
     translateAllLayers: layerManager.translateAllLayers,
     recordCanvasResize: history.recordCanvasResize,
     flipHorizontal,

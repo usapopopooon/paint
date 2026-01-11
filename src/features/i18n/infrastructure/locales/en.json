@@ -77,6 +77,7 @@
     "nameTooLong": "Layer name must be %{max} characters or less",
     "moveUp": "Move layer up",
     "moveDown": "Move layer down",
+    "mergeDown": "Merge down",
     "blendMode": "Blend mode",
     "opacity": "Opacity"
   },
