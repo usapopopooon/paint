@@ -225,6 +225,96 @@ describe('PwaUpdateContext', () => {
 
       expect(checkResult).toEqual({ updateAvailable: false })
     })
+
+    it('registration.waitingがある場合はupdateAvailable: trueを返す', async () => {
+      ;(useRegisterSW as Mock).mockReturnValue({
+        needRefresh: [false, mockSetNeedRefresh],
+        offlineReady: [false, vi.fn()],
+        updateServiceWorker: mockUpdateServiceWorker,
+      })
+
+      const mockUpdate = vi.fn().mockResolvedValue(undefined)
+      const mockGetRegistration = vi.fn().mockResolvedValue({
+        update: mockUpdate,
+        waiting: { state: 'installed' },
+        installing: null,
+      })
+      Object.defineProperty(navigator, 'serviceWorker', {
+        value: { getRegistration: mockGetRegistration },
+        configurable: true,
+      })
+
+      const { result } = renderHook(() => usePwaUpdate(), {
+        wrapper: PwaUpdateProvider,
+      })
+
+      let checkResult: { updateAvailable: boolean } | undefined
+      await act(async () => {
+        checkResult = await result.current.checkForUpdate()
+      })
+
+      expect(checkResult).toEqual({ updateAvailable: true })
+    })
+
+    it('registration.installingがある場合はupdateAvailable: trueを返す', async () => {
+      ;(useRegisterSW as Mock).mockReturnValue({
+        needRefresh: [false, mockSetNeedRefresh],
+        offlineReady: [false, vi.fn()],
+        updateServiceWorker: mockUpdateServiceWorker,
+      })
+
+      const mockUpdate = vi.fn().mockResolvedValue(undefined)
+      const mockGetRegistration = vi.fn().mockResolvedValue({
+        update: mockUpdate,
+        waiting: null,
+        installing: { state: 'installing' },
+      })
+      Object.defineProperty(navigator, 'serviceWorker', {
+        value: { getRegistration: mockGetRegistration },
+        configurable: true,
+      })
+
+      const { result } = renderHook(() => usePwaUpdate(), {
+        wrapper: PwaUpdateProvider,
+      })
+
+      let checkResult: { updateAvailable: boolean } | undefined
+      await act(async () => {
+        checkResult = await result.current.checkForUpdate()
+      })
+
+      expect(checkResult).toEqual({ updateAvailable: true })
+    })
+
+    it('registration.waitingもinstallingもない場合はupdateAvailable: falseを返す', async () => {
+      ;(useRegisterSW as Mock).mockReturnValue({
+        needRefresh: [false, mockSetNeedRefresh],
+        offlineReady: [false, vi.fn()],
+        updateServiceWorker: mockUpdateServiceWorker,
+      })
+
+      const mockUpdate = vi.fn().mockResolvedValue(undefined)
+      const mockGetRegistration = vi.fn().mockResolvedValue({
+        update: mockUpdate,
+        waiting: null,
+        installing: null,
+      })
+      Object.defineProperty(navigator, 'serviceWorker', {
+        value: { getRegistration: mockGetRegistration },
+        configurable: true,
+      })
+
+      const { result } = renderHook(() => usePwaUpdate(), {
+        wrapper: PwaUpdateProvider,
+      })
+
+      let checkResult: { updateAvailable: boolean } | undefined
+      await act(async () => {
+        checkResult = await result.current.checkForUpdate()
+      })
+
+      expect(checkResult).toEqual({ updateAvailable: false })
+    })
   })
 
   describe('dismissUpdate', () => {

@@ -35,17 +35,27 @@ export const PwaUpdateProvider = ({ children }: PwaUpdateProviderProps) => {
   }, [updateServiceWorker])
 
   const checkForUpdate = useCallback(async (): Promise<CheckForUpdateResult> => {
+    // 一度キャンセルした後も再度表示できるようにする
+    setDismissed(false)
+
+    // 既に更新が利用可能な場合はすぐに返す
+    if (needRefreshInternal) {
+      return { updateAvailable: true }
+    }
+
     // Service Workerの更新をチェック
     if ('serviceWorker' in navigator) {
       const registration = await navigator.serviceWorker.getRegistration()
       if (registration) {
         await registration.update()
+        // update()後、waitingまたはinstallingに新しいSWがあれば更新あり
+        if (registration.waiting || registration.installing) {
+          return { updateAvailable: true }
+        }
       }
     }
-    // 一度キャンセルした後も再度表示できるようにする
-    setDismissed(false)
-    // 現在の更新状態を返す（needRefreshInternalの最新値）
-    return { updateAvailable: needRefreshInternal }
+
+    return { updateAvailable: false }
   }, [needRefreshInternal])
 
   const dismissUpdate = useCallback(() => {
