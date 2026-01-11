@@ -42,6 +42,14 @@ export const useTool = () => {
     }))
   }, [])
 
+  /**
+   * ツール状態を一括で設定（プロジェクト復元用）
+   * @param newState - 設定するツール状態
+   */
+  const setFullState = useCallback((newState: ToolState) => {
+    setState(newState)
+  }, [])
+
   const setPenWidth = useMemo(() => createConfigSetter<number>(setState, 'penConfig', 'width'), [])
   const setPenColor = useMemo(() => createConfigSetter<string>(setState, 'penConfig', 'color'), [])
   const setPenOpacity = useMemo(
@@ -183,10 +191,13 @@ export const useTool = () => {
     brushConfig: state.brushConfig,
     blurConfig: state.blurConfig,
     eraserConfig: state.eraserConfig,
+    /** ツール状態全体（プロジェクト保存用） */
+    toolState: state,
     cursor,
     lastDrawingToolHardness,
     lastDrawingToolBlurEnabled,
     setToolType,
+    setFullState,
     setPenWidth,
     setPenColor,
     setPenOpacity,

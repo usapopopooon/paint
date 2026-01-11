@@ -2,7 +2,7 @@ import { describe, test, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTool } from './useTool'
 import { penBehavior, eraserBehavior } from '../domain'
-import { DEFAULT_PEN_WIDTH, DEFAULT_PEN_COLOR, DEFAULT_ERASER_WIDTH } from '../constants'
+import { DEFAULT_PEN_WIDTH, DEFAULT_ERASER_WIDTH } from '../constants'
 import { DEFAULT_HARDNESS } from '../constants/hardness'
 
 describe('useTool', () => {
@@ -117,7 +117,7 @@ describe('useTool', () => {
 
       expect(result.current.cursor).toEqual({
         size: DEFAULT_PEN_WIDTH,
-        color: DEFAULT_PEN_COLOR,
+        color: 'rgba(0,0,0,0.4)',
       })
     })
 
@@ -155,23 +155,6 @@ describe('useTool', () => {
       })
 
       expect(result.current.cursor.size).toBe(40)
-    })
-  })
-
-  describe('getCursor', () => {
-    test('背景色を指定してカーソル設定を取得する', () => {
-      const { result } = renderHook(() => useTool())
-
-      act(() => {
-        result.current.setToolType('pen')
-      })
-
-      const cursor = result.current.getCursor('#000000')
-
-      expect(cursor).toEqual({
-        size: DEFAULT_PEN_WIDTH,
-        color: DEFAULT_PEN_COLOR,
-      })
     })
   })
 
@@ -266,6 +249,142 @@ describe('useTool', () => {
 
       // lastDrawingToolTypeがpenなので、変更が反映される
       expect(result.current.lastDrawingToolHardness).toBe(0.1)
+    })
+  })
+
+  describe('toolState', () => {
+    test('現在のツール状態全体を返す', () => {
+      const { result } = renderHook(() => useTool())
+
+      expect(result.current.toolState).toEqual({
+        currentType: 'none',
+        lastDrawingToolType: null,
+        penConfig: penBehavior.defaultConfig(),
+        brushConfig: expect.any(Object),
+        blurConfig: expect.any(Object),
+        eraserConfig: eraserBehavior.defaultConfig(),
+      })
+    })
+
+    test('ツールタイプ変更がtoolStateに反映される', () => {
+      const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setToolType('pen')
+      })
+
+      expect(result.current.toolState.currentType).toBe('pen')
+      expect(result.current.toolState.lastDrawingToolType).toBe('pen')
+    })
+
+    test('設定変更がtoolStateに反映される', () => {
+      const { result } = renderHook(() => useTool())
+
+      act(() => {
+        result.current.setPenWidth(20)
+        result.current.setPenColor('#ff0000')
+      })
+
+      expect(result.current.toolState.penConfig.width).toBe(20)
+      expect(result.current.toolState.penConfig.color).toBe('#ff0000')
+    })
+  })
+
+  describe('setFullState', () => {
+    test('ツール状態を一括で設定できる', () => {
+      const { result } = renderHook(() => useTool())
+
+      const newState = {
+        currentType: 'brush' as const,
+        lastDrawingToolType: 'brush' as const,
+        penConfig: {
+          type: 'pen' as const,
+          width: 15,
+          color: '#00ff00',
+          opacity: 0.8,
+          hardness: 0.3,
+          isBlurEnabled: true,
+        },
+        brushConfig: {
+          type: 'brush' as const,
+          width: 30,
+          color: '#0000ff',
+          opacity: 0.9,
+          hardness: 0.6,
+          isBlurEnabled: false,
+        },
+        blurConfig: {
+          type: 'blur' as const,
+          width: 25,
+          opacity: 0.7,
+          hardness: 0.4,
+        },
+        eraserConfig: {
+          type: 'eraser' as const,
+          width: 40,
+          opacity: 1,
+          hardness: 0.5,
+          isBlurEnabled: true,
+        },
+      }
+
+      act(() => {
+        result.current.setFullState(newState)
+      })
+
+      expect(result.current.currentType).toBe('brush')
+      expect(result.current.penConfig.width).toBe(15)
+      expect(result.current.penConfig.color).toBe('#00ff00')
+      expect(result.current.brushConfig.width).toBe(30)
+      expect(result.current.eraserConfig.width).toBe(40)
+    })
+
+    test('setFullState後に個別設定を変更できる', () => {
+      const { result } = renderHook(() => useTool())
+
+      const newState = {
+        currentType: 'pen' as const,
+        lastDrawingToolType: 'pen' as const,
+        penConfig: {
+          type: 'pen' as const,
+          width: 10,
+          color: '#000000',
+          opacity: 1,
+          hardness: 0.5,
+          isBlurEnabled: true,
+        },
+        brushConfig: {
+          type: 'brush' as const,
+          width: 20,
+          color: '#000000',
+          opacity: 1,
+          hardness: 0.5,
+          isBlurEnabled: true,
+        },
+        blurConfig: {
+          type: 'blur' as const,
+          width: 20,
+          opacity: 1,
+          hardness: 0.5,
+        },
+        eraserConfig: {
+          type: 'eraser' as const,
+          width: 50,
+          opacity: 1,
+          hardness: 0.5,
+          isBlurEnabled: true,
+        },
+      }
+
+      act(() => {
+        result.current.setFullState(newState)
+      })
+
+      act(() => {
+        result.current.setPenWidth(25)
+      })
+
+      expect(result.current.penConfig.width).toBe(25)
     })
   })
 })

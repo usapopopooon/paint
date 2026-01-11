@@ -165,7 +165,14 @@
       "description": "現在の編集内容は保存されていません。プロジェクトを読み込むと、編集内容が失われます。続行しますか？",
       "confirm": "読み込む"
     },
-    "loaded": "プロジェクトを読み込みました"
+    "loaded": "プロジェクトを読み込みました",
+    "loadToolState": {
+      "title": "ツール設定の復元",
+      "description": "このプロジェクトにはツール設定が含まれています。復元しますか？",
+      "restoreToolSettings": "ツール設定を復元する",
+      "confirm": "読み込む",
+      "skip": "スキップ"
+    }
   },
   "import": {
     "invalidFileType": "対応していない画像形式です。PNG、JPG、GIF、WebPのいずれかを選択してください。"
@@ -190,7 +197,8 @@
     "savedAt": "保存日時: %{date}",
     "restore": "復元する",
     "discard": "破棄する",
-    "restored": "作業データを復元しました"
+    "restored": "作業データを復元しました",
+    "restoreToolSettings": "ツール設定も復元する"
   },
   "menu": {
     "file": "ファイル",

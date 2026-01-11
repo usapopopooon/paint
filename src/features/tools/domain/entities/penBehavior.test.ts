@@ -132,7 +132,7 @@ describe('penBehavior', () => {
 
       expect(cursor).toEqual({
         size: 10,
-        color: '#00ff00',
+        color: 'rgba(0,0,0,0.4)',
       })
     })
   })

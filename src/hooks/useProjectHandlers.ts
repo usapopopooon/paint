@@ -2,10 +2,10 @@ import { useCallback, useRef, useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useTranslation } from '@/features/i18n'
 import { saveProject, loadProject, useAutoSave, useRecovery } from '@/features/project'
-import type { LoadProjectError } from '@/features/project'
+import type { LoadProjectError, ProjectFile } from '@/features/project'
 import type { Layer } from '@/features/layer'
 import { createInitialLayerState } from '@/features/layer'
-import type { ToolType } from '@/features/tools'
+import type { ToolType, ToolState } from '@/features/tools'
 
 export interface UseProjectHandlersOptions {
   canvasWidth: number
@@ -13,10 +13,14 @@ export interface UseProjectHandlersOptions {
   layers: readonly Layer[]
   activeLayerId: string
   canUndo: boolean
+  toolState: ToolState
+  stabilization: number
   setLayers: (layers: readonly Layer[], activeLayerId: string) => void
   clearHistory: () => void
   setSizeDirectly: (width: number, height: number) => void
   setToolType: (type: ToolType) => void
+  setFullToolState: (state: ToolState) => void
+  setStabilization: (value: number) => void
 }
 
 export interface ProjectHandlers {
@@ -32,6 +36,8 @@ export interface ProjectHandlers {
   newCanvasDialogOpen: boolean
   setNewCanvasDialogOpen: (open: boolean) => void
   recoveryDialogOpen: boolean
+  loadToolStateDialogOpen: boolean
+  loadedProjectHasToolState: boolean
   projectInputRef: React.RefObject<HTMLInputElement | null>
   handleOpenProjectFilePicker: () => void
   handleProjectFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>
@@ -40,8 +46,10 @@ export interface ProjectHandlers {
   handleSaveProjectConfirm: (fileName: string) => Promise<void>
   handleOpenNewCanvasDialog: () => void
   handleCreateNewCanvas: (width: number, height: number, newProjectName: string | null) => void
-  handleRecoveryRestore: () => Promise<void>
+  handleRecoveryRestore: (restoreToolState: boolean) => Promise<void>
   handleRecoveryDiscard: () => Promise<void>
+  handleLoadToolStateRestore: (restoreToolState: boolean) => void
+  handleLoadToolStateSkip: () => void
 }
 
 export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectHandlers {
@@ -51,10 +59,14 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     layers,
     activeLayerId,
     canUndo,
+    toolState,
+    stabilization,
     setLayers,
     clearHistory,
     setSizeDirectly,
     setToolType,
+    setFullToolState,
+    setStabilization,
   } = options
 
   const { t } = useTranslation()
@@ -71,6 +83,8 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
   const [newCanvasDialogOpen, setNewCanvasDialogOpen] = useState(false)
   const [isCanvasCreated, setIsCanvasCreated] = useState(false)
   const [recoveryDialogOpen, setRecoveryDialogOpen] = useState(false)
+  const [loadToolStateDialogOpen, setLoadToolStateDialogOpen] = useState(false)
+  const [loadedProject, setLoadedProject] = useState<ProjectFile | null>(null)
 
   // canvas.canUndoをrefで保持（useCallbackの依存配列問題を回避）
   const canUndoRef = useRef(canUndo)
@@ -105,25 +119,52 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     canvasHeight,
     layers,
     activeLayerId,
+    toolState,
+    stabilization,
     enabled: isCanvasCreated,
   })
 
   /**
    * 自動保存データを復元するハンドラ
+   * @param restoreToolState ツール設定も復元するかどうか
    */
-  const handleRecoveryRestore = useCallback(async () => {
-    const project = await recovery.restore()
-    if (project) {
-      setLayers(project.layers, project.activeLayerId)
-      clearHistory()
-      setSizeDirectly(project.canvasWidth, project.canvasHeight)
-      setProjectName(project.name)
-      setIsCanvasCreated(true)
-      setToolType('pen')
-      toast.success(t('recovery.restored'))
-    }
-    setRecoveryDialogOpen(false)
-  }, [recovery, setLayers, clearHistory, setSizeDirectly, setToolType, t])
+  const handleRecoveryRestore = useCallback(
+    async (restoreToolState: boolean) => {
+      const project = await recovery.restore()
+      if (project) {
+        setLayers(project.layers, project.activeLayerId)
+        clearHistory()
+        setSizeDirectly(project.canvasWidth, project.canvasHeight)
+        setProjectName(project.name)
+        setIsCanvasCreated(true)
+
+        // ツール設定の復元
+        if (restoreToolState && project.toolState) {
+          // stabilizationは別管理なので分離
+          const { stabilization: savedStabilization, ...toolStateWithoutStabilization } =
+            project.toolState
+          setFullToolState(toolStateWithoutStabilization as ToolState)
+          if (savedStabilization !== undefined) {
+            setStabilization(savedStabilization)
+          }
+        } else {
+          setToolType('pen')
+        }
+        toast.success(t('recovery.restored'))
+      }
+      setRecoveryDialogOpen(false)
+    },
+    [
+      recovery,
+      setLayers,
+      clearHistory,
+      setSizeDirectly,
+      setToolType,
+      setFullToolState,
+      setStabilization,
+      t,
+    ]
+  )
 
   /**
    * 自動保存データを破棄するハンドラ
@@ -146,6 +187,33 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
   }, [])
 
   /**
+   * プロジェクトを適用する共通処理
+   */
+  const applyProject = useCallback(
+    (project: ProjectFile, restoreToolState: boolean) => {
+      setLayers(project.layers, project.activeLayerId)
+      clearHistory()
+      setSizeDirectly(project.canvasWidth, project.canvasHeight)
+      setProjectName(project.name)
+      setIsCanvasCreated(true)
+
+      // ツール設定の復元
+      if (restoreToolState && project.toolState) {
+        const { stabilization: savedStabilization, ...toolStateWithoutStabilization } =
+          project.toolState
+        setFullToolState(toolStateWithoutStabilization as ToolState)
+        if (savedStabilization !== undefined) {
+          setStabilization(savedStabilization)
+        }
+      } else {
+        setToolType('pen')
+      }
+      toast.success(t('project.loaded'))
+    },
+    [setLayers, clearHistory, setSizeDirectly, setToolType, setFullToolState, setStabilization, t]
+  )
+
+  /**
    * プロジェクトファイルを実際に読み込む処理
    */
   const loadProjectFile = useCallback(
@@ -156,17 +224,18 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
         return
       }
 
-      // プロジェクト読み込み
       const project = result.project
-      setLayers(project.layers, project.activeLayerId)
-      clearHistory()
-      setSizeDirectly(project.canvasWidth, project.canvasHeight)
-      setProjectName(project.name)
-      setIsCanvasCreated(true)
-      setToolType('pen')
-      toast.success(t('project.loaded'))
+
+      // ツール設定がある場合は確認ダイアログを表示
+      if (project.toolState) {
+        setLoadedProject(project)
+        setLoadToolStateDialogOpen(true)
+      } else {
+        // ツール設定がない場合はそのまま読み込み
+        applyProject(project, false)
+      }
     },
-    [setLayers, clearHistory, setSizeDirectly, setToolType, t]
+    [applyProject]
   )
 
   const handleProjectFileChange = useCallback(
@@ -190,6 +259,31 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     projectInputRef.current?.click()
   }, [])
 
+  /**
+   * プロジェクト読み込み時のツール設定復元ハンドラ
+   */
+  const handleLoadToolStateRestore = useCallback(
+    (restoreToolState: boolean) => {
+      if (loadedProject) {
+        applyProject(loadedProject, restoreToolState)
+        setLoadedProject(null)
+      }
+      setLoadToolStateDialogOpen(false)
+    },
+    [loadedProject, applyProject]
+  )
+
+  /**
+   * プロジェクト読み込み時のツール設定復元をスキップ
+   */
+  const handleLoadToolStateSkip = useCallback(() => {
+    if (loadedProject) {
+      applyProject(loadedProject, false)
+      setLoadedProject(null)
+    }
+    setLoadToolStateDialogOpen(false)
+  }, [loadedProject, applyProject])
+
   const handleSaveProject = useCallback(() => {
     setSaveDialogOpen(true)
   }, [])
@@ -202,6 +296,7 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
         canvasHeight,
         layers,
         activeLayerId,
+        toolState: { ...toolState, stabilization },
       })
 
       if (saved) {
@@ -209,7 +304,7 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
         toast.success(t('project.saved'))
       }
     },
-    [layers, activeLayerId, canvasWidth, canvasHeight, t]
+    [layers, activeLayerId, canvasWidth, canvasHeight, toolState, stabilization, t]
   )
 
   /**
@@ -255,6 +350,8 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     newCanvasDialogOpen,
     setNewCanvasDialogOpen,
     recoveryDialogOpen,
+    loadToolStateDialogOpen,
+    loadedProjectHasToolState: loadedProject?.toolState !== undefined,
     projectInputRef,
     handleOpenProjectFilePicker,
     handleProjectFileChange,
@@ -265,5 +362,7 @@ export function useProjectHandlers(options: UseProjectHandlersOptions): ProjectH
     handleCreateNewCanvas,
     handleRecoveryRestore,
     handleRecoveryDiscard,
+    handleLoadToolStateRestore,
+    handleLoadToolStateSkip,
   }
 }

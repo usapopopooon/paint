@@ -1,6 +1,97 @@
 import { z } from 'zod'
 
 /**
+ * ツールタイプスキーマ
+ */
+const toolTypeSchema = z.enum([
+  'none',
+  'pen',
+  'brush',
+  'blur',
+  'eraser',
+  'hand',
+  'eyedropper',
+  'zoom-in',
+  'zoom-out',
+  'select-rectangle',
+  'select-lasso',
+])
+
+/**
+ * 描画ツールタイプスキーマ
+ */
+const drawingToolTypeSchema = z.enum(['pen', 'brush', 'blur', 'eraser'])
+
+/**
+ * ペンツール設定スキーマ
+ */
+const penToolConfigSchema = z
+  .object({
+    type: z.literal('pen'),
+    width: z.number().positive(),
+    color: z.string(),
+    opacity: z.number().min(0).max(1),
+    hardness: z.number().min(0).max(1),
+    isBlurEnabled: z.boolean(),
+  })
+  .readonly()
+
+/**
+ * ブラシツール設定スキーマ
+ */
+const brushToolConfigSchema = z
+  .object({
+    type: z.literal('brush'),
+    width: z.number().positive(),
+    color: z.string(),
+    opacity: z.number().min(0).max(1),
+    hardness: z.number().min(0).max(1),
+    isBlurEnabled: z.boolean(),
+  })
+  .readonly()
+
+/**
+ * ぼかしツール設定スキーマ
+ */
+const blurToolConfigSchema = z
+  .object({
+    type: z.literal('blur'),
+    width: z.number().positive(),
+    opacity: z.number().min(0).max(1),
+    hardness: z.number().min(0).max(1),
+  })
+  .readonly()
+
+/**
+ * 消しゴムツール設定スキーマ
+ */
+const eraserToolConfigSchema = z
+  .object({
+    type: z.literal('eraser'),
+    width: z.number().positive(),
+    opacity: z.number().min(0).max(1),
+    hardness: z.number().min(0).max(1),
+    isBlurEnabled: z.boolean(),
+  })
+  .readonly()
+
+/**
+ * ツール状態スキーマ
+ */
+const toolStateSchema = z
+  .object({
+    currentType: toolTypeSchema,
+    lastDrawingToolType: drawingToolTypeSchema.nullable(),
+    penConfig: penToolConfigSchema,
+    brushConfig: brushToolConfigSchema,
+    blurConfig: blurToolConfigSchema,
+    eraserConfig: eraserToolConfigSchema,
+    /** 手ブレ補正の強度 */
+    stabilization: z.number().min(0).max(1).optional(),
+  })
+  .readonly()
+
+/**
  * ポイントスキーマ
  */
 const pointSchema = z
@@ -126,6 +217,8 @@ export const projectFileSchema = z
     activeLayerId: z.string(),
     createdAt: z.number(),
     updatedAt: z.number(),
+    /** ツール状態（オプション、後方互換性のため） */
+    toolState: toolStateSchema.optional(),
   })
   .readonly()
 
@@ -143,6 +236,11 @@ export type ProjectLayer = z.infer<typeof layerSchema>
  * Zodスキーマから推論した描画要素型
  */
 export type ProjectDrawable = z.infer<typeof drawableSchema>
+
+/**
+ * Zodスキーマから推論したツール状態型
+ */
+export type ProjectToolState = z.infer<typeof toolStateSchema>
 
 /**
  * プロジェクトファイルのパース結果

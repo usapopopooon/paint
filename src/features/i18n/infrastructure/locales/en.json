@@ -165,7 +165,14 @@
       "description": "You have unsaved changes. Loading a project will discard your current work. Continue?",
       "confirm": "Load"
     },
-    "loaded": "Project loaded"
+    "loaded": "Project loaded",
+    "loadToolState": {
+      "title": "Restore Tool Settings",
+      "description": "This project contains tool settings. Would you like to restore them?",
+      "restoreToolSettings": "Restore tool settings",
+      "confirm": "Load",
+      "skip": "Skip"
+    }
   },
   "import": {
     "invalidFileType": "Unsupported image format. Please select PNG, JPG, GIF, or WebP."
@@ -190,7 +197,8 @@
     "savedAt": "Saved at: %{date}",
     "restore": "Restore",
     "discard": "Discard",
-    "restored": "Work data has been restored"
+    "restored": "Work data has been restored",
+    "restoreToolSettings": "Restore tool settings"
   },
   "menu": {
     "file": "File",

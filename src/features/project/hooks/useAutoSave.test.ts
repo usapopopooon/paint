@@ -11,12 +11,48 @@ vi.mock('@/lib/indexedDB', () => ({
 }))
 
 describe('useAutoSave', () => {
+  const defaultToolState = {
+    currentType: 'pen' as const,
+    lastDrawingToolType: 'pen' as const,
+    penConfig: {
+      type: 'pen' as const,
+      width: 2,
+      color: '#000000',
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+    brushConfig: {
+      type: 'brush' as const,
+      width: 20,
+      color: '#000000',
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+    blurConfig: {
+      type: 'blur' as const,
+      width: 20,
+      opacity: 1,
+      hardness: 0.5,
+    },
+    eraserConfig: {
+      type: 'eraser' as const,
+      width: 50,
+      opacity: 1,
+      hardness: 0.5,
+      isBlurEnabled: true,
+    },
+  }
+
   const defaultOptions = {
     projectName: 'Test Project',
     canvasWidth: 800,
     canvasHeight: 600,
     layers: [] as Layer[],
     activeLayerId: 'layer-1',
+    toolState: defaultToolState,
+    stabilization: 0.5,
     enabled: true,
   }
 
