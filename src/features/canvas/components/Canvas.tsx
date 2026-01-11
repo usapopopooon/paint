@@ -138,13 +138,34 @@ export const Canvas = ({
   onConfirmTransform,
   onCancelTransform,
 }: CanvasProps) => {
-  const isHandTool = toolType === 'hand'
-  const isEyedropperTool = toolType === 'eyedropper'
-  const isZoomInTool = toolType === 'zoom-in'
-  const isZoomOutTool = toolType === 'zoom-out'
-  const isSelectionTool = toolType === 'select-rectangle' || toolType === 'select-lasso'
-  const isDrawingTool =
-    !isHandTool && !isEyedropperTool && !isZoomInTool && !isZoomOutTool && !isSelectionTool
+  // ツールフラグをメモ化（useEffect依存配列の安定化）
+  const toolFlags = useMemo(() => {
+    const isHandTool = toolType === 'hand'
+    const isEyedropperTool = toolType === 'eyedropper'
+    const isZoomInTool = toolType === 'zoom-in'
+    const isZoomOutTool = toolType === 'zoom-out'
+    const isSelectionTool = toolType === 'select-rectangle' || toolType === 'select-lasso'
+    const isDrawingTool =
+      !isHandTool && !isEyedropperTool && !isZoomInTool && !isZoomOutTool && !isSelectionTool
+    return {
+      isHandTool,
+      isEyedropperTool,
+      isZoomInTool,
+      isZoomOutTool,
+      isSelectionTool,
+      isDrawingTool,
+    }
+  }, [toolType])
+
+  const {
+    isHandTool,
+    isEyedropperTool,
+    isZoomInTool,
+    isZoomOutTool,
+    isSelectionTool,
+    isDrawingTool,
+  } = toolFlags
+
   const containerRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const lastClientPosRef = useRef<{ x: number; y: number } | null>(null)

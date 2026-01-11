@@ -110,18 +110,27 @@ export const renderLayers2D = async (
     if (layer.id === BACKGROUND_LAYER_ID) continue // 背景は上で処理済み
     if (layer.drawables.length === 0) continue
 
-    // レイヤーを一時キャンバスにレンダリング
-    const layerCanvas = await renderLayerToCanvas(layer, width, height)
+    // normalブレンドモードかつ不透明度100%の場合は直接描画（中間キャンバス不要）
+    const canRenderDirectly = layer.blendMode === 'normal' && layer.opacity === 1
 
-    // レイヤーの透明度とブレンドモードを設定して合成
-    ctx.save()
-    ctx.globalAlpha = layer.opacity
-    ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
-    ctx.drawImage(layerCanvas, 0, 0)
-    ctx.restore()
+    if (canRenderDirectly) {
+      // 直接描画（パフォーマンス最適化）
+      for (const drawable of layer.drawables) {
+        await renderDrawable2D(ctx, drawable)
+      }
+    } else {
+      // ブレンドモードや透明度がある場合は中間キャンバスを使用
+      const layerCanvas = await renderLayerToCanvas(layer, width, height)
 
-    // メモリリーク防止: 一時キャンバスを明示的に解放
-    layerCanvas.width = 0
-    layerCanvas.height = 0
+      ctx.save()
+      ctx.globalAlpha = layer.opacity
+      ctx.globalCompositeOperation = blendModeToCompositeOp(layer.blendMode)
+      ctx.drawImage(layerCanvas, 0, 0)
+      ctx.restore()
+
+      // メモリリーク防止: 一時キャンバスを明示的に解放
+      layerCanvas.width = 0
+      layerCanvas.height = 0
+    }
   }
 }
