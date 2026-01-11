@@ -87,6 +87,10 @@ type CanvasProps = {
     point: Point,
     handleSize: number
   ) => TransformHandlePosition | null
+  /** 変形確定コールバック */
+  readonly onConfirmTransform?: () => void
+  /** 変形キャンセルコールバック */
+  readonly onCancelTransform?: () => void
 }
 
 /**
@@ -130,6 +134,8 @@ export const Canvas = ({
   onUpdateTransform,
   onEndHandleOperation,
   detectHandleAtPoint,
+  onConfirmTransform,
+  onCancelTransform,
 }: CanvasProps) => {
   const isHandTool = toolType === 'hand'
   const isEyedropperTool = toolType === 'eyedropper'
@@ -376,6 +382,14 @@ export const Canvas = ({
     }
 
     const handlePointerDown = (e: PointerEvent) => {
+      // 右クリックで変形キャンセル
+      if (e.button === 2) {
+        onCancelTransform?.()
+        e.preventDefault()
+        e.stopPropagation()
+        return
+      }
+
       if (e.button !== 0) return
 
       const point = getCanvasPoint(e)
@@ -388,6 +402,11 @@ export const Canvas = ({
         setIsDragging(true)
         container.setPointerCapture(e.pointerId)
         onStartHandleOperation?.(handle, point)
+        e.preventDefault()
+        e.stopPropagation()
+      } else {
+        // ハンドル外を左クリックで変形確定
+        onConfirmTransform?.()
         e.preventDefault()
         e.stopPropagation()
       }
@@ -436,6 +455,8 @@ export const Canvas = ({
     onStartHandleOperation,
     onUpdateTransform,
     onEndHandleOperation,
+    onConfirmTransform,
+    onCancelTransform,
   ])
 
   // ツールに応じたカーソルスタイルを計算（描画ツール以外）

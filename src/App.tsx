@@ -534,6 +534,8 @@ function App() {
                       onUpdateTransform={transform.updateTransform}
                       onEndHandleOperation={transform.endHandleOperation}
                       detectHandleAtPoint={transform.detectHandleAtPoint}
+                      onConfirmTransform={transformHandlers.handleConfirmTransform}
+                      onCancelTransform={transformHandlers.handleCancelTransform}
                     />
                   </div>
                 </SelectionContextMenu>
