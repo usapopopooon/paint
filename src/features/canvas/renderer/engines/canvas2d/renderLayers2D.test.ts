@@ -398,4 +398,70 @@ describe('renderLayers2D', () => {
     // drawImageで合成される
     expect(mockCtx.drawImage).toHaveBeenCalled()
   })
+
+  test('消しゴムを含むレイヤーは中間キャンバスを使用する', async () => {
+    const { renderLayers2D } = await import('./renderLayers2D')
+    const { renderDrawable2D } = await import('./renderDrawable2D')
+
+    const mockCtx = {
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+      createPattern: vi.fn().mockReturnValue(mockPattern),
+      fillStyle: '' as string | CanvasPattern,
+      globalAlpha: 1,
+      globalCompositeOperation: 'source-over',
+    } as unknown as CanvasRenderingContext2D
+
+    const layers: Layer[] = [
+      {
+        id: 'layer-1',
+        name: 'Layer 1',
+        type: 'drawing',
+        drawables: [
+          {
+            id: 'stroke-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 0, y: 0 },
+              { x: 10, y: 10 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: { type: 'solid', size: 3, opacity: 1, hardness: 0 },
+              blendMode: 'normal',
+            },
+          },
+          {
+            id: 'eraser-1',
+            type: 'stroke',
+            createdAt: Date.now(),
+            points: [
+              { x: 5, y: 5 },
+              { x: 15, y: 15 },
+            ],
+            style: {
+              color: '#000000',
+              brushTip: { type: 'solid', size: 10, opacity: 1, hardness: 0 },
+              blendMode: 'erase', // 消しゴム
+            },
+          },
+        ],
+        isVisible: true,
+        isLocked: false,
+        opacity: 1, // 100%
+        blendMode: 'normal', // normalブレンドモード
+      },
+    ]
+
+    await renderLayers2D(mockCtx, layers, 800, 600)
+
+    // 消しゴムを含むため中間キャンバスにレンダリングされる
+    expect(renderDrawable2D).toHaveBeenCalled()
+    // drawImageで合成される（消しゴムが正しくレイヤー内で適用される）
+    expect(mockCtx.drawImage).toHaveBeenCalled()
+  })
 })

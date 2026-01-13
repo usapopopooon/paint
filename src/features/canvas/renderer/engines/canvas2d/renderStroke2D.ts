@@ -177,9 +177,24 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
     return
   }
 
-  // 消しゴムモードの場合はdestination-outを使用
+  // 消しゴムモードの場合は専用の処理
   if (isEraser) {
+    const finalAlpha = style.brushTip.opacity
+    // destination-outでは色のRGB値は無視され、アルファ値のみが使用される
+    // 黒色を使用してRGB値の影響を排除
+    const eraserColor = `rgba(0, 0, 0, ${finalAlpha})`
+
+    ctx.save()
     ctx.globalCompositeOperation = 'destination-out'
+    ctx.lineWidth = style.brushTip.size
+    ctx.strokeStyle = eraserColor
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+
+    drawStrokePath(ctx, stroke)
+    ctx.stroke()
+    ctx.restore()
+    return
   }
 
   // 共通のストローク設定
@@ -189,7 +204,7 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
   ctx.lineJoin = 'round'
 
   // ぼかしありの場合はshadowBlurを使用
-  if (hardness > 0 && !isEraser) {
+  if (hardness > 0) {
     const blurStrength = calculateBlurStrength(hardness, style.brushTip.size)
     ctx.shadowColor = strokeColor
     ctx.shadowBlur = blurStrength
@@ -201,13 +216,8 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
   ctx.stroke()
 
   // シャドウをリセット
-  if (hardness > 0 && !isEraser) {
+  if (hardness > 0) {
     ctx.shadowColor = 'transparent'
     ctx.shadowBlur = 0
-  }
-
-  // 消しゴムモードの後は元に戻す
-  if (isEraser) {
-    ctx.globalCompositeOperation = 'source-over'
   }
 }

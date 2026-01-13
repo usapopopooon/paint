@@ -35,6 +35,7 @@ import {
   EraserTool,
   LayerPanel,
   HardnessSlider,
+  RightPanel,
 } from './features/tools'
 import { StabilizationSlider, useStabilization } from './features/stabilization'
 import {
@@ -464,23 +465,6 @@ function App() {
             isActive={tool.currentType === 'select-lasso'}
             onSelect={selectionHandlers.handleSelectLasso}
           />
-          <LayerPanel
-            layers={canvas.layers}
-            activeLayerId={canvas.activeLayerId}
-            drawingLayerCount={canvas.drawingLayerCount}
-            onLayerSelect={canvas.setActiveLayer}
-            onLayerVisibilityChange={canvas.setLayerVisibility}
-            onLayerAdd={canvas.addLayer}
-            onLayerDelete={canvas.deleteLayer}
-            onLayerNameChange={canvas.setLayerName}
-            onLayerBlendModeChange={canvas.setLayerBlendMode}
-            onLayerOpacityChange={canvas.setLayerOpacity}
-            onLayerMove={canvas.moveLayer}
-            onLayerMergeDown={(id) =>
-              canvas.mergeLayerDown(id, canvasSize.width, canvasSize.height)
-            }
-            canMergeLayerDown={canvas.canMergeLayerDown}
-          />
         </ToolPanel>
 
         {/* Canvas area */}
@@ -559,6 +543,26 @@ function App() {
             </CanvasViewport>
           ) : null}
         </main>
+
+        <RightPanel>
+          <LayerPanel
+            layers={canvas.layers}
+            activeLayerId={canvas.activeLayerId}
+            drawingLayerCount={canvas.drawingLayerCount}
+            onLayerSelect={canvas.setActiveLayer}
+            onLayerVisibilityChange={canvas.setLayerVisibility}
+            onLayerAdd={canvas.addLayer}
+            onLayerDelete={canvas.deleteLayer}
+            onLayerNameChange={canvas.setLayerName}
+            onLayerBlendModeChange={canvas.setLayerBlendMode}
+            onLayerOpacityChange={canvas.setLayerOpacity}
+            onLayerMove={canvas.moveLayer}
+            onLayerMergeDown={(id) =>
+              canvas.mergeLayerDown(id, canvasSize.width, canvasSize.height)
+            }
+            canMergeLayerDown={canvas.canMergeLayerDown}
+          />
+        </RightPanel>
       </div>
       <Toaster />
       <SaveProjectDialog
