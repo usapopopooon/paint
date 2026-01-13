@@ -103,11 +103,10 @@ export const ChangeFileName: Story = {
   play: async ({ args }) => {
     const body = within(document.body)
 
-    // ファイル名入力欄を全選択してから入力
+    // ファイル名入力欄をクリアしてから入力
     const fileNameInput = document.getElementById('image-file-name') as HTMLInputElement
-    fileNameInput.focus()
-    fileNameInput.select()
-    await userEvent.keyboard('my-artwork')
+    await userEvent.clear(fileNameInput)
+    await userEvent.type(fileNameInput, 'my-artwork', { delay: 10 })
 
     const saveButton = body.getByText(i18nEn.t('export.saveDialog.save'))
     await userEvent.click(saveButton)
