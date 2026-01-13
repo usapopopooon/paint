@@ -4,33 +4,62 @@ import { createSolidBrushTip, createSoftBrushTip } from '@/features/brush'
 import { renderStroke2D } from './renderStroke2D'
 
 // Canvas 2D コンテキストのモック
-const createMockContext = () => ({
-  beginPath: vi.fn(),
-  moveTo: vi.fn(),
-  lineTo: vi.fn(),
-  stroke: vi.fn(),
-  save: vi.fn(),
-  restore: vi.fn(),
-  getImageData: vi.fn().mockReturnValue({
-    data: new Uint8ClampedArray(400), // 10x10 pixels
-    width: 10,
-    height: 10,
-  }),
-  putImageData: vi.fn(),
-  canvas: {
-    width: 100,
-    height: 100,
-  },
-  lineWidth: 0,
-  strokeStyle: '',
-  lineCap: 'butt' as CanvasLineCap,
-  lineJoin: 'miter' as CanvasLineJoin,
-  globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
-  shadowColor: 'transparent',
-  shadowBlur: 0,
-  shadowOffsetX: 0,
-  shadowOffsetY: 0,
-})
+const createMockContext = () => {
+  // save/restoreのスタックを実装
+  const stateStack: {
+    globalCompositeOperation: GlobalCompositeOperation
+    lineWidth: number
+    strokeStyle: string
+    lineCap: CanvasLineCap
+    lineJoin: CanvasLineJoin
+  }[] = []
+
+  const ctx = {
+    beginPath: vi.fn(),
+    moveTo: vi.fn(),
+    lineTo: vi.fn(),
+    stroke: vi.fn(),
+    save: vi.fn(() => {
+      stateStack.push({
+        globalCompositeOperation: ctx.globalCompositeOperation,
+        lineWidth: ctx.lineWidth,
+        strokeStyle: ctx.strokeStyle as string,
+        lineCap: ctx.lineCap,
+        lineJoin: ctx.lineJoin,
+      })
+    }),
+    restore: vi.fn(() => {
+      const state = stateStack.pop()
+      if (state) {
+        ctx.globalCompositeOperation = state.globalCompositeOperation
+        ctx.lineWidth = state.lineWidth
+        ctx.strokeStyle = state.strokeStyle
+        ctx.lineCap = state.lineCap
+        ctx.lineJoin = state.lineJoin
+      }
+    }),
+    getImageData: vi.fn().mockReturnValue({
+      data: new Uint8ClampedArray(400), // 10x10 pixels
+      width: 10,
+      height: 10,
+    }),
+    putImageData: vi.fn(),
+    canvas: {
+      width: 100,
+      height: 100,
+    },
+    lineWidth: 0,
+    strokeStyle: '' as string,
+    lineCap: 'butt' as CanvasLineCap,
+    lineJoin: 'miter' as CanvasLineJoin,
+    globalCompositeOperation: 'source-over' as GlobalCompositeOperation,
+    shadowColor: 'transparent',
+    shadowBlur: 0,
+    shadowOffsetX: 0,
+    shadowOffsetY: 0,
+  }
+  return ctx
+}
 
 describe('renderStroke2D', () => {
   let ctx: ReturnType<typeof createMockContext>
@@ -102,8 +131,64 @@ describe('renderStroke2D', () => {
 
     renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
 
-    // 消しゴムモードが設定され、その後元に戻される
+    // 消しゴムモードが設定され、その後元に戻される（save/restoreで）
     expect(ctx.globalCompositeOperation).toBe('source-over')
+  })
+
+  test('消しゴムモードで黒色を使用してRGB値の影響を排除する', () => {
+    // 描画中のstrokeStyleをキャプチャ
+    let capturedStrokeStyle = ''
+    ctx.stroke = vi.fn(() => {
+      capturedStrokeStyle = ctx.strokeStyle
+    })
+
+    const stroke: StrokeDrawable = {
+      id: 'eraser-black',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ],
+      style: {
+        color: '#ff0000', // 赤色を指定しても
+        brushTip: createSolidBrushTip(10),
+        blendMode: 'erase',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // 消しゴムは黒色（rgba(0,0,0,1)）を使用する
+    expect(capturedStrokeStyle).toBe('rgba(0, 0, 0, 1)')
+  })
+
+  test('消しゴムモードでopacityが反映される', () => {
+    // 描画中のstrokeStyleをキャプチャ
+    let capturedStrokeStyle = ''
+    ctx.stroke = vi.fn(() => {
+      capturedStrokeStyle = ctx.strokeStyle
+    })
+
+    const stroke: StrokeDrawable = {
+      id: 'eraser-opacity',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ],
+      style: {
+        color: '#ffffff',
+        brushTip: { ...createSolidBrushTip(10), opacity: 0.5 },
+        blendMode: 'erase',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // 消しゴムは黒色でopacity 0.5
+    expect(capturedStrokeStyle).toBe('rgba(0, 0, 0, 0.5)')
   })
 
   test('ソフトエッジ（hardness > 0）でshadowBlurを設定する', () => {
