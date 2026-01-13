@@ -102,8 +102,82 @@ describe('renderStroke2D', () => {
 
     renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
 
-    // 消しゴムモードが設定され、その後元に戻される
-    expect(ctx.globalCompositeOperation).toBe('source-over')
+    // 消しゴムモードでsave/restoreが呼ばれる
+    expect(ctx.save).toHaveBeenCalled()
+    expect(ctx.restore).toHaveBeenCalled()
+    // destination-outが設定される
+    expect(ctx.globalCompositeOperation).toBe('destination-out')
+    // 黒色で描画（RGB値は無視される）
+    expect(ctx.strokeStyle).toBe('rgba(0, 0, 0, 1)')
+  })
+
+  test('消しゴムモードで透明度が反映される', () => {
+    const stroke: StrokeDrawable = {
+      id: 'eraser-opacity',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ],
+      style: {
+        color: 'transparent',
+        brushTip: createSolidBrushTip(10, 0.5), // 50%透明度
+        blendMode: 'erase',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // 透明度が反映された黒色で描画
+    expect(ctx.strokeStyle).toBe('rgba(0, 0, 0, 0.5)')
+    expect(ctx.globalCompositeOperation).toBe('destination-out')
+  })
+
+  test('消しゴムモードでスタイルのcolorに依存しない', () => {
+    // 消しゴムのcolorが'transparent'や任意の色でも、黒色で描画される
+    const stroke: StrokeDrawable = {
+      id: 'eraser-color-independent',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ],
+      style: {
+        color: '#ff0000', // 赤色が指定されていても
+        brushTip: createSolidBrushTip(10),
+        blendMode: 'erase',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // 黒色で描画される（RGB値は無視される）
+    expect(ctx.strokeStyle).toBe('rgba(0, 0, 0, 1)')
+  })
+
+  test('消しゴムモードでhardnessが設定されていてもshadowBlurを使用しない', () => {
+    const stroke: StrokeDrawable = {
+      id: 'eraser-soft',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ],
+      style: {
+        color: 'transparent',
+        brushTip: createSoftBrushTip(10, 0.5), // hardness 0.5
+        blendMode: 'erase',
+      },
+    }
+
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // 消しゴムではshadowBlurを使用しない
+    expect(ctx.shadowBlur).toBe(0)
+    expect(ctx.shadowColor).toBe('transparent')
   })
 
   test('ソフトエッジ（hardness > 0）でshadowBlurを設定する', () => {

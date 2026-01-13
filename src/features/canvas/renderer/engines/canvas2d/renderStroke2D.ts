@@ -166,8 +166,30 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
   const isEraser = style.blendMode === 'erase'
   const isBlur = style.blendMode === 'blur'
   const hardness = style.brushTip.hardness
-  const color = isEraser ? '#ffffff' : style.color
-  const colorAlpha = isEraser ? 1 : hexToAlpha(style.color)
+
+  // 消しゴムモードの場合
+  if (isEraser) {
+    const finalAlpha = style.brushTip.opacity
+    // destination-outでは色のRGB値は無視され、アルファ値のみが使用される
+    // 黒色を使用してRGB値の影響を排除
+    const strokeColor = `rgba(0, 0, 0, ${finalAlpha})`
+
+    ctx.save()
+    ctx.globalCompositeOperation = 'destination-out'
+    ctx.lineWidth = style.brushTip.size
+    ctx.strokeStyle = strokeColor
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+
+    drawStrokePath(ctx, stroke)
+    ctx.stroke()
+    ctx.restore()
+    return
+  }
+
+  // 通常のストローク描画
+  const color = style.color
+  const colorAlpha = hexToAlpha(style.color)
   const finalAlpha = style.brushTip.opacity * colorAlpha
   const strokeColor = hexToRgba(color, finalAlpha)
 
@@ -177,11 +199,6 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
     return
   }
 
-  // 消しゴムモードの場合はdestination-outを使用
-  if (isEraser) {
-    ctx.globalCompositeOperation = 'destination-out'
-  }
-
   // 共通のストローク設定
   ctx.lineWidth = style.brushTip.size
   ctx.strokeStyle = strokeColor
@@ -189,7 +206,7 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
   ctx.lineJoin = 'round'
 
   // ぼかしありの場合はshadowBlurを使用
-  if (hardness > 0 && !isEraser) {
+  if (hardness > 0) {
     const blurStrength = calculateBlurStrength(hardness, style.brushTip.size)
     ctx.shadowColor = strokeColor
     ctx.shadowBlur = blurStrength
@@ -201,13 +218,8 @@ export const renderStroke2D = (ctx: CanvasRenderingContext2D, stroke: StrokeDraw
   ctx.stroke()
 
   // シャドウをリセット
-  if (hardness > 0 && !isEraser) {
+  if (hardness > 0) {
     ctx.shadowColor = 'transparent'
     ctx.shadowBlur = 0
-  }
-
-  // 消しゴムモードの後は元に戻す
-  if (isEraser) {
-    ctx.globalCompositeOperation = 'source-over'
   }
 }
