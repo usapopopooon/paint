@@ -1,4 +1,5 @@
 export * from './ToolPanel'
+export * from './RightPanel'
 export * from './PenTool'
 export * from './BrushTool'
 export * from './BlurTool'
