@@ -36,7 +36,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ノイズフィルタのみ追加', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
       pointer.addPoint(createPoint(0, 0))
       const result = pointer.addPoint(createPoint(0.5, 0.5)) // 距離 ≈ 0.7 < 1.5
@@ -46,7 +46,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('カルマンフィルタのみ追加', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -59,7 +59,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ガウシアンフィルタのみ追加', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(5, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(5, 1.0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -74,7 +74,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('紐補正のみ追加', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(5)
+      const pointer = new StabilizedPointer().addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(3, 0)) // 5px未満
@@ -85,10 +85,10 @@ describe('StabilizedPointer', () => {
 
     test('複数フィルタをチェインで追加', () => {
       const pointer = new StabilizedPointer()
-        .withNoiseFilter(1.5)
-        .withKalmanFilter(0.1, 0.5)
-        .withGaussianFilter(5, 1.0)
-        .withStringStabilization(5)
+        .addNoiseFilter(1.5)
+        .addKalmanFilter(0.1, 0.5)
+        .addGaussianFilter(5, 1.0)
+        .addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -97,7 +97,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('rAFバッチをチェインで追加', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withRafBatch()
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addRafBatch()
 
       expect(pointer.hasFilter('noise')).toBe(true)
     })
@@ -105,7 +105,7 @@ describe('StabilizedPointer', () => {
 
   describe('フィルタ更新API', () => {
     test('ノイズフィルタのパラメータを更新', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
       pointer.addPoint(createPoint(0, 0))
       // 1.5未満は拒否
@@ -120,7 +120,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('カルマンフィルタのパラメータを更新', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       // パラメータ更新がエラーなく動作
       pointer.updateKalmanFilter(0.2, 0.8)
@@ -132,7 +132,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ガウシアンフィルタのパラメータを更新', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(3, 0.5)
+      const pointer = new StabilizedPointer().addGaussianFilter(3, 0.5)
 
       // パラメータ更新がエラーなく動作
       pointer.updateGaussianFilter(5, 1.0)
@@ -144,7 +144,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('紐補正のパラメータを更新', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(5)
+      const pointer = new StabilizedPointer().addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(3, 0)) // デッドゾーン内
@@ -160,21 +160,21 @@ describe('StabilizedPointer', () => {
       expect(pointer.getAllPoints()[1].x).toBeGreaterThan(0)
     })
 
-    test('フィルタの有効/無効を切り替え', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+    test('フィルタを削除できる', () => {
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
       pointer.addPoint(createPoint(0, 0))
       expect(pointer.addPoint(createPoint(0.5, 0.5))).toBeNull() // フィルタで拒否
 
-      // フィルタを無効化
-      pointer.setFilterEnabled('noise', false)
+      // フィルタを削除
+      pointer.removeFilter('noise')
 
       const result = pointer.addPoint(createPoint(0.5, 0.5))
-      expect(result).not.toBeNull() // フィルタ無効なので通る
+      expect(result).not.toBeNull() // フィルタ削除されたので通る
     })
 
     test('hasFilter でフィルタの存在確認', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addKalmanFilter(0.1, 0.5)
 
       expect(pointer.hasFilter('noise')).toBe(true)
       expect(pointer.hasFilter('kalman')).toBe(true)
@@ -182,19 +182,19 @@ describe('StabilizedPointer', () => {
       expect(pointer.hasFilter('string')).toBe(false)
     })
 
-    test('isFilterEnabled でフィルタの有効状態確認', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+    test('removeFilterでフィルタが削除される', () => {
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
-      expect(pointer.isFilterEnabled('noise')).toBe(true)
+      expect(pointer.hasFilter('noise')).toBe(true)
 
-      pointer.setFilterEnabled('noise', false)
-      expect(pointer.isFilterEnabled('noise')).toBe(false)
+      pointer.removeFilter('noise')
+      expect(pointer.hasFilter('noise')).toBe(false)
     })
   })
 
   describe('フィルタパイプライン順序', () => {
     test('フィルタは追加順に適用される（ノイズ→カルマン）', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint(createPoint(0, 0))
       // ノイズフィルタで先に拒否される
@@ -204,7 +204,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('フィルタは追加順に適用される（カルマン→紐）', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5).withStringStabilization(5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5).addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(3, 0)) // 紐のデッドゾーン内
@@ -217,7 +217,7 @@ describe('StabilizedPointer', () => {
 
   describe('カルマンフィルタ', () => {
     test('カルマンフィルタは予測ベースで補正する', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       // 直線上のポイント
       pointer.addPoint(createPoint(0, 0))
@@ -231,7 +231,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('カルマンフィルタは急な方向転換を滑らかにする', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       // 急な方向転換
       pointer.addPoint(createPoint(0, 0))
@@ -245,7 +245,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('resetでカルマンフィルタの状態もリセットされる', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 0))
@@ -271,7 +271,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('距離が十分離れたポイントは追加される', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
       pointer.addPoint(createPoint(0, 0))
 
       const result = pointer.addPoint(createPoint(10, 10))
@@ -281,7 +281,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('距離が近すぎるポイントはノイズとして除去される（補正有効時）', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
       pointer.addPoint(createPoint(0, 0))
 
       const result = pointer.addPoint(createPoint(0.5, 0.5)) // 距離 ≈ 0.7 < 1.5
@@ -312,7 +312,7 @@ describe('StabilizedPointer', () => {
 
   describe('ガウシアンフィルタ', () => {
     test('ガウシアンフィルタが適用される', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(5, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(5, 1.0)
 
       // 直線上のポイントを追加
       pointer.addPoint(createPoint(0, 0))
@@ -330,7 +330,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ジグザグなポイントは平滑化される', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(5, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(5, 1.0)
 
       // ジグザグパターン
       pointer.addPoint(createPoint(0, 0))
@@ -347,7 +347,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('pressureとpointerTypeは保持される', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint(createPoint(0, 0, 0.8))
       pointer.addPoint(createPoint(10, 10, 0.6))
@@ -366,7 +366,7 @@ describe('StabilizedPointer', () => {
 
   describe('紐補正', () => {
     test('デッドゾーン内の移動では描画点が動かない', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(5)
+      const pointer = new StabilizedPointer().addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(3, 0)) // 5px未満
@@ -376,7 +376,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('デッドゾーンを超えると描画点が追従する', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(5)
+      const pointer = new StabilizedPointer().addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(15, 0)) // 5pxを大きく超える
@@ -386,7 +386,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('紐の長さを変えるとデッドゾーンが変わる', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(10)
+      const pointer = new StabilizedPointer().addStringStabilization(10)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(8, 0)) // 10px未満
@@ -411,7 +411,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ノイズポイントはフィルタリングされる（補正有効時）', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
       const results = pointer.addPoints([
         createPoint(0, 0),
@@ -457,7 +457,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('補正で終端がずれた場合は生ポイントを追加', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(5, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(5, 1.0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -482,7 +482,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('紐補正の状態もリセットされる', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(5)
+      const pointer = new StabilizedPointer().addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 0))
@@ -519,9 +519,9 @@ describe('StabilizedPointer', () => {
       vi.unstubAllGlobals()
     })
 
-    test('withRafBatch有効時はrAFでバッチ処理される', () => {
+    test('addRafBatch有効時はrAFでバッチ処理される', () => {
       const onFlush = vi.fn()
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withRafBatch().onFlush(onFlush)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addRafBatch().onFlush(onFlush)
 
       const mockElement = {
         getBoundingClientRect: () => ({
@@ -589,9 +589,9 @@ describe('StabilizedPointer', () => {
       expect(onFlush).toHaveBeenCalledTimes(1)
     })
 
-    test('withRafBatch無効時はrAFを使わず即座に処理', () => {
+    test('addRafBatch未使用時はrAFを使わず即座に処理', () => {
       const onFlush = vi.fn()
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).onFlush(onFlush) // withRafBatchなし
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).onFlush(onFlush) // addRafBatchなし
 
       const mockElement = {
         getBoundingClientRect: () => ({
@@ -621,7 +621,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('複数のaddPointerEventは1つのrAFにバッチ処理される', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withRafBatch()
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addRafBatch()
 
       const mockElement = {
         getBoundingClientRect: () => ({
@@ -654,7 +654,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('finishでペンディング中のポイントが処理される', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(5, 1.0).withRafBatch()
+      const pointer = new StabilizedPointer().addGaussianFilter(5, 1.0).addRafBatch()
 
       const mockElement = {
         getBoundingClientRect: () => ({
@@ -689,7 +689,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('resetでrAFがキャンセルされる', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(5, 1.0).withRafBatch()
+      const pointer = new StabilizedPointer().addGaussianFilter(5, 1.0).addRafBatch()
 
       const mockElement = {
         getBoundingClientRect: () => ({
@@ -744,8 +744,8 @@ describe('StabilizedPointer', () => {
       expect(points[0].y).toBe(50) // 100 / 2
     })
 
-    test('setRafBatchEnabledでrAFバッチを動的に切り替え', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withRafBatch()
+    test('removeRafBatchでrAFバッチを動的に切り替え', () => {
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addRafBatch()
 
       const mockElement = {
         getBoundingClientRect: () => ({
@@ -771,8 +771,8 @@ describe('StabilizedPointer', () => {
       flushRAF()
       expect(pointer.getAllPoints()).toHaveLength(1)
 
-      // rAFバッチを無効化
-      pointer.setRafBatchEnabled(false)
+      // rAFバッチを削除
+      pointer.removeRafBatch()
 
       const mockEvent2 = {
         nativeEvent: { getCoalescedEvents: () => [] },
@@ -917,7 +917,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('同じポイントを連続追加（ノイズフィルタあり）', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
       pointer.addPoint(createPoint(10, 10))
       const result1 = pointer.addPoint(createPoint(10, 10))
@@ -929,7 +929,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('非常に大きな座標値', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint(createPoint(1000000, 1000000))
       pointer.addPoint(createPoint(1000010, 1000010))
@@ -940,7 +940,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('負の座標値', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(3, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(3, 1.0)
 
       pointer.addPoint(createPoint(-100, -100))
       pointer.addPoint(createPoint(-90, -90))
@@ -970,7 +970,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('存在しないフィルタの更新は無視される', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5)
 
       // カルマンフィルタは追加していないが、更新してもエラーにならない
       pointer.updateKalmanFilter(0.2, 0.8)
@@ -978,11 +978,11 @@ describe('StabilizedPointer', () => {
       expect(pointer.hasFilter('kalman')).toBe(false)
     })
 
-    test('存在しないフィルタの有効/無効切り替えは無視される', () => {
+    test('存在しないフィルタのremoveは無視される', () => {
       const pointer = new StabilizedPointer()
 
-      // フィルタを追加していないが、setFilterEnabledしてもエラーにならない
-      pointer.setFilterEnabled('noise', true)
+      // フィルタを追加していないが、removeFilterしてもエラーにならない
+      pointer.removeFilter('noise')
 
       expect(pointer.hasFilter('noise')).toBe(false)
     })
@@ -998,7 +998,7 @@ describe('StabilizedPointer', () => {
 
   describe('フィルタの組み合わせ', () => {
     test('ノイズ + ガウシアン（カルマンなし）', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(1.5).withGaussianFilter(3, 1.0)
+      const pointer = new StabilizedPointer().addNoiseFilter(1.5).addGaussianFilter(3, 1.0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -1011,7 +1011,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('カルマン + 紐（ノイズなし）', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5).withStringStabilization(5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5).addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(3, 0)) // 紐のデッドゾーン内
@@ -1022,7 +1022,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ガウシアン + 紐（ノイズ・カルマンなし）', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(3, 1.0).withStringStabilization(5)
+      const pointer = new StabilizedPointer().addGaussianFilter(3, 1.0).addStringStabilization(5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 0))
@@ -1032,7 +1032,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('紐のみ（他フィルタなし）', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(10)
+      const pointer = new StabilizedPointer().addStringStabilization(10)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(5, 0)) // デッドゾーン内
@@ -1045,10 +1045,10 @@ describe('StabilizedPointer', () => {
 
     test('フィルタの順序が結果に影響する', () => {
       // 紐→ガウシアンの順
-      const pointer1 = new StabilizedPointer().withStringStabilization(5).withGaussianFilter(3, 1.0)
+      const pointer1 = new StabilizedPointer().addStringStabilization(5).addGaussianFilter(3, 1.0)
 
       // ガウシアン→紐の順
-      const pointer2 = new StabilizedPointer().withGaussianFilter(3, 1.0).withStringStabilization(5)
+      const pointer2 = new StabilizedPointer().addGaussianFilter(3, 1.0).addStringStabilization(5)
 
       const points = [createPoint(0, 0), createPoint(10, 0), createPoint(20, 0)]
 
@@ -1064,7 +1064,7 @@ describe('StabilizedPointer', () => {
 
   describe('パラメータ境界値', () => {
     test('ノイズフィルタ: minDistance = 0', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(0)
+      const pointer = new StabilizedPointer().addNoiseFilter(0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(0.001, 0.001))
@@ -1074,7 +1074,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('カルマンフィルタ: processNoise = 0', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0, 0.5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -1083,7 +1083,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('カルマンフィルタ: measurementNoise = 0', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -1092,7 +1092,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('ガウシアンフィルタ: size = 1（実質無効）', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(1, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(1, 1.0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -1102,7 +1102,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('紐補正: stringLength = 0', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(0)
+      const pointer = new StabilizedPointer().addStringStabilization(0)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(1, 0))
@@ -1137,7 +1137,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('finish後に再利用', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint(createPoint(0, 0))
       pointer.addPoint(createPoint(10, 10))
@@ -1152,17 +1152,17 @@ describe('StabilizedPointer', () => {
       expect(points[0].y).toBe(100)
     })
 
-    test('フィルタの動的有効化/無効化', () => {
-      const pointer = new StabilizedPointer().withNoiseFilter(10)
+    test('フィルタの動的追加/削除', () => {
+      const pointer = new StabilizedPointer().addNoiseFilter(10)
 
       pointer.addPoint(createPoint(0, 0))
       expect(pointer.addPoint(createPoint(5, 0))).toBeNull() // フィルタで拒否
 
-      pointer.setFilterEnabled('noise', false)
-      expect(pointer.addPoint(createPoint(5, 0))).not.toBeNull() // フィルタ無効で通過
+      pointer.removeFilter('noise')
+      expect(pointer.addPoint(createPoint(5, 0))).not.toBeNull() // フィルタ削除で通過
 
-      pointer.setFilterEnabled('noise', true)
-      expect(pointer.addPoint(createPoint(6, 0))).toBeNull() // 再度有効で拒否
+      pointer.addNoiseFilter(10)
+      expect(pointer.addPoint(createPoint(6, 0))).toBeNull() // 再度追加で拒否
     })
   })
 
@@ -1214,7 +1214,7 @@ describe('StabilizedPointer', () => {
 
   describe('pointerType の処理', () => {
     test('pen タイプが正しく保持される', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5)
 
       pointer.addPoint({ x: 0, y: 0, pressure: 0.5, pointerType: 'pen' })
       pointer.addPoint({ x: 10, y: 10, pressure: 0.5, pointerType: 'pen' })
@@ -1224,7 +1224,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('touch タイプが正しく保持される', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(3, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(3, 1.0)
 
       pointer.addPoint({ x: 0, y: 0, pressure: 0.5, pointerType: 'touch' })
       pointer.addPoint({ x: 10, y: 10, pressure: 0.5, pointerType: 'touch' })
@@ -1235,7 +1235,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('mouse タイプが正しく保持される', () => {
-      const pointer = new StabilizedPointer().withStringStabilization(5)
+      const pointer = new StabilizedPointer().addStringStabilization(5)
 
       pointer.addPoint({ x: 0, y: 0, pressure: 0.5, pointerType: 'mouse' })
       pointer.addPoint({ x: 20, y: 0, pressure: 0.5, pointerType: 'mouse' })
@@ -1295,7 +1295,7 @@ describe('StabilizedPointer', () => {
 
   describe('pressure の補間', () => {
     test('圧力値がフィルタ後も妥当な範囲', () => {
-      const pointer = new StabilizedPointer().withKalmanFilter(0.1, 0.5).withGaussianFilter(5, 1.0)
+      const pointer = new StabilizedPointer().addKalmanFilter(0.1, 0.5).addGaussianFilter(5, 1.0)
 
       pointer.addPoint(createPoint(0, 0, 0.2))
       pointer.addPoint(createPoint(10, 10, 0.5))
@@ -1311,7 +1311,7 @@ describe('StabilizedPointer', () => {
     })
 
     test('圧力値が元の値を保持する', () => {
-      const pointer = new StabilizedPointer().withGaussianFilter(3, 1.0)
+      const pointer = new StabilizedPointer().addGaussianFilter(3, 1.0)
 
       // 様々な圧力値でポイントを追加
       pointer.addPoint(createPoint(0, 0, 0.1))

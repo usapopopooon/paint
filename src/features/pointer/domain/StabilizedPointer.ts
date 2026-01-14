@@ -44,27 +44,27 @@ export const createStabilizedPointer = (level: number): StabilizedPointer => {
 
   // Stage 1+: ノイズフィルタ
   const noiseMinDistance = 1.0 + level * 0.02 // 1.0 - 3.0
-  pointer.withNoiseFilter(noiseMinDistance)
+  pointer.addNoiseFilter(noiseMinDistance)
 
   if (level >= 21) {
     // Stage 2+: カルマンフィルタ
     const processNoise = 0.12 - level * 0.0008 // 0.12 - 0.04
     const measurementNoise = 0.4 + level * 0.006 // 0.4 - 1.0
-    pointer.withKalmanFilter(processNoise, measurementNoise)
+    pointer.addKalmanFilter(processNoise, measurementNoise)
   }
 
   if (level >= 41) {
     // Stage 3+: ガウシアンフィルタ + rAFバッチ
     const gaussianSize = level >= 61 ? 9 : 7
     const gaussianSigma = 1.0 + level * 0.006 // 1.0 - 1.6
-    pointer.withGaussianFilter(gaussianSize, gaussianSigma)
-    pointer.withRafBatch()
+    pointer.addGaussianFilter(gaussianSize, gaussianSigma)
+    pointer.addRafBatch()
   }
 
   if (level >= 61) {
     // Stage 4+: 紐補正
     const stringLength = level >= 81 ? 15 : 8
-    pointer.withStringStabilization(stringLength)
+    pointer.addStringStabilization(stringLength)
   }
 
   return pointer
@@ -135,25 +135,25 @@ export type OnPointsFlush = (points: readonly PointerPoint[]) => void
  * 手振れ補正付きポインター入力クラス
  *
  * メソッドチェインでフィルタを追加し、追加順序が処理順序となる。
- * 各フィルタは後からパラメータの変更や有効/無効の切り替えが可能。
+ * 各フィルタは後からパラメータの変更や削除が可能。
  *
  * @example
  * ```typescript
- * // 構築時
+ * // 構築時（加算）
  * const pointer = new StabilizedPointer()
- *   .withNoiseFilter(1.5)
- *   .withKalmanFilter(0.1, 0.5)
- *   .withGaussianFilter(5, 1.0)
- *   .withStringStabilization(5)
- *   .withRafBatch()
+ *   .addNoiseFilter(1.5)
+ *   .addKalmanFilter(0.1, 0.5)
+ *   .addGaussianFilter(5, 1.0)
+ *   .addStringStabilization(5)
+ *   .addRafBatch()
  *   .onFlush(callback)
  *
  * // 後からパラメータを更新
  * pointer.updateNoiseFilter(2.0)
  * pointer.updateKalmanFilter(0.2, 0.8)
  *
- * // 特定のフィルタを無効化
- * pointer.setFilterEnabled('gaussian', false)
+ * // 特定のフィルタを削除（減算）
+ * pointer.removeFilter('gaussian')
  * ```
  */
 export class StabilizedPointer {
@@ -190,7 +190,7 @@ export class StabilizedPointer {
    *
    * @param minDistance - 最小ポイント間距離（ピクセル）
    */
-  withNoiseFilter(minDistance: number): this {
+  addNoiseFilter(minDistance: number): this {
     this.filterPipeline.push({ type: 'noise', enabled: true, minDistance })
     return this
   }
@@ -202,7 +202,7 @@ export class StabilizedPointer {
    * @param processNoise - プロセスノイズ（Q）- 小さいほど予測を信頼（例: 0.1）
    * @param measurementNoise - 観測ノイズ（R）- 大きいほど予測を信頼（例: 0.5）
    */
-  withKalmanFilter(processNoise: number, measurementNoise: number): this {
+  addKalmanFilter(processNoise: number, measurementNoise: number): this {
     this.filterPipeline.push({ type: 'kalman', enabled: true, processNoise, measurementNoise })
     return this
   }
@@ -214,7 +214,7 @@ export class StabilizedPointer {
    * @param size - カーネルサイズ（奇数、3以上）
    * @param sigma - 標準偏差（例: 1.0）
    */
-  withGaussianFilter(size: number, sigma: number): this {
+  addGaussianFilter(size: number, sigma: number): this {
     this.filterPipeline.push({ type: 'gaussian', enabled: true, size, sigma })
     return this
   }
@@ -225,16 +225,16 @@ export class StabilizedPointer {
    *
    * @param stringLength - 紐の長さ（デッドゾーン半径、ピクセル）
    */
-  withStringStabilization(stringLength: number): this {
+  addStringStabilization(stringLength: number): this {
     this.filterPipeline.push({ type: 'string', enabled: true, stringLength })
     return this
   }
 
   /**
-   * rAFバッチ処理を有効化
+   * rAFバッチ処理を追加
    * フレーム同期でポイントをまとめて処理
    */
-  withRafBatch(): this {
+  addRafBatch(): this {
     this.rafBatchEnabled = true
     return this
   }
@@ -305,24 +305,19 @@ export class StabilizedPointer {
   }
 
   /**
-   * rAFバッチ処理の有効/無効を設定
-   * @param enabled - 有効にするかどうか
+   * 指定したフィルタをパイプラインから削除
+   * @param type - 削除するフィルタの種類
    */
-  setRafBatchEnabled(enabled: boolean): this {
-    this.rafBatchEnabled = enabled
+  removeFilter(type: FilterType): this {
+    this.filterPipeline = this.filterPipeline.filter((f) => f.type !== type)
     return this
   }
 
   /**
-   * 特定のフィルタの有効/無効を設定
-   * @param type - フィルタの種類
-   * @param enabled - 有効にするかどうか
+   * rAFバッチ処理を削除
    */
-  setFilterEnabled(type: FilterType, enabled: boolean): this {
-    const filter = this.filterPipeline.find((f) => f.type === type)
-    if (filter) {
-      filter.enabled = enabled
-    }
+  removeRafBatch(): this {
+    this.rafBatchEnabled = false
     return this
   }
 
