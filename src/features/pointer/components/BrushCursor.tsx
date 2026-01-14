@@ -72,8 +72,9 @@ export const BrushCursor = forwardRef<BrushCursorHandle, BrushCursorProps>(
             position: 'absolute',
             left: '50%',
             top: '50%',
-            marginLeft: -6,
-            marginTop: -6,
+            // アイコンの左上端（ペン先）を円の中心に配置
+            marginLeft: 0,
+            marginTop: 0,
             color: 'white',
             filter: 'drop-shadow(1px 0 0 rgba(0,0,0,0.5))',
           }}
