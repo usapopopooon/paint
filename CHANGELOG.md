@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.8] - 2026-01-14
+
+### Fixes
+
+- **ペンカーソルのアイコン位置を調整**
+  - ペン先アイコン（MousePointer2）の左上端をブラシ円の中心に配置
+  - どこから線が描かれるかが直感的にわかるように改善
+
+### Refactor
+
+- **StabilizedPointerのメソッド命名をDynamic Pipelineパターンに準拠**
+  - `withXxxFilter()` → `addXxxFilter()` に変更
+  - `withRafBatch()` → `addRafBatch()` に変更
+  - `removeFilter(type)` と `removeRafBatch()` メソッドを追加
+  - `setFilterEnabled` と `setRafBatchEnabled` メソッドを削除
+
 ## [0.3.7] - 2026-01-13
 
 ### Features
