@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.9] - 2026-01-16
+
+### Refactor
+
+- **手ぶれ補正を @stroke-stabilizer/core に置き換え**
+  - `stabilizeStroke` の実装を `@stroke-stabilizer/core` の `smooth` + `gaussianKernel` に変更
+  - 未使用だった `StabilizedPointer` クラスを削除
+  - 約750行のコードを削減
+
+### Dependencies
+
+- `@stroke-stabilizer/core` ^0.2.0 を追加
+- `@stroke-stabilizer/react` ^0.2.0 を追加
+
 ## [0.3.8] - 2026-01-14
 
 ### Fixes
