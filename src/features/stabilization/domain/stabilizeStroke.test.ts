@@ -26,6 +26,28 @@ describe('stabilizeStroke', () => {
       // 元の配列とは別のオブジェクトであることを確認
       expect(result[0]).not.toBe(points[0])
     })
+
+    test('2点のみの場合、補正が適用される', () => {
+      const points: Point[] = [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ]
+      const result = stabilizeStroke(points, 3, 1)
+      expect(result.length).toBe(2)
+      // 2点でもスムージングが適用される
+      expect(result[0]).toBeDefined()
+      expect(result[1]).toBeDefined()
+    })
+
+    test('readonly配列を受け入れる', () => {
+      const points: readonly Point[] = [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+        { x: 20, y: 20 },
+      ]
+      const result = stabilizeStroke(points, 3, 1)
+      expect(result.length).toBe(3)
+    })
   })
 
   describe('基本的な平滑化', () => {
@@ -151,6 +173,27 @@ describe('stabilizeStroke', () => {
       // 大きいカーネルの方がより平滑化される（y座標の分散が小さい）
       const varianceSmall = calculateVariance(resultSmall.map((p) => p.y))
       const varianceLarge = calculateVariance(resultLarge.map((p) => p.y))
+
+      expect(varianceLarge).toBeLessThan(varianceSmall)
+    })
+  })
+
+  describe('sigmaパラメータの影響', () => {
+    test('大きいsigmaほど強く平滑化される', () => {
+      const points: Point[] = [
+        { x: 0, y: 0 },
+        { x: 10, y: 20 },
+        { x: 20, y: 0 },
+        { x: 30, y: 20 },
+        { x: 40, y: 0 },
+      ]
+
+      const resultSmallSigma = stabilizeStroke(points, 5, 0.5)
+      const resultLargeSigma = stabilizeStroke(points, 5, 2.0)
+
+      // 大きいsigmaの方がより平滑化される（y座標の分散が小さい）
+      const varianceSmall = calculateVariance(resultSmallSigma.map((p) => p.y))
+      const varianceLarge = calculateVariance(resultLargeSigma.map((p) => p.y))
 
       expect(varianceLarge).toBeLessThan(varianceSmall)
     })

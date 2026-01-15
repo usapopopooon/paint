@@ -1,9 +1,6 @@
 // 型
 export * from './types'
 
-// ドメイン
-export * from './domain'
-
 // ヘルパー
 export * from './helpers'
 
