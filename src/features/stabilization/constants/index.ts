@@ -2,10 +2,10 @@
 export const MIN_STABILIZATION = 0
 
 /** 最大補正強度（内部値、UI上は100%として表示） */
-export const MAX_STABILIZATION = 0.2
+export const MAX_STABILIZATION = 0.4
 
-/** デフォルト補正強度（0 = 補正なし） */
-export const DEFAULT_STABILIZATION = 0
+/** デフォルト補正強度（UI上の50%相当） */
+export const DEFAULT_STABILIZATION = 0.2
 
 /** 手ぶれ補正フィルタの最小カーネルサイズ */
 const MIN_KERNEL_SIZE = 3

@@ -48,18 +48,18 @@ describe('StabilizationSlider', () => {
     expect(slider).toHaveAttribute('aria-valuenow', '0')
   })
 
-  test('stabilization=0.2（内部最大値）の場合、ポップオーバー内のスライダー値は100になる', async () => {
+  test('stabilization=0.4（内部最大値）の場合、ポップオーバー内のスライダー値は100になる', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.2} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.4} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '100')
   })
 
-  test('stabilization=0.1の場合、ポップオーバー内のスライダー値は50になる', async () => {
+  test('stabilization=0.2の場合、ポップオーバー内のスライダー値は50になる', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.2} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
     const slider = screen.getByRole('slider')
@@ -112,10 +112,10 @@ describe('StabilizationSlider', () => {
 
   test('ポップオーバー内にパーセント表示がある', async () => {
     const user = userEvent.setup()
-    renderWithProviders(<StabilizationSlider stabilization={0.1} onStabilizationChange={vi.fn()} />)
+    renderWithProviders(<StabilizationSlider stabilization={0.2} onStabilizationChange={vi.fn()} />)
 
     await user.click(screen.getByRole('button'))
-    // 内部値0.1はUI上50%として表示される
+    // 内部値0.2はUI上50%として表示される
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuenow', '50')
   })

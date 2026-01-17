@@ -9,8 +9,8 @@ import {
 describe('stabilization constants', () => {
   test('定数が正しい値を持つ', () => {
     expect(MIN_STABILIZATION).toBe(0)
-    expect(MAX_STABILIZATION).toBe(0.2)
-    expect(DEFAULT_STABILIZATION).toBe(0)
+    expect(MAX_STABILIZATION).toBe(0.4)
+    expect(DEFAULT_STABILIZATION).toBe(0.2)
   })
 })
 
@@ -21,21 +21,28 @@ describe('stabilizationToParams', () => {
     expect(result.sigma).toBe(0)
   })
 
-  test('stabilization=0.2（UI100%）の場合、size=7を返す（最大補正）', () => {
+  test('stabilization=0.4（UI100%）の場合、size=11を返す（最大補正）', () => {
+    const result = stabilizationToParams(0.4)
+    // 3 + 0.4 * (21 - 3) = 3 + 7.2 = 10.2 → 奇数に丸めて11
+    expect(result.size).toBe(11)
+    expect(result.sigma).toBeCloseTo(11 / 3)
+  })
+
+  test('stabilization=0.1（UI25%）の場合、size=5を返す', () => {
+    const result = stabilizationToParams(0.1)
+    // 3 + 0.1 * (21 - 3) = 3 + 1.8 = 4.8 → 奇数に丸めて5
+    expect(result.size).toBe(5)
+  })
+
+  test('stabilization=0.2（UI50%）の場合、size=7を返す', () => {
     const result = stabilizationToParams(0.2)
     // 3 + 0.2 * (21 - 3) = 3 + 3.6 = 6.6 → 奇数に丸めて7
     expect(result.size).toBe(7)
     expect(result.sigma).toBeCloseTo(7 / 3)
   })
 
-  test('stabilization=0.1（UI50%）の場合、size=5を返す', () => {
-    const result = stabilizationToParams(0.1)
-    // 3 + 0.1 * (21 - 3) = 3 + 1.8 = 4.8 → 奇数に丸めて5
-    expect(result.size).toBe(5)
-  })
-
   test('sizeは常に奇数になる', () => {
-    for (let s = 0.02; s <= 0.2; s += 0.02) {
+    for (let s = 0.02; s <= 0.4; s += 0.02) {
       const result = stabilizationToParams(s)
       expect(result.size % 2).toBe(1)
     }
