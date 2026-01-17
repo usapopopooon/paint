@@ -544,25 +544,27 @@ function App() {
           ) : null}
         </main>
 
-        <RightPanel>
-          <LayerPanel
-            layers={canvas.layers}
-            activeLayerId={canvas.activeLayerId}
-            drawingLayerCount={canvas.drawingLayerCount}
-            onLayerSelect={canvas.setActiveLayer}
-            onLayerVisibilityChange={canvas.setLayerVisibility}
-            onLayerAdd={canvas.addLayer}
-            onLayerDelete={canvas.deleteLayer}
-            onLayerNameChange={canvas.setLayerName}
-            onLayerBlendModeChange={canvas.setLayerBlendMode}
-            onLayerOpacityChange={canvas.setLayerOpacity}
-            onLayerMove={canvas.moveLayer}
-            onLayerMergeDown={(id) =>
-              canvas.mergeLayerDown(id, canvasSize.width, canvasSize.height)
-            }
-            canMergeLayerDown={canvas.canMergeLayerDown}
-          />
-        </RightPanel>
+        {projectHandlers.isCanvasCreated && (
+          <RightPanel>
+            <LayerPanel
+              layers={canvas.layers}
+              activeLayerId={canvas.activeLayerId}
+              drawingLayerCount={canvas.drawingLayerCount}
+              onLayerSelect={canvas.setActiveLayer}
+              onLayerVisibilityChange={canvas.setLayerVisibility}
+              onLayerAdd={canvas.addLayer}
+              onLayerDelete={canvas.deleteLayer}
+              onLayerNameChange={canvas.setLayerName}
+              onLayerBlendModeChange={canvas.setLayerBlendMode}
+              onLayerOpacityChange={canvas.setLayerOpacity}
+              onLayerMove={canvas.moveLayer}
+              onLayerMergeDown={(id) =>
+                canvas.mergeLayerDown(id, canvasSize.width, canvasSize.height)
+              }
+              canMergeLayerDown={canvas.canMergeLayerDown}
+            />
+          </RightPanel>
+        )}
       </div>
       <Toaster />
       <SaveProjectDialog
