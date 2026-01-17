@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.10] - 2026-01-17
+
+### Fixes
+
+- **キャンバス未作成時にレイヤーパネルを非表示に**
+  - 何も開いていない状態でレイヤー1が表示される問題を修正
+
+### Dependencies
+
+- `@stroke-stabilizer/core` を ^0.2.10 に更新
+- `@stroke-stabilizer/react` を ^0.2.10 に更新
+
 ## [0.3.9] - 2026-01-16
 
 ### Refactor
