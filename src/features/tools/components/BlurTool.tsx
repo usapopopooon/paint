@@ -53,9 +53,7 @@ export const BlurTool = memo(function BlurTool({
             <Blend className="size-3.5" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="right">
-          {t('tools.blur')} (U)
-        </TooltipContent>
+        <TooltipContent side="right">{t('tools.blur')} (U)</TooltipContent>
       </Tooltip>
       <div className="flex-1 flex items-center gap-1.5">
         <Slider
