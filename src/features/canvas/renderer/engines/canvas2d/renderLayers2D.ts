@@ -1,6 +1,6 @@
 import type { Layer } from '@/features/layer'
 import { blendModeToCompositeOp, BACKGROUND_COLOR, BACKGROUND_LAYER_ID } from '@/features/layer'
-import { isEraserStroke } from '@/features/drawable'
+import { isEraserStroke, isBlurStroke } from '@/features/drawable'
 import { renderDrawable2D } from './renderDrawable2D'
 
 /** チェッカーボードのタイルサイズ */
@@ -107,11 +107,15 @@ export const renderLayers2D = async (
     if (layer.id === BACKGROUND_LAYER_ID) continue // 背景は上で処理済み
     if (layer.drawables.length === 0) continue
 
-    // 消しゴムを含むかチェック（消しゴムは中間キャンバスが必要）
+    // 消しゴム・ぼかしを含むかチェック（中間キャンバスが必要）
+    // - 消しゴム: destination-out で正しく動作するため
+    // - ぼかし: getImageData で下のレイヤーを取得しないため
     const hasEraser = layer.drawables.some(isEraserStroke)
+    const hasBlur = layer.drawables.some(isBlurStroke)
 
-    // normalブレンドモードかつ不透明度100%かつ消しゴムを含まない場合は直接描画（中間キャンバス不要）
-    const canRenderDirectly = layer.blendMode === 'normal' && layer.opacity === 1 && !hasEraser
+    // normalブレンドモードかつ不透明度100%かつ消しゴム・ぼかしを含まない場合は直接描画（中間キャンバス不要）
+    const canRenderDirectly =
+      layer.blendMode === 'normal' && layer.opacity === 1 && !hasEraser && !hasBlur
 
     if (canRenderDirectly) {
       // 直接描画（パフォーマンス最適化）

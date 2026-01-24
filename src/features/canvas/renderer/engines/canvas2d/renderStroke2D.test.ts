@@ -345,4 +345,33 @@ describe('renderStroke2D', () => {
     expect(ctx.getImageData).not.toHaveBeenCalled()
     expect(ctx.putImageData).not.toHaveBeenCalled()
   })
+
+  test('blurモードでhardness>0の場合はgetImageDataを呼び出す', () => {
+    const stroke: StrokeDrawable = {
+      id: 'blur-with-hardness',
+      type: 'stroke',
+      createdAt: Date.now(),
+      points: [
+        { x: 10, y: 10 },
+        { x: 50, y: 50 },
+      ],
+      style: {
+        color: 'transparent',
+        brushTip: {
+          type: 'solid',
+          size: 20,
+          hardness: 0.5, // hardness>0でblurStrengthが計算される
+          opacity: 1,
+        },
+        blendMode: 'blur',
+      },
+    }
+
+    // jsdom環境ではImageDataが完全にサポートされていないため、
+    // getImageDataの呼び出しのみを確認
+    renderStroke2D(ctx as unknown as CanvasRenderingContext2D, stroke)
+
+    // getImageDataで元の画像を取得しようとする
+    expect(ctx.getImageData).toHaveBeenCalled()
+  })
 })

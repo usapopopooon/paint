@@ -55,6 +55,57 @@ const getStrokeBounds = (
 }
 
 /**
+ * 透明ピクセルを近傍の不透明ピクセルの色で埋める（エッジ拡張）
+ * これにより、CSSぼかしフィルターが透明ピクセルを黒として扱う問題を回避
+ */
+const extendEdges = (imageData: ImageData): void => {
+  const data = imageData.data
+  const width = imageData.width
+  const height = imageData.height
+
+  // 透明ピクセルを近傍の不透明ピクセルの色で埋める
+  // 複数回のパスで徐々に拡張
+  const passes = 3
+  for (let pass = 0; pass < passes; pass++) {
+    for (let py = 0; py < height; py++) {
+      for (let px = 0; px < width; px++) {
+        const i = (py * width + px) * 4
+        if (data[i + 3] > 0) continue // 既に不透明なピクセルはスキップ
+
+        // 近傍8方向から不透明ピクセルを探す
+        let r = 0,
+          g = 0,
+          b = 0,
+          count = 0
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            if (dx === 0 && dy === 0) continue
+            const nx = px + dx
+            const ny = py + dy
+            if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue
+            const ni = (ny * width + nx) * 4
+            if (data[ni + 3] > 0) {
+              r += data[ni]
+              g += data[ni + 1]
+              b += data[ni + 2]
+              count++
+            }
+          }
+        }
+
+        if (count > 0) {
+          // 近傍の平均色を設定（アルファは1に設定して一時的に不透明に）
+          data[i] = r / count
+          data[i + 1] = g / count
+          data[i + 2] = b / count
+          data[i + 3] = 1 // 最小限のアルファ（ぼかし計算用）
+        }
+      }
+    }
+  }
+}
+
+/**
  * ぼかしツールのレンダリング
  * ストローク領域の既存ピクセルにぼかし効果を適用
  * ImageDataを直接操作してマスクのアルファ値に基づいてピクセル単位でブレンド
@@ -89,15 +140,24 @@ const renderBlurStroke = (ctx: CanvasRenderingContext2D, stroke: StrokeDrawable)
   // 元の領域のImageDataを取得
   const originalImageData = ctx.getImageData(x, y, safeWidth, safeHeight)
 
-  // ぼかした画像を作成
+  // ぼかし用のImageDataを作成（エッジ拡張済み）
   const blurCanvas = document.createElement('canvas')
   blurCanvas.width = safeWidth
   blurCanvas.height = safeHeight
   const blurCtx = blurCanvas.getContext('2d')
   if (!blurCtx) return
 
-  // 元の領域をコピーしてぼかしを適用
-  blurCtx.putImageData(originalImageData, 0, 0)
+  // エッジ拡張用にImageDataをコピー
+  const extendedImageData = new ImageData(
+    new Uint8ClampedArray(originalImageData.data),
+    safeWidth,
+    safeHeight
+  )
+  // 透明ピクセルを近傍の色で埋める（黒い縁取りを防ぐ）
+  extendEdges(extendedImageData)
+
+  // エッジ拡張済み画像をぼかす
+  blurCtx.putImageData(extendedImageData, 0, 0)
   blurCtx.filter = `blur(${blurStrength}px)`
   blurCtx.globalCompositeOperation = 'copy'
   blurCtx.drawImage(blurCanvas, 0, 0)
@@ -114,9 +174,10 @@ const renderBlurStroke = (ctx: CanvasRenderingContext2D, stroke: StrokeDrawable)
   const maskCtx = maskCanvas.getContext('2d')
   if (!maskCtx) return
 
+  // マスクは完全不透明で描画（後でopacityを適用）
   maskCtx.translate(-x, -y)
   maskCtx.lineWidth = brushSize
-  maskCtx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
+  maskCtx.strokeStyle = 'white'
   maskCtx.lineCap = 'round'
   maskCtx.lineJoin = 'round'
   drawStrokePath(maskCtx, stroke)
@@ -124,12 +185,20 @@ const renderBlurStroke = (ctx: CanvasRenderingContext2D, stroke: StrokeDrawable)
 
   // マスクのImageDataを取得
   const maskImageData = maskCtx.getImageData(0, 0, safeWidth, safeHeight)
+  const maskData = maskImageData.data
+
+  // マスクをバイナリ化（アンチエイリアスを除去して均一なぼかしを実現）
+  // 閾値以上のピクセルはopacityを適用、それ以下は透明に
+  const threshold = 127
+  const opacityValue = opacity * 255
+  for (let i = 0; i < maskData.length; i += 4) {
+    maskData[i + 3] = maskData[i + 3] > threshold ? opacityValue : 0
+  }
 
   // ピクセル単位でブレンド
   // マスクのアルファ値に基づいて元画像とぼかし画像を線形補間
   const originalData = originalImageData.data
   const blurredData = blurredImageData.data
-  const maskData = maskImageData.data
 
   for (let i = 0; i < originalData.length; i += 4) {
     // マスクのアルファ値を0-1の範囲に正規化

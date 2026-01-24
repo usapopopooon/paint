@@ -1,7 +1,12 @@
-import { memo } from 'react'
-import { Droplets } from 'lucide-react'
+import { memo, useCallback } from 'react'
+import { Blend } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { useTranslation } from '@/features/i18n'
+import { valueToSlider, sliderToValue } from '@/lib/slider'
 import { MIN_BLUR_WIDTH, MAX_BLUR_WIDTH } from '../constants'
-import { DrawingToolButton } from './DrawingToolButton'
+import { StrengthPopover } from './StrengthPopover'
 
 type BlurToolProps = {
   readonly isActive: boolean
@@ -12,15 +17,56 @@ type BlurToolProps = {
   readonly onOpacityChange: (opacity: number) => void
 }
 
-export const BlurTool = memo(function BlurTool(props: BlurToolProps) {
+export const BlurTool = memo(function BlurTool({
+  isActive,
+  width,
+  opacity,
+  onSelect,
+  onWidthChange,
+  onOpacityChange,
+}: BlurToolProps) {
+  const { t } = useTranslation()
+
+  const handleWidthSliderChange = useCallback(
+    (values: number[]) => {
+      onSelect()
+      const sliderValue = values[0]
+      if (sliderValue !== undefined) {
+        const newWidth = sliderToValue(sliderValue, MIN_BLUR_WIDTH, MAX_BLUR_WIDTH)
+        onWidthChange(newWidth)
+      }
+    },
+    [onSelect, onWidthChange]
+  )
+
   return (
-    <DrawingToolButton
-      {...props}
-      icon={Droplets}
-      translationKey="tools.blur"
-      keyboardShortcut="U"
-      minWidth={MIN_BLUR_WIDTH}
-      maxWidth={MAX_BLUR_WIDTH}
-    />
+    <div className="flex items-center gap-1.5">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant={isActive ? 'default' : 'secondary'}
+            size="icon"
+            className="size-6"
+            onClick={onSelect}
+            aria-label={t('tools.blur')}
+          >
+            <Blend className="size-3.5" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right">{t('tools.blur')} (U)</TooltipContent>
+      </Tooltip>
+      <div className="flex-1 flex items-center gap-1.5">
+        <Slider
+          value={[valueToSlider(width, MIN_BLUR_WIDTH, MAX_BLUR_WIDTH)]}
+          onValueChange={handleWidthSliderChange}
+          onPointerDown={onSelect}
+          min={0}
+          max={100}
+          step={0.1}
+        />
+        <span className="text-sm font-mono text-foreground w-8 text-right">{width}</span>
+      </div>
+      <StrengthPopover strength={opacity} onStrengthChange={onOpacityChange} onOpen={onSelect} />
+    </div>
   )
 })
