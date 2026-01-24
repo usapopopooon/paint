@@ -9,6 +9,7 @@
     "selectRectangle": "Rectangle Select",
     "selectLasso": "Lasso Select",
     "opacity": "Opacity",
+    "strength": "Strength",
     "hardness": "Edge blur",
     "enableBlur": "Enable edge blur",
     "disableBlur": "Disable edge blur"
